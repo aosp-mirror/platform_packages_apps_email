@@ -480,27 +480,29 @@ public class Utility {
         return createUniqueFileInternal(NewFileCreator.DEFAULT, directory, filename);
     }
 
-    /* package */ static File createUniqueFileInternal(NewFileCreator nfc,
-            File directory, String filename) throws IOException {
-        File file = new File(directory, filename);
+    /* package */ static File createUniqueFileInternal(final NewFileCreator nfc,
+            final File directory, final String filename) throws IOException {
+        final File file = new File(directory, filename);
         if (nfc.createNewFile(file)) {
             return file;
         }
         // Get the extension of the file, if any.
-        int index = filename.lastIndexOf('.');
-        String format;
+        final int index = filename.lastIndexOf('.');
+        final String name;
+        final String extension;
         if (index != -1) {
-            String name = filename.substring(0, index);
-            String extension = filename.substring(index);
-            format = name + "-%d" + extension;
+            name = filename.substring(0, index);
+            extension = filename.substring(index);
         } else {
-            format = filename + "-%d";
+            name = filename;
+            extension = "";
         }
 
         for (int i = 2; i < Integer.MAX_VALUE; i++) {
-            file = new File(directory, String.format(format, i));
-            if (nfc.createNewFile(file)) {
-                return file;
+            final File numberedFile =
+                    new File(directory, name + "-" + Integer.toString(i) + extension);
+            if (nfc.createNewFile(numberedFile)) {
+                return numberedFile;
             }
         }
         return null;
