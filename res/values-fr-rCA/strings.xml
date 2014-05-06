@@ -111,7 +111,7 @@
     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Ce champ est obligatoire."</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Configuration du compte"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Type de compte"</string>
-    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"De quel type de compte s\'agit-il ?"</string>
+    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"De quel type de compte s\'agit-il?"</string>
     <string name="account_setup_incoming_title" msgid="6796626791039136005">"Configuration du compte"</string>
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Paramètres du serveur entrant"</string>
     <string name="account_setup_incoming_username_label" msgid="406939983633223354">"NOM D\'UTILISATEUR"</string>
