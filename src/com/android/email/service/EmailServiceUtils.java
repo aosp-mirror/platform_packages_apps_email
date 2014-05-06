@@ -47,7 +47,6 @@ import android.provider.SyncStateContract;
 import android.text.TextUtils;
 
 import com.android.email.R;
-import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
@@ -226,7 +225,7 @@ public class EmailServiceUtils {
             info = getServiceInfo(context, protocol);
         }
         if (info == null) {
-            LogUtils.w(Logging.LOG_TAG, "Returning NullService for " + protocol);
+            LogUtils.w(LogUtils.TAG, "Returning NullService for %s", protocol);
             return new EmailServiceProxy(context, NullService.class);
         } else  {
             return getServiceFromInfo(context, info);
@@ -261,11 +260,11 @@ public class EmailServiceUtils {
             // here, as there is nothing to actually do about them.
             future.getResult();
         } catch (OperationCanceledException e) {
-            LogUtils.w(Logging.LOG_TAG, e.toString());
+            LogUtils.w(LogUtils.TAG, e, "finishAccountManagerBlocker");
         } catch (AuthenticatorException e) {
-            LogUtils.w(Logging.LOG_TAG, e.toString());
+            LogUtils.w(LogUtils.TAG, e, "finishAccountManagerBlocker");
         } catch (IOException e) {
-            LogUtils.w(Logging.LOG_TAG, e.toString());
+            LogUtils.w(LogUtils.TAG, e, "finishAccountManagerBlocker");
         }
     }
 
@@ -323,8 +322,7 @@ public class EmailServiceUtils {
                     return;
                 }
 
-                LogUtils.w(Logging.LOG_TAG, "Converting " + amAccount.name + " to "
-                        + newProtocol);
+                LogUtils.w(LogUtils.TAG, "Converting %s to %s", amAccount.name, newProtocol);
 
                 final ContentValues accountValues = new ContentValues();
                 int oldFlags = account.mFlags;
@@ -341,7 +339,7 @@ public class EmailServiceUtils {
                 hostValues.put(HostAuthColumns.PROTOCOL, newProtocol);
                 resolver.update(ContentUris.withAppendedId(HostAuth.CONTENT_URI, hostAuth.mId),
                         hostValues, null, null);
-                LogUtils.w(Logging.LOG_TAG, "Updated HostAuths");
+                LogUtils.w(LogUtils.TAG, "Updated HostAuths");
 
                 try {
                     // Get current settings for the existing AccountManager account
@@ -356,8 +354,8 @@ public class EmailServiceUtils {
                             ContactsContract.AUTHORITY);
                     final boolean calendar = ContentResolver.getSyncAutomatically(amAccount,
                             CalendarContract.AUTHORITY);
-                    LogUtils.w(Logging.LOG_TAG, "Email: " + email + ", Contacts: " + contacts + ","
-                            + " Calendar: " + calendar);
+                    LogUtils.w(LogUtils.TAG, "Email: %s, Contacts: %s Calendar: %s",
+                            email, contacts, calendar);
 
                     // Get sync keys for calendar/contacts
                     final String amName = amAccount.name;
@@ -370,7 +368,7 @@ public class EmailServiceUtils {
                                 asCalendarSyncAdapter(SyncState.CONTENT_URI, amName, oldType),
                                 new android.accounts.Account(amName, oldType));
                     } catch (RemoteException e) {
-                        LogUtils.w(Logging.LOG_TAG, "Get calendar key FAILED");
+                        LogUtils.w(LogUtils.TAG, "Get calendar key FAILED");
                     } finally {
                         client.release();
                     }
@@ -382,24 +380,24 @@ public class EmailServiceUtils {
                                 ContactsContract.SyncState.CONTENT_URI,
                                 new android.accounts.Account(amName, oldType));
                     } catch (RemoteException e) {
-                        LogUtils.w(Logging.LOG_TAG, "Get contacts key FAILED");
+                        LogUtils.w(LogUtils.TAG, "Get contacts key FAILED");
                     } finally {
                         client.release();
                     }
                     if (calendarSyncKey != null) {
-                        LogUtils.w(Logging.LOG_TAG, "Got calendar key: "
-                                + new String(calendarSyncKey));
+                        LogUtils.w(LogUtils.TAG, "Got calendar key: %s",
+                                new String(calendarSyncKey));
                     }
                     if (contactsSyncKey != null) {
-                        LogUtils.w(Logging.LOG_TAG, "Got contacts key: "
-                                + new String(contactsSyncKey));
+                        LogUtils.w(LogUtils.TAG, "Got contacts key: %s",
+                                new String(contactsSyncKey));
                     }
 
                     // Set up a new AccountManager account with new type and old settings
                     AccountManagerFuture<?> amFuture = setupAccountManagerAccount(context, account,
                             email, calendar, contacts, null);
                     finishAccountManagerBlocker(amFuture);
-                    LogUtils.w(Logging.LOG_TAG, "Created new AccountManager account");
+                    LogUtils.w(LogUtils.TAG, "Created new AccountManager account");
 
                     // TODO: Clean up how we determine the type.
                     final String accountType = protocolMap.get(hostAuth.mProtocol + "_type");
@@ -412,7 +410,7 @@ public class EmailServiceUtils {
                     amFuture = AccountManager.get(context)
                             .removeAccount(amAccount, null, null);
                     finishAccountManagerBlocker(amFuture);
-                    LogUtils.w(Logging.LOG_TAG, "Deleted old AccountManager account");
+                    LogUtils.w(LogUtils.TAG, "Deleted old AccountManager account");
 
                     // Restore sync keys for contacts/calendar
 
@@ -426,9 +424,9 @@ public class EmailServiceUtils {
                                             accountType),
                                     new android.accounts.Account(amName, accountType),
                                     calendarSyncKey);
-                            LogUtils.w(Logging.LOG_TAG, "Set calendar key...");
+                            LogUtils.w(LogUtils.TAG, "Set calendar key...");
                         } catch (RemoteException e) {
-                            LogUtils.w(Logging.LOG_TAG, "Set calendar key FAILED");
+                            LogUtils.w(LogUtils.TAG, "Set calendar key FAILED");
                         } finally {
                             client.release();
                         }
@@ -442,19 +440,19 @@ public class EmailServiceUtils {
                                     ContactsContract.SyncState.CONTENT_URI,
                                     new android.accounts.Account(amName, accountType),
                                     contactsSyncKey);
-                            LogUtils.w(Logging.LOG_TAG, "Set contacts key...");
+                            LogUtils.w(LogUtils.TAG, "Set contacts key...");
                         } catch (RemoteException e) {
-                            LogUtils.w(Logging.LOG_TAG, "Set contacts key FAILED");
+                            LogUtils.w(LogUtils.TAG, "Set contacts key FAILED");
                         }
                     }
 
                     // That's all folks!
-                    LogUtils.w(Logging.LOG_TAG, "Account update completed.");
+                    LogUtils.w(LogUtils.TAG, "Account update completed.");
                 } finally {
                     // Clear the incomplete flag on the provider account
                     accountValues.put(AccountColumns.FLAGS, oldFlags);
                     resolver.update(accountUri, accountValues, null, null);
-                    LogUtils.w(Logging.LOG_TAG, "[Incomplete flag cleared]");
+                    LogUtils.w(LogUtils.TAG, "[Incomplete flag cleared]");
                 }
             }
         } finally {
