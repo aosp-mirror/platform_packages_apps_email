@@ -16,15 +16,23 @@
 
 package com.android.emailcommon.utility;
 
+import android.test.AndroidTestCase;
+import android.test.IsolatedContext;
+import android.test.mock.MockContentResolver;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.text.TextUtils;
+
+import com.android.emailcommon.utility.Utility.NewFileCreator;
+
+import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
-import junit.framework.TestCase;
 
 @SmallTest
-public class UtilityTest extends TestCase {
+public class UtilityTest extends AndroidTestCase {
     private void testParseDateTimesHelper(String date, int year, int month,
             int day, int hour, int minute, int second) throws Exception {
         GregorianCalendar cal = Utility.parseDateTimeToCalendar(date);
@@ -71,5 +79,128 @@ public class UtilityTest extends TestCase {
         } catch (ParseException e) {
             // expected
         }
+    }
+
+    private static NewFileCreator getCountdownFileCreator() {
+        return new NewFileCreator() {
+            private int mCountdown = 5;
+            @Override
+            public boolean createNewFile(File f) throws IOException {
+                return mCountdown-- <= 0;
+            }
+        };
+    }
+
+    private static NewFileCreator getTrueFileCreator() {
+        return new NewFileCreator() {
+            @Override
+            public boolean createNewFile(File f) throws IOException {
+                return true;
+            }
+        };
+    }
+
+    @SmallTest
+    public void testCreateUniqueFileCompare() throws Exception {
+        final File directory =
+                new IsolatedContext(new MockContentResolver(), getContext()).getFilesDir();
+
+        final File created1 =
+                Utility.createUniqueFileInternal(getCountdownFileCreator(), directory, "file");
+        assertNotNull(created1);
+        assertFalse(TextUtils.equals(created1.getName(), "file"));
+
+        final File created2 =
+                Utility.createUniqueFileInternal(getTrueFileCreator(), directory, "file");
+        assertNotNull(created2);
+        assertTrue(TextUtils.equals(created2.getName(), "file"));
+
+        final File created3 =
+                Utility.createUniqueFileInternal(getCountdownFileCreator(), directory, "file.ext");
+        assertNotNull(created3);
+        assertFalse(TextUtils.equals(created3.getName(), "file.ext"));
+
+        final File created4 =
+                Utility.createUniqueFileInternal(getTrueFileCreator(), directory, "file.ext");
+        assertNotNull(created4);
+        assertTrue(TextUtils.equals(created4.getName(), "file.ext"));
+    }
+
+    @SmallTest
+    public void testCreateUniqueFileWithPercent() throws Exception {
+        final File directory =
+                new IsolatedContext(new MockContentResolver(), getContext()).getFilesDir();
+
+        final File created1 =
+                Utility.createUniqueFileInternal(getTrueFileCreator(), directory, "file%s");
+        assertNotNull(created1);
+
+        final File created2 =
+                Utility.createUniqueFileInternal(getTrueFileCreator(), directory, "file%s.ext");
+        assertNotNull(created2);
+    }
+
+    @SmallTest
+    public void testCreateUniqueFile() throws Exception {
+        final File directory =
+                new IsolatedContext(new MockContentResolver(), getContext()).getFilesDir();
+
+        final File created1 =
+                Utility.createUniqueFileInternal(getTrueFileCreator(), directory, "file");
+        assertNotNull(created1);
+
+        final File created2 =
+                Utility.createUniqueFileInternal(getCountdownFileCreator(), directory, "file");
+        assertNotNull(created2);
+
+        final File created3 =
+                Utility.createUniqueFileInternal(getTrueFileCreator(), directory, "file.ext");
+        assertNotNull(created3);
+
+        final File created4 =
+                Utility.createUniqueFileInternal(getCountdownFileCreator(), directory, "file.ext");
+        assertNotNull(created4);
+
+        final File created5 =
+                Utility.createUniqueFileInternal(getTrueFileCreator(), directory, ".ext");
+        assertNotNull(created5);
+
+        final File created6 =
+                Utility.createUniqueFileInternal(getCountdownFileCreator(), directory, ".ext");
+        assertNotNull(created6);
+
+        final File created7 =
+                Utility.createUniqueFileInternal(getTrueFileCreator(), directory, ".");
+        assertNotNull(created7);
+
+        final File created8 =
+                Utility.createUniqueFileInternal(getCountdownFileCreator(), directory, ".");
+        assertNotNull(created8);
+    }
+
+    @SmallTest
+    public void testCreateUniqueFileExtensions() throws Exception {
+        final File directory =
+                new IsolatedContext(new MockContentResolver(), getContext()).getFilesDir();
+
+        final File created1 =
+                Utility.createUniqueFileInternal(getTrueFileCreator(), directory, "file");
+        assertNotNull(created1);
+        assertEquals(created1.getName().indexOf('.'), -1);
+
+        final File created2 =
+                Utility.createUniqueFileInternal(getCountdownFileCreator(), directory, "file");
+        assertNotNull(created2);
+        assertEquals(created2.getName().indexOf('.'), -1);
+
+        final File created3 =
+                Utility.createUniqueFileInternal(getTrueFileCreator(), directory, "file.ext");
+        assertNotNull(created3);
+        assertEquals(created3.getName().length() - created3.getName().lastIndexOf('.'), 4);
+
+        final File created4 =
+                Utility.createUniqueFileInternal(getCountdownFileCreator(), directory, "file.ext");
+        assertNotNull(created4);
+        assertEquals(created4.getName().length() - created4.getName().lastIndexOf('.'), 4);
     }
 }
