@@ -34,6 +34,13 @@ import com.android.emailcommon.provider.EmailContent.BodyColumns;
 import com.android.mail.utils.LogUtils;
 
 import java.io.IOException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class wraps a cursor for the purpose of bypassing the CursorWindow object for the
@@ -60,6 +67,29 @@ import java.io.IOException;
  * _id column is actually Body._id so we need to proceed accordingly.
  */
 public class EmailMessageCursor extends CursorWrapper {
+
+    private static final BlockingQueue<Runnable> sPoolWorkQueue =
+            new LinkedBlockingQueue<Runnable>(128);
+
+    private static final ThreadFactory sThreadFactory = new ThreadFactory() {
+        private final AtomicInteger mCount = new AtomicInteger(1);
+
+        public Thread newThread(Runnable r) {
+            return new Thread(r, "EmailMessageCursor #" + mCount.getAndIncrement());
+        }
+    };
+
+    /**
+     * An {@link Executor} that executes tasks which feed text and html email bodies into streams.
+     *
+     * It is important that this Executor is private to this class since we don't want to risk
+     * sharing a common Executor with Threads that *read* from the stream. If that were to happen
+     * it is possible for all Threads in the Executor to be blocked reads and thus starvation
+     * occurs.
+     */
+    private static final Executor THREAD_POOL_EXECUTOR
+            = new ThreadPoolExecutor(1, 5, 1, TimeUnit.SECONDS, sPoolWorkQueue, sThreadFactory);
+
     private final SparseArray<String> mTextParts;
     private final SparseArray<String> mHtmlParts;
     private final int mTextColumnIndex;
@@ -169,7 +199,7 @@ public class EmailMessageCursor extends CursorWrapper {
                     }
                     return null;
                 }
-            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }.executeOnExecutor(THREAD_POOL_EXECUTOR);
             return readDescriptor;
         } catch (final IOException e) {
             LogUtils.e(LogUtils.TAG, e, "IOException while creating body pipe");
