@@ -71,7 +71,7 @@ public class Utilities {
             if (c == null) {
                 return;
             } else if (c.moveToNext()) {
-                localMessage = EmailContent.getContent(c, EmailContent.Message.class);
+                localMessage = EmailContent.getContent(context, c, EmailContent.Message.class);
             } else {
                 localMessage = new EmailContent.Message();
             }

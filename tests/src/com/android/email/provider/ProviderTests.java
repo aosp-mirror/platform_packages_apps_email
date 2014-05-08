@@ -420,7 +420,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
                     new String[] {String.valueOf(messageId)}, null);
             int numBodies = c.getCount();
             assertTrue("at most one body", numBodies < 2);
-            return c.moveToFirst() ? EmailContent.getContent(c, Body.class) : null;
+            return c.moveToFirst() ? EmailContent.getContent(mMockContext, c, Body.class) : null;
         } finally {
             c.close();
         }
@@ -515,7 +515,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
             assertEquals(3, numAtts);
             int i = 0;
             while (c.moveToNext()) {
-                Attachment actual = EmailContent.getContent(c, Attachment.class);
+                Attachment actual = EmailContent.getContent(mMockContext, c, Attachment.class);
                 ProviderTestUtils.assertAttachmentEqual("save-message3", atts.get(i), actual);
                 i++;
             }
@@ -567,7 +567,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
             assertEquals(3, numAtts);
             int i = 0;
             while (c.moveToNext()) {
-                Attachment actual = EmailContent.getContent(c, Attachment.class);
+                Attachment actual = EmailContent.getContent(mMockContext, c, Attachment.class);
                 ProviderTestUtils.assertAttachmentEqual("save-message4", atts.get(i), actual);
                 i++;
             }
@@ -1292,7 +1292,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
                 cr.query(Message.UPDATED_CONTENT_URI, Message.CONTENT_PROJECTION, null, null, null);
         try {
             assertTrue(c.moveToFirst());
-            Message originalMessage = EmailContent.getContent(c, Message.class);
+            Message originalMessage = EmailContent.getContent(mMockContext, c, Message.class);
             // make sure this has the original value
             assertEquals("from message2", originalMessage.mFrom);
             // Should only be one
@@ -1600,10 +1600,10 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
         try {
             c.moveToFirst();
-            Attachment a1Get = EmailContent.getContent(c, Attachment.class);
+            Attachment a1Get = EmailContent.getContent(mMockContext, c, Attachment.class);
             ProviderTestUtils.assertAttachmentEqual("getAttachByUri-1", a1, a1Get);
             c.moveToNext();
-            Attachment a2Get = EmailContent.getContent(c, Attachment.class);
+            Attachment a2Get = EmailContent.getContent(mMockContext, c, Attachment.class);
             ProviderTestUtils.assertAttachmentEqual("getAttachByUri-2", a2, a2Get);
         } finally {
             c.close();
@@ -1638,10 +1638,10 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
         try {
             c.moveToFirst();
-            Attachment a3Get = EmailContent.getContent(c, Attachment.class);
+            Attachment a3Get = EmailContent.getContent(mMockContext, c, Attachment.class);
             ProviderTestUtils.assertAttachmentEqual("getAttachByUri-3", a3, a3Get);
             c.moveToNext();
-            Attachment a4Get = EmailContent.getContent(c, Attachment.class);
+            Attachment a4Get = EmailContent.getContent(mMockContext, c, Attachment.class);
             ProviderTestUtils.assertAttachmentEqual("getAttachByUri-4", a4, a4Get);
         } finally {
             c.close();

@@ -21,26 +21,12 @@ import android.database.CursorWrapper;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteStatement;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
-import android.os.ParcelFileDescriptor.AutoCloseOutputStream;
 import android.provider.BaseColumns;
-import android.text.TextUtils;
 import android.util.SparseArray;
 
 import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.BodyColumns;
 import com.android.mail.utils.LogUtils;
-
-import java.io.IOException;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class wraps a cursor for the purpose of bypassing the CursorWindow object for the
@@ -58,74 +44,34 @@ import java.util.concurrent.atomic.AtomicInteger;
  * If we want to address that issue fully, we need to return the body through a
  * ParcelFileDescriptor or some other mechanism that doesn't involve passing the data through a
  * CursorWindow.
- *
- * The fromUiQuery param indicates that this EmailMessageCursor object was created from uiQuery().
- * This is significant because we know that the body content fields will be retrieved within
- * the same process as the provider so we can proceed w/o having to worry about any cross
- * process marshalling issues.  Secondly, if the request is made from a uiQuery, the _id column
- * of the cursor will be a Message._id. If this call is made outside if the uiQuery(), than the
- * _id column is actually Body._id so we need to proceed accordingly.
  */
 public class EmailMessageCursor extends CursorWrapper {
-
-    private static final BlockingQueue<Runnable> sPoolWorkQueue =
-            new LinkedBlockingQueue<Runnable>(128);
-
-    private static final ThreadFactory sThreadFactory = new ThreadFactory() {
-        private final AtomicInteger mCount = new AtomicInteger(1);
-
-        public Thread newThread(Runnable r) {
-            return new Thread(r, "EmailMessageCursor #" + mCount.getAndIncrement());
-        }
-    };
-
-    /**
-     * An {@link Executor} that executes tasks which feed text and html email bodies into streams.
-     *
-     * It is important that this Executor is private to this class since we don't want to risk
-     * sharing a common Executor with Threads that *read* from the stream. If that were to happen
-     * it is possible for all Threads in the Executor to be blocked reads and thus starvation
-     * occurs.
-     */
-    private static final Executor THREAD_POOL_EXECUTOR
-            = new ThreadPoolExecutor(1, 5, 1, TimeUnit.SECONDS, sPoolWorkQueue, sThreadFactory);
 
     private final SparseArray<String> mTextParts;
     private final SparseArray<String> mHtmlParts;
     private final int mTextColumnIndex;
     private final int mHtmlColumnIndex;
-    private final boolean mFromUiQuery;
 
     public EmailMessageCursor(final Cursor cursor, final SQLiteDatabase db, final String htmlColumn,
-            final String textColumn, final boolean fromUiQuery) {
+            final String textColumn) {
         super(cursor);
-        mFromUiQuery = fromUiQuery;
         mHtmlColumnIndex = cursor.getColumnIndex(htmlColumn);
         mTextColumnIndex = cursor.getColumnIndex(textColumn);
         final int cursorSize = cursor.getCount();
         mHtmlParts = new SparseArray<String>(cursorSize);
         mTextParts = new SparseArray<String>(cursorSize);
 
-        final String rowIdColumn;
-        if (fromUiQuery) {
-            // In the UI query, the _id column is the id in the message table so it is
-            // messageKey in the Body table.
-            rowIdColumn = BodyColumns.MESSAGE_KEY;
-        } else {
-            // In the non-UI query, the _id column is the id in the Body table.
-            rowIdColumn = BaseColumns._ID;
-        }
-
+        // TODO: Load this from the provider instead of duplicating the loading code here
         final SQLiteStatement htmlSql = db.compileStatement(
                 "SELECT " + BodyColumns.HTML_CONTENT +
                         " FROM " + Body.TABLE_NAME +
-                        " WHERE " + rowIdColumn + "=?"
+                        " WHERE " + BodyColumns.MESSAGE_KEY + "=?"
         );
 
         final SQLiteStatement textSql = db.compileStatement(
                 "SELECT " + BodyColumns.TEXT_CONTENT +
                         " FROM " + Body.TABLE_NAME +
-                        " WHERE " + rowIdColumn + "=?"
+                        " WHERE " + BodyColumns.MESSAGE_KEY + "=?"
         );
 
         while (cursor.moveToNext()) {
@@ -155,12 +101,10 @@ public class EmailMessageCursor extends CursorWrapper {
 
     @Override
     public String getString(final int columnIndex) {
-        if (mFromUiQuery) {
-            if (columnIndex == mHtmlColumnIndex) {
-                return mHtmlParts.get(getPosition());
-            } else if (columnIndex == mTextColumnIndex) {
-                return mTextParts.get(getPosition());
-            }
+        if (columnIndex == mHtmlColumnIndex) {
+            return mHtmlParts.get(getPosition());
+        } else if (columnIndex == mTextColumnIndex) {
+            return mTextParts.get(getPosition());
         }
         return super.getString(columnIndex);
     }
@@ -174,54 +118,5 @@ public class EmailMessageCursor extends CursorWrapper {
         } else {
             return super.getType(columnIndex);
         }
-    }
-
-    private static ParcelFileDescriptor createPipeAndFillAsync(final String contents) {
-        try {
-            final ParcelFileDescriptor descriptors[] = ParcelFileDescriptor.createPipe();
-            final ParcelFileDescriptor readDescriptor = descriptors[0];
-            final ParcelFileDescriptor writeDescriptor = descriptors[1];
-            new AsyncTask<Void, Void, Void>() {
-                @Override
-                protected Void doInBackground(Void... params) {
-                    final AutoCloseOutputStream outStream =
-                            new AutoCloseOutputStream(writeDescriptor);
-                    try {
-                        outStream.write(contents.getBytes("utf8"));
-                    } catch (final IOException e) {
-                        LogUtils.e(LogUtils.TAG, e, "IOException while writing to body pipe");
-                    } finally {
-                        try {
-                            outStream.close();
-                        } catch (final IOException e) {
-                            LogUtils.e(LogUtils.TAG, e, "IOException while closing body pipe");
-                        }
-                    }
-                    return null;
-                }
-            }.executeOnExecutor(THREAD_POOL_EXECUTOR);
-            return readDescriptor;
-        } catch (final IOException e) {
-            LogUtils.e(LogUtils.TAG, e, "IOException while creating body pipe");
-            return null;
-        }
-    }
-
-    @Override
-    public Bundle respond(Bundle extras) {
-        final int htmlRow = extras.getInt(Body.RESPOND_COMMAND_GET_HTML_PIPE, -1);
-        final int textRow = extras.getInt(Body.RESPOND_COMMAND_GET_TEXT_PIPE, -1);
-
-        final Bundle b = new Bundle(2);
-
-        if (htmlRow >= 0 && !TextUtils.isEmpty(mHtmlParts.get(htmlRow))) {
-            b.putParcelable(Body.RESPOND_RESULT_HTML_PIPE_KEY,
-                    createPipeAndFillAsync(mHtmlParts.get(htmlRow)));
-        }
-        if (textRow >= 0 && !TextUtils.isEmpty(mTextParts.get(textRow))) {
-            b.putParcelable(Body.RESPOND_RESULT_TEXT_PIPE_KEY,
-                    createPipeAndFillAsync(mTextParts.get(textRow)));
-        }
-        return b;
     }
 }

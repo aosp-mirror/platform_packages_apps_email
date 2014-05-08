@@ -28,12 +28,9 @@ import android.database.ContentObservable;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Environment;
 import android.os.Looper;
 import android.os.Parcel;
-import android.os.ParcelFileDescriptor;
-import android.os.ParcelFileDescriptor.AutoCloseInputStream;
 import android.os.Parcelable;
 import android.os.RemoteException;
 import android.provider.BaseColumns;
@@ -49,8 +46,8 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
@@ -134,7 +131,13 @@ public abstract class EmailContent {
     // Write the Content into a ContentValues container
     public abstract ContentValues toContentValues();
     // Read the Content from a ContentCursor
-    public abstract void restore (Cursor cursor);
+    public abstract void restore(Cursor cursor);
+    // Same as above, with the addition of a context to retrieve extra content.
+    // Body uses this to fetch the email body html/text from the provider bypassing the cursor
+    // Not always safe to call on the UI thread.
+    public void restore(Context context, Cursor cursor) {
+        restore(cursor);
+    }
 
 
     public static String EMAIL_PACKAGE_NAME;
@@ -239,7 +242,7 @@ public abstract class EmailContent {
         if (c == null) throw new ProviderUnavailableException();
         try {
             if (c.moveToFirst()) {
-                final T content = getContent(c, klass);
+                final T content = getContent(context, c, klass);
                 if (observer != null) {
                     content.registerObserver(context, observer);
                 }
@@ -351,11 +354,12 @@ public abstract class EmailContent {
 
 
     // The Content sub class must have a no-arg constructor
-    static public <T extends EmailContent> T getContent(Cursor cursor, Class<T> klass) {
+    static public <T extends EmailContent> T getContent(final Context context, final Cursor cursor,
+            final Class<T> klass) {
         try {
             T content = klass.newInstance();
             content.mId = cursor.getLong(0);
-            content.restore(cursor);
+            content.restore(context, cursor);
             return content;
         } catch (IllegalAccessException e) {
             e.printStackTrace();
@@ -433,10 +437,14 @@ public abstract class EmailContent {
     public interface BodyColumns extends BaseColumns {
         // Foreign key to the message corresponding to this body
         public static final String MESSAGE_KEY = "messageKey";
-        // The html content itself
+        // The html content itself, not returned on query
         public static final String HTML_CONTENT = "htmlContent";
-        // The plain text content itself
+        // The html content URI, for ContentResolver#openFileDescriptor()
+        public static final String HTML_CONTENT_URI = "htmlContentUri";
+        // The plain text content itself, not returned on query
         public static final String TEXT_CONTENT = "textContent";
+        // The text content URI, for ContentResolver#openFileDescriptor()
+        public static final String TEXT_CONTENT_URI = "textContentUri";
         // Replied-to or forwarded body (in html form)
         @Deprecated
         public static final String HTML_REPLY = "htmlReply";
@@ -465,39 +473,21 @@ public abstract class EmailContent {
             CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/body");
         }
 
-        /**
-         * Following values are for EmailMessageCursor
-         */
-        // Value is an int specifying the row to get
-        public static final String RESPOND_COMMAND_GET_HTML_PIPE = "EmailMessageCursor.getHtmlPipe";
-        public static final String RESPOND_COMMAND_GET_TEXT_PIPE = "EmailMessageCursor.getTextPipe";
-        // Value returned is a ParcelFileDescriptor pipe, or null if no content is present
-        public static final String RESPOND_RESULT_HTML_PIPE_KEY = "EmailMessageCursor.htmlPipe";
-        public static final String RESPOND_RESULT_TEXT_PIPE_KEY = "EmailMessageCursor.textPipe";
-
         public static final String[] CONTENT_PROJECTION = new String[] {
                 BaseColumns._ID,
                 BodyColumns.MESSAGE_KEY,
-                BodyColumns.HTML_CONTENT,
-                BodyColumns.TEXT_CONTENT,
+                BodyColumns.HTML_CONTENT_URI,
+                BodyColumns.TEXT_CONTENT_URI,
                 BodyColumns.SOURCE_MESSAGE_KEY,
                 BodyColumns.QUOTED_TEXT_START_POS
         };
 
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_MESSAGE_KEY_COLUMN = 1;
-        public static final int CONTENT_HTML_CONTENT_COLUMN = 2;
-        public static final int CONTENT_TEXT_CONTENT_COLUMN = 3;
+        public static final int CONTENT_HTML_URI_COLUMN = 2;
+        public static final int CONTENT_TEXT_URI_COLUMN = 3;
         public static final int CONTENT_SOURCE_KEY_COLUMN = 4;
         public static final int CONTENT_QUOTED_TEXT_START_POS_COLUMN = 5;
-
-        public static final String[] COMMON_PROJECTION_TEXT = new String[] {
-                BaseColumns._ID, BodyColumns.TEXT_CONTENT
-        };
-        public static final String[] COMMON_PROJECTION_HTML = new String[] {
-                BaseColumns._ID, BodyColumns.HTML_CONTENT
-        };
-        public static final int COMMON_PROJECTION_COLUMN_TEXT = 1;
 
         private static final String[] PROJECTION_SOURCE_KEY =
             new String[] {BaseColumns._ID, BodyColumns.SOURCE_MESSAGE_KEY};
@@ -533,10 +523,10 @@ public abstract class EmailContent {
          * @param cursor a cursor which must NOT be null
          * @return the Body as restored from the cursor
          */
-        private static Body restoreBodyWithCursor(Cursor cursor) {
+        private static Body restoreBodyWithCursor(final Context context, final Cursor cursor) {
             try {
                 if (cursor.moveToFirst()) {
-                    return getContent(cursor, Body.class);
+                    return getContent(context, cursor, Body.class);
                 } else {
                     return null;
                 }
@@ -545,20 +535,12 @@ public abstract class EmailContent {
             }
         }
 
-        public static Body restoreBodyWithId(Context context, long id) {
-            Uri u = ContentUris.withAppendedId(Body.CONTENT_URI, id);
-            Cursor c = context.getContentResolver().query(u, Body.CONTENT_PROJECTION,
-                    null, null, null);
-            if (c == null) throw new ProviderUnavailableException();
-            return restoreBodyWithCursor(c);
-        }
-
         public static Body restoreBodyWithMessageId(Context context, long messageId) {
             Cursor c = context.getContentResolver().query(Body.CONTENT_URI,
                     Body.CONTENT_PROJECTION, BodyColumns.MESSAGE_KEY + "=?",
                     new String[] {Long.toString(messageId)}, null);
             if (c == null) throw new ProviderUnavailableException();
-            return restoreBodyWithCursor(c);
+            return restoreBodyWithCursor(context, c);
         }
 
         /**
@@ -596,72 +578,48 @@ public abstract class EmailContent {
                     0, 0L);
         }
 
-        private static String restoreTextWithMessageId(Context context, long messageId,
-                String[] projection) {
-            Cursor c = context.getContentResolver().query(Body.CONTENT_URI, projection,
-                    BodyColumns.MESSAGE_KEY + "=?", new String[] {Long.toString(messageId)}, null);
-            if (c == null) throw new ProviderUnavailableException();
-            try {
-                if (c.moveToFirst()) {
-                    return c.getString(COMMON_PROJECTION_COLUMN_TEXT);
-                } else {
-                    return null;
-                }
-            } finally {
-                c.close();
-            }
-        }
-
         public static String restoreBodyTextWithMessageId(Context context, long messageId) {
-            return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_TEXT);
+            return readBodyFromProvider(context, EmailContent.CONTENT_URI.buildUpon()
+                    .appendPath("bodyText").appendPath(Long.toString(messageId)).toString());
         }
 
         public static String restoreBodyHtmlWithMessageId(Context context, long messageId) {
-            return restoreTextWithMessageId(context, messageId, Body.COMMON_PROJECTION_HTML);
+            return readBodyFromProvider(context, EmailContent.CONTENT_URI.buildUpon()
+                    .appendPath("bodyHtml").appendPath(Long.toString(messageId)).toString());
         }
 
-        private static String readBodyFromPipe(ParcelFileDescriptor d) {
-            final AutoCloseInputStream htmlInput = new AutoCloseInputStream(d);
+        private static String readBodyFromProvider(final Context context, final String uri) {
             String content = null;
             try {
-                content = IOUtils.toString(htmlInput, "utf8");
-            } catch (final IOException e) {
-                LogUtils.e(LogUtils.TAG, e, "IOError while reading message body");
-                content = null;
-            } finally {
+
+                final InputStream bodyInput =
+                        context.getContentResolver().openInputStream(Uri.parse(uri));
                 try {
-                    htmlInput.close();
-                } catch (final IOException e) {
-                    LogUtils.e(LogUtils.TAG, e, "IOError while closing message body");
+                    content = IOUtils.toString(bodyInput);
+                } finally {
+                    bodyInput.close();
                 }
+            } catch (final IOException e) {
+                LogUtils.v(LogUtils.TAG, e, "Exception while reading body content");
             }
             return content;
         }
 
         @Override
-        public void restore(Cursor cursor) {
+        public void restore(final Cursor cursor) {
+            throw new UnsupportedOperationException("Must have context to restore Body object");
+        }
+
+        @Override
+        public void restore(final Context context, final Cursor cursor) {
+            warnIfUiThread();
             mBaseUri = EmailContent.Body.CONTENT_URI;
             mMessageKey = cursor.getLong(CONTENT_MESSAGE_KEY_COLUMN);
             // These get overwritten below if we find a file descriptor in the respond() call,
             // but we'll keep this here in case we want to construct a matrix cursor or something
             // to build a Body object from.
-            mHtmlContent = cursor.getString(CONTENT_HTML_CONTENT_COLUMN);
-            mTextContent = cursor.getString(CONTENT_TEXT_CONTENT_COLUMN);
-            final int rowId = cursor.getPosition();
-            final Bundle command = new Bundle(2);
-            command.putInt(RESPOND_COMMAND_GET_HTML_PIPE, rowId);
-            command.putInt(RESPOND_COMMAND_GET_TEXT_PIPE, rowId);
-            final Bundle response = cursor.respond(command);
-            final ParcelFileDescriptor htmlDescriptor =
-                    response.getParcelable(RESPOND_RESULT_HTML_PIPE_KEY);
-            if (htmlDescriptor != null) {
-                mHtmlContent = readBodyFromPipe(htmlDescriptor);
-            }
-            final ParcelFileDescriptor textDescriptor =
-                    response.getParcelable(RESPOND_RESULT_TEXT_PIPE_KEY);
-            if (textDescriptor != null) {
-                mTextContent = readBodyFromPipe(textDescriptor);
-            }
+            mHtmlContent = readBodyFromProvider(context, cursor.getString(CONTENT_HTML_URI_COLUMN));
+            mTextContent = readBodyFromProvider(context, cursor.getString(CONTENT_TEXT_URI_COLUMN));
             mSourceKey = cursor.getLong(CONTENT_SOURCE_KEY_COLUMN);
             mQuotedTextStartPos = cursor.getInt(CONTENT_QUOTED_TEXT_START_POS_COLUMN);
         }
@@ -1314,10 +1272,10 @@ public abstract class EmailContent {
         public void setFlags(boolean quotedReply, boolean quotedForward) {
             // Set message flags as well
             if (quotedReply || quotedForward) {
-                mFlags &= ~EmailContent.Message.FLAG_TYPE_MASK;
+                mFlags &= ~Message.FLAG_TYPE_MASK;
                 mFlags |= quotedReply
-                        ? EmailContent.Message.FLAG_TYPE_REPLY
-                        : EmailContent.Message.FLAG_TYPE_FORWARD;
+                        ? Message.FLAG_TYPE_REPLY
+                        : Message.FLAG_TYPE_FORWARD;
             }
         }
     }
@@ -1647,7 +1605,7 @@ public abstract class EmailContent {
         }
 
         public Attachment(Parcel in) {
-            mBaseUri = EmailContent.Attachment.CONTENT_URI;
+            mBaseUri = Attachment.CONTENT_URI;
             mId = in.readLong();
             mFileName = in.readString();
             mMimeType = in.readString();

@@ -824,7 +824,7 @@ public class ImapService extends Service {
             // loop through messages marked as deleted
             while (deletes.moveToNext()) {
                 EmailContent.Message oldMessage =
-                        EmailContent.getContent(deletes, EmailContent.Message.class);
+                        EmailContent.getContent(context, deletes, EmailContent.Message.class);
 
                 if (oldMessage != null) {
                     lastMessageId = oldMessage.mId;
@@ -961,7 +961,7 @@ public class ImapService extends Service {
                 boolean changeAnswered = false;
 
                 EmailContent.Message oldMessage =
-                        EmailContent.getContent(updates, EmailContent.Message.class);
+                        EmailContent.getContent(context, updates, EmailContent.Message.class);
                 lastMessageId = oldMessage.mId;
                 EmailContent.Message newMessage =
                         EmailContent.Message.restoreMessageWithId(context, oldMessage.mId);
