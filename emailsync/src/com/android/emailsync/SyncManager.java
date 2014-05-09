@@ -1869,11 +1869,11 @@ public abstract class SyncManager extends Service implements Runnable {
                     // Otherwise, we use the sync interval
                     long syncInterval = c.getInt(Mailbox.CONTENT_SYNC_INTERVAL_COLUMN);
                     if (syncInterval == Mailbox.CHECK_INTERVAL_PUSH) {
-                        Mailbox m = EmailContent.getContent(c, Mailbox.class);
+                        Mailbox m = EmailContent.getContent(this, c, Mailbox.class);
                         requestSync(m, SYNC_PUSH, null);
                     } else if (mailboxType == Mailbox.TYPE_OUTBOX) {
                         if (hasSendableMessages(c)) {
-                            Mailbox m = EmailContent.getContent(c, Mailbox.class);
+                            Mailbox m = EmailContent.getContent(this, c, Mailbox.class);
                             startServiceThread(getServiceForMailbox(this, m));
                         }
                     } else if (syncInterval > 0 && syncInterval <= ONE_DAY_MINUTES) {
@@ -1883,7 +1883,7 @@ public abstract class SyncManager extends Service implements Runnable {
                         long toNextSync = syncInterval*MINUTES - sinceLastSync;
                         String name = c.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN);
                         if (toNextSync <= 0) {
-                            Mailbox m = EmailContent.getContent(c, Mailbox.class);
+                            Mailbox m = EmailContent.getContent(this, c, Mailbox.class);
                             requestSync(m, SYNC_SCHEDULED, null);
                         } else if (toNextSync < nextWait) {
                             nextWait = toNextSync;

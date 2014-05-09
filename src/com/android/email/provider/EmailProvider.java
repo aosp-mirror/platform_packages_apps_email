@@ -40,7 +40,9 @@ import android.database.DatabaseUtils;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
@@ -51,6 +53,7 @@ import android.os.Handler.Callback;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.ParcelFileDescriptor;
+import android.os.ParcelFileDescriptor.AutoCloseOutputStream;
 import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
@@ -126,6 +129,7 @@ import com.google.common.collect.Sets;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -134,6 +138,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 /**
@@ -267,6 +278,8 @@ public class EmailProvider extends ContentProvider {
     private static final int BODY_BASE = 0xA000;
     private static final int BODY = BODY_BASE;
     private static final int BODY_ID = BODY_BASE + 1;
+    private static final int BODY_HTML = BODY_BASE + 2;
+    private static final int BODY_TEXT = BODY_BASE + 3;
 
     private static final int CREDENTIAL_BASE = 0xB000;
     private static final int CREDENTIAL = CREDENTIAL_BASE;
@@ -1067,6 +1080,10 @@ public class EmailProvider extends ContentProvider {
             sURIMatcher.addURI(EmailContent.AUTHORITY, "body", BODY);
             // A specific mail body
             sURIMatcher.addURI(EmailContent.AUTHORITY, "body/#", BODY_ID);
+            // A specific HTML body part, for openFile
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "bodyHtml/#", BODY_HTML);
+            // A specific text body part, for openFile
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "bodyText/#", BODY_TEXT);
 
             // All hostauth records
             sURIMatcher.addURI(EmailContent.AUTHORITY, "hostauth", HOSTAUTH);
@@ -1299,9 +1316,18 @@ public class EmailProvider extends ContentProvider {
                     final ProjectionMap map = new ProjectionMap.Builder()
                             .addAll(projection)
                             .build();
+                    if (map.containsKey(BodyColumns.HTML_CONTENT) ||
+                            map.containsKey(BodyColumns.TEXT_CONTENT)) {
+                        throw new IllegalArgumentException(
+                                "Body content cannot be returned in the cursor");
+                    }
+
                     final ContentValues cv = new ContentValues(2);
-                    cv.put(BodyColumns.HTML_CONTENT, ""); // Loaded in EmailMessageCursor
-                    cv.put(BodyColumns.TEXT_CONTENT, ""); // Loaded in EmailMessageCursor
+                    cv.put(BodyColumns.HTML_CONTENT_URI, "@" + uriWithColumn("bodyHtml",
+                            BodyColumns.MESSAGE_KEY));
+                    cv.put(BodyColumns.TEXT_CONTENT_URI, "@" + uriWithColumn("bodyText",
+                            BodyColumns.MESSAGE_KEY));
+
                     final StringBuilder sb = genSelect(map, projection, cv);
                     sb.append(" FROM ").append(Body.TABLE_NAME);
                     if (match == BODY_ID) {
@@ -1317,13 +1343,6 @@ public class EmailProvider extends ContentProvider {
                         sb.append(" LIMIT ").append(limit);
                     }
                     c = db.rawQuery(sb.toString(), selectionArgs);
-                    if (c != null) {
-                        // We don't want to deliver the body contents inline here because we might
-                        // be sending this cursor to the Exchange process, and we'll blow out the
-                        // CursorWindow if there's a large message body.
-                        c = new EmailMessageCursor(c, db, BodyColumns.HTML_CONTENT,
-                                BodyColumns.TEXT_CONTENT, false);
-                    }
                     break;
                 }
                 case MESSAGE_ID:
@@ -2076,8 +2095,34 @@ public class EmailProvider extends ContentProvider {
         return result;
     }
 
+    // TODO: remove this when we move message bodies to actual files
+    private static final BlockingQueue<Runnable> sPoolWorkQueue =
+            new LinkedBlockingQueue<Runnable>(128);
+
+    private static final ThreadFactory sThreadFactory = new ThreadFactory() {
+        private final AtomicInteger mCount = new AtomicInteger(1);
+
+        public Thread newThread(Runnable r) {
+            return new Thread(r, "EmailProviderOpenFile #" + mCount.getAndIncrement());
+        }
+    };
+
+    /**
+     * An {@link java.util.concurrent.Executor} that executes tasks which feed text and html email
+     * bodies into streams.
+     *
+     * It is important that this Executor is private to this class since we don't want to risk
+     * sharing a common Executor with Threads that *read* from the stream. If that were to happen
+     * it is possible for all Threads in the Executor to be blocked reads and thus starvation
+     * occurs.
+     */
+    private static final Executor OPEN_FILE_EXECUTOR = new ThreadPoolExecutor(1 /* corePoolSize */,
+            5 /* maxPoolSize */, 1 /* keepAliveTime */, TimeUnit.SECONDS,
+            sPoolWorkQueue, sThreadFactory);
+
     @Override
-    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
+    public ParcelFileDescriptor openFile(final Uri uri, final String mode)
+            throws FileNotFoundException {
         if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
             LogUtils.d(TAG, "EmailProvider.openFile: %s", LogUtils.contentUriToString(TAG, uri));
         }
@@ -2103,6 +2148,71 @@ public class EmailProvider extends ContentProvider {
                     }
                 }
                 break;
+            case BODY_HTML:
+            case BODY_TEXT:
+                final ParcelFileDescriptor descriptors[];
+                try {
+                    descriptors = ParcelFileDescriptor.createPipe();
+                } catch (final IOException e) {
+                    throw new FileNotFoundException();
+                }
+                final ParcelFileDescriptor readDescriptor = descriptors[0];
+                final ParcelFileDescriptor writeDescriptor = descriptors[1];
+
+                final SQLiteDatabase db = getDatabase(getContext());
+                final SQLiteStatement sql;
+
+                if (match == BODY_HTML) {
+                    sql = db.compileStatement(
+                            "SELECT " + BodyColumns.HTML_CONTENT +
+                                    " FROM " + Body.TABLE_NAME +
+                                    " WHERE " + BodyColumns.MESSAGE_KEY + "=?");
+                } else { // BODY_TEXT
+                    sql = db.compileStatement(
+                            "SELECT " + BodyColumns.TEXT_CONTENT +
+                                    " FROM " + Body.TABLE_NAME +
+                                    " WHERE " + BodyColumns.MESSAGE_KEY + "=?");
+                }
+
+                final long messageKey = Long.valueOf(uri.getLastPathSegment());
+                sql.bindLong(1, messageKey);
+                final String contents;
+                try {
+                    contents = sql.simpleQueryForString();
+                } catch (final SQLiteDoneException e) {
+                    LogUtils.v(LogUtils.TAG, e,
+                            "Done exception while reading %s body for message %d",
+                            match == BODY_HTML ? "html" : "text", messageKey);
+                    throw new FileNotFoundException();
+                }
+
+                if (TextUtils.isEmpty(contents)) {
+                    throw new FileNotFoundException("Body field is empty");
+                }
+
+                new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        final AutoCloseOutputStream outStream =
+                                new AutoCloseOutputStream(writeDescriptor);
+                        try {
+                            outStream.write(contents.getBytes("utf8"));
+                        } catch (final IOException e) {
+                            LogUtils.e(LogUtils.TAG, e,
+                                    "IOException while writing to body pipe");
+                        } finally {
+                            try {
+                                outStream.close();
+                            } catch (final IOException e) {
+                                LogUtils.e(LogUtils.TAG, e,
+                                        "IOException while closing body pipe");
+                            }
+                        }
+                        return null;
+                    }
+                }.executeOnExecutor(OPEN_FILE_EXECUTOR);
+                return readDescriptor;
+                // break;
         }
 
         throw new FileNotFoundException("unable to open file");
@@ -4353,7 +4463,7 @@ public class EmailProvider extends ContentProvider {
                 }
                 if (c != null) {
                     c = new EmailMessageCursor(c, db, UIProvider.MessageColumns.BODY_HTML,
-                            UIProvider.MessageColumns.BODY_TEXT, true /* deliverColumnsInline */);
+                            UIProvider.MessageColumns.BODY_TEXT);
                 }
                 notifyUri = UIPROVIDER_MESSAGE_NOTIFIER.buildUpon().appendPath(id).build();
                 break;

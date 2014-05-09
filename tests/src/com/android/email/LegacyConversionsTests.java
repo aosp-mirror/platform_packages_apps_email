@@ -115,7 +115,8 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         try {
             assertEquals(2, c.getCount());
             while (c.moveToNext()) {
-                Attachment attachment = Attachment.getContent(c, Attachment.class);
+                Attachment attachment =
+                        Attachment.getContent(mProviderContext, c, Attachment.class);
                 if ("100".equals(attachment.mLocation)) {
                     checkAttachment("attachment1Part", attachments.get(0), attachment,
                             localMessage.mAccountKey);

@@ -520,7 +520,7 @@ public class Mailbox extends EmailContent implements EmailContent.MailboxColumns
         try {
             Mailbox mailbox = null;
             if (c.moveToFirst()) {
-                mailbox = getContent(c, Mailbox.class);
+                mailbox = getContent(context, c, Mailbox.class);
                 if (c.moveToNext()) {
                     LogUtils.w(Logging.LOG_TAG, "Multiple mailboxes named \"%s\"", path);
                 }
