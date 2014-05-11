@@ -21,6 +21,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.ProviderInfo;
 import android.os.AsyncTask;
 import android.os.Debug;
 import android.os.IBinder;
@@ -60,8 +61,22 @@ public abstract class ServiceProxy {
     private boolean mTaskCompleted = false;
 
     public static Intent getIntentForEmailPackage(Context context, String actionName) {
+        /**
+         * We want to scope the intent so that only the Email app will handle it. Unfortunately
+         * we found that there are many instances where the package name of the Email app is
+         * not what we expect. The easiest way to find the package of the correct app is to
+         * see who is the EmailContent.AUTHORITY as there is only one app that can implement
+         * the content provider for this authority and this is the right app to handle this intent.
+         */
         final Intent intent = new Intent(EmailContent.EMAIL_PACKAGE_NAME + "." + actionName);
-        intent.setPackage(EmailContent.EMAIL_PACKAGE_NAME);
+        final ProviderInfo info = context.getPackageManager().resolveContentProvider(
+                EmailContent.AUTHORITY, 0);
+        if (info != null) {
+            final String packageName = info.packageName;
+            intent.setPackage(packageName);
+        } else {
+            LogUtils.e(LogUtils.TAG, "Could not find the Email Content Provider");
+        }
         return intent;
     }
 
