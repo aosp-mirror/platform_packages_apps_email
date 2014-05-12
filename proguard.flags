@@ -139,6 +139,21 @@
 
 -keep class com.android.emailcommon.mail.Flag
 
+-keepclasseswithmembers class com.android.email.service.AttachmentService$DownloadQueue {
+  *** addRequest(com.android.email.service.AttachmentService$DownloadRequest);
+  *** removeRequest(com.android.email.service.AttachmentService$DownloadRequest);
+  *** getNextRequest();
+  *** findRequestById(long);
+  *** getSize();
+  *** isEmpty();
+}
+
+-keepclasseswithmembers class com.android.email.service.AttachmentService$DownloadRequest {
+  <init>(int, long);
+  *** hashCode();
+  *** equals(java.lang.Object);
+}
+
 -keepclasseswithmembers class com.android.emailcommon.mail.Folder {
   *** getUnreadMessageCount();
   *** delete(boolean);
