@@ -16,11 +16,13 @@
 
 package com.android.email.provider;
 
+import android.annotation.TargetApi;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 
 import com.android.email.LegacyConversions;
 import com.android.emailcommon.Logging;
@@ -36,6 +38,7 @@ import com.android.emailcommon.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.ConversionUtilities;
 import com.android.mail.utils.LogUtils;
+import com.android.mail.utils.Utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -192,4 +195,40 @@ public class Utilities {
         }
     }
 
+    /**
+     * Converts a string representing a file mode, such as "rw", into a bitmask suitable for use
+     * with {@link android.os.ParcelFileDescriptor#open}.
+     * <p>
+     * @param mode The string representation of the file mode.
+     * @return A bitmask representing the given file mode.
+     * @throws IllegalArgumentException if the given string does not match a known file mode.
+     */
+    @TargetApi(19)
+    public static int parseMode(String mode) {
+        if (Utils.isRunningKitkatOrLater()) {
+            return ParcelFileDescriptor.parseMode(mode);
+        }
+        final int modeBits;
+        if ("r".equals(mode)) {
+            modeBits = ParcelFileDescriptor.MODE_READ_ONLY;
+        } else if ("w".equals(mode) || "wt".equals(mode)) {
+            modeBits = ParcelFileDescriptor.MODE_WRITE_ONLY
+                    | ParcelFileDescriptor.MODE_CREATE
+                    | ParcelFileDescriptor.MODE_TRUNCATE;
+        } else if ("wa".equals(mode)) {
+            modeBits = ParcelFileDescriptor.MODE_WRITE_ONLY
+                    | ParcelFileDescriptor.MODE_CREATE
+                    | ParcelFileDescriptor.MODE_APPEND;
+        } else if ("rw".equals(mode)) {
+            modeBits = ParcelFileDescriptor.MODE_READ_WRITE
+                    | ParcelFileDescriptor.MODE_CREATE;
+        } else if ("rwt".equals(mode)) {
+            modeBits = ParcelFileDescriptor.MODE_READ_WRITE
+                    | ParcelFileDescriptor.MODE_CREATE
+                    | ParcelFileDescriptor.MODE_TRUNCATE;
+        } else {
+            throw new IllegalArgumentException("Bad mode '" + mode + "'");
+        }
+        return modeBits;
+    }
 }

@@ -16,17 +16,21 @@
 
 package com.android.email.provider;
 
+import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.CursorWrapper;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDoneException;
-import android.database.sqlite.SQLiteStatement;
+import android.net.Uri;
 import android.provider.BaseColumns;
 import android.util.SparseArray;
 
 import com.android.emailcommon.provider.EmailContent.Body;
-import com.android.emailcommon.provider.EmailContent.BodyColumns;
 import com.android.mail.utils.LogUtils;
+
+import org.apache.commons.io.IOUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * This class wraps a cursor for the purpose of bypassing the CursorWindow object for the
@@ -34,16 +38,11 @@ import com.android.mail.utils.LogUtils;
  * large email message can exceed that limit and cause the cursor to fail to load.
  *
  * To get around this, we load null values in those columns, and then in this wrapper we directly
- * load the content from the DB, skipping the cursor window.
+ * load the content from the provider, skipping the cursor window.
  *
  * This will still potentially blow up if this cursor gets wrapped in a CrossProcessCursorWrapper
- * which uses a CursorWindow to shuffle results between processes. This is currently only done in
- * Exchange, and only for outgoing mail, so hopefully users never type more than 2MB of email on
- * their device.
- *
- * If we want to address that issue fully, we need to return the body through a
- * ParcelFileDescriptor or some other mechanism that doesn't involve passing the data through a
- * CursorWindow.
+ * which uses a CursorWindow to shuffle results between processes. Since we're only using this for
+ * passing a cursor back to UnifiedEmail this shouldn't be an issue.
  */
 public class EmailMessageCursor extends CursorWrapper {
 
@@ -52,7 +51,7 @@ public class EmailMessageCursor extends CursorWrapper {
     private final int mTextColumnIndex;
     private final int mHtmlColumnIndex;
 
-    public EmailMessageCursor(final Cursor cursor, final SQLiteDatabase db, final String htmlColumn,
+    public EmailMessageCursor(final Context c, final Cursor cursor, final String htmlColumn,
             final String textColumn) {
         super(cursor);
         mHtmlColumnIndex = cursor.getColumnIndex(htmlColumn);
@@ -61,39 +60,30 @@ public class EmailMessageCursor extends CursorWrapper {
         mHtmlParts = new SparseArray<String>(cursorSize);
         mTextParts = new SparseArray<String>(cursorSize);
 
-        // TODO: Load this from the provider instead of duplicating the loading code here
-        final SQLiteStatement htmlSql = db.compileStatement(
-                "SELECT " + BodyColumns.HTML_CONTENT +
-                        " FROM " + Body.TABLE_NAME +
-                        " WHERE " + BodyColumns.MESSAGE_KEY + "=?"
-        );
-
-        final SQLiteStatement textSql = db.compileStatement(
-                "SELECT " + BodyColumns.TEXT_CONTENT +
-                        " FROM " + Body.TABLE_NAME +
-                        " WHERE " + BodyColumns.MESSAGE_KEY + "=?"
-        );
+        final ContentResolver cr = c.getContentResolver();
 
         while (cursor.moveToNext()) {
             final int position = cursor.getPosition();
-            final long rowId = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
-            htmlSql.bindLong(1, rowId);
+            final long messageId = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
             try {
                 if (mHtmlColumnIndex != -1) {
-                    final String underlyingHtmlString = htmlSql.simpleQueryForString();
+                    final Uri htmlUri = Body.getBodyHtmlUriForMessageWithId(messageId);
+                    final InputStream in = cr.openInputStream(htmlUri);
+                    final String underlyingHtmlString = IOUtils.toString(in);
                     mHtmlParts.put(position, underlyingHtmlString);
                 }
-            } catch (final SQLiteDoneException e) {
-                LogUtils.d(LogUtils.TAG, e, "Done with the HTML column");
+            } catch (final IOException e) {
+                LogUtils.v(LogUtils.TAG, e, "Did not find html body for message %d", messageId);
             }
-            textSql.bindLong(1, rowId);
             try {
                 if (mTextColumnIndex != -1) {
-                    final String underlyingTextString = textSql.simpleQueryForString();
+                    final Uri textUri = Body.getBodyTextUriForMessageWithId(messageId);
+                    final InputStream in = cr.openInputStream(textUri);
+                    final String underlyingTextString = IOUtils.toString(in);
                     mTextParts.put(position, underlyingTextString);
                 }
-            } catch (final SQLiteDoneException e) {
-                LogUtils.d(LogUtils.TAG, e, "Done with the text column");
+            } catch (final IOException e) {
+                LogUtils.v(LogUtils.TAG, e, "Did not find text body for message %d", messageId);
             }
         }
         cursor.moveToPosition(-1);

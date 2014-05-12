@@ -23,7 +23,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteStatement;
 import android.provider.BaseColumns;
 import android.provider.CalendarContract;
 import android.provider.ContactsContract;
@@ -61,6 +63,9 @@ import com.android.mail.utils.LogUtils;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Map;
 
 public final class DBHelper {
@@ -189,7 +194,9 @@ public final class DBHelper {
     // Version 6: Adding Body.mIntroText column
     // Version 7/8: Adding quoted text start pos
     // Version 8 is last Email1 version
-    public static final int BODY_DATABASE_VERSION = 100;
+    // Version 100 is the first Email2 version
+    // Version 101: Move body contents to external files
+    public static final int BODY_DATABASE_VERSION = 101;
 
     /*
      * Internal helper method for index creation.
@@ -577,6 +584,7 @@ public final class DBHelper {
         createHostAuthTable(db);
     }
 
+    @SuppressWarnings("deprecation")
     static void createMailboxTable(SQLiteDatabase db) {
         String s = " (" + MailboxColumns._ID + " integer primary key autoincrement, "
             + MailboxColumns.DISPLAY_NAME + " text, "
@@ -661,6 +669,7 @@ public final class DBHelper {
         db.execSQL("create table " + QuickResponse.TABLE_NAME + s);
     }
 
+    @SuppressWarnings("deprecation")
     static void createBodyTable(SQLiteDatabase db) {
         String s = " (" + BodyColumns._ID + " integer primary key autoincrement, "
             + BodyColumns.MESSAGE_KEY + " integer, "
@@ -676,44 +685,115 @@ public final class DBHelper {
         db.execSQL(createIndex(Body.TABLE_NAME, BodyColumns.MESSAGE_KEY));
     }
 
-    static void upgradeBodyTable(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 5) {
-            try {
-                db.execSQL("drop table " + Body.TABLE_NAME);
-                createBodyTable(db);
-                oldVersion = 5;
-            } catch (SQLException e) {
-            }
-        }
-        if (oldVersion == 5) {
-            try {
-                db.execSQL("alter table " + Body.TABLE_NAME
-                        + " add " + BodyColumns.INTRO_TEXT + " text");
-            } catch (SQLException e) {
-                // Shouldn't be needed unless we're debugging and interrupt the process
-                LogUtils.w(TAG, "Exception upgrading EmailProviderBody.db from v5 to v6", e);
-            }
-            oldVersion = 6;
-        }
-        if (oldVersion == 6 || oldVersion == 7) {
-            try {
-                db.execSQL("alter table " + Body.TABLE_NAME
-                        + " add " + BodyColumns.QUOTED_TEXT_START_POS + " integer");
-            } catch (SQLException e) {
-                // Shouldn't be needed unless we're debugging and interrupt the process
-                LogUtils.w(TAG, "Exception upgrading EmailProviderBody.db from v6 to v8", e);
-            }
-            oldVersion = 8;
-        }
-        if (oldVersion == 8) {
-            // Move to Email2 version
-            oldVersion = 100;
+    private static void upgradeBodyToVersion5(final SQLiteDatabase db) {
+        try {
+            db.execSQL("drop table " + Body.TABLE_NAME);
+            createBodyTable(db);
+        } catch (final SQLException e) {
+            // Shouldn't be needed unless we're debugging and interrupt the process
+            LogUtils.w(TAG, e, "Exception upgrading EmailProviderBody.db from <v5");
         }
     }
 
+    @SuppressWarnings("deprecation")
+    private static void upgradeBodyFromVersion5ToVersion6(final SQLiteDatabase db) {
+        try {
+            db.execSQL("alter table " + Body.TABLE_NAME
+                    + " add " + BodyColumns.INTRO_TEXT + " text");
+        } catch (final SQLException e) {
+            // Shouldn't be needed unless we're debugging and interrupt the process
+            LogUtils.w(TAG, e, "Exception upgrading EmailProviderBody.db from v5 to v6");
+        }
+    }
+
+    private static void upgradeBodyFromVersion6ToVersion8(final SQLiteDatabase db) {
+        try {
+            db.execSQL("alter table " + Body.TABLE_NAME
+                    + " add " + BodyColumns.QUOTED_TEXT_START_POS + " integer");
+        } catch (final SQLException e) {
+            // Shouldn't be needed unless we're debugging and interrupt the process
+            LogUtils.w(TAG, e, "Exception upgrading EmailProviderBody.db from v6 to v8");
+        }
+    }
+
+    /**
+     * This upgrade migrates email bodies out of the database and into individual files.
+     */
+    private static void upgradeBodyFromVersion100ToVersion101(final Context context,
+            final SQLiteDatabase db) {
+        try {
+            // We can't read the body parts through the cursor because they might be over 2MB
+            final String projection[] = { BodyColumns.MESSAGE_KEY };
+            final Cursor cursor = db.query(Body.TABLE_NAME, projection,
+                    null, null, null, null, null);
+            if (cursor == null) {
+                throw new IllegalStateException("Could not read body table for upgrade");
+            }
+
+            final SQLiteStatement htmlSql = db.compileStatement(
+                    "SELECT " + BodyColumns.HTML_CONTENT +
+                            " FROM " + Body.TABLE_NAME +
+                            " WHERE " + BodyColumns.MESSAGE_KEY + "=?"
+            );
+
+            final SQLiteStatement textSql = db.compileStatement(
+                    "SELECT " + BodyColumns.TEXT_CONTENT +
+                            " FROM " + Body.TABLE_NAME +
+                            " WHERE " + BodyColumns.MESSAGE_KEY + "=?"
+            );
+
+            while (cursor.moveToNext()) {
+                final long messageId = cursor.getLong(0);
+                htmlSql.bindLong(1, messageId);
+                try {
+                    final String htmlString = htmlSql.simpleQueryForString();
+                    if (!TextUtils.isEmpty(htmlString)) {
+                        final File htmlFile = EmailProvider.getBodyFile(context, messageId, "html");
+                        final FileWriter w = new FileWriter(htmlFile);
+                        try {
+                            w.write(htmlString);
+                        } finally {
+                            w.close();
+                        }
+                    }
+                } catch (final SQLiteDoneException e) {
+                    LogUtils.v(LogUtils.TAG, e, "Done with the HTML column");
+                }
+                textSql.bindLong(1, messageId);
+                try {
+                    final String textString = textSql.simpleQueryForString();
+                    if (!TextUtils.isEmpty(textString)) {
+                        final File textFile = EmailProvider.getBodyFile(context, messageId, "txt");
+                        final FileWriter w = new FileWriter(textFile);
+                        try {
+                            w.write(textString);
+                        } finally {
+                            w.close();
+                        }
+                    }
+                } catch (final SQLiteDoneException e) {
+                    LogUtils.v(LogUtils.TAG, e, "Done with the text column");
+                }
+            }
+
+            db.execSQL("update " + Body.TABLE_NAME +
+                    " set " + BodyColumns.HTML_CONTENT + "=NULL,"
+                    + BodyColumns.TEXT_CONTENT + "=NULL");
+        } catch (final SQLException e) {
+            // Shouldn't be needed unless we're debugging and interrupt the process
+            LogUtils.w(TAG, e, "Exception upgrading EmailProviderBody.db from v100 to v101");
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
     protected static class BodyDatabaseHelper extends SQLiteOpenHelper {
+        final Context mContext;
+
         BodyDatabaseHelper(Context context, String name) {
             super(context, name, null, BODY_DATABASE_VERSION);
+            mContext = context;
         }
 
         @Override
@@ -723,8 +803,19 @@ public final class DBHelper {
         }
 
         @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            upgradeBodyTable(db, oldVersion, newVersion);
+        public void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
+            if (oldVersion < 5) {
+                upgradeBodyToVersion5(db);
+            }
+            if (oldVersion < 6) {
+                upgradeBodyFromVersion5ToVersion6(db);
+            }
+            if (oldVersion < 8) {
+                upgradeBodyFromVersion6ToVersion8(db);
+            }
+            if (oldVersion < 101) {
+                upgradeBodyFromVersion100ToVersion101(mContext, db);
+            }
         }
 
         @Override
@@ -742,7 +833,7 @@ public final class DBHelper {
     }
 
     protected static class DatabaseHelper extends SQLiteOpenHelper {
-        Context mContext;
+        final Context mContext;
 
         DatabaseHelper(Context context, String name) {
             super(context, name, null, DATABASE_VERSION);
