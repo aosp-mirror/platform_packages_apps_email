@@ -32,13 +32,10 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.RemoteException;
-import android.provider.BaseColumns;
 
 import com.android.emailcommon.utility.Utility;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 public final class Account extends EmailContent implements Parcelable {
     public static final String TABLE_NAME = "Account";
@@ -130,7 +127,6 @@ public final class Account extends EmailContent implements Parcelable {
     public long mHostAuthKeyRecv;
     public long mHostAuthKeySend;
     public int mFlags;
-    public String mCompatibilityUuid;
     public String mSenderName;
     /** @deprecated Used only for migration */
     @Deprecated
@@ -156,7 +152,6 @@ public final class Account extends EmailContent implements Parcelable {
     public static final int CONTENT_HOST_AUTH_KEY_RECV_COLUMN = 6;
     public static final int CONTENT_HOST_AUTH_KEY_SEND_COLUMN = 7;
     public static final int CONTENT_FLAGS_COLUMN = 8;
-    public static final int CONTENT_COMPATIBILITY_UUID_COLUMN = 9;
     public static final int CONTENT_SENDER_NAME_COLUMN = 10;
     public static final int CONTENT_RINGTONE_URI_COLUMN = 11;
     public static final int CONTENT_PROTOCOL_VERSION_COLUMN = 12;
@@ -172,34 +167,17 @@ public final class Account extends EmailContent implements Parcelable {
         AccountColumns.EMAIL_ADDRESS, AccountColumns.SYNC_KEY, AccountColumns.SYNC_LOOKBACK,
         AccountColumns.SYNC_INTERVAL, AccountColumns.HOST_AUTH_KEY_RECV,
         AccountColumns.HOST_AUTH_KEY_SEND, AccountColumns.FLAGS,
-        AccountColumns.COMPATIBILITY_UUID, AccountColumns.SENDER_NAME,
+        AccountColumns.SENDER_NAME,
         AccountColumns.RINGTONE_URI, AccountColumns.PROTOCOL_VERSION,
         AccountColumns.NEW_MESSAGE_COUNT, AccountColumns.SECURITY_SYNC_KEY,
         AccountColumns.SIGNATURE, AccountColumns.POLICY_KEY, AccountColumns.PING_DURATION,
         AccountColumns.MAX_ATTACHMENT_SIZE
     };
 
-    public static final int CONTENT_MAILBOX_TYPE_COLUMN = 1;
-
-    /**
-     * This projection is for listing account id's only
-     */
-    public static final String[] ID_TYPE_PROJECTION = {
-            BaseColumns._ID, MailboxColumns.TYPE
-    };
-
     public static final int ACCOUNT_FLAGS_COLUMN_ID = 0;
     public static final int ACCOUNT_FLAGS_COLUMN_FLAGS = 1;
     public static final String[] ACCOUNT_FLAGS_PROJECTION = {
             AccountColumns._ID, AccountColumns.FLAGS};
-
-    public static final String MAILBOX_SELECTION =
-        MessageColumns.MAILBOX_KEY + " =?";
-
-    public static final String UNREAD_COUNT_SELECTION =
-        MessageColumns.MAILBOX_KEY + " =? and " + MessageColumns.FLAG_READ + "= 0";
-
-    private static final String UUID_SELECTION = AccountColumns.COMPATIBILITY_UUID + " =?";
 
     public static final String SECURITY_NONZERO_SELECTION =
         AccountColumns.POLICY_KEY + " IS NOT NULL AND " + AccountColumns.POLICY_KEY + "!=0";
@@ -216,7 +194,6 @@ public final class Account extends EmailContent implements Parcelable {
         mSyncInterval = -1;
         mSyncLookback = -1;
         mFlags = 0;
-        mCompatibilityUuid = UUID.randomUUID().toString();
     }
 
     public static Account restoreAccountWithId(Context context, long id) {
@@ -231,15 +208,6 @@ public final class Account extends EmailContent implements Parcelable {
     @Override
     protected Uri getContentNotificationUri() {
         return Account.CONTENT_URI;
-    }
-
-    /**
-     * Returns {@code true} if the given account ID is a "normal" account. Normal accounts
-     * always have an ID greater than {@code 0} and not equal to any pseudo account IDs
-     * (such as {@link #ACCOUNT_ID_COMBINED_VIEW})
-     */
-    public static boolean isNormalAccount(long accountId) {
-        return (accountId > 0L) && (accountId != ACCOUNT_ID_COMBINED_VIEW);
     }
 
     /**
@@ -271,7 +239,6 @@ public final class Account extends EmailContent implements Parcelable {
         mHostAuthKeyRecv = cursor.getLong(CONTENT_HOST_AUTH_KEY_RECV_COLUMN);
         mHostAuthKeySend = cursor.getLong(CONTENT_HOST_AUTH_KEY_SEND_COLUMN);
         mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
-        mCompatibilityUuid = cursor.getString(CONTENT_COMPATIBILITY_UUID_COLUMN);
         mSenderName = cursor.getString(CONTENT_SENDER_NAME_COLUMN);
         mRingtoneUri = cursor.getString(CONTENT_RINGTONE_URI_COLUMN);
         mProtocolVersion = cursor.getString(CONTENT_PROTOCOL_VERSION_COLUMN);
@@ -433,15 +400,6 @@ public final class Account extends EmailContent implements Parcelable {
         return (mFlags & FLAGS_DELETE_POLICY_MASK) >> FLAGS_DELETE_POLICY_SHIFT;
     }
 
-    /**
-     * Return the Uuid associated with this account.  This is primarily for compatibility
-     * with accounts set up by previous versions, because there are externals references
-     * to the Uuid (e.g. desktop shortcuts).
-     */
-    public String getUuid() {
-        return mCompatibilityUuid;
-    }
-
     public HostAuth getOrCreateHostAuthSend(Context context) {
         if (mHostAuthSend == null) {
             if (mHostAuthKeySend != 0) {
@@ -462,88 +420,6 @@ public final class Account extends EmailContent implements Parcelable {
             }
         }
         return mHostAuthRecv;
-    }
-
-    /**
-     * For compatibility while converting to provider model, generate a "local store URI"
-     *
-     * @return a string in the form of a Uri, as used by the other parts of the email app
-     */
-    public String getLocalStoreUri(Context context) {
-        return "local://localhost/" + context.getDatabasePath(getUuid() + ".db");
-    }
-
-    /**
-     * @return true if the account supports "search".
-     */
-    public static boolean supportsServerSearch(Context context, long accountId) {
-        Account account = Account.restoreAccountWithId(context, accountId);
-        if (account == null) return false;
-        return (account.mFlags & Account.FLAGS_SUPPORTS_SEARCH) != 0;
-    }
-
-    /**
-     * @return {@link Uri} to this {@link Account} in the
-     * {@code content://com.android.email.provider/account/UUID} format, which is safe to use
-     * for desktop shortcuts.
-     *
-     * <p>We don't want to store _id in shortcuts, because
-     * {@link com.android.email.provider.AccountBackupRestore} won't preserve it.
-     */
-    public Uri getShortcutSafeUri() {
-        return getShortcutSafeUriFromUuid(mCompatibilityUuid);
-    }
-
-    /**
-     * @return {@link Uri} to an {@link Account} with a {@code uuid}.
-     */
-    public static Uri getShortcutSafeUriFromUuid(String uuid) {
-        return CONTENT_URI.buildUpon().appendEncodedPath(uuid).build();
-    }
-
-    /**
-     * Parse {@link Uri} in the {@code content://com.android.email.provider/account/ID} format
-     * where ID = account id (used on Eclair, Android 2.0-2.1) or UUID, and return _id of
-     * the {@link Account} associated with it.
-     *
-     * @param context context to access DB
-     * @param uri URI of interest
-     * @return _id of the {@link Account} associated with ID, or -1 if none found.
-     */
-    public static long getAccountIdFromShortcutSafeUri(Context context, Uri uri) {
-        // Make sure the URI is in the correct format.
-        if (!"content".equals(uri.getScheme())
-                || !EmailContent.AUTHORITY.equals(uri.getAuthority())) {
-            return -1;
-        }
-
-        final List<String> ps = uri.getPathSegments();
-        if (ps.size() != 2 || !"account".equals(ps.get(0))) {
-            return -1;
-        }
-
-        // Now get the ID part.
-        final String id = ps.get(1);
-
-        // First, see if ID can be parsed as long.  (Eclair-style)
-        // (UUIDs have '-' in them, so they are always non-parsable.)
-        try {
-            return Long.parseLong(id);
-        } catch (NumberFormatException ok) {
-            // OK, it's not a long.  Continue...
-        }
-
-        // Now id is a UUId.
-        return getAccountIdFromUuid(context, id);
-    }
-
-    /**
-     * @return ID of the account with the given UUID.
-     */
-    public static long getAccountIdFromUuid(Context context, String uuid) {
-        return Utility.getFirstRowLong(context,
-                CONTENT_URI, ID_PROJECTION,
-                UUID_SELECTION, new String[] {uuid}, null, 0, -1L);
     }
 
     /**
@@ -723,8 +599,7 @@ public final class Account extends EmailContent implements Parcelable {
         if (!info.isRoaming()) return false;
         Policy policy = Policy.restorePolicyWithId(context, policyKey);
         // Account being deleted; just return
-        if (policy == null) return false;
-        return policy.mRequireManualSyncWhenRoaming;
+        return policy != null && policy.mRequireManualSyncWhenRoaming;
     }
 
     /*
@@ -851,7 +726,6 @@ public final class Account extends EmailContent implements Parcelable {
         values.put(AccountColumns.HOST_AUTH_KEY_RECV, mHostAuthKeyRecv);
         values.put(AccountColumns.HOST_AUTH_KEY_SEND, mHostAuthKeySend);
         values.put(AccountColumns.FLAGS, mFlags);
-        values.put(AccountColumns.COMPATIBILITY_UUID, mCompatibilityUuid);
         values.put(AccountColumns.SENDER_NAME, mSenderName);
         values.put(AccountColumns.RINGTONE_URI, mRingtoneUri);
         values.put(AccountColumns.PROTOCOL_VERSION, mProtocolVersion);
@@ -902,7 +776,7 @@ public final class Account extends EmailContent implements Parcelable {
         dest.writeLong(mHostAuthKeyRecv);
         dest.writeLong(mHostAuthKeySend);
         dest.writeInt(mFlags);
-        dest.writeString(mCompatibilityUuid);
+        dest.writeString("" /* mCompatibilityUuid */);
         dest.writeString(mSenderName);
         dest.writeString(mRingtoneUri);
         dest.writeString(mProtocolVersion);
@@ -940,7 +814,7 @@ public final class Account extends EmailContent implements Parcelable {
         mHostAuthKeyRecv = in.readLong();
         mHostAuthKeySend = in.readLong();
         mFlags = in.readInt();
-        mCompatibilityUuid = in.readString();
+        /* mCompatibilityUuid = */ in.readString();
         mSenderName = in.readString();
         mRingtoneUri = in.readString();
         mProtocolVersion = in.readString();
@@ -965,7 +839,7 @@ public final class Account extends EmailContent implements Parcelable {
      */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder('[');
+        StringBuilder sb = new StringBuilder("[");
         if (mHostAuthRecv != null && mHostAuthRecv.mProtocol != null) {
             sb.append(mHostAuthRecv.mProtocol);
             sb.append(':');

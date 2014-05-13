@@ -1681,6 +1681,7 @@ public abstract class EmailContent {
         @Deprecated
         public static final String IS_DEFAULT = "isDefault";
         // Old-Style UUID for compatibility with previous versions
+        @Deprecated
         public static final String COMPATIBILITY_UUID = "compatibilityUuid";
         // User name (for outgoing messages)
         public static final String SENDER_NAME = "senderName";

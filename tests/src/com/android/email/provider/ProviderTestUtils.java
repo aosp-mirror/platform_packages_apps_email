@@ -58,7 +58,6 @@ public class ProviderTestUtils extends Assert {
         account.mHostAuthKeyRecv = 0;
         account.mHostAuthKeySend = 0;
         account.mFlags = 4;
-        account.mCompatibilityUuid = "test-uid-" + name;
         account.mSenderName = name;
         account.mProtocolVersion = "2.5" + name;
         account.mNewMessageCount = 5 + name.length();
@@ -301,8 +300,6 @@ public class ProviderTestUtils extends Assert {
         assertEquals(caller + " mHostAuthKeySend", expect.mHostAuthKeySend,
                 actual.mHostAuthKeySend);
         assertEquals(caller + " mFlags", expect.mFlags, actual.mFlags);
-        assertEquals(caller + " mCompatibilityUuid", expect.mCompatibilityUuid,
-                actual.mCompatibilityUuid);
         assertEquals(caller + " mSenderName", expect.mSenderName, actual.mSenderName);
         assertEquals(caller + " mProtocolVersion", expect.mProtocolVersion,
                 actual.mProtocolVersion);

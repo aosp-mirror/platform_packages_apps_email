@@ -81,7 +81,6 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
      */
     public void testQuery() throws MessagingException {
         Account account1 = ProviderTestUtils.setupAccount("attachment-query", false, mMockContext);
-        account1.mCompatibilityUuid = "test-UUID";
         account1.save(mMockContext);
         final long message1Id = 1;
         long attachment1Id = 1;
@@ -251,7 +250,6 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
      */
     public void testGetType() throws MessagingException {
         Account account1 = ProviderTestUtils.setupAccount("get-type", false, mMockContext);
-        account1.mCompatibilityUuid = "test-UUID";
         account1.save(mMockContext);
         final long message1Id = 1;
         long attachment1Id = 1;
@@ -330,7 +328,6 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
      */
     public void testOpenFile() throws MessagingException, IOException {
         Account account1 = ProviderTestUtils.setupAccount("open-file", false, mMockContext);
-        account1.mCompatibilityUuid = "test-UUID";
         account1.save(mMockContext);
         final long message1Id = 1;
         long attachment1Id = 1;
@@ -396,7 +393,6 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
      */
     public void testOpenThumbnail() throws MessagingException, IOException {
         Account account1 = ProviderTestUtils.setupAccount("open-thumbnail", false, mMockContext);
-        account1.mCompatibilityUuid = "test-UUID";
         account1.save(mMockContext);
         final long message1Id = 1;
         long attachment1Id = 1;
@@ -463,7 +459,6 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
      */
     public void testResolveAttachmentIdToContentUri() throws MessagingException {
         Account account1 = ProviderTestUtils.setupAccount("attachment-query", false, mMockContext);
-        account1.mCompatibilityUuid = "test-UUID";
         account1.save(mMockContext);
         final long message1Id = 1;
         // We use attachmentId == 1 but any other id would do
@@ -504,7 +499,6 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
      */
     public void testDeleteFiles() throws IOException {
         Account account1 = ProviderTestUtils.setupAccount("attachment-query", false, mMockContext);
-        account1.mCompatibilityUuid = "test-UUID";
         account1.save(mMockContext);
         final long message1Id = 1;      // 1 attachment, 1 file
         final long message2Id = 2;      // 2 attachments, 2 files
@@ -559,7 +553,6 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
      */
     public void testDeleteMailbox() throws IOException {
         Account account1 = ProviderTestUtils.setupAccount("attach-mbox-del", false, mMockContext);
-        account1.mCompatibilityUuid = "test-UUID";
         account1.save(mMockContext);
         long account1Id = account1.mId;
         Mailbox mailbox1 = ProviderTestUtils.setupMailbox("mbox1", account1Id, true, mMockContext);
@@ -592,7 +585,6 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
      */
     public void testDeleteAccount() throws IOException {
         Account account1 = ProviderTestUtils.setupAccount("attach-acct-del1", false, mMockContext);
-        account1.mCompatibilityUuid = "test-UUID";
         account1.save(mMockContext);
         long account1Id = account1.mId;
         Mailbox mailbox1 = ProviderTestUtils.setupMailbox("mbox1", account1Id, true, mMockContext);
@@ -602,7 +594,6 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
 
         // Repeat for account #2
         Account account2 = ProviderTestUtils.setupAccount("attach-acct-del2", false, mMockContext);
-        account2.mCompatibilityUuid = "test-UUID-2";
         account2.save(mMockContext);
         long account2Id = account2.mId;
         Mailbox mailbox3 = ProviderTestUtils.setupMailbox("mbox3", account2Id, true, mMockContext);
