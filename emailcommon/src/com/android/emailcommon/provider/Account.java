@@ -152,15 +152,14 @@ public final class Account extends EmailContent implements Parcelable {
     public static final int CONTENT_HOST_AUTH_KEY_RECV_COLUMN = 6;
     public static final int CONTENT_HOST_AUTH_KEY_SEND_COLUMN = 7;
     public static final int CONTENT_FLAGS_COLUMN = 8;
-    public static final int CONTENT_SENDER_NAME_COLUMN = 10;
-    public static final int CONTENT_RINGTONE_URI_COLUMN = 11;
-    public static final int CONTENT_PROTOCOL_VERSION_COLUMN = 12;
-    public static final int CONTENT_NEW_MESSAGE_COUNT_COLUMN = 13;
-    public static final int CONTENT_SECURITY_SYNC_KEY_COLUMN = 14;
-    public static final int CONTENT_SIGNATURE_COLUMN = 15;
-    public static final int CONTENT_POLICY_KEY_COLUMN = 16;
-    public static final int CONTENT_PING_DURATION_COLUMN = 17;
-    public static final int CONTENT_MAX_ATTACHMENT_SIZE_COLUMN = 18;
+    public static final int CONTENT_SENDER_NAME_COLUMN = 9;
+    public static final int CONTENT_RINGTONE_URI_COLUMN = 10;
+    public static final int CONTENT_PROTOCOL_VERSION_COLUMN = 11;
+    public static final int CONTENT_SECURITY_SYNC_KEY_COLUMN = 12;
+    public static final int CONTENT_SIGNATURE_COLUMN = 13;
+    public static final int CONTENT_POLICY_KEY_COLUMN = 14;
+    public static final int CONTENT_PING_DURATION_COLUMN = 15;
+    public static final int CONTENT_MAX_ATTACHMENT_SIZE_COLUMN = 16;
 
     public static final String[] CONTENT_PROJECTION = {
         AttachmentColumns._ID, AccountColumns.DISPLAY_NAME,
@@ -169,7 +168,7 @@ public final class Account extends EmailContent implements Parcelable {
         AccountColumns.HOST_AUTH_KEY_SEND, AccountColumns.FLAGS,
         AccountColumns.SENDER_NAME,
         AccountColumns.RINGTONE_URI, AccountColumns.PROTOCOL_VERSION,
-        AccountColumns.NEW_MESSAGE_COUNT, AccountColumns.SECURITY_SYNC_KEY,
+        AccountColumns.SECURITY_SYNC_KEY,
         AccountColumns.SIGNATURE, AccountColumns.POLICY_KEY, AccountColumns.PING_DURATION,
         AccountColumns.MAX_ATTACHMENT_SIZE
     };
@@ -242,7 +241,6 @@ public final class Account extends EmailContent implements Parcelable {
         mSenderName = cursor.getString(CONTENT_SENDER_NAME_COLUMN);
         mRingtoneUri = cursor.getString(CONTENT_RINGTONE_URI_COLUMN);
         mProtocolVersion = cursor.getString(CONTENT_PROTOCOL_VERSION_COLUMN);
-        mNewMessageCount = cursor.getInt(CONTENT_NEW_MESSAGE_COUNT_COLUMN);
         mSecuritySyncKey = cursor.getString(CONTENT_SECURITY_SYNC_KEY_COLUMN);
         mSignature = cursor.getString(CONTENT_SIGNATURE_COLUMN);
         mPolicyKey = cursor.getLong(CONTENT_POLICY_KEY_COLUMN);
