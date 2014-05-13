@@ -48,6 +48,7 @@ import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.providers.UIProvider.AttachmentState;
 import com.android.mail.utils.LogUtils;
+import com.google.common.annotations.VisibleForTesting;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -55,13 +56,15 @@ import java.io.PrintWriter;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class AttachmentService extends Service implements Runnable {
-    public static final String TAG = LogUtils.TAG;
+    // For logging.
+    public static final String LOG_TAG = "AttachmentService";
 
     // Minimum wait time before retrying a download that failed due to connection error
     private static final long CONNECTION_ERROR_RETRY_MILLIS = 10 * DateUtils.SECOND_IN_MILLIS;
@@ -78,14 +81,16 @@ public class AttachmentService extends Service implements Runnable {
     private static final int CALLBACK_TIMEOUT = 30 * ((int)DateUtils.SECOND_IN_MILLIS);
     // Try to download an attachment in the background this many times before giving up
     private static final int MAX_DOWNLOAD_RETRIES = 5;
-    private static final int PRIORITY_NONE = -1;
-    @SuppressWarnings("unused")
-    // Low priority will be used for opportunistic downloads
-    private static final int PRIORITY_BACKGROUND = 0;
-    // Normal priority is for forwarded downloads in outgoing mail
-    private static final int PRIORITY_SEND_MAIL = 1;
+
+    /* package */ static final int PRIORITY_NONE = -1;
     // High priority is for user requests
-    private static final int PRIORITY_FOREGROUND = 2;
+    /* package */ static final int PRIORITY_FOREGROUND = 0;
+    /* package */ static final int PRIORITY_HIGHEST = PRIORITY_FOREGROUND;
+    // Normal priority is for forwarded downloads in outgoing mail
+    /* package */ static final int PRIORITY_SEND_MAIL = 1;
+    // Low priority will be used for opportunistic downloads
+    /* package */ static final int PRIORITY_BACKGROUND = 2;
+    /* package */ static final int PRIORITY_LOWEST = PRIORITY_BACKGROUND;
 
     // Minimum free storage in order to perform prefetch (25% of total memory)
     private static final float PREFETCH_MINIMUM_STORAGE_AVAILABLE = 0.25F;
@@ -174,62 +179,86 @@ public class AttachmentService extends Service implements Runnable {
         }
     }
 
-    public static class DownloadRequest {
-        final int priority;
-        final long time;
-        final long attachmentId;
-        final long messageId;
-        final long accountId;
-        boolean inProgress = false;
-        int lastStatusCode;
-        int lastProgress;
-        long lastCallbackTime;
-        long startTime;
-        long retryCount;
-        long retryStartTime;
+    /**
+     * This class is used to contain the details and state of a particular request to download
+     * an attachment. These objects are constructed and either placed in the {@link DownloadQueue}
+     * or in the in-progress map used to keep track of downloads that are currently happening
+     * in the system
+     */
+//    public static class DownloadRequest {
+    /*package*/ static class DownloadRequest {
+        // Details of the request.
+        final int mPriority;
+        final long mTime;
+        final long mAttachmentId;
+        final long mMessageId;
+        final long mAccountId;
 
-        private DownloadRequest(Context context, Attachment attachment) {
-            attachmentId = attachment.mId;
-            Message msg = Message.restoreMessageWithId(context, attachment.mMessageKey);
+        // Status of the request.
+        boolean mInProgress = false;
+        int mLastStatusCode;
+        int mLastProgress;
+        long mLastCallbackTime;
+        long mStartTime;
+        long mRetryCount;
+        long mRetryStartTime;
+
+        /**
+         * This constructor is mainly used for tests
+         * @param attPriority The priority of this attachment
+         * @param attId The id of the row in the attachment table.
+         */
+        @VisibleForTesting
+        DownloadRequest(final int attPriority, final long attId) {
+            // This constructor should only be used for unit tests.
+            mTime = SystemClock.elapsedRealtime();
+            mPriority = attPriority;
+            mAttachmentId = attId;
+            mAccountId = -1;
+            mMessageId = -1;
+        }
+
+        private DownloadRequest(final Context context, final Attachment attachment) {
+            mAttachmentId = attachment.mId;
+            final Message msg = Message.restoreMessageWithId(context, attachment.mMessageKey);
             if (msg != null) {
-                accountId = msg.mAccountKey;
-                messageId = msg.mId;
+                mAccountId = msg.mAccountKey;
+                mMessageId = msg.mId;
             } else {
-                accountId = messageId = -1;
+                mAccountId = mMessageId = -1;
             }
-            priority = getPriority(attachment);
-            time = SystemClock.elapsedRealtime();
+            mPriority = getPriority(attachment);
+            mTime = SystemClock.elapsedRealtime();
         }
 
-        private DownloadRequest(DownloadRequest orig, long newTime) {
-            priority = orig.priority;
-            attachmentId = orig.attachmentId;
-            messageId = orig.messageId;
-            accountId = orig.accountId;
-            time = newTime;
-            inProgress = orig.inProgress;
-            lastStatusCode = orig.lastStatusCode;
-            lastProgress = orig.lastProgress;
-            lastCallbackTime = orig.lastCallbackTime;
-            startTime = orig.startTime;
-            retryCount = orig.retryCount;
-            retryStartTime = orig.retryStartTime;
+        private DownloadRequest(final DownloadRequest orig, final long newTime) {
+            mPriority = orig.mPriority;
+            mAttachmentId = orig.mAttachmentId;
+            mMessageId = orig.mMessageId;
+            mAccountId = orig.mAccountId;
+            mTime = newTime;
+            mInProgress = orig.mInProgress;
+            mLastStatusCode = orig.mLastStatusCode;
+            mLastProgress = orig.mLastProgress;
+            mLastCallbackTime = orig.mLastCallbackTime;
+            mStartTime = orig.mStartTime;
+            mRetryCount = orig.mRetryCount;
+            mRetryStartTime = orig.mRetryStartTime;
         }
-
 
         @Override
         public int hashCode() {
-            return (int)attachmentId;
+            return (int)mAttachmentId;
         }
 
         /**
          * Two download requests are equals if their attachment id's are equals
          */
         @Override
-        public boolean equals(Object object) {
+        public boolean equals(final Object object) {
             if (!(object instanceof DownloadRequest)) return false;
-            DownloadRequest req = (DownloadRequest)object;
-            return req.attachmentId == attachmentId;
+            final DownloadRequest req = (DownloadRequest)object;
+            return req.mAttachmentId == mAttachmentId;
         }
     }
 
@@ -237,17 +266,17 @@ public class AttachmentService extends Service implements Runnable {
      * Comparator class for the download set; we first compare by priority.  Requests with equal
      * priority are compared by the time the request was created (older requests come first)
      */
-    /*protected*/ static class DownloadComparator implements Comparator<DownloadRequest> {
+    /*package*/ static class DownloadComparator implements Comparator<DownloadRequest> {
         @Override
         public int compare(DownloadRequest req1, DownloadRequest req2) {
             int res;
-            if (req1.priority != req2.priority) {
-                res = (req1.priority < req2.priority) ? -1 : 1;
+            if (req1.mPriority != req2.mPriority) {
+                res = (req1.mPriority < req2.mPriority) ? -1 : 1;
             } else {
-                if (req1.time == req2.time) {
+                if (req1.mTime == req2.mTime) {
                     res = 0;
                 } else {
-                    res = (req1.time > req2.time) ? -1 : 1;
+                    res = (req1.mTime < req2.mTime) ? -1 : 1;
                 }
             }
             return res;
@@ -255,6 +284,122 @@ public class AttachmentService extends Service implements Runnable {
     }
 
     /**
+     * This class is used to organize the various download requests that are pending.
+     * We need a class that allows us to prioritize a collection of {@link DownloadRequest} objects
+     * while being able to pull off request with the highest priority but we also need
+     * to be able to find a particular {@link DownloadRequest} by id or by reference for retrieval.
+     * Bonus points for an implementation that does not require an iterator to accomplish its tasks
+     * as we can avoid pesky ConcurrentModificationException when one thread has the iterator
+     * and another thread modifies the collection.
+     */
+    /*package*/ static class DownloadQueue {
+        private final int DEFAULT_SIZE = 10;
+
+        // For synchronization
+        private final Object mLock = new Object();
+
+        // For prioritization of DownloadRequests.
+        /*package*/ final PriorityQueue<DownloadRequest> mRequestQueue =
+                new PriorityQueue<DownloadRequest>(DEFAULT_SIZE,
+                new AttachmentService.DownloadComparator());
+
+        // Secondary collection to quickly find objects w/o the help of an iterator.
+        // This class should be kept in lock step with the priority queue.
+        /*package*/ final ConcurrentHashMap<Long, DownloadRequest> mRequestMap =
+                new ConcurrentHashMap<Long, DownloadRequest>();
+
+        /**
+         * This function will add the request to our collections if it does not already
+         * exist. If it does exist, the function will silently succeed.
+         * @param request The {@link DownloadRequest} that should be added to our queue
+         * @return true if it was added (or already exists), false otherwise
+         */
+        public synchronized boolean addRequest(final DownloadRequest request) {
+            // It is key to keep the map and queue in lock step
+            if (request == null) {
+                // We can't add a null entry into the queue
+                LogUtils.wtf(AttachmentService.LOG_TAG, "Adding a null DownloadRequest");
+                return false;
+            }
+            final long requestId = request.mAttachmentId;
+            if (requestId < 0) {
+                // Invalid request
+                LogUtils.wtf(AttachmentService.LOG_TAG,
+                        "Adding a DownloadRequest with an invalid id");
+                return false;
+            }
+            synchronized (mLock) {
+                // Check to see if this request is is already in the queue
+                final boolean exists = mRequestMap.containsKey(requestId);
+                if (!exists) {
+                    mRequestQueue.offer(request);
+                    mRequestMap.put(requestId, request);
+                }
+            }
+            return true;
+        }
+
+        /**
+         * This function will remove the specified request from the internal collections.
+         * @param request The {@link DownloadRequest} that should be removed from our queue
+         * @return true if it was removed or the request was invalid (meaning that the request
+         * is not in our queue), false otherwise.
+         */
+        public synchronized boolean removeRequest(final DownloadRequest request) {
+            if (request == null) {
+                // If it is invalid, its not in the queue.
+                return true;
+            }
+            final boolean result;
+            synchronized (mLock) {
+                // It is key to keep the map and queue in lock step
+                result = mRequestQueue.remove(request);
+                if (result) {
+                    mRequestMap.remove(request.mAttachmentId);
+                }
+                return result;
+            }
+        }
+
+        /**
+         * Return the next request from our queue.
+         * @return The next {@link DownloadRequest} object or null if the queue is empty
+         */
+        public synchronized DownloadRequest getNextRequest() {
+            // It is key to keep the map and queue in lock step
+            final DownloadRequest returnRequest;
+            synchronized (mLock) {
+                returnRequest = mRequestQueue.poll();
+                if (returnRequest != null) {
+                    final long requestId = returnRequest.mAttachmentId;
+                    mRequestMap.remove(requestId);
+                }
+            }
+            return returnRequest;
+        }
+
+        /**
+         * Return the {@link DownloadRequest} with the given ID (attachment ID)
+         * @param requestId The ID of the request in question
+         * @return The associated {@link DownloadRequest} object or null if it does not exist
+         */
+        public DownloadRequest findRequestById(final long requestId) {
+            if (requestId < 0) {
+                return null;
+            }
+            return mRequestMap.get(requestId);
+        }
+
+        public int getSize() {
+            return mRequestMap.size();
+        }
+
+        public boolean isEmpty() {
+            return mRequestMap.isEmpty();
+        }
+    }
+
+     /**
      * The DownloadSet is a TreeSet sorted by priority class (e.g. low, high, etc.) and the
      * time of the request.  Higher priority requests
      * are always processed first; among equals, the oldest request is processed first.  The
@@ -293,15 +438,15 @@ public class AttachmentService extends Service implements Runnable {
             DownloadRequest req = findDownloadRequest(att.mId);
             long priority = getPriority(att);
             if (priority == PRIORITY_NONE) {
-                if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
-                    LogUtils.d(TAG, "== Attachment changed: " + att.mId);
+                if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
+                    LogUtils.d(LOG_TAG, "== Attachment changed: " + att.mId);
                 }
                 // In this case, there is no download priority for this attachment
                 if (req != null) {
                     // If it exists in the map, remove it
                     // NOTE: We don't yet support deleting downloads in progress
-                    if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
-                        LogUtils.d(TAG, "== Attachment " + att.mId + " was in queue, removing");
+                    if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
+                        LogUtils.d(LOG_TAG, "== Attachment " + att.mId + " was in queue, removing");
                     }
                     remove(req);
                 }
@@ -338,9 +483,9 @@ public class AttachmentService extends Service implements Runnable {
                 }
                 // If the request already existed, we'll update the priority (so that the time is
                 // up-to-date); otherwise, we create a new request
-                if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
-                    LogUtils.d(TAG, "== Download queued for attachment " + att.mId + ", class " +
-                            req.priority + ", priority time " + req.time);
+                if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
+                    LogUtils.d(LOG_TAG, "== Download queued for attachment " + att.mId + ", class " +
+                            req.mPriority + ", priority time " + req.mTime);
                 }
             }
             // Process the queue if we're in a wait
@@ -356,7 +501,7 @@ public class AttachmentService extends Service implements Runnable {
             Iterator<DownloadRequest> iterator = iterator();
             while(iterator.hasNext()) {
                 DownloadRequest req = iterator.next();
-                if (req.attachmentId == id) {
+                if (req.mAttachmentId == id) {
                     return req;
                 }
             }
@@ -373,8 +518,8 @@ public class AttachmentService extends Service implements Runnable {
          * the limit on maximum downloads
          */
         /*package*/ synchronized void processQueue() {
-            if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
-                LogUtils.d(TAG, "== Checking attachment queue, " + mDownloadSet.size()
+            if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
+                LogUtils.d(LOG_TAG, "== Checking attachment queue, " + mDownloadSet.size()
                         + " entries");
             }
             Iterator<DownloadRequest> iterator = mDownloadSet.descendingIterator();
@@ -383,19 +528,19 @@ public class AttachmentService extends Service implements Runnable {
                     (mDownloadsInProgress.size() < MAX_SIMULTANEOUS_DOWNLOADS)) {
                 DownloadRequest req = iterator.next();
                  // Enforce per-account limit here
-                if (downloadsForAccount(req.accountId) >= MAX_SIMULTANEOUS_DOWNLOADS_PER_ACCOUNT) {
-                    if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
-                        LogUtils.d(TAG, "== Skip #" + req.attachmentId + "; maxed for acct #" +
-                                req.accountId);
+                if (downloadsForAccount(req.mAccountId) >= MAX_SIMULTANEOUS_DOWNLOADS_PER_ACCOUNT) {
+                    if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
+                        LogUtils.d(LOG_TAG, "== Skip #" + req.mAttachmentId + "; maxed for acct #" +
+                                req.mAccountId);
                     }
                     continue;
-                } else if (Attachment.restoreAttachmentWithId(mContext, req.attachmentId) == null) {
+                } else if (Attachment.restoreAttachmentWithId(mContext, req.mAttachmentId) == null) {
                     continue;
                 }
-                if (!req.inProgress) {
+                if (!req.mInProgress) {
                     final long currentTime = SystemClock.elapsedRealtime();
-                    if (req.retryCount > 0 && req.retryStartTime > currentTime) {
-                        LogUtils.d(TAG, "== waiting to retry attachment %d", req.attachmentId);
+                    if (req.mRetryCount > 0 && req.mRetryStartTime > currentTime) {
+                        LogUtils.d(LOG_TAG, "== waiting to retry attachment %d", req.mAttachmentId);
                         setWatchdogAlarm(CONNECTION_ERROR_RETRY_MILLIS);
                         continue;
                     }
@@ -462,7 +607,7 @@ public class AttachmentService extends Service implements Runnable {
                                 // query results. We are most likely here for other reasons such
                                 // as the inability to view the attachment. In that case, let's just
                                 // skip it for now.
-                                LogUtils.e(TAG, "== skip attachment %d, it is ineligible", att.mId);
+                                LogUtils.e(LOG_TAG, "== skip attachment %d, it is ineligible", att.mId);
                             }
                         }
                     }
@@ -480,7 +625,7 @@ public class AttachmentService extends Service implements Runnable {
         /*package*/ synchronized int downloadsForAccount(long accountId) {
             int count = 0;
             for (DownloadRequest req: mDownloadsInProgress.values()) {
-                if (req.accountId == accountId) {
+                if (req.mAccountId == accountId) {
                     count++;
                 }
             }
@@ -499,10 +644,10 @@ public class AttachmentService extends Service implements Runnable {
             long now = System.currentTimeMillis();
             for (DownloadRequest req: mDownloadsInProgress.values()) {
                 // Check how long it's been since receiving a callback
-                long timeSinceCallback = now - req.lastCallbackTime;
+                long timeSinceCallback = now - req.mLastCallbackTime;
                 if (timeSinceCallback > CALLBACK_TIMEOUT) {
-                    if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
-                        LogUtils.d(TAG, "== Download of " + req.attachmentId + " timed out");
+                    if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
+                        LogUtils.d(LOG_TAG, "== Download of " + req.mAttachmentId + " timed out");
                     }
                     cancelDownload(req);
                 }
@@ -513,8 +658,8 @@ public class AttachmentService extends Service implements Runnable {
             }
             // If there are downloads in progress, reset alarm
             if (!mDownloadsInProgress.isEmpty()) {
-                if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
-                    LogUtils.d(TAG, "Reschedule watchdog...");
+                if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
+                    LogUtils.d(LOG_TAG, "Reschedule watchdog...");
                 }
                 setWatchdogAlarm();
             }
@@ -528,15 +673,15 @@ public class AttachmentService extends Service implements Runnable {
          */
         /*package*/ synchronized boolean tryStartDownload(DownloadRequest req) {
             EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(
-                    AttachmentService.this, req.accountId);
+                    AttachmentService.this, req.mAccountId);
 
             // Do not download the same attachment multiple times
-            boolean alreadyInProgress = mDownloadsInProgress.get(req.attachmentId) != null;
+            boolean alreadyInProgress = mDownloadsInProgress.get(req.mAttachmentId) != null;
             if (alreadyInProgress) return false;
 
             try {
-                if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
-                    LogUtils.d(TAG, ">> Starting download for attachment #" + req.attachmentId);
+                if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
+                    LogUtils.d(LOG_TAG, ">> Starting download for attachment #" + req.mAttachmentId);
                 }
                 startDownload(service, req);
             } catch (RemoteException e) {
@@ -578,25 +723,25 @@ public class AttachmentService extends Service implements Runnable {
          */
         private void startDownload(EmailServiceProxy service, DownloadRequest req)
                 throws RemoteException {
-            req.startTime = System.currentTimeMillis();
-            req.inProgress = true;
-            mDownloadsInProgress.put(req.attachmentId, req);
-            service.loadAttachment(mServiceCallback, req.accountId, req.attachmentId,
-                    req.priority != PRIORITY_FOREGROUND);
+            req.mStartTime = System.currentTimeMillis();
+            req.mInProgress = true;
+            mDownloadsInProgress.put(req.mAttachmentId, req);
+            service.loadAttachment(mServiceCallback, req.mAccountId, req.mAttachmentId,
+                    req.mPriority != PRIORITY_FOREGROUND);
             setWatchdogAlarm();
         }
 
         private void cancelDownload(DownloadRequest req) {
-            LogUtils.d(TAG, "cancelDownload #%d", req.attachmentId);
-            req.inProgress = false;
-            mDownloadsInProgress.remove(req.attachmentId);
+            LogUtils.d(LOG_TAG, "cancelDownload #%d", req.mAttachmentId);
+            req.mInProgress = false;
+            mDownloadsInProgress.remove(req.mAttachmentId);
             // Remove the download from our queue, and then decide whether or not to add it back.
             remove(req);
-            req.retryCount++;
-            if (req.retryCount > CONNECTION_ERROR_MAX_RETRIES) {
-                LogUtils.d(TAG, "too many failures, giving up");
+            req.mRetryCount++;
+            if (req.mRetryCount > CONNECTION_ERROR_MAX_RETRIES) {
+                LogUtils.d(LOG_TAG, "too many failures, giving up");
             } else {
-                LogUtils.d(TAG, "moving to end of queue, will retry");
+                LogUtils.d(LOG_TAG, "moving to end of queue, will retry");
                 // The time field of DownloadRequest is final, because it's unsafe to change it
                 // as long as the DownloadRequest is in the DownloadSet. It's needed for the
                 // comparator, so changing time would make the request unfindable.
@@ -636,27 +781,27 @@ public class AttachmentService extends Service implements Runnable {
             if (statusCode == EmailServiceStatus.CONNECTION_ERROR) {
                 // If this needs to be retried, just process the queue again
                 if (req != null) {
-                    req.retryCount++;
-                    if (req.retryCount > CONNECTION_ERROR_MAX_RETRIES) {
-                        LogUtils.d(TAG, "Connection Error #%d, giving up", attachmentId);
+                    req.mRetryCount++;
+                    if (req.mRetryCount > CONNECTION_ERROR_MAX_RETRIES) {
+                        LogUtils.d(LOG_TAG, "Connection Error #%d, giving up", attachmentId);
                         remove(req);
-                    } else if (req.retryCount > CONNECTION_ERROR_DELAY_THRESHOLD) {
+                    } else if (req.mRetryCount > CONNECTION_ERROR_DELAY_THRESHOLD) {
                         // TODO: I'm not sure this is a great retry/backoff policy, but we're
                         // afraid of changing behavior too much in case something relies upon it.
                         // So now, for the first five errors, we'll retry immediately. For the next
                         // five tries, we'll add a ten second delay between each. After that, we'll
                         // give up.
-                        LogUtils.d(TAG, "ConnectionError #%d, retried %d times, adding delay",
-                                attachmentId, req.retryCount);
-                        req.inProgress = false;
-                        req.retryStartTime = SystemClock.elapsedRealtime() +
+                        LogUtils.d(LOG_TAG, "ConnectionError #%d, retried %d times, adding delay",
+                                attachmentId, req.mRetryCount);
+                        req.mInProgress = false;
+                        req.mRetryStartTime = SystemClock.elapsedRealtime() +
                                 CONNECTION_ERROR_RETRY_MILLIS;
                         setWatchdogAlarm(CONNECTION_ERROR_RETRY_MILLIS);
                     } else {
-                        LogUtils.d(TAG, "ConnectionError #%d, retried %d times, adding delay",
-                                attachmentId, req.retryCount);
-                        req.inProgress = false;
-                        req.retryStartTime = 0;
+                        LogUtils.d(LOG_TAG, "ConnectionError #%d, retried %d times, adding delay",
+                                attachmentId, req.mRetryCount);
+                        req.mInProgress = false;
+                        req.mRetryStartTime = 0;
                         kick();
                     }
                 }
@@ -667,14 +812,14 @@ public class AttachmentService extends Service implements Runnable {
             if (req != null) {
                 remove(req);
             }
-            if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
+            if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
                 long secs = 0;
                 if (req != null) {
-                    secs = (System.currentTimeMillis() - req.time) / 1000;
+                    secs = (System.currentTimeMillis() - req.mTime) / 1000;
                 }
                 String status = (statusCode == EmailServiceStatus.SUCCESS) ? "Success" :
                     "Error " + statusCode;
-                LogUtils.d(TAG, "<< Download finished for attachment #" + attachmentId + "; " + secs
+                LogUtils.d(LOG_TAG, "<< Download finished for attachment #" + attachmentId + "; " + secs
                         + " seconds from request, status: " + status);
             }
 
@@ -703,9 +848,9 @@ public class AttachmentService extends Service implements Runnable {
                     // try to send pending mail now (as mediated by MailService)
                     if ((req != null) &&
                             !Utility.hasUnloadedAttachments(mContext, attachment.mMessageKey)) {
-                        if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
-                            LogUtils.d(TAG, "== Downloads finished for outgoing msg #"
-                                    + req.messageId);
+                        if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
+                            LogUtils.d(LOG_TAG, "== Downloads finished for outgoing msg #"
+                                    + req.mMessageId);
                         }
                         EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(
                                 mContext, accountId);
@@ -781,7 +926,7 @@ public class AttachmentService extends Service implements Runnable {
             // Record status and progress
             DownloadRequest req = mDownloadSet.getDownloadInProgress(attachmentId);
             if (req != null) {
-                if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
+                if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
                     String code;
                     switch(statusCode) {
                         case EmailServiceStatus.SUCCESS: code = "Success"; break;
@@ -789,14 +934,14 @@ public class AttachmentService extends Service implements Runnable {
                         default: code = Integer.toString(statusCode); break;
                     }
                     if (statusCode != EmailServiceStatus.IN_PROGRESS) {
-                        LogUtils.d(TAG, ">> Attachment status " + attachmentId + ": " + code);
-                    } else if (progress >= (req.lastProgress + 10)) {
-                        LogUtils.d(TAG, ">> Attachment progress %d: %d%%", attachmentId, progress);
+                        LogUtils.d(LOG_TAG, ">> Attachment status " + attachmentId + ": " + code);
+                    } else if (progress >= (req.mLastProgress + 10)) {
+                        LogUtils.d(LOG_TAG, ">> Attachment progress %d: %d%%", attachmentId, progress);
                     }
                 }
-                req.lastStatusCode = statusCode;
-                req.lastProgress = progress;
-                req.lastCallbackTime = System.currentTimeMillis();
+                req.mLastStatusCode = statusCode;
+                req.mLastProgress = progress;
+                req.mLastCallbackTime = System.currentTimeMillis();
                 Attachment attachment = Attachment.restoreAttachmentWithId(mContext, attachmentId);
                  if (attachment != null  && statusCode == EmailServiceStatus.IN_PROGRESS) {
                     ContentValues values = new ContentValues();
@@ -836,8 +981,8 @@ public class AttachmentService extends Service implements Runnable {
     /*package*/ boolean dequeue(long attachmentId) {
         DownloadRequest req = mDownloadSet.findDownloadRequest(attachmentId);
         if (req != null) {
-            if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
-                LogUtils.d(TAG, "Dequeued attachmentId:  " + attachmentId);
+            if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
+                LogUtils.d(LOG_TAG, "Dequeued attachmentId:  " + attachmentId);
             }
             mDownloadSet.remove(req);
             return true;
@@ -982,8 +1127,8 @@ public class AttachmentService extends Service implements Runnable {
         if (accountStorage < perAccountMaxStorage) {
             return true;
         } else {
-            if (LogUtils.isLoggable(TAG, LogUtils.DEBUG)) {
-                LogUtils.d(TAG, ">> Prefetch not allowed for account " + account.mId + "; used " +
+            if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
+                LogUtils.d(LOG_TAG, ">> Prefetch not allowed for account " + account.mId + "; used " +
                         accountStorage + ", limit " + perAccountMaxStorage);
             }
             return false;
@@ -994,7 +1139,7 @@ public class AttachmentService extends Service implements Runnable {
     public void run() {
         // These fields are only used within the service thread
         mContext = this;
-        mConnectivityManager = new EmailConnectivityManager(this, TAG);
+        mConnectivityManager = new EmailConnectivityManager(this, LOG_TAG);
         mAccountManagerStub = new AccountManagerStub(this);
 
         // Run through all attachments in the database that require download and add them to
@@ -1004,7 +1149,7 @@ public class AttachmentService extends Service implements Runnable {
                 EmailContent.ID_PROJECTION, "(" + AttachmentColumns.FLAGS + " & ?) != 0",
                 new String[] {Integer.toString(mask)}, null);
         try {
-            LogUtils.d(TAG, "Count: " + c.getCount());
+            LogUtils.d(LOG_TAG, "Count: " + c.getCount());
             while (c.moveToNext()) {
                 Attachment attachment = Attachment.restoreAttachmentWithId(
                         this, c.getLong(EmailContent.ID_PROJECTION_COLUMN));
@@ -1033,7 +1178,7 @@ public class AttachmentService extends Service implements Runnable {
             }
             mDownloadSet.processQueue();
             if (mDownloadSet.isEmpty()) {
-                LogUtils.d(TAG, "*** All done; shutting down service");
+                LogUtils.d(LOG_TAG, "*** All done; shutting down service");
                 stopSelf();
                 break;
             }
@@ -1101,10 +1246,10 @@ public class AttachmentService extends Service implements Runnable {
             // First, start up any required downloads, in priority order
             while (iterator.hasNext()) {
                 DownloadRequest req = iterator.next();
-                pw.println("    Account: " + req.accountId + ", Attachment: " + req.attachmentId);
-                pw.println("      Priority: " + req.priority + ", Time: " + req.time +
-                        (req.inProgress ? " [In progress]" : ""));
-                Attachment att = Attachment.restoreAttachmentWithId(this, req.attachmentId);
+                pw.println("    Account: " + req.mAccountId + ", Attachment: " + req.mAttachmentId);
+                pw.println("      Priority: " + req.mPriority + ", Time: " + req.mTime +
+                        (req.mInProgress ? " [In progress]" : ""));
+                Attachment att = Attachment.restoreAttachmentWithId(this, req.mAttachmentId);
                 if (att == null) {
                     pw.println("      Attachment not in database?");
                 } else if (att.mFileName != null) {
@@ -1127,14 +1272,14 @@ public class AttachmentService extends Service implements Runnable {
                     }
                     pw.println(" Size: " + att.mSize);
                 }
-                if (req.inProgress) {
-                    pw.println("      Status: " + req.lastStatusCode + ", Progress: " +
-                            req.lastProgress);
-                    pw.println("      Started: " + req.startTime + ", Callback: " +
-                            req.lastCallbackTime);
-                    pw.println("      Elapsed: " + ((time - req.startTime) / 1000L) + "s");
-                    if (req.lastCallbackTime > 0) {
-                        pw.println("      CB: " + ((time - req.lastCallbackTime) / 1000L) + "s");
+                if (req.mInProgress) {
+                    pw.println("      Status: " + req.mLastStatusCode + ", Progress: " +
+                            req.mLastProgress);
+                    pw.println("      Started: " + req.mStartTime + ", Callback: " +
+                            req.mLastCallbackTime);
+                    pw.println("      Elapsed: " + ((time - req.mStartTime) / 1000L) + "s");
+                    if (req.mLastCallbackTime > 0) {
+                        pw.println("      CB: " + ((time - req.mLastCallbackTime) / 1000L) + "s");
                     }
                 }
             }
