@@ -780,15 +780,6 @@ public class Utility {
         return Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
     }
 
-    /**
-     * Test that the given strings are equal in a null-pointer safe fashion.
-     */
-    // Use TextUtils.equals()
-    @Deprecated
-    public static boolean areStringsEqual(String s1, String s2) {
-        return (s1 != null && s1.equals(s2)) || (s1 == null && s2 == null);
-    }
-
     public static void enableStrictMode(boolean enabled) {
         StrictMode.setThreadPolicy(enabled
                 ? new StrictMode.ThreadPolicy.Builder().detectAll().build()

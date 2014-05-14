@@ -34,6 +34,10 @@ import android.os.Parcelable;
 import android.os.RemoteException;
 
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.utils.LogUtils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -132,11 +136,13 @@ public final class Account extends EmailContent implements Parcelable {
     @Deprecated
     private String mRingtoneUri;
     public String mProtocolVersion;
-    public int mNewMessageCount;
     public String mSecuritySyncKey;
     public String mSignature;
     public long mPolicyKey;
     public long mPingDuration;
+
+    private static final String JSON_TAG_HOST_AUTH_RECV = "hostAuthRecv";
+    private static final String JSON_TAG_HOST_AUTH_SEND = "hostAuthSend";
 
     // Convenience for creating/working with an account
     public transient HostAuth mHostAuthRecv;
@@ -727,12 +733,101 @@ public final class Account extends EmailContent implements Parcelable {
         values.put(AccountColumns.SENDER_NAME, mSenderName);
         values.put(AccountColumns.RINGTONE_URI, mRingtoneUri);
         values.put(AccountColumns.PROTOCOL_VERSION, mProtocolVersion);
-        values.put(AccountColumns.NEW_MESSAGE_COUNT, mNewMessageCount);
         values.put(AccountColumns.SECURITY_SYNC_KEY, mSecuritySyncKey);
         values.put(AccountColumns.SIGNATURE, mSignature);
         values.put(AccountColumns.POLICY_KEY, mPolicyKey);
         values.put(AccountColumns.PING_DURATION, mPingDuration);
         return values;
+    }
+
+    public String toJsonString(final Context context) {
+        ensureLoaded(context);
+        final JSONObject json = toJson();
+        if (json != null) {
+            return json.toString();
+        }
+        return null;
+    }
+
+    protected JSONObject toJson() {
+        try {
+            final JSONObject json = new JSONObject();
+            json.putOpt(AccountColumns.DISPLAY_NAME, mDisplayName);
+            json.put(AccountColumns.EMAIL_ADDRESS, mEmailAddress);
+            json.put(AccountColumns.SYNC_LOOKBACK, mSyncLookback);
+            json.put(AccountColumns.SYNC_INTERVAL, mSyncInterval);
+            final JSONObject recvJson = mHostAuthRecv.toJson();
+            json.put(JSON_TAG_HOST_AUTH_RECV, recvJson);
+            if (mHostAuthSend != null) {
+                final JSONObject sendJson = mHostAuthSend.toJson();
+                json.put(JSON_TAG_HOST_AUTH_SEND, sendJson);
+            }
+            json.put(AccountColumns.FLAGS, mFlags);
+            json.putOpt(AccountColumns.SENDER_NAME, mSenderName);
+            json.putOpt(AccountColumns.PROTOCOL_VERSION, mProtocolVersion);
+            json.putOpt(AccountColumns.SIGNATURE, mSignature);
+            json.put(AccountColumns.PING_DURATION, mPingDuration);
+            return json;
+        } catch (final JSONException e) {
+            LogUtils.d(LogUtils.TAG, e, "Exception while serializing Account");
+        }
+        return null;
+    }
+
+    public static Account fromJsonString(final String jsonString) {
+        try {
+            final JSONObject json = new JSONObject(jsonString);
+            return fromJson(json);
+        } catch (final JSONException e) {
+            LogUtils.d(LogUtils.TAG, e, "Could not parse json for account");
+        }
+        return null;
+    }
+
+    protected static Account fromJson(final JSONObject json) {
+        try {
+            final Account a = new Account();
+            a.mDisplayName = json.optString(AccountColumns.DISPLAY_NAME);
+            a.mEmailAddress = json.getString(AccountColumns.EMAIL_ADDRESS);
+            // SYNC_KEY is not stored
+            a.mSyncLookback = json.getInt(AccountColumns.SYNC_LOOKBACK);
+            a.mSyncInterval = json.getInt(AccountColumns.SYNC_INTERVAL);
+            final JSONObject recvJson = json.getJSONObject(JSON_TAG_HOST_AUTH_RECV);
+            a.mHostAuthRecv = HostAuth.fromJson(recvJson);
+            final JSONObject sendJson = json.optJSONObject(JSON_TAG_HOST_AUTH_SEND);
+            if (sendJson != null) {
+                a.mHostAuthSend = HostAuth.fromJson(sendJson);
+            }
+            a.mFlags = json.getInt(AccountColumns.FLAGS);
+            a.mSenderName = json.optString(AccountColumns.SENDER_NAME);
+            a.mProtocolVersion = json.optString(AccountColumns.PROTOCOL_VERSION);
+            // SECURITY_SYNC_KEY is not stored
+            a.mSignature = json.optString(AccountColumns.SIGNATURE);
+            // POLICY_KEY is not stored
+            a.mPingDuration = json.optInt(AccountColumns.PING_DURATION, 0);
+            return a;
+        } catch (final JSONException e) {
+            LogUtils.d(LogUtils.TAG, e, "Exception while deserializing Account");
+        }
+        return null;
+    }
+
+    /**
+     * Ensure that all optionally-loaded fields are populated from the provider.
+     * @param context for provider loads
+     */
+    public void ensureLoaded(final Context context) {
+        if (mHostAuthKeyRecv == 0 && mHostAuthRecv == null) {
+            throw new IllegalStateException("Trying to load incomplete Account object");
+        }
+        getOrCreateHostAuthRecv(context).ensureLoaded(context);
+
+        if (mHostAuthKeySend != 0) {
+            getOrCreateHostAuthSend(context);
+            if (mHostAuthSend != null) {
+                mHostAuthSend.ensureLoaded(context);
+            }
+        }
     }
 
     /**
@@ -778,7 +873,7 @@ public final class Account extends EmailContent implements Parcelable {
         dest.writeString(mSenderName);
         dest.writeString(mRingtoneUri);
         dest.writeString(mProtocolVersion);
-        dest.writeInt(mNewMessageCount);
+        dest.writeInt(0 /* mNewMessageCount */);
         dest.writeString(mSecuritySyncKey);
         dest.writeString(mSignature);
         dest.writeLong(mPolicyKey);
@@ -816,7 +911,7 @@ public final class Account extends EmailContent implements Parcelable {
         mSenderName = in.readString();
         mRingtoneUri = in.readString();
         mProtocolVersion = in.readString();
-        mNewMessageCount = in.readInt();
+        /* mNewMessageCount = */ in.readInt();
         mSecuritySyncKey = in.readString();
         mSignature = in.readString();
         mPolicyKey = in.readLong();

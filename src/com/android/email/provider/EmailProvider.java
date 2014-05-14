@@ -16,6 +16,7 @@
 
 package com.android.email.provider;
 
+import android.accounts.AccountManager;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentCallbacks;
 import android.content.ComponentName;
@@ -66,6 +67,7 @@ import com.android.common.content.ProjectionMap;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
+import com.android.email.activity.setup.AccountSettingsUtils;
 import com.android.email.service.AttachmentDownloadService;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
@@ -133,6 +135,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -164,7 +167,11 @@ public class EmailProvider extends ContentProvider {
     public static final String DATABASE_NAME = "EmailProvider.db";
     public static final String BODY_DATABASE_NAME = "EmailProviderBody.db";
 
+    // We don't back up to the backup database anymore, just keep this constant here so we can
+    // delete the old backups and trigger a new backup to the account manager
+    @Deprecated
     private static final String BACKUP_DATABASE_NAME = "EmailProviderBackup.db";
+    private static final String ACCOUNT_MANAGER_JSON_TAG = "accountJson";
 
     /**
      * Notifies that changes happened. Certain UI components, e.g., widgets, can register for this
@@ -203,11 +210,9 @@ public class EmailProvider extends ContentProvider {
     private static final int ACCOUNT_BASE = 0;
     private static final int ACCOUNT = ACCOUNT_BASE;
     private static final int ACCOUNT_ID = ACCOUNT_BASE + 1;
-    private static final int ACCOUNT_RESET_NEW_COUNT = ACCOUNT_BASE + 2;
-    private static final int ACCOUNT_RESET_NEW_COUNT_ID = ACCOUNT_BASE + 3;
-    private static final int ACCOUNT_CHECK = ACCOUNT_BASE + 4;
-    private static final int ACCOUNT_PICK_TRASH_FOLDER = ACCOUNT_BASE + 5;
-    private static final int ACCOUNT_PICK_SENT_FOLDER = ACCOUNT_BASE + 6;
+    private static final int ACCOUNT_CHECK = ACCOUNT_BASE + 2;
+    private static final int ACCOUNT_PICK_TRASH_FOLDER = ACCOUNT_BASE + 3;
+    private static final int ACCOUNT_PICK_SENT_FOLDER = ACCOUNT_BASE + 4;
 
     private static final int MAILBOX_BASE = 0x1000;
     private static final int MAILBOX = MAILBOX_BASE;
@@ -337,7 +342,6 @@ public class EmailProvider extends ContentProvider {
     private static final String DELETE_BODY = "delete from " + Body.TABLE_NAME +
         " where " + BodyColumns.MESSAGE_KEY + '=';
 
-    private static ContentValues CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT;
     private static final ContentValues EMPTY_CONTENT_VALUES = new ContentValues();
 
     private static final String MESSAGE_URI_PARAMETER_MAILBOX_ID = "mailboxId";
@@ -530,6 +534,16 @@ public class EmailProvider extends ContentProvider {
             return;
         }
 
+        // If there's a backup database (old style) delete it and trigger an account manager backup.
+        // Roughly the same comment as above applies
+        final File backupDb = context.getDatabasePath(BACKUP_DATABASE_NAME);
+        if (backupDb.exists()) {
+            backupAccounts(context, mainDatabase);
+            context.deleteDatabase(BACKUP_DATABASE_NAME);
+            LogUtils.w(TAG, "Migrated from backup database to account manager");
+            return;
+        }
+
         // If we have accounts, we're done
         if (DatabaseUtils.longForQuery(mainDatabase,
                                       "SELECT EXISTS (SELECT ? FROM " + Account.TABLE_NAME + " )",
@@ -540,7 +554,7 @@ public class EmailProvider extends ContentProvider {
             return;
         }
 
-        restoreAccounts(context, mainDatabase);
+        restoreAccounts(context);
     }
 
     /** {@inheritDoc} */
@@ -1041,13 +1055,6 @@ public class EmailProvider extends ContentProvider {
             sURIMatcher.addURI(EmailContent.AUTHORITY, "account/#", ACCOUNT_ID);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "accountCheck/#", ACCOUNT_CHECK);
 
-            // Special URI to reset the new message count.  Only update works, and values
-            // will be ignored.
-            sURIMatcher.addURI(EmailContent.AUTHORITY, "resetNewMessageCount",
-                    ACCOUNT_RESET_NEW_COUNT);
-            sURIMatcher.addURI(EmailContent.AUTHORITY, "resetNewMessageCount/#",
-                    ACCOUNT_RESET_NEW_COUNT_ID);
-
             // All mailboxes
             sURIMatcher.addURI(EmailContent.AUTHORITY, "mailbox", MAILBOX);
             // A specific mailbox
@@ -1121,9 +1128,6 @@ public class EmailProvider extends ContentProvider {
             sURIMatcher.addURI(EmailContent.AUTHORITY, "updatedMessage", UPDATED_MESSAGE);
             // A specific updated message
             sURIMatcher.addURI(EmailContent.AUTHORITY, "updatedMessage/#", UPDATED_MESSAGE_ID);
-
-            CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT = new ContentValues();
-            CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT.put(AccountColumns.NEW_MESSAGE_COUNT, 0);
 
             sURIMatcher.addURI(EmailContent.AUTHORITY, "policy", POLICY);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "policy/#", POLICY_ID);
@@ -1531,57 +1535,66 @@ public class EmailProvider extends ContentProvider {
         return copyCount;
     }
 
-    private static SQLiteDatabase getBackupDatabase(Context context) {
-        DBHelper.DatabaseHelper helper = new DBHelper.DatabaseHelper(context, BACKUP_DATABASE_NAME);
-        return helper.getWritableDatabase();
-    }
-
     /**
      * Backup account data, returning the number of accounts backed up
      */
-    private static int backupAccounts(Context context, SQLiteDatabase mainDatabase) {
-        if (MailActivityEmail.DEBUG) {
-            LogUtils.d(TAG, "backupAccounts...");
-        }
-        SQLiteDatabase backupDatabase = getBackupDatabase(context);
+    private static int backupAccounts(final Context context, final SQLiteDatabase db) {
+        final AccountManager am = AccountManager.get(context);
+        final Cursor accountCursor = db.query(Account.TABLE_NAME, Account.CONTENT_PROJECTION,
+                null, null, null, null, null);
+        int updatedCount = 0;
         try {
-            int numBackedUp = copyAccountTables(mainDatabase, backupDatabase);
-            if (numBackedUp < 0) {
-                LogUtils.e(TAG, "Account backup failed!");
-            } else if (MailActivityEmail.DEBUG) {
-                LogUtils.d(TAG, "Backed up " + numBackedUp + " accounts...");
+            while (accountCursor.moveToNext()) {
+                final Account account = new Account();
+                account.restore(accountCursor);
+                EmailServiceInfo serviceInfo =
+                        EmailServiceUtils.getServiceInfo(context, account.getProtocol(context));
+                if (serviceInfo == null) {
+                    LogUtils.d(LogUtils.TAG, "Could not find service info for account");
+                    continue;
+                }
+                final String jsonString = account.toJsonString(context);
+                final android.accounts.Account amAccount =
+                        account.getAccountManagerAccount(serviceInfo.accountType);
+                am.setUserData(amAccount, ACCOUNT_MANAGER_JSON_TAG, jsonString);
+                updatedCount++;
             }
-            return numBackedUp;
         } finally {
-            if (backupDatabase != null) {
-                backupDatabase.close();
-            }
+            accountCursor.close();
         }
+        return updatedCount;
     }
 
     /**
      * Restore account data, returning the number of accounts restored
      */
-    private static int restoreAccounts(Context context, SQLiteDatabase mainDatabase) {
-        if (MailActivityEmail.DEBUG) {
-            LogUtils.d(TAG, "restoreAccounts...");
+    private static int restoreAccounts(final Context context) {
+        final Collection<EmailServiceInfo> infos = EmailServiceUtils.getServiceInfoList(context);
+        // Find all possible account types
+        final Set<String> accountTypes = new HashSet<String>(3);
+        for (final EmailServiceInfo info : infos) {
+            accountTypes.add(info.accountType);
         }
-        SQLiteDatabase backupDatabase = getBackupDatabase(context);
-        try {
-            int numRecovered = copyAccountTables(backupDatabase, mainDatabase);
-            if (numRecovered > 0) {
-                LogUtils.e(TAG, "Recovered " + numRecovered + " accounts!");
-            } else if (numRecovered < 0) {
-                LogUtils.e(TAG, "Account recovery failed?");
-            } else if (MailActivityEmail.DEBUG) {
-                LogUtils.d(TAG, "No accounts to restore...");
+        // Find all accounts we own
+        final List<android.accounts.Account> amAccounts = new ArrayList<android.accounts.Account>();
+        final AccountManager am = AccountManager.get(context);
+        for (final String accountType : accountTypes) {
+            amAccounts.addAll(Arrays.asList(am.getAccountsByType(accountType)));
+        }
+        // Try to restore them from saved JSON
+        int restoredCount = 0;
+        for (final android.accounts.Account amAccount : amAccounts) {
+            final String jsonString = am.getUserData(amAccount, ACCOUNT_MANAGER_JSON_TAG);
+            if (TextUtils.isEmpty(jsonString)) {
+                continue;
             }
-            return numRecovered;
-        } finally {
-            if (backupDatabase != null) {
-                backupDatabase.close();
+            final Account account = Account.fromJsonString(jsonString);
+            if (account != null) {
+                AccountSettingsUtils.commitSettings(context, account);
+                restoredCount++;
             }
         }
+        return restoredCount;
     }
 
     private static final String MESSAGE_CHANGE_LOG_TABLE_INSERT_PREFIX = "insert into %s ("
@@ -1980,27 +1993,6 @@ public class EmailProvider extends ContentProvider {
                         }
                     }
                     result = db.update(tableName, values, selection, selectionArgs);
-                    break;
-
-                case ACCOUNT_RESET_NEW_COUNT_ID:
-                    id = uri.getPathSegments().get(1);
-                    ContentValues newMessageCount = CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT;
-                    if (values != null) {
-                        Long set = values.getAsLong(EmailContent.SET_COLUMN_NAME);
-                        if (set != null) {
-                            newMessageCount = new ContentValues();
-                            newMessageCount.put(AccountColumns.NEW_MESSAGE_COUNT, set);
-                        }
-                    }
-                    result = db.update(tableName, newMessageCount,
-                            whereWithId(id, selection), selectionArgs);
-                    notificationUri = Account.CONTENT_URI; // Only notify account cursors.
-                    break;
-                case ACCOUNT_RESET_NEW_COUNT:
-                    result = db.update(tableName, CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT,
-                            selection, selectionArgs);
-                    // Affects all accounts.  Just invalidate all account cache.
-                    notificationUri = Account.CONTENT_URI; // Only notify account cursors.
                     break;
                 case MESSAGE_MOVE:
                     result = db.update(MessageMove.TABLE_NAME, values, selection, selectionArgs);

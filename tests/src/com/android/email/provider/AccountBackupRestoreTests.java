@@ -67,8 +67,6 @@ public class AccountBackupRestoreTests extends ProviderTestCase2<EmailProvider> 
         assertEquals(" mSenderName", expect.mSenderName, actual.mSenderName);
         assertEquals(" mProtocolVersion", expect.mProtocolVersion,
                 actual.mProtocolVersion);
-        assertEquals(" mNewMessageCount", expect.mNewMessageCount,
-                actual.mNewMessageCount);
         assertEquals(" mSignature", expect.mSignature, actual.mSignature);
 
         // Nulled out by backup

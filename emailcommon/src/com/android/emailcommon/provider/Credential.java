@@ -9,9 +9,11 @@ import android.os.Parcelable;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 
-import com.android.emailcommon.utility.Utility;
 import com.android.mail.utils.LogUtils;
 import com.google.common.base.Objects;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class Credential extends EmailContent implements Parcelable, BaseColumns {
 
@@ -143,9 +145,9 @@ public class Credential extends EmailContent implements Parcelable, BaseColumns 
            return false;
        }
        Credential that = (Credential)o;
-       return Utility.areStringsEqual(mProviderId, that.mProviderId)
-               && Utility.areStringsEqual(mAccessToken, that.mAccessToken)
-               && Utility.areStringsEqual(mRefreshToken, that.mRefreshToken)
+       return TextUtils.equals(mProviderId, that.mProviderId)
+               && TextUtils.equals(mAccessToken, that.mAccessToken)
+               && TextUtils.equals(mRefreshToken, that.mRefreshToken)
                && mExpiration == that.mExpiration;
    }
 
@@ -166,4 +168,32 @@ public class Credential extends EmailContent implements Parcelable, BaseColumns 
        values.put(EXPIRATION_COLUMN, mExpiration);
        return values;
    }
+
+    protected JSONObject toJson() {
+        try {
+            final JSONObject json = new JSONObject();
+            json.put(PROVIDER_COLUMN, mProviderId);
+            json.putOpt(ACCESS_TOKEN_COLUMN, mAccessToken);
+            json.putOpt(REFRESH_TOKEN_COLUMN, mRefreshToken);
+            json.put(EXPIRATION_COLUMN, mExpiration);
+            return json;
+        } catch (final JSONException e) {
+            LogUtils.d(LogUtils.TAG, e, "Exception while serializing Credential");
+        }
+        return null;
+    }
+
+    protected static Credential fromJson(final JSONObject json) {
+        try {
+            final Credential c = new Credential();
+            c.mProviderId = json.getString(PROVIDER_COLUMN);
+            c.mAccessToken = json.optString(ACCESS_TOKEN_COLUMN);
+            c.mRefreshToken = json.optString(REFRESH_TOKEN_COLUMN);
+            c.mExpiration = json.optInt(EXPIRATION_COLUMN, 0);
+            return c;
+        } catch (final JSONException e) {
+            LogUtils.d(LogUtils.TAG, e, "Exception while deserializing Credential");
+        }
+        return null;
+    }
 }

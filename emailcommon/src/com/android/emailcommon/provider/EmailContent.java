@@ -92,10 +92,6 @@ public abstract class EmailContent {
 
     public static final String ID_SELECTION = BaseColumns._ID + " =?";
 
-    public static final String FIELD_COLUMN_NAME = "field";
-    public static final String ADD_COLUMN_NAME = "add";
-    public static final String SET_COLUMN_NAME = "set";
-
     public static final int SYNC_STATUS_NONE = UIProvider.SyncStatus.NO_SYNC;
     public static final int SYNC_STATUS_USER = UIProvider.SyncStatus.USER_REFRESH;
     public static final int SYNC_STATUS_BACKGROUND = UIProvider.SyncStatus.BACKGROUND_SYNC;
@@ -1695,6 +1691,7 @@ public abstract class EmailContent {
         // Protocol version (arbitrary string, used by EAS currently)
         public static final String PROTOCOL_VERSION = "protocolVersion";
         // The number of new messages (reported by the sync/download engines
+        @Deprecated
         public static final String NEW_MESSAGE_COUNT = "newMessageCount";
         // Legacy flags defining security (provisioning) requirements of this account; this
         // information is now found in the Policy table; POLICY_KEY (below) is the foreign key

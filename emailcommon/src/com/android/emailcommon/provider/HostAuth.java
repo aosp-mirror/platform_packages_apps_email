@@ -25,9 +25,11 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
-import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
 import com.android.emailcommon.utility.SSLUtils;
-import com.android.emailcommon.utility.Utility;
+import com.android.mail.utils.LogUtils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -69,6 +71,7 @@ public class HostAuth extends EmailContent implements Parcelable {
     public byte[] mServerCert = null;
     public long mCredentialKey;
 
+    private static final String JSON_TAG_CREDENTIAL = "credential";
     public transient Credential mCredential;
 
     public static final int CONTENT_ID_COLUMN = 0;
@@ -83,8 +86,8 @@ public class HostAuth extends EmailContent implements Parcelable {
     public static final int CONTENT_CREDENTIAL_KEY_COLUMN = 9;
 
     public static final String[] CONTENT_PROJECTION = new String[] {
-            RECORD_ID, HostAuthColumns.PROTOCOL, HostAuthColumns.ADDRESS, HostAuthColumns.PORT,
-            HostAuthColumns.FLAGS, HostAuthColumns.LOGIN,
+            HostAuthColumns._ID, HostAuthColumns.PROTOCOL, HostAuthColumns.ADDRESS,
+            HostAuthColumns.PORT, HostAuthColumns.FLAGS, HostAuthColumns.LOGIN,
             HostAuthColumns.PASSWORD, HostAuthColumns.DOMAIN, HostAuthColumns.CLIENT_CERT_ALIAS,
             HostAuthColumns.CREDENTIAL_KEY
     };
@@ -97,20 +100,13 @@ public class HostAuth extends EmailContent implements Parcelable {
 
      /**
      * Restore a HostAuth from the database, given its unique id
-     * @param context
-     * @param id
+     * @param context for provider loads
+     * @param id corresponds to rowid
      * @return the instantiated HostAuth
      */
     public static HostAuth restoreHostAuthWithId(Context context, long id) {
         return EmailContent.restoreContentWithId(context, HostAuth.class,
                 HostAuth.CONTENT_URI, HostAuth.CONTENT_PROJECTION, id);
-    }
-
-    /**
-     * Returns the scheme for the specified flags.
-     */
-    public static String getSchemeString(String protocol, int flags) {
-        return getSchemeString(protocol, flags, null);
     }
 
     /**
@@ -131,7 +127,7 @@ public class HostAuth extends EmailContent implements Parcelable {
      * creating it if it does not yet exist. This should not be called on the
      * main thread.
      *
-     * @param context
+     * @param context for provider loads
      * @return the credential object for this HostAuth
      */
     public Credential getOrCreateCredential(Context context) {
@@ -157,7 +153,11 @@ public class HostAuth extends EmailContent implements Parcelable {
      * Builds a URI scheme name given the parameters for a {@code HostAuth}. If
      * a {@code clientAlias} is provided, this indicates that a secure
      * connection must be used.
+     *
+     * This is not used in live code, but is kept here for reference when creating providers.xml
+     * entries
      */
+    @SuppressWarnings("unused")
     public static String getSchemeString(String protocol, int flags, String clientAlias) {
         String security = "";
         switch (flags & USER_CONFIG_MASK) {
@@ -242,6 +242,57 @@ public class HostAuth extends EmailContent implements Parcelable {
         values.put(HostAuthColumns.ACCOUNT_KEY, 0); // Need something to satisfy the DB
 
         return values;
+    }
+
+    protected JSONObject toJson() {
+        try {
+            final JSONObject json = new JSONObject();
+            json.put(HostAuthColumns.PROTOCOL, mProtocol);
+            json.put(HostAuthColumns.ADDRESS, mAddress);
+            json.put(HostAuthColumns.PORT, mPort);
+            json.put(HostAuthColumns.FLAGS, mFlags);
+            json.put(HostAuthColumns.LOGIN, mLogin);
+            json.putOpt(HostAuthColumns.PASSWORD, mPassword);
+            json.putOpt(HostAuthColumns.DOMAIN, mDomain);
+            json.putOpt(HostAuthColumns.CLIENT_CERT_ALIAS, mClientCertAlias);
+            if (mCredential != null) {
+                json.putOpt(JSON_TAG_CREDENTIAL, mCredential.toJson());
+            }
+            return json;
+        } catch (final JSONException e) {
+            LogUtils.d(LogUtils.TAG, e, "Exception while serializing HostAuth");
+        }
+        return null;
+    }
+
+    protected static HostAuth fromJson(final JSONObject json) {
+        try {
+            final HostAuth h = new HostAuth();
+            h.mProtocol = json.getString(HostAuthColumns.PROTOCOL);
+            h.mAddress = json.getString(HostAuthColumns.ADDRESS);
+            h.mPort = json.getInt(HostAuthColumns.PORT);
+            h.mFlags = json.getInt(HostAuthColumns.FLAGS);
+            h.mLogin = json.getString(HostAuthColumns.LOGIN);
+            h.mPassword = json.optString(HostAuthColumns.PASSWORD);
+            h.mDomain = json.optString(HostAuthColumns.DOMAIN);
+            h.mClientCertAlias = json.optString(HostAuthColumns.CLIENT_CERT_ALIAS);
+            final JSONObject credJson = json.optJSONObject(JSON_TAG_CREDENTIAL);
+            if (credJson != null) {
+                h.mCredential = Credential.fromJson(credJson);
+            }
+            return h;
+        } catch (final JSONException e) {
+            LogUtils.d(LogUtils.TAG, e, "Exception while deserializing HostAuth");
+        }
+        return null;
+    }
+
+    /**
+     * Ensure that all optionally-loaded fields are populated from the provider.
+     * @param context for provider loads
+     */
+    public void ensureLoaded(final Context context) {
+        getCredential(context);
     }
 
     /**
@@ -432,12 +483,12 @@ public class HostAuth extends EmailContent implements Parcelable {
         return mPort == that.mPort
                 && mId == that.mId
                 && mFlags == that.mFlags
-                && Utility.areStringsEqual(mProtocol, that.mProtocol)
-                && Utility.areStringsEqual(mAddress, that.mAddress)
-                && Utility.areStringsEqual(mLogin, that.mLogin)
-                && Utility.areStringsEqual(mPassword, that.mPassword)
-                && Utility.areStringsEqual(mDomain, that.mDomain)
-                && Utility.areStringsEqual(mClientCertAlias, that.mClientCertAlias);
+                && TextUtils.equals(mProtocol, that.mProtocol)
+                && TextUtils.equals(mAddress, that.mAddress)
+                && TextUtils.equals(mLogin, that.mLogin)
+                && TextUtils.equals(mPassword, that.mPassword)
+                && TextUtils.equals(mDomain, that.mDomain)
+                && TextUtils.equals(mClientCertAlias, that.mClientCertAlias);
                 // We don't care about the server certificate for equals
     }
 

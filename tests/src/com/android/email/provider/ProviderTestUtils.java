@@ -60,7 +60,6 @@ public class ProviderTestUtils extends Assert {
         account.mFlags = 4;
         account.mSenderName = name;
         account.mProtocolVersion = "2.5" + name;
-        account.mNewMessageCount = 5 + name.length();
         account.mPolicyKey = 0;
         account.mSecuritySyncKey = "sec-sync-key-" + name;
         account.mSignature = "signature-" + name;
@@ -303,8 +302,6 @@ public class ProviderTestUtils extends Assert {
         assertEquals(caller + " mSenderName", expect.mSenderName, actual.mSenderName);
         assertEquals(caller + " mProtocolVersion", expect.mProtocolVersion,
                 actual.mProtocolVersion);
-        assertEquals(caller + " mNewMessageCount", expect.mNewMessageCount,
-                actual.mNewMessageCount);
         assertEquals(caller + " mSecuritySyncKey", expect.mSecuritySyncKey,
                 actual.mSecuritySyncKey);
         assertEquals(caller + " mSignature", expect.mSignature, actual.mSignature);
