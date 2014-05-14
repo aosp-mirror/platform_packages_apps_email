@@ -1667,10 +1667,10 @@ public class EmailProvider extends ContentProvider {
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         LogUtils.d(TAG, "Update: " + uri);
         // Handle this special case the fastest possible way
-        if (uri == INTEGRITY_CHECK_URI) {
+        if (INTEGRITY_CHECK_URI.equals(uri)) {
             checkDatabases();
             return 0;
-        } else if (uri == ACCOUNT_BACKUP_URI) {
+        } else if (ACCOUNT_BACKUP_URI.equals(uri)) {
             return backupAccounts(getContext(), getDatabase(getContext()));
         }
 
