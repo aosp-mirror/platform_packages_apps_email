@@ -2009,10 +2009,11 @@ public class EmailProvider extends ContentProvider {
             throw e;
         }
 
-        // Notify all notifier cursors
-        sendNotifierChange(getBaseNotificationUri(match), NOTIFICATION_OP_UPDATE, id);
-
-        notifyUI(notificationUri, null);
+        // Notify all notifier cursors if some records where changed in the database
+        if (result > 0) {
+            sendNotifierChange(getBaseNotificationUri(match), NOTIFICATION_OP_UPDATE, id);
+            notifyUI(notificationUri, null);
+        }
         return result;
     }
 

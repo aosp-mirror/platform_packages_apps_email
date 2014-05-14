@@ -228,8 +228,10 @@ public class EmailConversationCursor extends CursorWrapper implements
         final ContentValues contentValues = new ContentValues(1);
         contentValues.put(EmailContent.MessageColumns.FLAG_SEEN, true);
         final Uri uri = EmailContent.Message.CONTENT_URI;
-        resolver.update(uri, contentValues, EmailContent.MessageColumns.MAILBOX_KEY + " = ?",
-                new String[] {String.valueOf(mMailboxId)});
+        final String where = EmailContent.MessageColumns.MAILBOX_KEY + " = ? AND " +
+                EmailContent.MessageColumns.FLAG_SEEN + " != ?";
+        final String[] selectionArgs = {String.valueOf(mMailboxId), "1"};
+        resolver.update(uri, contentValues, where, selectionArgs);
     }
 
     @Override
