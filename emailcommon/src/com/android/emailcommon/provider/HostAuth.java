@@ -57,7 +57,7 @@ public class HostAuth extends EmailContent implements Parcelable {
     public static final int FLAG_OAUTH        = 0x10;    // Use OAuth for authentication
     // Mask of settings directly configurable by the user
     public static final int USER_CONFIG_MASK  = 0x1b;
-    public static final int FLAG_TRANSPORTSECURITY_MASK = FLAG_SSL | FLAG_TLS;
+    public static final int FLAG_TRANSPORTSECURITY_MASK = FLAG_SSL | FLAG_TLS | FLAG_TRUST_ALL;
 
     public String mProtocol;
     public String mAddress;
@@ -127,10 +127,13 @@ public class HostAuth extends EmailContent implements Parcelable {
      * creating it if it does not yet exist. This should not be called on the
      * main thread.
      *
+     * As a side-effect, it also ensures FLAG_OAUTH is set. Use {@link #removeCredential()} to clear
+     *
      * @param context for provider loads
      * @return the credential object for this HostAuth
      */
     public Credential getOrCreateCredential(Context context) {
+        mFlags |= FLAG_OAUTH;
         if (mCredential == null) {
             if (mCredentialKey >= 0) {
                 mCredential = Credential.restoreCredentialsWithId(context, mCredentialKey);
@@ -147,6 +150,7 @@ public class HostAuth extends EmailContent implements Parcelable {
     public void removeCredential() {
         mCredential = null;
         mCredentialKey = -1;
+        mFlags &= ~FLAG_OAUTH;
     }
 
     /**
@@ -225,6 +229,9 @@ public class HostAuth extends EmailContent implements Parcelable {
         mDomain = cursor.getString(CONTENT_DOMAIN_COLUMN);
         mClientCertAlias = cursor.getString(CONTENT_CLIENT_CERT_ALIAS_COLUMN);
         mCredentialKey = cursor.getLong(CONTENT_CREDENTIAL_KEY_COLUMN);
+        if (mCredentialKey != -1) {
+            mFlags |= FLAG_OAUTH;
+        }
     }
 
     @Override
