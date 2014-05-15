@@ -574,20 +574,29 @@ public abstract class EmailContent {
                     0, 0L);
         }
 
+        public static Uri getBodyTextUriForMessageWithId(long messageId) {
+            return EmailContent.CONTENT_URI.buildUpon()
+                    .appendPath("bodyText").appendPath(Long.toString(messageId)).build();
+        }
+
+        public static Uri getBodyHtmlUriForMessageWithId(long messageId) {
+            return EmailContent.CONTENT_URI.buildUpon()
+                    .appendPath("bodyHtml").appendPath(Long.toString(messageId)).build();
+        }
+
         public static String restoreBodyTextWithMessageId(Context context, long messageId) {
-            return readBodyFromProvider(context, EmailContent.CONTENT_URI.buildUpon()
-                    .appendPath("bodyText").appendPath(Long.toString(messageId)).toString());
+            return readBodyFromProvider(context,
+                    getBodyTextUriForMessageWithId(messageId).toString());
         }
 
         public static String restoreBodyHtmlWithMessageId(Context context, long messageId) {
-            return readBodyFromProvider(context, EmailContent.CONTENT_URI.buildUpon()
-                    .appendPath("bodyHtml").appendPath(Long.toString(messageId)).toString());
+            return readBodyFromProvider(context,
+                    getBodyHtmlUriForMessageWithId(messageId).toString());
         }
 
         private static String readBodyFromProvider(final Context context, final String uri) {
             String content = null;
             try {
-
                 final InputStream bodyInput =
                         context.getContentResolver().openInputStream(Uri.parse(uri));
                 try {

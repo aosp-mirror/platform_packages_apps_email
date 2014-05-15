@@ -41,7 +41,6 @@ import android.database.DatabaseUtils;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
@@ -54,7 +53,6 @@ import android.os.Handler.Callback;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.ParcelFileDescriptor;
-import android.os.ParcelFileDescriptor.AutoCloseOutputStream;
 import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
@@ -131,6 +129,7 @@ import com.google.common.collect.Sets;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -141,13 +140,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 /**
@@ -334,10 +326,12 @@ public class EmailProvider extends ContentProvider {
         Message.DELETED_TABLE_NAME + " select * from " + Message.TABLE_NAME + " where " +
         BaseColumns._ID + '=';
 
+    private static final String ORPHAN_BODY_MESSAGE_ID_SELECT =
+            "select " + BodyColumns.MESSAGE_KEY + " from " + Body.TABLE_NAME +
+                    " except select " + BaseColumns._ID + " from " + Message.TABLE_NAME;
+
     private static final String DELETE_ORPHAN_BODIES = "delete from " + Body.TABLE_NAME +
-        " where " + BodyColumns.MESSAGE_KEY + " in " + "(select " + BodyColumns.MESSAGE_KEY +
-        " from " + Body.TABLE_NAME + " except select " + BaseColumns._ID + " from " +
-        Message.TABLE_NAME + ')';
+        " where " + BodyColumns.MESSAGE_KEY + " in " + '(' + ORPHAN_BODY_MESSAGE_ID_SELECT + ')';
 
     private static final String DELETE_BODY = "delete from " + Body.TABLE_NAME +
         " where " + BodyColumns.MESSAGE_KEY + '=';
@@ -757,9 +751,34 @@ public class EmailProvider extends ContentProvider {
             if (messageDeletion) {
                 if (match == MESSAGE_ID) {
                     // Delete the Body record associated with the deleted message
+                    final ContentValues emptyValues = new ContentValues(2);
+                    emptyValues.putNull(BodyColumns.HTML_CONTENT);
+                    emptyValues.putNull(BodyColumns.TEXT_CONTENT);
+                    final long messageId = Long.valueOf(id);
+                    try {
+                        writeBodyFiles(context, messageId, emptyValues);
+                    } catch (final IllegalStateException e) {
+                        LogUtils.v(LogUtils.TAG, e, "Exception while deleting bodies");
+                    }
                     db.execSQL(DELETE_BODY + id);
                 } else {
                     // Delete any orphaned Body records
+                    final Cursor orphans = db.rawQuery(ORPHAN_BODY_MESSAGE_ID_SELECT, null);
+                    try {
+                        final ContentValues emptyValues = new ContentValues(2);
+                        emptyValues.putNull(BodyColumns.HTML_CONTENT);
+                        emptyValues.putNull(BodyColumns.TEXT_CONTENT);
+                        while (orphans.moveToNext()) {
+                            final long messageId = orphans.getLong(0);
+                            try {
+                                writeBodyFiles(context, messageId, emptyValues);
+                            } catch (final IllegalStateException e) {
+                                LogUtils.v(LogUtils.TAG, e, "Exception while deleting bodies");
+                            }
+                        }
+                    } finally {
+                        orphans.close();
+                    }
                     db.execSQL(DELETE_ORPHAN_BODIES);
                 }
                 db.setTransactionSuccessful();
@@ -866,13 +885,30 @@ public class EmailProvider extends ContentProvider {
 
         try {
             switch (match) {
+                case BODY:
+                    final ContentValues dbValues = new ContentValues(values);
+                    // Prune out the content we don't want in the DB
+                    dbValues.remove(BodyColumns.HTML_CONTENT);
+                    dbValues.remove(BodyColumns.TEXT_CONTENT);
+                    // TODO: move this to the message table
+                    longId = db.insert(Body.TABLE_NAME, "foo", dbValues);
+                    resultUri = ContentUris.withAppendedId(uri, longId);
+                    // Write content to the filesystem where appropriate
+                    // This will look less ugly once the body table is folded into the message table
+                    // and we can just use longId instead
+                    if (!values.containsKey(BodyColumns.MESSAGE_KEY)) {
+                        throw new IllegalArgumentException(
+                                "Cannot insert body without MESSAGE_KEY");
+                    }
+                    final long messageId = values.getAsLong(BodyColumns.MESSAGE_KEY);
+                    writeBodyFiles(getContext(), messageId, values);
+                    break;
                 // NOTE: It is NOT legal for production code to insert directly into UPDATED_MESSAGE
                 // or DELETED_MESSAGE; see the comment below for details
                 case UPDATED_MESSAGE:
                 case DELETED_MESSAGE:
                 case MESSAGE:
                     decodeEmailAddresses(values);
-                case BODY:
                 case ATTACHMENT:
                 case MAILBOX:
                 case ACCOUNT:
@@ -1845,7 +1881,6 @@ public class EmailProvider extends ContentProvider {
                 case SYNCED_MESSAGE_ID:
                 case UPDATED_MESSAGE_ID:
                 case MESSAGE_ID:
-                case BODY_ID:
                 case ATTACHMENT_ID:
                 case MAILBOX_ID:
                 case ACCOUNT_ID:
@@ -1966,8 +2001,40 @@ public class EmailProvider extends ContentProvider {
                         restartPushForAccount(context, db, values, id);
                     }
                     break;
-                case BODY:
-                    result = db.update(tableName, values, selection, selectionArgs);
+                case BODY_ID: {
+                    final ContentValues updateValues = new ContentValues(values);
+                    updateValues.remove(BodyColumns.HTML_CONTENT);
+                    updateValues.remove(BodyColumns.TEXT_CONTENT);
+
+                    result = db.update(tableName, updateValues, whereWithId(id, selection),
+                            selectionArgs);
+
+                    if (values.containsKey(BodyColumns.HTML_CONTENT) ||
+                            values.containsKey(BodyColumns.TEXT_CONTENT)) {
+                        final long messageId;
+                        if (values.containsKey(BodyColumns.MESSAGE_KEY)) {
+                            messageId = values.getAsLong(BodyColumns.MESSAGE_KEY);
+                        } else {
+                            final long bodyId = Long.parseLong(id);
+                            final SQLiteStatement sql = db.compileStatement(
+                                    "select " + BodyColumns.MESSAGE_KEY +
+                                            " from " + Body.TABLE_NAME +
+                                            " where " + BodyColumns._ID + "=" + Long
+                                            .toString(bodyId)
+                            );
+                            messageId = sql.simpleQueryForLong();
+                        }
+                        writeBodyFiles(context, messageId, values);
+                    }
+                    break;
+                }
+                case BODY: {
+                    final ContentValues updateValues = new ContentValues(values);
+                    updateValues.remove(BodyColumns.HTML_CONTENT);
+                    updateValues.remove(BodyColumns.TEXT_CONTENT);
+
+                    result = db.update(tableName, updateValues, selection, selectionArgs);
+
                     if (result == 0 && selection.equals(Body.SELECTION_BY_MESSAGE_KEY)) {
                         // TODO: This is a hack. Notably, the selection equality test above
                         // is hokey at best.
@@ -1975,8 +2042,50 @@ public class EmailProvider extends ContentProvider {
                         final ContentValues insertValues = new ContentValues(values);
                         insertValues.put(BodyColumns.MESSAGE_KEY, selectionArgs[0]);
                         insert(Body.CONTENT_URI, insertValues);
+                    } else {
+                        // possibly need to write new body values
+                        if (values.containsKey(BodyColumns.HTML_CONTENT) ||
+                                values.containsKey(BodyColumns.TEXT_CONTENT)) {
+                            final long messageIds[];
+                            if (values.containsKey(BodyColumns.MESSAGE_KEY)) {
+                                messageIds = new long[] {values.getAsLong(BodyColumns.MESSAGE_KEY)};
+                            } else if (values.containsKey(BodyColumns._ID)) {
+                                final long bodyId = values.getAsLong(BodyColumns._ID);
+                                final SQLiteStatement sql = db.compileStatement(
+                                        "select " + BodyColumns.MESSAGE_KEY +
+                                                " from " + Body.TABLE_NAME +
+                                                " where " + BodyColumns._ID + "=" + Long
+                                                .toString(bodyId)
+                                );
+                                messageIds = new long[] {sql.simpleQueryForLong()};
+                            } else {
+                                final String proj[] = {BodyColumns.MESSAGE_KEY};
+                                final Cursor c = db.query(Body.TABLE_NAME, proj,
+                                        selection, selectionArgs,
+                                        null, null, null);
+                                try {
+                                    final int count = c.getCount();
+                                    if (count == 0) {
+                                        throw new IllegalStateException("Can't find body record");
+                                    }
+                                    messageIds = new long[count];
+                                    int i = 0;
+                                    while (c.moveToNext()) {
+                                        messageIds[i++] = c.getLong(0);
+                                    }
+                                } finally {
+                                    c.close();
+                                }
+                            }
+                            // This is probably overkill
+                            for (int i = 0; i < messageIds.length; i++) {
+                                final long messageId = messageIds[i];
+                                writeBodyFiles(context, messageId, values);
+                            }
+                        }
                     }
                     break;
+                }
                 case MESSAGE:
                     decodeEmailAddresses(values);
                 case UPDATED_MESSAGE:
@@ -2088,30 +2197,86 @@ public class EmailProvider extends ContentProvider {
         return result;
     }
 
-    // TODO: remove this when we move message bodies to actual files
-    private static final BlockingQueue<Runnable> sPoolWorkQueue =
-            new LinkedBlockingQueue<Runnable>(128);
-
-    private static final ThreadFactory sThreadFactory = new ThreadFactory() {
-        private final AtomicInteger mCount = new AtomicInteger(1);
-
-        public Thread newThread(Runnable r) {
-            return new Thread(r, "EmailProviderOpenFile #" + mCount.getAndIncrement());
+    /**
+     * Writes message bodies to disk, read from a set of ContentValues
+     *
+     * @param c Context for finding files
+     * @param messageId id of message to write body for
+     * @param cv {@link ContentValues} containing {@link BodyColumns#HTML_CONTENT} and/or
+     *           {@link BodyColumns#TEXT_CONTENT}. Inserting a null or empty value will delete the
+     *           associated text or html body file
+     * @throws IllegalStateException
+     */
+    private static void writeBodyFiles(final Context c, final long messageId,
+            final ContentValues cv) throws IllegalStateException {
+        if (cv.containsKey(BodyColumns.HTML_CONTENT)) {
+            final String htmlContent = cv.getAsString(BodyColumns.HTML_CONTENT);
+            try {
+                writeBodyFile(c, messageId, "html", htmlContent);
+            } catch (final IOException e) {
+                throw new IllegalStateException("IOException while writing html body " +
+                        "for message id " + Long.toString(messageId), e);
+            }
         }
-    };
+        if (cv.containsKey(BodyColumns.TEXT_CONTENT)) {
+            final String textContent = cv.getAsString(BodyColumns.TEXT_CONTENT);
+            try {
+                writeBodyFile(c, messageId, "txt", textContent);
+            } catch (final IOException e) {
+                throw new IllegalStateException("IOException while writing text body " +
+                        "for message id " + Long.toString(messageId), e);
+            }
+        }
+    }
 
     /**
-     * An {@link java.util.concurrent.Executor} that executes tasks which feed text and html email
-     * bodies into streams.
+     * Writes a message body file to disk
      *
-     * It is important that this Executor is private to this class since we don't want to risk
-     * sharing a common Executor with Threads that *read* from the stream. If that were to happen
-     * it is possible for all Threads in the Executor to be blocked reads and thus starvation
-     * occurs.
+     * @param c Context for finding files dir
+     * @param messageId id of message to write body for
+     * @param ext "html" or "txt"
+     * @param content Body content to write to file, or null/empty to delete file
+     * @throws IOException
      */
-    private static final Executor OPEN_FILE_EXECUTOR = new ThreadPoolExecutor(1 /* corePoolSize */,
-            5 /* maxPoolSize */, 1 /* keepAliveTime */, TimeUnit.SECONDS,
-            sPoolWorkQueue, sThreadFactory);
+    private static void writeBodyFile(final Context c, final long messageId, final String ext,
+            final String content) throws IOException {
+        final File textFile = getBodyFile(c, messageId, ext);
+        if (TextUtils.isEmpty(content)) {
+            if (!textFile.delete()) {
+                LogUtils.v(LogUtils.TAG, "did not delete text body for %d", messageId);
+            }
+        } else {
+            final FileWriter w = new FileWriter(textFile);
+            try {
+                w.write(content);
+            } finally {
+                w.close();
+            }
+        }
+    }
+
+    /**
+     * Returns a {@link java.io.File} object pointing to the body content file for the message
+     *
+     * @param c Context for finding files dir
+     * @param messageId id of message to locate
+     * @param ext "html" or "txt"
+     * @return File ready for operating upon
+     */
+    protected static File getBodyFile(final Context c, final long messageId, final String ext)
+            throws FileNotFoundException {
+        if (!TextUtils.equals(ext, "html") && !TextUtils.equals(ext, "txt")) {
+            throw new IllegalArgumentException("ext must be one of 'html' or 'txt'");
+        }
+        long l1 = messageId / 100 % 100;
+        long l2 = messageId % 100;
+        final File dir = new File(c.getFilesDir(),
+                "body/" + Long.toString(l1) + "/" + Long.toString(l2) + "/");
+        if (!dir.isDirectory() && !dir.mkdirs()) {
+            throw new FileNotFoundException("Could not create directory for body file");
+        }
+        return new File(dir, Long.toString(messageId) + "." + ext);
+    }
 
     @Override
     public ParcelFileDescriptor openFile(final Uri uri, final String mode)
@@ -2141,71 +2306,16 @@ public class EmailProvider extends ContentProvider {
                     }
                 }
                 break;
-            case BODY_HTML:
-            case BODY_TEXT:
-                final ParcelFileDescriptor descriptors[];
-                try {
-                    descriptors = ParcelFileDescriptor.createPipe();
-                } catch (final IOException e) {
-                    throw new FileNotFoundException();
-                }
-                final ParcelFileDescriptor readDescriptor = descriptors[0];
-                final ParcelFileDescriptor writeDescriptor = descriptors[1];
-
-                final SQLiteDatabase db = getDatabase(getContext());
-                final SQLiteStatement sql;
-
-                if (match == BODY_HTML) {
-                    sql = db.compileStatement(
-                            "SELECT " + BodyColumns.HTML_CONTENT +
-                                    " FROM " + Body.TABLE_NAME +
-                                    " WHERE " + BodyColumns.MESSAGE_KEY + "=?");
-                } else { // BODY_TEXT
-                    sql = db.compileStatement(
-                            "SELECT " + BodyColumns.TEXT_CONTENT +
-                                    " FROM " + Body.TABLE_NAME +
-                                    " WHERE " + BodyColumns.MESSAGE_KEY + "=?");
-                }
-
+            case BODY_HTML: {
                 final long messageKey = Long.valueOf(uri.getLastPathSegment());
-                sql.bindLong(1, messageKey);
-                final String contents;
-                try {
-                    contents = sql.simpleQueryForString();
-                } catch (final SQLiteDoneException e) {
-                    LogUtils.v(LogUtils.TAG, e,
-                            "Done exception while reading %s body for message %d",
-                            match == BODY_HTML ? "html" : "text", messageKey);
-                    throw new FileNotFoundException();
-                }
-
-                if (TextUtils.isEmpty(contents)) {
-                    throw new FileNotFoundException("Body field is empty");
-                }
-
-                new AsyncTask<Void, Void, Void>() {
-                    @Override
-                    protected Void doInBackground(Void... params) {
-                        final AutoCloseOutputStream outStream =
-                                new AutoCloseOutputStream(writeDescriptor);
-                        try {
-                            outStream.write(contents.getBytes("utf8"));
-                        } catch (final IOException e) {
-                            LogUtils.e(LogUtils.TAG, e,
-                                    "IOException while writing to body pipe");
-                        } finally {
-                            try {
-                                outStream.close();
-                            } catch (final IOException e) {
-                                LogUtils.e(LogUtils.TAG, e,
-                                        "IOException while closing body pipe");
-                            }
-                        }
-                        return null;
-                    }
-                }.executeOnExecutor(OPEN_FILE_EXECUTOR);
-                return readDescriptor;
-                // break;
+                return ParcelFileDescriptor.open(getBodyFile(getContext(), messageKey, "html"),
+                        Utilities.parseMode(mode));
+            }
+            case BODY_TEXT:{
+                final long messageKey = Long.valueOf(uri.getLastPathSegment());
+                return ParcelFileDescriptor.open(getBodyFile(getContext(), messageKey, "txt"),
+                        Utilities.parseMode(mode));
+            }
         }
 
         throw new FileNotFoundException("unable to open file");
@@ -4455,7 +4565,7 @@ public class EmailProvider extends ContentProvider {
                     c = db.rawQuery(sql, new String[] {id});
                 }
                 if (c != null) {
-                    c = new EmailMessageCursor(c, db, UIProvider.MessageColumns.BODY_HTML,
+                    c = new EmailMessageCursor(getContext(), c, UIProvider.MessageColumns.BODY_HTML,
                             UIProvider.MessageColumns.BODY_TEXT);
                 }
                 notifyUri = UIPROVIDER_MESSAGE_NOTIFIER.buildUpon().appendPath(id).build();
