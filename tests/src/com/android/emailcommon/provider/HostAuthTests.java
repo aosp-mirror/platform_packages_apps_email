@@ -16,7 +16,9 @@
 
 package com.android.emailcommon.provider;
 
+import android.os.Parcel;
 import android.test.AndroidTestCase;
+import android.test.mock.MockContext;
 import android.test.suitebuilder.annotation.SmallTest;
 
 /**
@@ -177,7 +179,40 @@ public class HostAuthTests extends AndroidTestCase {
                     "eas", "server", HostAuth.PORT_UNKNOWN, 0 /* no flags */, "client-cert");
             fail("Shouldn't be able to set a client certificate on an unsecure connection");
         } catch (IllegalArgumentException expected) {
+            // ignore
         }
+    }
+
+    public void testParceling() {
+        final HostAuth orig = new HostAuth();
+        // Fill in some data
+        orig.mPort = 993;
+        orig.mProtocol = "imap";
+        orig.mAddress = "example.com";
+        orig.mLogin = "user";
+        orig.mPassword = "supersecret";
+        orig.mDomain = "domain";
+        orig.mClientCertAlias = "certalias";
+
+        final Parcel p1 = Parcel.obtain();
+        orig.writeToParcel(p1, 0);
+        p1.setDataPosition(0);
+        final HostAuth unparceled1 = new HostAuth(p1);
+        p1.recycle();
+        assertEquals(orig, unparceled1);
+        assertEquals(orig.mCredentialKey, unparceled1.mCredentialKey);
+        assertEquals(orig.mCredential, unparceled1.mCredential);
+
+        orig.getOrCreateCredential(new MockContext());
+
+        final Parcel p2 = Parcel.obtain();
+        orig.writeToParcel(p2, 0);
+        p2.setDataPosition(0);
+        final HostAuth unparceled2 = new HostAuth(p2);
+        p2.recycle();
+        assertEquals(orig, unparceled2);
+        assertEquals(orig.mCredentialKey, unparceled2.mCredentialKey);
+        assertEquals(orig.mCredential, unparceled2.mCredential);
     }
 }
 
