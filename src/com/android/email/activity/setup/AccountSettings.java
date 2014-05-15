@@ -41,7 +41,6 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.android.email.R;
-import com.android.email.activity.setup.CheckSettingsProgressDialogFragment;
 import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
@@ -667,7 +666,7 @@ public class AccountSettings extends PreferenceActivity implements
      */
     @Override
     public void onAccountServerSaveComplete() {
-        onBackPressed();
+        super.onBackPressed();
     }
 
     @Override
