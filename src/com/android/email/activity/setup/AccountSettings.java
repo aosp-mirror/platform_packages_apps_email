@@ -87,6 +87,8 @@ public class AccountSettings extends PreferenceActivity implements
     private static final String EXTRA_LOGIN_WARNING_REASON_FOR_ACCOUNT =
             "AccountSettings.for_account_reason";
     private static final String EXTRA_TITLE = "AccountSettings.title";
+    // STOPSHIP: Do not ship with the debug menu allowed.
+    private static final boolean DEBUG_MENU_ALLOWED = false;
     public static final String EXTRA_NO_ACCOUNTS = "AccountSettings.no_account";
     public static final String EXTRA_ACCOUNT = "AccountSettings.account";
 
@@ -453,15 +455,17 @@ public class AccountSettings extends PreferenceActivity implements
         }
 
         // finally, if debug header is enabled, show it
-        if (mShowDebugMenu) {
-            // setup lightweight header for debugging
-            final Header debugHeader = new Header();
-            debugHeader.title = getText(R.string.debug_title);
-            debugHeader.summary = null;
-            debugHeader.iconRes = 0;
-            debugHeader.fragment = DebugFragment.class.getCanonicalName();
-            debugHeader.fragmentArguments = null;
-            target.add(debugHeader);
+        if (DEBUG_MENU_ALLOWED) {
+            if (mShowDebugMenu) {
+                // setup lightweight header for debugging
+                final Header debugHeader = new Header();
+                debugHeader.title = getText(R.string.debug_title);
+                debugHeader.summary = null;
+                debugHeader.iconRes = 0;
+                debugHeader.fragment = DebugFragment.class.getCanonicalName();
+                debugHeader.fragmentArguments = null;
+                target.add(debugHeader);
+            }
         }
 
         // Save for later use (see forceSwitch)
