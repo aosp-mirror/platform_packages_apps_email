@@ -246,6 +246,7 @@ public abstract class AccountServerBaseFragment extends AccountSetupFragment
      * Returns whether or not any settings have changed.
      */
     public boolean haveSettingsChanged() {
+        collectUserInputInternal();
         final Account account = mSetupData.getAccount();
 
         final HostAuth sendAuth = account.getOrCreateHostAuthSend(mAppContext);
