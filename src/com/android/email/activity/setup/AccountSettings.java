@@ -620,11 +620,13 @@ public class AccountSettings extends PreferenceActivity implements
 
     @VisibleForTesting
     protected AccountSettingsFragment getSettingsFragment() {
-        return mAccountSettingsFragment;
+        return mAccountSettingsFragment != null && mAccountSettingsFragment.isAdded() ?
+                mAccountSettingsFragment : null;
     }
 
     protected AccountServerBaseFragment getAccountServerFragment() {
-        return mAccountServerFragment;
+        return mAccountServerFragment != null && mAccountServerFragment.isAdded() ?
+                mAccountServerFragment : null;
     }
 
     /**

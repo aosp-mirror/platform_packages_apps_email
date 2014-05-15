@@ -242,7 +242,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
             }
         }
 
-        final int flags = sendAuth.mFlags & ~HostAuth.FLAG_AUTHENTICATE;
+        final int flags = sendAuth.mFlags & HostAuth.FLAG_TRANSPORTSECURITY_MASK;
         SpinnerOption.setSpinnerOptionValue(mSecurityTypeView, flags);
 
         final String hostname = sendAuth.mAddress;
