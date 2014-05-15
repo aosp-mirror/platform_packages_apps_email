@@ -53,6 +53,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -75,8 +76,6 @@ public class AttachmentService extends Service implements Runnable {
 
     // Our idle time, waiting for notifications; this is something of a failsafe
     private static final int PROCESS_QUEUE_WAIT_TIME = 30 * ((int)DateUtils.MINUTE_IN_MILLIS);
-    // How often our watchdog checks for callback timeouts
-    private static final int WATCHDOG_CHECK_INTERVAL = 20 * ((int)DateUtils.SECOND_IN_MILLIS);
     // How long we'll wait for a callback before canceling a download and retrying
     private static final int CALLBACK_TIMEOUT = 30 * ((int)DateUtils.SECOND_IN_MILLIS);
     // Try to download an attachment in the background this many times before giving up
@@ -105,79 +104,45 @@ public class AttachmentService extends Service implements Runnable {
     // Limit on the number of attachments we'll check for background download
     private static final int MAX_ATTACHMENTS_TO_CHECK = 25;
 
-    private static final String EXTRA_ATTACHMENT =
-        "com.android.email.AttachmentService.attachment";
+    private static final String EXTRA_ATTACHMENT = "com.android.email.AttachmentService.attachment";
+
+    // This callback is invoked by the various service backends to give us download progress
+    // since those modules are responsible for the actual download.
+    private final ServiceCallback mServiceCallback = new ServiceCallback();
 
     // sRunningService is only set in the UI thread; it's visibility elsewhere is guaranteed
     // by the use of "volatile"
     /*package*/ static volatile AttachmentService sRunningService = null;
 
+    // Signify that we are being shut down & destroyed.
+    private volatile boolean mStop = false;
+
     /*package*/ Context mContext;
     /*package*/ EmailConnectivityManager mConnectivityManager;
+    /*package*/ final AttachmentWatchdog mWatchdog = new AttachmentWatchdog();
 
-    /*package*/ final DownloadSet mDownloadSet = new DownloadSet(new DownloadComparator());
+    private final Object mLock = new Object();
 
-    private final HashMap<Long, Intent> mAccountServiceMap = new HashMap<Long, Intent>();
-    // A map of attachment storage used per account
+    // A map of attachment storage used per account as we have account based maximums to follow.
     // NOTE: This map is not kept current in terms of deletions (i.e. it stores the last calculated
-    // amount plus the size of any new attachments laoded).  If and when we reach the per-account
+    // amount plus the size of any new attachments loaded).  If and when we reach the per-account
     // limit, we recalculate the actual usage
-    /*package*/ final HashMap<Long, Long> mAttachmentStorageMap = new HashMap<Long, Long>();
+    /*package*/ final ConcurrentHashMap<Long, Long> mAttachmentStorageMap =
+            new ConcurrentHashMap<Long, Long>();
+
     // A map of attachment ids to the number of failed attempts to download the attachment
     // NOTE: We do not want to persist this. This allows us to retry background downloading
     // if any transient network errors are fixed & and the app is restarted
-    /* package */ final HashMap<Long, Integer> mAttachmentFailureMap = new HashMap<Long, Integer>();
-    private final ServiceCallback mServiceCallback = new ServiceCallback();
+    /* package */ final ConcurrentHashMap<Long, Integer> mAttachmentFailureMap =
+            new ConcurrentHashMap<Long, Integer>();
 
-    private final Object mLock = new Object();
-    private volatile boolean mStop = false;
+    // Keeps tracks of downloads in progress based on an attachment ID to DownloadRequest mapping.
+    /*package*/ final ConcurrentHashMap<Long, DownloadRequest> mDownloadsInProgress =
+            new ConcurrentHashMap<Long, DownloadRequest>();
 
-    /*package*/ AccountManagerStub mAccountManagerStub;
-
-    /**
-     * We only use the getAccounts() call from AccountManager, so this class wraps that call and
-     * allows us to build a mock account manager stub in the unit tests
-     */
-    /*package*/ static class AccountManagerStub {
-        private int mNumberOfAccounts;
-        private final AccountManager mAccountManager;
-
-        AccountManagerStub(Context context) {
-            if (context != null) {
-                mAccountManager = AccountManager.get(context);
-            } else {
-                mAccountManager = null;
-            }
-        }
-
-        /*package*/ int getNumberOfAccounts() {
-            if (mAccountManager != null) {
-                return mAccountManager.getAccounts().length;
-            } else {
-                return mNumberOfAccounts;
-            }
-        }
-
-        /*package*/ void setNumberOfAccounts(int numberOfAccounts) {
-            mNumberOfAccounts = numberOfAccounts;
-        }
-    }
-
-    /**
-     * Watchdog alarm receiver; responsible for making sure that downloads in progress are not
-     * stalled, as determined by the timing of the most recent service callback
-     */
-    public static class Watchdog extends BroadcastReceiver {
-        @Override
-        public void onReceive(final Context context, Intent intent) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    watchdogAlarm();
-                }
-            }, "AttachmentService Watchdog").start();
-        }
-    }
+    // TODO: Remove in favor of the DownloadQueue when we are ready to move over (soon).
+    /*package*/ final DownloadSet mDownloadSet = new DownloadSet(new DownloadComparator());
+    /*package*/ final DownloadQueue mDownloadQueue = new DownloadQueue();
 
     /**
      * This class is used to contain the details and state of a particular request to download
@@ -265,8 +230,10 @@ public class AttachmentService extends Service implements Runnable {
     /**
      * Comparator class for the download set; we first compare by priority.  Requests with equal
      * priority are compared by the time the request was created (older requests come first)
+     * TODO: Move this into the DownloadQueue as a private static class when we finally remove
+     * the DownloadSet class from the implementation.
      */
-    /*package*/ static class DownloadComparator implements Comparator<DownloadRequest> {
+    private static class DownloadComparator implements Comparator<DownloadRequest> {
         @Override
         public int compare(DownloadRequest req1, DownloadRequest req2) {
             int res;
@@ -300,8 +267,7 @@ public class AttachmentService extends Service implements Runnable {
 
         // For prioritization of DownloadRequests.
         /*package*/ final PriorityQueue<DownloadRequest> mRequestQueue =
-                new PriorityQueue<DownloadRequest>(DEFAULT_SIZE,
-                new AttachmentService.DownloadComparator());
+                new PriorityQueue<DownloadRequest>(DEFAULT_SIZE, new DownloadComparator());
 
         // Secondary collection to quickly find objects w/o the help of an iterator.
         // This class should be kept in lock step with the priority queue.
@@ -314,12 +280,13 @@ public class AttachmentService extends Service implements Runnable {
          * @param request The {@link DownloadRequest} that should be added to our queue
          * @return true if it was added (or already exists), false otherwise
          */
-        public synchronized boolean addRequest(final DownloadRequest request) {
+        public synchronized boolean addRequest(final DownloadRequest request)
+                throws NullPointerException {
             // It is key to keep the map and queue in lock step
             if (request == null) {
-                // We can't add a null entry into the queue
-                LogUtils.wtf(AttachmentService.LOG_TAG, "Adding a null DownloadRequest");
-                return false;
+                // We can't add a null entry into the queue so let's throw what the underlying
+                // data structure would throw.
+                throw new NullPointerException();
             }
             final long requestId = request.mAttachmentId;
             if (requestId < 0) {
@@ -399,7 +366,122 @@ public class AttachmentService extends Service implements Runnable {
         }
     }
 
-     /**
+    /**
+     * Watchdog alarm receiver; responsible for making sure that downloads in progress are not
+     * stalled, as determined by the timing of the most recent service callback
+     */
+    public static class AttachmentWatchdog extends BroadcastReceiver {
+        // How often our watchdog checks for callback timeouts
+        private static final int WATCHDOG_CHECK_INTERVAL = 20 * ((int)DateUtils.SECOND_IN_MILLIS);
+        public static final String EXTRA_CALLBACK_TIMEOUT = "callback_timeout";
+        private PendingIntent mWatchdogPendingIntent;
+
+        public void setWatchdogAlarm(final Context context, final long delay,
+                final int callbackTimeout) {
+            // Lazily initialize the pending intent
+            if (mWatchdogPendingIntent == null) {
+                Intent intent = new Intent(context, AttachmentWatchdog.class);
+                intent.putExtra(EXTRA_CALLBACK_TIMEOUT, callbackTimeout);
+                mWatchdogPendingIntent =
+                        PendingIntent.getBroadcast(context, 0, intent, 0);
+            }
+            // Set the alarm
+            final AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+            am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delay,
+                    mWatchdogPendingIntent);
+        }
+
+        public void setWatchdogAlarm(final Context context) {
+            // Call the real function with default values.
+            setWatchdogAlarm(context, WATCHDOG_CHECK_INTERVAL, CALLBACK_TIMEOUT);
+        }
+
+        @Override
+        public void onReceive(final Context context, final Intent intent) {
+            final int callbackTimeout = intent.getIntExtra(EXTRA_CALLBACK_TIMEOUT,
+                    CALLBACK_TIMEOUT);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    final AttachmentService service = AttachmentService.sRunningService;
+                    if (service != null) {
+                        // If our service instance is gone, just leave
+                        if (service.mStop) {
+                            return;
+                        }
+                        // Get the timeout time from the intent.
+                        watchdogAlarm(service, callbackTimeout);
+                    }
+                }
+            }, "AttachmentService AttachmentWatchdog").start();
+        }
+
+        /**
+         * Watchdog for downloads; we use this in case we are hanging on a download, which might
+         * have failed silently (the connection dropped, for example)
+         */
+        /*package*/ void watchdogAlarm(final AttachmentService service, final int callbackTimeout) {
+            final long now = System.currentTimeMillis();
+            // We want to iterate on each of the downloads that are currently in progress and
+            // cancel the ones that seem to be taking too long.
+            final Collection<DownloadRequest> inProgressRequests = service.getInProgressDownloads();
+            for (DownloadRequest req: inProgressRequests) {
+                // Check how long it's been since receiving a callback
+                final long timeSinceCallback = now - req.mLastCallbackTime;
+                if (timeSinceCallback > callbackTimeout) {
+                    if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
+                        LogUtils.d(LOG_TAG, "== Download of " + req.mAttachmentId + " timed out");
+                    }
+                    service.cancelDownload(req);
+                }
+            }
+            // Check whether we can start new downloads...
+            if (service.isConnected()) {
+                service.processQueue();
+            }
+            if (service.areDownloadsInProgress()) {
+                if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
+                    LogUtils.d(LOG_TAG, "Reschedule watchdog...");
+                }
+                setWatchdogAlarm(service);
+            }
+        }
+    }
+
+    /**
+     * Temporary function implemented as a transition between DownloadSet to DownloadQueue.
+     * Will be property implemented and documented in a subsequent CL.
+     * @param req The {@link DownloadRequest} to be cancelled.
+     */
+    /*package*/ void cancelDownload(final DownloadRequest req) {
+        mDownloadSet.cancelDownload(req);
+        return;
+    }
+
+    /**
+     * Temporary function implemented as a transition between DownloadSet to DownloadQueue
+     */
+    /*package*/ void processQueue() {
+        mDownloadSet.processQueue();
+        return;
+    }
+
+    /*package*/ boolean isConnected() {
+        if (mConnectivityManager != null) {
+            return mConnectivityManager.hasConnectivity();
+        }
+        return false;
+    }
+
+    /*package*/ Collection<DownloadRequest> getInProgressDownloads() {
+        return mDownloadsInProgress.values();
+    }
+
+    /*package*/ boolean areDownloadsInProgress() {
+        return !mDownloadsInProgress.isEmpty();
+    }
+
+    /**
      * The DownloadSet is a TreeSet sorted by priority class (e.g. low, high, etc.) and the
      * time of the request.  Higher priority requests
      * are always processed first; among equals, the oldest request is processed first.  The
@@ -408,17 +490,10 @@ public class AttachmentService extends Service implements Runnable {
      */
     /*package*/ class DownloadSet extends TreeSet<DownloadRequest> {
         private static final long serialVersionUID = 1L;
-        private PendingIntent mWatchdogPendingIntent;
 
         /*package*/ DownloadSet(Comparator<? super DownloadRequest> comparator) {
             super(comparator);
         }
-
-        /**
-         * Maps attachment id to DownloadRequest
-         */
-        /*package*/ final ConcurrentHashMap<Long, DownloadRequest> mDownloadsInProgress =
-            new ConcurrentHashMap<Long, DownloadRequest>();
 
         private void markAttachmentAsFailed(final Attachment att) {
             final ContentValues cv = new ContentValues();
@@ -541,7 +616,8 @@ public class AttachmentService extends Service implements Runnable {
                     final long currentTime = SystemClock.elapsedRealtime();
                     if (req.mRetryCount > 0 && req.mRetryStartTime > currentTime) {
                         LogUtils.d(LOG_TAG, "== waiting to retry attachment %d", req.mAttachmentId);
-                        setWatchdogAlarm(CONNECTION_ERROR_RETRY_MILLIS);
+                        mWatchdog.setWatchdogAlarm(mContext, CONNECTION_ERROR_RETRY_MILLIS,
+                                CALLBACK_TIMEOUT);
                         continue;
                     }
                     // TODO: We try to gate ineligible downloads from entering the queue but its
@@ -633,39 +709,6 @@ public class AttachmentService extends Service implements Runnable {
         }
 
         /**
-         * Watchdog for downloads; we use this in case we are hanging on a download, which might
-         * have failed silently (the connection dropped, for example)
-         */
-        private void onWatchdogAlarm() {
-            // If our service instance is gone, just leave
-            if (mStop) {
-                return;
-            }
-            long now = System.currentTimeMillis();
-            for (DownloadRequest req: mDownloadsInProgress.values()) {
-                // Check how long it's been since receiving a callback
-                long timeSinceCallback = now - req.mLastCallbackTime;
-                if (timeSinceCallback > CALLBACK_TIMEOUT) {
-                    if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
-                        LogUtils.d(LOG_TAG, "== Download of " + req.mAttachmentId + " timed out");
-                    }
-                    cancelDownload(req);
-                }
-            }
-            // Check whether we can start new downloads...
-            if (mConnectivityManager != null && mConnectivityManager.hasConnectivity()) {
-                processQueue();
-            }
-            // If there are downloads in progress, reset alarm
-            if (!mDownloadsInProgress.isEmpty()) {
-                if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
-                    LogUtils.d(LOG_TAG, "Reschedule watchdog...");
-                }
-                setWatchdogAlarm();
-            }
-        }
-
-        /**
          * Attempt to execute the DownloadRequest, enforcing the maximum downloads per account
          * parameter
          * @param req the DownloadRequest
@@ -696,22 +739,6 @@ public class AttachmentService extends Service implements Runnable {
             return mDownloadsInProgress.get(attachmentId);
         }
 
-        private void setWatchdogAlarm(final long delay) {
-            // Lazily initialize the pending intent
-            if (mWatchdogPendingIntent == null) {
-                Intent intent = new Intent(mContext, Watchdog.class);
-                mWatchdogPendingIntent =
-                    PendingIntent.getBroadcast(mContext, 0, intent, 0);
-            }
-            // Set the alarm
-            AlarmManager am = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
-            am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delay,
-                    mWatchdogPendingIntent);
-        }
-
-        private void setWatchdogAlarm() {
-            setWatchdogAlarm(WATCHDOG_CHECK_INTERVAL);
-        }
 
         /**
          * Do the work of starting an attachment download using the EmailService interface, and
@@ -728,10 +755,10 @@ public class AttachmentService extends Service implements Runnable {
             mDownloadsInProgress.put(req.mAttachmentId, req);
             service.loadAttachment(mServiceCallback, req.mAccountId, req.mAttachmentId,
                     req.mPriority != PRIORITY_FOREGROUND);
-            setWatchdogAlarm();
+            mWatchdog.setWatchdogAlarm(mContext);
         }
 
-        private void cancelDownload(DownloadRequest req) {
+        /*package*/ synchronized void cancelDownload(DownloadRequest req) {
             LogUtils.d(LOG_TAG, "cancelDownload #%d", req.mAttachmentId);
             req.mInProgress = false;
             mDownloadsInProgress.remove(req.mAttachmentId);
@@ -796,7 +823,8 @@ public class AttachmentService extends Service implements Runnable {
                         req.mInProgress = false;
                         req.mRetryStartTime = SystemClock.elapsedRealtime() +
                                 CONNECTION_ERROR_RETRY_MILLIS;
-                        setWatchdogAlarm(CONNECTION_ERROR_RETRY_MILLIS);
+                        mWatchdog.setWatchdogAlarm(mContext, CONNECTION_ERROR_RETRY_MILLIS,
+                                CALLBACK_TIMEOUT);
                     } else {
                         LogUtils.d(LOG_TAG, "ConnectionError #%d, retried %d times, adding delay",
                                 attachmentId, req.mRetryCount);
@@ -962,10 +990,6 @@ public class AttachmentService extends Service implements Runnable {
         }
     }
 
-    /*package*/ void addServiceIntentForTest(long accountId, Intent intent) {
-        mAccountServiceMap.put(accountId, intent);
-    }
-
     /*package*/ void onChange(Attachment att) {
         mDownloadSet.onChange(this, att);
     }
@@ -1026,13 +1050,6 @@ public class AttachmentService extends Service implements Runnable {
             return service.dequeue(attachmentId);
         }
         return false;
-    }
-
-    public static void watchdogAlarm() {
-        AttachmentService service = sRunningService;
-        if (service != null) {
-            service.mDownloadSet.onWatchdogAlarm();
-        }
     }
 
     // The queue entries here are entries of the form {id, flags}, with the values passed in to
@@ -1236,6 +1253,7 @@ public class AttachmentService extends Service implements Runnable {
         }
     }
 
+    // For Debugging.
     @Override
     public void dump(FileDescriptor fd, PrintWriter pw, String[] args) {
         pw.println("AttachmentService");
@@ -1283,6 +1301,43 @@ public class AttachmentService extends Service implements Runnable {
                     }
                 }
             }
+        }
+    }
+
+    // For Testing
+    /*package*/ AccountManagerStub mAccountManagerStub;
+    private final HashMap<Long, Intent> mAccountServiceMap = new HashMap<Long, Intent>();
+
+    /*package*/ void addServiceIntentForTest(long accountId, Intent intent) {
+        mAccountServiceMap.put(accountId, intent);
+    }
+
+    /**
+     * We only use the getAccounts() call from AccountManager, so this class wraps that call and
+     * allows us to build a mock account manager stub in the unit tests
+     */
+    /*package*/ static class AccountManagerStub {
+        private int mNumberOfAccounts;
+        private final AccountManager mAccountManager;
+
+        AccountManagerStub(Context context) {
+            if (context != null) {
+                mAccountManager = AccountManager.get(context);
+            } else {
+                mAccountManager = null;
+            }
+        }
+
+        /*package*/ int getNumberOfAccounts() {
+            if (mAccountManager != null) {
+                return mAccountManager.getAccounts().length;
+            } else {
+                return mNumberOfAccounts;
+            }
+        }
+
+        /*package*/ void setNumberOfAccounts(int numberOfAccounts) {
+            mNumberOfAccounts = numberOfAccounts;
         }
     }
 }
