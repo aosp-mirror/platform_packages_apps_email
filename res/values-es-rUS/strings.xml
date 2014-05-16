@@ -167,7 +167,7 @@
     <string name="account_setup_options_mail_window_2weeks" msgid="3583478100026382495">"Últimas dos semanas"</string>
     <string name="account_setup_options_mail_window_1month" msgid="4289585173153789717">"Último mes"</string>
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Todos"</string>
-    <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"Usar cta. predeterminada"</string>
+    <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"Usar cuenta predeterminada"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"El nombre de usuario o la contraseña son incorrectos."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Se produjo un error al acceder.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_autodiscover_dlg_authfail_title" msgid="7365992662150541370">"Error al configurar la cuenta"</string>

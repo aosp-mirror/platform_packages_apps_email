@@ -162,7 +162,7 @@
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"ቀኖች አስምር"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"ራስ ሰር"</string>
     <string name="account_setup_options_mail_window_1day" msgid="7727436096227637646">"ያለፈው ቀን"</string>
-    <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"ያለፉት ሶስት ቀናት"</string>
+    <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"ያለፉት ሶስት ቀኖች"</string>
     <string name="account_setup_options_mail_window_1week" msgid="5804121771990249346">"ያለፈው ሳምንት"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="3583478100026382495">"ያለፉት ሁለት ሳምንታት"</string>
     <string name="account_setup_options_mail_window_1month" msgid="4289585173153789717">"ያለፈው ወር"</string>
@@ -258,7 +258,7 @@
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"የ(<xliff:g id="MAILBOXX_NAME">%s</xliff:g>) አስምር አማራጮች"</string>
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"ይህንን ዓቃፊ ያመሳስሉ"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"በሚገናኝበት ጊዜ መልዕክቶች ይወርዳሉ"</string>
-    <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"ለአስምር የደብዳቤ ቀናት"</string>
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"ለአስምር የደብዳቤ ቀኖች"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"የላኪ ምስል"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"ጥቂት \"Plus\" መለያዎች ይህን ፕሮግራም ለማገናኘት ብቻ የPOP ድረስ ያካትታሉ። ከትክክለኛ ኢሜይል አድራሻህ እና የይለፍ ቃልህን ማስገባት ካልቻልክ የተከፈለበት የ\"Plus\" መለያ ሊኖርህ አይችልም። እባክህ ወደ እነዚህ የመልዕክት መለያዎች መዳረሻ ለማግኘት የድረ አሳሹን አስነሳ።"</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"ይህን ኢሜይል ከመፍጠርህ በፊት፣ የT-Online ድረ ጣቢያን ጎብኝ እና ለPOP3 ኢሜይል ለመድረስ ይለፍ ቃል ፍጠር።"</string>

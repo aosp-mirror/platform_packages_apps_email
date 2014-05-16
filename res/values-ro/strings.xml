@@ -83,7 +83,7 @@
     <string name="password_warning_label" msgid="1479956455912041077">"Adresa de e-mail sau parola este incorectă"</string>
     <string name="email_confirmation_label" msgid="1082319634606902954">"Adresa de e-mail:"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Cont de e-mail"</string>
-    <string name="accounts_welcome" msgid="8337750045270269649">"Puteţi configura contul dvs. în doar câţiva paşi."</string>
+    <string name="accounts_welcome" msgid="8337750045270269649">"Vă puteți configura contul în câțiva pași."</string>
     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Adresă de e-mail"</string>
     <string name="or_label" msgid="2207403489755254427">"SAU"</string>
     <string name="sign_in_with_google" msgid="9051489501495503976">"Conectați-vă cu Google"</string>
@@ -154,12 +154,12 @@
     <string name="account_setup_options_mail_check_frequency_30min" msgid="1097088928685931864">"La fiecare 30 de minute"</string>
     <string name="account_setup_options_mail_check_frequency_1hour" msgid="3767715356039692899">"La fiecare oră"</string>
     <string name="account_setup_options_notify_label" msgid="7046146571560728829">"Doresc să fiu notificat(ă) la primirea de e-mailuri"</string>
-    <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"Doresc sincronizarea agendei acestui cont"</string>
+    <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"Sincronizează agenda acestui cont"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"Doresc sincronizarea calendarului acestui cont"</string>
-    <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"Doresc sincronizarea mesajelor de e-mail din acest cont"</string>
-    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Doresc să se descarce automat ataşamentele când sunt conectat(ă) la Wi-Fi"</string>
+    <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"Sincronizează mesajele de e-mail din acest cont"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Descarcă automat atașamentele când sunt conectat(ă) la Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"Nu s-a putut finaliza"</string>
-    <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Zile pentru sincronizare"</string>
+    <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"Sincronizați începând cu"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automat"</string>
     <string name="account_setup_options_mail_window_1day" msgid="7727436096227637646">"Ultima zi"</string>
     <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"Ultimele trei zile"</string>
@@ -214,10 +214,10 @@
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Numele de utilizator sau parola pentru <xliff:g id="ACCOUNT">%s</xliff:g> sunt incorecte. Doriţi să le actualizaţi acum?"</string>
     <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Conectarea dvs. la <xliff:g id="ACCOUNT">%s</xliff:g> a eşuat; motivul invocat de server a fost: <xliff:g id="REASON">%s</xliff:g> Doriţi să actualizaţi numele de utilizator şi/sau parola?"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Descărcaţi ataşamentele"</string>
-    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Descărcaţi în mod automat prin Wi-Fi ataşam. mesaj. recente"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Descarcă automat prin Wi-Fi ataşam. mesaj. recente"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Notificările de e-mail"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Frecvenţa sincronizării, notificări etc."</string>
-    <string name="account_settings_notify_summary" msgid="8134339460923068254">"Trimiteţi notificare la primire e-mail"</string>
+    <string name="account_settings_notify_summary" msgid="8134339460923068254">"Trimite notificare la primire e-mail"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="4322235101687302250">"Frecvența de sincronizare"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Setări pentru mesajele primite"</string>
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Nume utilizator, parolă şi alte setări pt. serverul de primire"</string>
@@ -258,7 +258,7 @@
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"Opţiuni de sincronizare (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Sincronizați acest dosar"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Mesajele vor fi descărcate la conectare"</string>
-    <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Zile de sincronizat pentru e-mailuri"</string>
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Sincronizează începând cu"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Imaginea expeditorului"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Numai unele conturi de tip „Plus” includ accesul de tip POP, permiţând conectarea acestui program. Dacă nu reuşiţi să vă conectaţi cu adresa de e-mail şi parola corecte, este posibil să nu aveţi un cont de tip „Plus” plătit. Lansaţi browserul web pentru a obţine accesul la aceste conturi de e-mail."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Înainte de configurarea acestui cont de e-mail, accesaţi site-ul web T-Online şi creaţi o parolă pentru accesul la serviciile de e-mail POP3."</string>
@@ -296,10 +296,10 @@
     <string name="policy_screen_timeout" msgid="414869965358468080">"Disp. inactiv necesar pt. blocare ecran"</string>
     <string name="policy_calendar_age" msgid="627405158087482302">"Limitare număr evenimente de calendar sincronizate"</string>
     <string name="policy_email_age" msgid="7144148367145424963">"Limitare număr de e-mailuri sincronizate"</string>
-    <string name="quick_1" msgid="3426057697353380951">"Vă mulţumim!"</string>
+    <string name="quick_1" msgid="3426057697353380951">"Mulțumesc!"</string>
     <string name="quick_2" msgid="4188036352885736617">"Sună bine!"</string>
     <string name="quick_3" msgid="8061819976353395585">"Voi citi mai târziu acest mesaj şi vă voi contacta."</string>
-    <string name="quick_4" msgid="3988974084396883051">"Să stabilim o întâlnire pentru a discuta această acţiune."</string>
+    <string name="quick_4" msgid="3988974084396883051">"Să stabilim o întâlnire pentru a discuta."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Sincronizarea în fundal pentru acest cont este dezactivată în roaming."</string>
     <string name="confirm_response" msgid="9151965975158906286">"Se trimite răspunsul…"</string>
     <string name="no_conversations" msgid="5559527390337162819">"Niciun mesaj."</string>

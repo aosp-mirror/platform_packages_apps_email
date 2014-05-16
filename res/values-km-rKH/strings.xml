@@ -22,7 +22,7 @@
     <string name="permission_access_provider_desc" msgid="6296566558584670348">"អនុញ្ញាត​​ឲ្យ​​កម្មវិធី​ដើម្បី​ចូល​ដំណើរការ​មូលដ្ឋាន​ទិន្នន័យ​អ៊ីមែល​របស់​អ្នក,​ រួម​ទាំង​សារ​ដែល​បាន​ទទួល, ​សារ​ដែល​បាន​ផ្ញើ, ​ឈ្មោះ​អ្នក​ប្រើ ​និង​ពាក្យ​សម្ងាត់​។"</string>
     <string name="app_name" msgid="5815426892327290362">"អ៊ីមែល"</string>
     <string name="debug_title" msgid="5175710493691536719">"កែ​កំហុស"</string>
-    <string name="next_action" msgid="3931301986364184415">"បន្ទាប់"</string>
+    <string name="next_action" msgid="3931301986364184415">"បន្ទាប់​"</string>
     <string name="previous_action" msgid="5181616311579820981">"មុន"</string>
     <string name="done_action" msgid="7497990549515580249">"ធ្វើ​រួច"</string>
     <string name="create_action" msgid="3062715563215392251">"បង្កើត​ថ្មី"</string>
@@ -41,7 +41,7 @@
     <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"ប្រអប់​ចេញ"</string>
     <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"សេចក្ដី​ព្រាង"</string>
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"ធុង​សំរាម"</string>
-    <string name="mailbox_name_display_sent" msgid="3426058998191869523">"បាន​ផ្ញើ"</string>
+    <string name="mailbox_name_display_sent" msgid="3426058998191869523">"បាន​ផ្ញើ​"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"ឥត​បាន​ការ"</string>
     <string name="mailbox_name_display_starred" msgid="7788694947644186069">"បាន​ដាក់​ផ្កាយ"</string>
     <string name="mailbox_name_display_unread" msgid="1015674989793998695">"មិន​ទាន់​អាន"</string>
@@ -79,15 +79,15 @@
     <string name="account_setup_basics_title" msgid="3578333196594678422">"រៀបចំ​គណនី"</string>
     <string name="oauth_authentication_title" msgid="4096761972487140963">"ស្នើសុំ​ការ​អនុញ្ញាត"</string>
     <string name="sign_in_title" msgid="8509755024484685915">"ចូល"</string>
-    <string name="oauth_error_description" msgid="5257268852139229456">"មិន​អាច​ផ្ទៀងផ្ទាត់"</string>
+    <string name="oauth_error_description" msgid="5257268852139229456">"មិន​អាច​ផ្ទៀងផ្ទាត់​​"</string>
     <string name="password_warning_label" msgid="1479956455912041077">"អាសយដ្ឋាន​អ៊ីមែល ឬ​ពាក្យសម្ងាត់​មិន​ត្រឹមត្រូវ"</string>
     <string name="email_confirmation_label" msgid="1082319634606902954">"អាសយដ្ឋាន​អ៊ីមែល៖"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"គណនី​អ៊ីមែល"</string>
     <string name="accounts_welcome" msgid="8337750045270269649">"អ្នក​អាច​កំណត់​រចនា​សម្ព័ន្ធ​​​​អ៊ីមែល​សម្រាប់​គណនី​​ភាគច្រើន​​​​​ដោយ​ពីរ ឬ​បី​ជំហានទៀត​ប៉ុណ្ណោះ។"</string>
-    <string name="account_setup_basics_email_label" msgid="3454164053624112047">"អាសយដ្ឋាន​អ៊ីមែល"</string>
+    <string name="account_setup_basics_email_label" msgid="3454164053624112047">"អាសយដ្ឋាន​អ៊ីមែល​"</string>
     <string name="or_label" msgid="2207403489755254427">"OR"</string>
     <string name="sign_in_with_google" msgid="9051489501495503976">"ចូល​ដោយ​ប្រើ​ Google"</string>
-    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"ពាក្យសម្ងាត់"</string>
+    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"ពាក្យសម្ងាត់​"</string>
     <string name="password_label" msgid="5228754278985667134">"ពាក្យសម្ងាត់"</string>
     <string name="signed_in_with_service_label" msgid="4909910797357155961">"បាន​ចូល​​ជា​មួយ %s"</string>
     <string name="authentication_label" msgid="5210804218348191833">"ការ​ផ្ទៀងផ្ទាត់"</string>
@@ -114,8 +114,8 @@
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"តើ​​គណនី​នេះ​ជា​ប្រភេទ​អ្វី?"</string>
     <string name="account_setup_incoming_title" msgid="6796626791039136005">"រៀបចំ​គណនី"</string>
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"ការ​កំណត់​ម៉ាស៊ីន​មេ​​ចូល"</string>
-    <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"ឈ្មោះ​អ្នក​ប្រើ"</string>
-    <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"ពាក្យសម្ងាត់"</string>
+    <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"ឈ្មោះ​អ្នក​ប្រើ​"</string>
+    <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"ពាក្យសម្ងាត់​"</string>
     <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"ម៉ាស៊ីន​មេ"</string>
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"ច្រក"</string>
     <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"ប្រភេទ​សុវត្ថិភាព"</string>
@@ -135,8 +135,8 @@
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"ច្រក"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"ប្រភេទ​​សុវត្ថិភាព"</string>
     <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"ទាមទារ​ឲ្យ​​ចូល"</string>
-    <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"ឈ្មោះ​អ្នក​ប្រើ"</string>
-    <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"ពាក្យសម្ងាត់"</string>
+    <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"ឈ្មោះ​អ្នក​ប្រើ​"</string>
+    <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"ពាក្យសម្ងាត់​"</string>
     <string name="account_setup_exchange_certificate_title" msgid="8473793588405277962">"វិញ្ញាបនបត្រ​ម៉ាស៊ីន​ភ្ញៀវ"</string>
     <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"ជ្រើស"</string>
     <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"ប្រើ​វិញ្ញាបនបត្រ​ម៉ាស៊ីន​ភ្ញៀវ"</string>
@@ -162,7 +162,7 @@
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"ថ្ងៃ​​ត្រូវ​ធ្វើ​សម​កាល​កម្ម"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"ស្វ័យប្រវត្តិ"</string>
     <string name="account_setup_options_mail_window_1day" msgid="7727436096227637646">"ថ្ងៃ​ចុង​ក្រោយ"</string>
-    <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"បី​ថ្ងៃ​ចុង​ក្រោយ"</string>
+    <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"បី​ថ្ងៃ​ចុង​ក្រោយ​"</string>
     <string name="account_setup_options_mail_window_1week" msgid="5804121771990249346">"សប្ដាហ៍​​ចុង​ក្រោយ"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="3583478100026382495">"ពីរ​​សប្ដាហ៍​​ចុង​ក្រោយ"</string>
     <string name="account_setup_options_mail_window_1month" msgid="4289585173153789717">"ខែ​មុន"</string>
@@ -222,7 +222,7 @@
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"ការ​កំណត់​ចូល"</string>
     <string name="account_settings_incoming_summary" msgid="2923044634831881068">"ឈ្មោះ​អ្នក​ប្រើ​, ពាក្យ​សម្ងាត់ ​និង​ការ​កំណត់​ម៉ាស៊ីន​មេ​ចូល​​ផ្សេង​ទៀត"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"​កំណត់​ការ​ចេញ"</string>
-    <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"ឈ្មោះ​អ្នក​ប្រើ​, ពាក្យ​សម្ងាត់ ​និង​ការ​កំណត់​ម៉ាស៊ីន​មេ​​ផ្សេង​ទៀត"</string>
+    <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"ឈ្មោះ​អ្នក​ប្រើ​, ពាក្យ​សម្ងាត់ ​និង​ការ​កំណត់​ម៉ាស៊ីន​មេ​​ផ្សេង​ទៀត​"</string>
     <string name="account_settings_enforced_label" msgid="7429582254433588882">"បាន​អនុវត្ត​គោល​ន​យោ​បាយ"</string>
     <string name="account_settings_enforced_summary" msgid="8140860420440447771">"គ្មាន"</string>
     <string name="account_settings_unsupported_label" msgid="1954091071454235577">"គោល​ន​យោ​បាយ​ដែល​មិន​បាន​គាំទ្រ"</string>
@@ -266,7 +266,7 @@
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="3673792980526246177">"មិន​អាច​បង្កើត​គណនី​។ សូម​ព្យាយាម​ម្ដងទៀត។"</string>
     <string name="device_admin_label" msgid="8680224994637869414">"អ៊ីមែល"</string>
-    <string name="device_admin_description" msgid="426727923791430306">"បើក​​គោល​ន​យោ​បាយ​សុវត្ថិភាព​ម៉ាស៊ីន​មេ​​ដែល​បាន​បញ្ជាក់"</string>
+    <string name="device_admin_description" msgid="426727923791430306">"បើក​​គោល​ន​យោ​បាយ​សុវត្ថិភាព​ម៉ាស៊ីន​មេ​​ដែល​បាន​បញ្ជាក់​"</string>
     <string name="settings_activity_title" msgid="5185915603716333904">"ការ​កំណត់"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"ការ​កំណត់​ទូទៅ"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"បញ្ជាក់​មុន​ពេល​លុប"</string>
@@ -293,7 +293,7 @@
     <string name="policy_require_password" msgid="7177274900480984702">"ទាមទារ​ការ​ពាក្យ​សម្ងាត់​ឧបករណ៍"</string>
     <string name="policy_password_history" msgid="5743544498302303181">"ដាក់កម្រិត​​ប្រើ​​ពាក្យ​សម្ងាត់​ថ្មី​ឡើងវិញ"</string>
     <string name="policy_password_expiration" msgid="1248123255253649199">"ទាមទារ​​​ពាក្យ​សម្ងាត់​ដើម្បី​កំណត់​ពេល​ផុត​កំណត់"</string>
-    <string name="policy_screen_timeout" msgid="414869965358468080">"ទាមទារ​ឲ្យ​​​មាន​ឧបករណ៍​​​ទំនេរ​ ដើម្បី​ចាក់សោ​អេក្រង់"</string>
+    <string name="policy_screen_timeout" msgid="414869965358468080">"ទាមទារ​ឲ្យ​​​មាន​ឧបករណ៍​​​ទំនេរ​ ដើម្បី​ចាក់សោ​អេក្រង់​"</string>
     <string name="policy_calendar_age" msgid="627405158087482302">"កំណត់​​លេខ​ព្រឹត្តិការណ៍​ប្រតិទិន​ដែល​បាន​ធ្វើ​សម​កាល​កម្ម"</string>
     <string name="policy_email_age" msgid="7144148367145424963">"កំណត់​ចំនួន​​អ៊ីមែល​ដែល​​​បាន​ធ្វើ​សម​កាល​កម្ម"</string>
     <string name="quick_1" msgid="3426057697353380951">"​អរគុណ​!"</string>
