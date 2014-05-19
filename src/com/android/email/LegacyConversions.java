@@ -475,8 +475,8 @@ public class LegacyConversions {
         final Base64Body body = new Base64Body(content);
         final MimeBodyPart bp = new MimeBodyPart(body, contentType);
         bp.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING, "base64");
-        bp.setHeader(MimeHeader.HEADER_CONTENT_DISPOSITION, "attachment;\n"
-                + "filename=\"" + filename + "\";"
+        bp.setHeader(MimeHeader.HEADER_CONTENT_DISPOSITION, "attachment;\n "
+                + (!TextUtils.isEmpty(filename) ? "filename=\"" + filename + "\";" : "")
                 + "size=" + contentSize);
         if (contentId != null) {
             bp.setHeader(MimeHeader.HEADER_CONTENT_ID, contentId);
