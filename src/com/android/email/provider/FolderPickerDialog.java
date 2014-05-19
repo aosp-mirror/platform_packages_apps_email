@@ -100,7 +100,7 @@ public class FolderPickerDialog implements OnClickListener, OnMultiChoiceClickLi
      */
     public void update(FolderSelectorAdapter.FolderRow row) {
         // Update the UI
-        final boolean add = !row.isPresent();
+        final boolean add = !row.isSelected();
         if (!add) {
             // This would remove the check on a single radio button, so just
             // return.
@@ -111,11 +111,11 @@ public class FolderPickerDialog implements OnClickListener, OnMultiChoiceClickLi
         for (int i = 0; i < mAdapter.getCount(); i++) {
             Object item = mAdapter.getItem(i);
             if (item instanceof FolderRow) {
-                ((FolderRow)item).setIsPresent(false);
+                ((FolderRow)item).setIsSelected(false);
             }
         }
         mCheckedState.clear();
-        row.setIsPresent(add);
+        row.setIsSelected(add);
         mAdapter.notifyDataSetChanged();
         mCheckedState.put(row.getFolder(), add);
 
