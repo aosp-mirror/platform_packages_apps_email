@@ -3383,6 +3383,9 @@ public class EmailProvider extends ContentProvider {
         // TODO: Should this be stored per-account, or some other mechanism?
         capabilities |= AccountCapabilities.NESTED_FOLDERS;
 
+        // sanitization happens lazily in the EmailMessageCursor as HTML email bodies are requested
+        capabilities |= UIProvider.AccountCapabilities.SANITIZED_HTML;
+
         return capabilities;
     }
 
@@ -3485,6 +3488,10 @@ public class EmailProvider extends ContentProvider {
                 values.put(UIProvider.AccountColumns.SYNC_STATUS,
                         UIProvider.SyncStatus.INITIAL_SYNC_NEEDED);
             }
+        }
+        if (projectionColumns.contains(UIProvider.AccountColumns.ENABLE_MESSAGE_TRANSFORMS)) {
+            // Email is now sanitized, which grants the ability to inject beautifying javascript.
+            values.put(UIProvider.AccountColumns.ENABLE_MESSAGE_TRANSFORMS, 1);
         }
         if (projectionColumns.contains(
                 UIProvider.AccountColumns.SettingsColumns.IMPORTANCE_MARKERS_ENABLED)) {

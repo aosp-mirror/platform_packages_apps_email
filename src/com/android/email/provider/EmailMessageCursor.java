@@ -25,6 +25,7 @@ import android.provider.BaseColumns;
 import android.util.SparseArray;
 
 import com.android.emailcommon.provider.EmailContent.Body;
+import com.android.mail.utils.HtmlSanitizer;
 import com.android.mail.utils.LogUtils;
 
 import org.apache.commons.io.IOUtils;
@@ -70,7 +71,8 @@ public class EmailMessageCursor extends CursorWrapper {
                     final Uri htmlUri = Body.getBodyHtmlUriForMessageWithId(messageId);
                     final InputStream in = cr.openInputStream(htmlUri);
                     final String underlyingHtmlString = IOUtils.toString(in);
-                    mHtmlParts.put(position, underlyingHtmlString);
+                    final String sanitizedHtml = HtmlSanitizer.sanitizeHtml(underlyingHtmlString);
+                    mHtmlParts.put(position, sanitizedHtml);
                 }
             } catch (final IOException e) {
                 LogUtils.v(LogUtils.TAG, e, "Did not find html body for message %d", messageId);
