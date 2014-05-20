@@ -58,8 +58,13 @@ public class AttachmentServiceTests extends TestCase {
 
     public void testDownloadQueueAddRequestNull() {
         final AttachmentService.DownloadQueue dq = new AttachmentService.DownloadQueue();
-        final boolean result = dq.addRequest(null);
-        assertFalse(result);
+        boolean exceptionThrown = false;
+        try {
+            dq.addRequest(null);
+        } catch (NullPointerException ex) {
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
         assertEquals(0, dq.getSize());
         assertTrue(dq.isEmpty());
     }
@@ -386,5 +391,92 @@ public class AttachmentServiceTests extends TestCase {
             assertTrue(requestTime >= lastTime);
             lastTime = requestTime;
         }
+    }
+
+    /**
+     * This function will test the function AttachmentWatchdog.watchdogAlarm() that is executed
+     * whenever the onReceive() call is made by the AlarmManager
+     */
+    public void testAttachmentWatchdogAlarm() {
+        final MockAttachmentService mockAttachmentService = new MockAttachmentService();
+
+        // Add a couple of items to the in-progress queue
+        final AttachmentService.AttachmentWatchdog testWatchdog =
+                new AttachmentService.AttachmentWatchdog();
+
+        // Add one download request object to the in process map that should
+        // should not need to be cancelled.
+        final AttachmentService.DownloadRequest dr =
+                new AttachmentService.DownloadRequest(AttachmentService.PRIORITY_FOREGROUND, 1);
+        dr.mLastCallbackTime = System.currentTimeMillis();
+        mockAttachmentService.mDownloadsInProgress.put(dr.mAttachmentId, dr);
+
+        // Set the alarm to delay 1 second and too look for attachments that have been
+        // not updated for 60 seconds.
+        testWatchdog.watchdogAlarm(mockAttachmentService, 60000);
+
+        // Now check the results. The code should have called not cancelled anything but should
+        // have called processQueue()
+        assertTrue(mockAttachmentService.mCalledProcessQueue);
+        assertFalse(mockAttachmentService.mCalledCancel);
+    }
+
+    /**
+     * This function will test the function AttachmentWatchdog.watchdogAlarm() that is executed
+     * whenever the onReceive() call is made by the AlarmManager
+     */
+    public void testAttachmentWatchdogAlarmNeedsCancel() {
+        final MockAttachmentService mockAttachmentService = new MockAttachmentService();
+
+        // Add a couple of items to the in-progress queue
+        final AttachmentService.AttachmentWatchdog testWatchdog =
+                new AttachmentService.AttachmentWatchdog();
+
+        // Add one download request object to the in process map that should
+        // be cancelled by the time the callback is executed.
+        final AttachmentService.DownloadRequest dr =
+                new AttachmentService.DownloadRequest(AttachmentService.PRIORITY_FOREGROUND, 1);
+        dr.mLastCallbackTime = System.currentTimeMillis() - 60000;
+        mockAttachmentService.mDownloadsInProgress.put(dr.mAttachmentId, dr);
+
+        // Set the alarm to delay 1 second and too look for attachments that have been
+        // not updated for 10 seconds.
+        // Set the alarm to delay 1 second and too look for attachments that have been
+        // not updated for 60 seconds.
+        testWatchdog.watchdogAlarm(mockAttachmentService, 1000);
+
+        // Now check the results. The code should have called both cancelDownload and
+        // processQueue()
+        assertTrue(mockAttachmentService.mCalledProcessQueue);
+        assertTrue(mockAttachmentService.mCalledCancel);
+    }
+
+    // Mock test class to stub out a couple of functions but record that they were called.
+    class MockAttachmentService extends AttachmentService {
+        // For AttachmentWatchdog tests to see if certain functions were called.
+        public boolean mCalledCancel = false;
+        public boolean mCalledProcessQueue = false;
+
+        public MockAttachmentService() {
+            sRunningService = this;
+        }
+
+        @Override
+        boolean isConnected() { return true; }
+
+        @Override
+        void cancelDownload(final DownloadRequest req) {
+            mCalledCancel = true;
+        }
+
+        @Override
+        void processQueue() {
+            mCalledProcessQueue = true;
+        }
+
+        // Forcing this to be false so we don't reset the alarm during testing.
+        @Override
+        boolean areDownloadsInProgress() { return false; }
+
     }
 }
