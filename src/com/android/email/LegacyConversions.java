@@ -45,6 +45,7 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.utils.LogUtils;
+import com.google.common.annotations.VisibleForTesting;
 
 import org.apache.commons.io.IOUtils;
 
@@ -184,6 +185,59 @@ public class LegacyConversions {
     }
 
     /**
+     * Convert a MIME Part object into an Attachment object. Separated for unit testing.
+     *
+     * @param part MIME part object to convert
+     * @return Populated Account object
+     * @throws MessagingException
+     */
+    @VisibleForTesting
+    protected static Attachment mimePartToAttachment(final Part part) throws MessagingException {
+        // Transfer fields from mime format to provider format
+        final String contentType = MimeUtility.unfoldAndDecode(part.getContentType());
+
+        String name = MimeUtility.getHeaderParameter(contentType, "name");
+        if (TextUtils.isEmpty(name)) {
+            final String contentDisposition = MimeUtility.unfoldAndDecode(part.getDisposition());
+            name = MimeUtility.getHeaderParameter(contentDisposition, "filename");
+        }
+
+        // Incoming attachment: Try to pull size from disposition (if not downloaded yet)
+        long size = 0;
+        final String disposition = part.getDisposition();
+        if (!TextUtils.isEmpty(disposition)) {
+            String s = MimeUtility.getHeaderParameter(disposition, "size");
+            if (!TextUtils.isEmpty(s)) {
+                try {
+                    size = Long.parseLong(s);
+                } catch (final NumberFormatException e) {
+                    LogUtils.d(LogUtils.TAG, e, "Could not decode size \"%s\" from attachment part",
+                            size);
+                }
+            }
+        }
+
+        // Get partId for unloaded IMAP attachments (if any)
+        // This is only provided (and used) when we have structure but not the actual attachment
+        final String[] partIds = part.getHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA);
+        final String partId = partIds != null ? partIds[0] : null;
+
+        final Attachment localAttachment = new Attachment();
+
+        // Run the mime type through inferMimeType in case we have something generic and can do
+        // better using the filename extension
+        localAttachment.mMimeType = AttachmentUtilities.inferMimeType(name, part.getMimeType());
+        localAttachment.mFileName = name;
+        localAttachment.mSize = size;
+        localAttachment.mContentId = part.getContentId();
+        localAttachment.setContentUri(null); // Will be rewritten by saveAttachmentBody
+        localAttachment.mLocation = partId;
+        localAttachment.mEncoding = "B"; // TODO - convert other known encodings
+
+        return localAttachment;
+    }
+
+    /**
      * Add a single attachment part to the message
      *
      * This will skip adding attachments if they are already found in the attachments table.
@@ -203,40 +257,8 @@ public class LegacyConversions {
     public static void addOneAttachment(final Context context,
             final EmailContent.Message localMessage, final Part part)
             throws MessagingException, IOException {
-        // Transfer fields from mime format to provider format
-        final String contentType = MimeUtility.unfoldAndDecode(part.getContentType());
-        String name = MimeUtility.getHeaderParameter(contentType, "name");
-        if (name == null) {
-            final String contentDisposition = MimeUtility.unfoldAndDecode(part.getDisposition());
-            name = MimeUtility.getHeaderParameter(contentDisposition, "filename");
-        }
-
-        // Incoming attachment: Try to pull size from disposition (if not downloaded yet)
-        long size = 0;
-        final String disposition = part.getDisposition();
-        if (disposition != null) {
-            String s = MimeUtility.getHeaderParameter(disposition, "size");
-            if (s != null) {
-                size = Long.parseLong(s);
-            }
-        }
-
-        // Get partId for unloaded IMAP attachments (if any)
-        // This is only provided (and used) when we have structure but not the actual attachment
-        final String[] partIds = part.getHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA);
-        final String partId = partIds != null ? partIds[0] : null;
-
-        // Run the mime type through inferMimeType in case we have something generic and can do
-        // better using the filename extension
-        final Attachment localAttachment = new Attachment();
-        localAttachment.mMimeType = AttachmentUtilities.inferMimeType(name, part.getMimeType());
-        localAttachment.mFileName = name;
-        localAttachment.mSize = size;           // May be reset below if file handled
-        localAttachment.mContentId = part.getContentId();
-        localAttachment.setContentUri(null);     // Will be rewritten by saveAttachmentBody
+        final Attachment localAttachment = mimePartToAttachment(part);
         localAttachment.mMessageKey = localMessage.mId;
-        localAttachment.mLocation = partId;
-        localAttachment.mEncoding = "B";        // TODO - convert other known encodings
         localAttachment.mAccountKey = localMessage.mAccountKey;
 
         if (DEBUG_ATTACHMENTS) {
@@ -469,7 +491,8 @@ public class LegacyConversions {
      * @param contentId   as referenced from cid: uris in the message body (if applicable)
      * @param content     unencoded bytes
      */
-    private static void addAttachmentPart(final Multipart mp, final String contentType,
+    @VisibleForTesting
+    protected static void addAttachmentPart(final Multipart mp, final String contentType,
             final Long contentSize, final String filename, final String contentId,
             final InputStream content) throws MessagingException {
         final Base64Body body = new Base64Body(content);

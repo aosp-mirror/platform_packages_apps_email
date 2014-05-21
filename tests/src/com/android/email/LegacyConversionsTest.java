@@ -16,22 +16,40 @@
 
 package com.android.email;
 
+import android.content.Context;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 
+import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.internet.MimeBodyPart;
 import com.android.emailcommon.internet.MimeMessage;
+import com.android.emailcommon.internet.MimeMultipart;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.mail.Message.RecipientType;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.mail.Multipart;
 import com.android.emailcommon.mail.Part;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.utility.ConversionUtilities;
 import com.android.emailcommon.utility.ConversionUtilities.BodyFieldData;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 
+@SmallTest
 public class LegacyConversionsTest extends AndroidTestCase {
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        TempDirectory.setTempDirectory(getContext());
+    }
 
     /**
      * Test basic fields conversion from Store message to Provider message.
@@ -171,5 +189,75 @@ public class LegacyConversionsTest extends AndroidTestCase {
         // a "null" body part of type text/plain should result in a null mTextContent
         final BodyFieldData data = ConversionUtilities.parseBodyFields(viewables);
         assertNull(data.textContent);
+    }
+
+    /**
+     * Test adding an attachment to a message, and then parsing it back out.
+     * @throws MessagingException
+     */
+    public void testAttachmentRoundTrip() throws Exception {
+        final Context context = getContext();
+        final MimeMultipart mp = new MimeMultipart();
+        mp.setSubType("mixed");
+
+        final long size;
+
+        final File tempDir = context.getCacheDir();
+        if (!tempDir.isDirectory() && !tempDir.mkdirs()) {
+            fail("Could not create temporary directory");
+        }
+
+        final File tempAttachmentFile = File.createTempFile("testAttachmentRoundTrip", ".txt",
+                tempDir);
+
+        try {
+            final OutputStream attOut = new FileOutputStream(tempAttachmentFile);
+            try {
+                attOut.write("TestData".getBytes());
+            } finally {
+                attOut.close();
+            }
+            size = tempAttachmentFile.length();
+            final InputStream attIn = new FileInputStream(tempAttachmentFile);
+            LegacyConversions.addAttachmentPart(mp, "text/plain", size, "test.txt",
+                    "testContentId", attIn);
+        } finally {
+            if (!tempAttachmentFile.delete()) {
+                fail("Setup failure: Could not clean up temp file");
+            }
+        }
+
+        final MimeMessage outMessage = new MimeMessage();
+        outMessage.setBody(mp);
+
+        final MimeMessage inMessage;
+
+        final File tempBodyFile = File.createTempFile("testAttachmentRoundTrip", ".eml",
+                context.getCacheDir());
+        try {
+            final OutputStream bodyOut = new FileOutputStream(tempBodyFile);
+            try {
+                outMessage.writeTo(bodyOut);
+            } finally {
+                bodyOut.close();
+            }
+            final InputStream bodyIn = new FileInputStream(tempBodyFile);
+            try {
+                inMessage = new MimeMessage(bodyIn);
+            } finally {
+                bodyIn.close();
+            }
+        } finally {
+            if (!tempBodyFile.delete()) {
+                fail("Setup failure: Could not clean up temp file");
+            }
+        }
+        final Multipart inBody = (Multipart) inMessage.getBody();
+        final Part attPart = inBody.getBodyPart(0);
+        final Attachment att = LegacyConversions.mimePartToAttachment(attPart);
+        assertEquals(att.mFileName, "test.txt");
+        assertEquals(att.mMimeType, "text/plain");
+        assertEquals(att.mSize, size);
+        assertEquals(att.mContentId, "testContentId");
     }
 }
