@@ -237,7 +237,7 @@
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"A fiók névjegyeinek szinkronizálása"</string>
     <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Naptár szinkronizálása"</string>
     <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"A fiók naptárának szinkronizálása"</string>
-    <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"E-mail szinkroniz."</string>
+    <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"E-mail szinkronizálása"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"A fiók e-mailjeinek szinkronizálása"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Rezgés"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"Válasszon csengőhangot"</string>

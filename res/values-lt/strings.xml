@@ -285,7 +285,7 @@
     <string name="policy_calendar_age" msgid="627405158087482302">"Riboti sinchron. kalendoriaus įvykių skaičių"</string>
     <string name="policy_email_age" msgid="7144148367145424963">"Riboti sinchronizuojamų el. laiškų skaičių"</string>
     <string name="quick_1" msgid="3426057697353380951">"Ačiū!"</string>
-    <string name="quick_2" msgid="4188036352885736617">"Skamba gerai!"</string>
+    <string name="quick_2" msgid="4188036352885736617">"Gerai"</string>
     <string name="quick_3" msgid="8061819976353395585">"Perskaitysiu vėliau ir jums atsakysiu."</string>
     <string name="quick_4" msgid="3988974084396883051">"Aptarkime tai susitikę."</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"Foninis šios paskyros sinchronizavimas neleidžiamas perduodant duomenis tarptinkliniu ryšiu."</string>

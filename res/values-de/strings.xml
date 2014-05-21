@@ -27,7 +27,7 @@
     <string name="cancel_action" msgid="6967435583794021865">"Abbrechen"</string>
     <string name="previous_action" msgid="5181616311579820981">"Zurück"</string>
     <string name="done_action" msgid="7497990549515580249">"Fertig"</string>
-    <string name="create_action" msgid="3062715563215392251">"Neue erstellen"</string>
+    <string name="create_action" msgid="3062715563215392251">"Neue hinzufügen"</string>
     <string name="quick_responses_empty_view" msgid="3960050972306132367">"Keine Kurzantworten"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Kontoeinstellungen"</string>
     <string name="menu_folder_options" msgid="2871906096248843471">"Synchronisierungsoptionen"</string>
@@ -99,9 +99,9 @@
     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Dieses Feld darf nicht leer sein."</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Kontoeinrichtung"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Kontotyp"</string>
-    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Um welchen Kontotyp handelt es sich hierbei?"</string>
+    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Um welchen Kontotyp handelt es sich?"</string>
     <string name="account_setup_incoming_title" msgid="6796626791039136005">"Kontoeinrichtung"</string>
-    <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Einstellungen des Eingangsserver"</string>
+    <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Einstellungen des Eingangsservers"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Nutzername"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Passwort"</string>
     <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"Server"</string>
