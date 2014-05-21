@@ -65,9 +65,6 @@ import java.util.Set;
 public class NotificationController {
     private static final String LOG_TAG = LogTag.getLogTag();
 
-    /** Reserved for {@link com.android.exchange.CalendarSyncEnabler} */
-    @SuppressWarnings("unused")
-    private static final int NOTIFICATION_ID_EXCHANGE_CALENDAR_ADDED = 2;
     private static final int NOTIFICATION_ID_ATTACHMENT_WARNING = 3;
     private static final int NOTIFICATION_ID_PASSWORD_EXPIRING = 4;
     private static final int NOTIFICATION_ID_PASSWORD_EXPIRED = 5;
