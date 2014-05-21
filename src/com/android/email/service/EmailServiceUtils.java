@@ -680,6 +680,10 @@ public class EmailServiceUtils {
         }
 
         @Override
+        public void deleteAccountPIMData(final String emailAddress) throws RemoteException {
+        }
+
+        @Override
         public int searchMessages(long accountId, SearchParams params, long destMailboxId)
                 throws RemoteException {
             return 0;

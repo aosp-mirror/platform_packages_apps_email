@@ -5954,10 +5954,17 @@ public class EmailProvider extends ContentProvider {
         cv.putNull(AccountColumns.SYNC_KEY);
         resolver.update(Account.CONTENT_URI, cv, Account.ID_SELECTION, accountIdArgs);
 
-        // Delete the account from the Android account manager.
-        // This will delete any contacts and calendar data, stop syncs, etc.
+        // Delete PIM data (contacts, calendar), stop syncs, etc. if applicable
         if (emailAddress != null) {
-            AccountReconciler.reconcileAccounts(context);
+            final IEmailService service =
+                    EmailServiceUtils.getServiceForAccount(context, accountId);
+            if (service != null) {
+                try {
+                    service.deleteAccountPIMData(emailAddress);
+                } catch (final RemoteException e) {
+                    // Can't do anything about this
+                }
+            }
         }
     }
 
