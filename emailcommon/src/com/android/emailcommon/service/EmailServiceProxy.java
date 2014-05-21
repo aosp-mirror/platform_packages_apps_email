@@ -248,28 +248,6 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
     }
 
     /**
-     * Request the service to delete the account's PIM (personal information management) data. This
-     * data includes any data that is 1) associated with the account and 2) created/stored by the
-     * service or its sync adapters and 3) not stored in the EmailProvider database (e.g. contact
-     * and calendar information).
-     *
-     * @param emailAddress the email address for the account whose data should be deleted
-     */
-    @Override
-    public void deleteAccountPIMData(final String emailAddress) throws RemoteException {
-        setTask(new ProxyTask() {
-            @Override
-            public void run() throws RemoteException {
-                mService.deleteAccountPIMData(emailAddress);
-            }
-        }, "deleteAccountPIMData");
-        // This can be called when deleting accounts. After making this call, the caller will
-        // ask for account reconciliation, which will kill the processes. We wait for completion
-        // to avoid the race.
-        waitForCompletion();
-    }
-
-    /**
      * Search for messages given a query string.  The string is interpreted as the logical AND of
      * terms separated by white space.  The search is performed on the specified mailbox in the
      * specified account (including subfolders, as specified by the includeSubfolders parameter).
