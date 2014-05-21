@@ -53,7 +53,4 @@ interface IEmailService {
 
     // Service control operations (i.e. does not generate a client-server message).
     oneway void setLogging(int on);
-
-    // Needs to get moved into Email since this is NOT a client-server command.
-    void deleteAccountPIMData(String emailAddress);
 }

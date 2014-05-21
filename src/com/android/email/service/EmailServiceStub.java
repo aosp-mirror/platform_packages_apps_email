@@ -381,11 +381,6 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
     }
 
     @Override
-    public void deleteAccountPIMData(final String emailAddress) throws RemoteException {
-        AccountReconciler.reconcileAccounts(mContext);
-    }
-
-    @Override
     public int searchMessages(long accountId, SearchParams params, long destMailboxId)
             throws RemoteException {
         // Not required
