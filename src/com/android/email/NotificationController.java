@@ -426,7 +426,7 @@ public class NotificationController {
                 mContext.getString(R.string.login_failed_ticker, account.mDisplayName),
                 mContext.getString(R.string.login_failed_title),
                 account.getDisplayName(),
-                AccountSettings.createAccountSettingsIntent(accountId,
+                AccountSettings.createAccountSettingsIntent(mContext, accountId,
                         account.mDisplayName, reason), getLoginFailedNotificationId(accountId));
     }
 
@@ -503,7 +503,8 @@ public class NotificationController {
      * account settings screen where he can view the list of enforced policies
      */
     public void showSecurityChangedNotification(Account account) {
-        Intent intent = AccountSettings.createAccountSettingsIntent(account.mId, null, null);
+        Intent intent =
+                AccountSettings.createAccountSettingsIntent(mContext, account.mId, null, null);
         String accountName = account.getDisplayName();
         String ticker =
             mContext.getString(R.string.security_changed_ticker_fmt, accountName);
@@ -517,7 +518,8 @@ public class NotificationController {
      * account settings screen where he can view the list of unsupported policies
      */
     public void showSecurityUnsupportedNotification(Account account) {
-        Intent intent = AccountSettings.createAccountSettingsIntent(account.mId, null, null);
+        Intent intent =
+                AccountSettings.createAccountSettingsIntent(mContext, account.mId, null, null);
         String accountName = account.getDisplayName();
         String ticker =
             mContext.getString(R.string.security_unsupported_ticker_fmt, accountName);

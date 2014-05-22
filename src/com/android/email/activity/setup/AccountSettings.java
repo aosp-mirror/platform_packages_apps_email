@@ -141,12 +141,13 @@ public class AccountSettings extends PreferenceActivity implements
      * for any/all accounts.  If an account name string is provided, a warning dialog will be
      * displayed as well.
      */
-    public static Intent createAccountSettingsIntent(long accountId,
-            String loginWarningAccountName, String loginWarningReason) {
+    public static Intent createAccountSettingsIntent(final Context context, final long accountId,
+            final String loginWarningAccountName, final String loginWarningReason) {
         final Uri.Builder b = IntentUtilities.createActivityIntentUrlBuilder(
                 IntentUtilities.PATH_SETTINGS);
         IntentUtilities.setAccountId(b, accountId);
         final Intent i = new Intent(Intent.ACTION_EDIT, b.build());
+        i.setPackage(context.getPackageName());
         if (loginWarningAccountName != null) {
             i.putExtra(EXTRA_LOGIN_WARNING_FOR_ACCOUNT, loginWarningAccountName);
         }

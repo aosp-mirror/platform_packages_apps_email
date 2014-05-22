@@ -163,7 +163,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
         mAccountId = mAccount.mId;
 
         // accountId, loginWarningAccountName, loginWarningReason
-        return AccountSettings.createAccountSettingsIntent(mAccountId, null, null);
+        return AccountSettings.createAccountSettingsIntent(mContext, mAccountId, null, null);
     }
 
 }
