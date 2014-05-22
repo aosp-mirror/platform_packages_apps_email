@@ -25,7 +25,9 @@ import android.os.RemoteException;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.Policy;
 import com.android.mail.utils.LogUtils;
 
@@ -330,9 +332,13 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         }, "sendMail");
     }
 
-        @Override
-        public void sync(final long accountId, final boolean updateFolderList,
-                final int mailboxType, final long[] folders) {}
+    @Override
+    public void syncFolders(final long accountId, final boolean updateFolderList,
+                     final long[] folders) {}
+
+    @Override
+    public void syncMailboxType(final long accountId, final boolean updateFolderList,
+                     final int mailboxType) {}
 
     @Override
     public IBinder asBinder() {
