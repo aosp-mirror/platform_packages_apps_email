@@ -586,6 +586,10 @@ public class SecurityPolicy {
     public void setAccountPolicy(long accountId, Policy policy, String securityKey,
             boolean notify) {
         Account account = Account.restoreAccountWithId(mContext, accountId);
+        // In case the account has been deleted, just return
+        if (account == null) {
+            return;
+        }
         Policy oldPolicy = null;
         if (account.mPolicyKey > 0) {
             oldPolicy = Policy.restorePolicyWithId(mContext, account.mPolicyKey);
@@ -791,6 +795,9 @@ public class SecurityPolicy {
         boolean result = false;
         Cursor c = context.getContentResolver().query(Policy.CONTENT_URI,
                 Policy.ID_PROJECTION, HAS_PASSWORD_EXPIRATION, null, null);
+        if (c == null) {
+            return false;
+        }
         try {
             while (c.moveToNext()) {
                 long policyId = c.getLong(Policy.ID_PROJECTION_COLUMN);
