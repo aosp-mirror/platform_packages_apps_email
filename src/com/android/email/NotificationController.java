@@ -701,8 +701,8 @@ public class NotificationController {
 
         // TODO: we don't always want getAttention to be true, but we don't necessarily have a
         // good heuristic for when it should or shouldn't be.
-        NotificationUtils.setNewEmailIndicator(context, unreadCount, unseenCount, account, folder,
-                true /* getAttention */);
+        NotificationUtils.sendSetNewEmailIndicatorIntent(context, unreadCount, unseenCount,
+                account, folder, true /* getAttention */);
     }
 
     private static void refreshAllNotifications(final Context context) {
@@ -721,7 +721,8 @@ public class NotificationController {
     }
 
     private static void refreshAllNotificationsInternal(final Context context) {
-        NotificationUtils.resendNotifications(context, false, null, null);
+        NotificationUtils.resendNotifications(
+                context, false, null, null, null /* ContactPhotoFetcher */);
     }
 
     /**
