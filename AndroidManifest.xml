@@ -727,6 +727,7 @@
                 <action android:name="com.android.mail.action.notification.REPLY" />
                 <action android:name="com.android.mail.action.notification.REPLY_ALL" />
                 <action android:name="com.android.mail.action.notification.FORWARD" />
+                <data android:scheme="content" />
             </intent-filter>
         </service>
         <service android:name="com.android.mail.MailLogService">
