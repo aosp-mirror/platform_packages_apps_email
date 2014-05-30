@@ -16,10 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.R;
-import com.android.mail.providers.Account;
-import com.android.mail.providers.UIProvider;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -31,11 +27,16 @@ import android.content.DialogInterface;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+
+import com.android.email.R;
+import com.android.mail.providers.Account;
+import com.android.mail.providers.UIProvider;
 
 /**
  * Dialog which lists QuickResponses for the specified account. On user selection, will call
@@ -96,14 +97,21 @@ public class InsertQuickResponseDialog extends DialogFragment {
         // Now that Callback implementation is verified, build the dialog
         final Context context = getActivity();
 
-        final SimpleCursorAdapter adapter = new SimpleCursorAdapter(getActivity(),
+        final SimpleCursorAdapter adapter = new SimpleCursorAdapter(context,
                 R.layout.quick_response_item, null,
                 new String[] {UIProvider.QuickResponseColumns.TEXT},
                 new int[] {R.id.quick_response_text}, 0);
 
-        final ListView listView = new ListView(context);
-        listView.setAdapter(adapter);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
+        // inflate the view to show in the dialog
+        final LayoutInflater li = LayoutInflater.from(builder.getContext());
+        final View quickResponsesView = li.inflate(R.layout.quick_responses, null);
+
+        // the view contains both a ListView and its associated empty view; wire them together
+        final ListView listView = (ListView) quickResponsesView.findViewById(R.id.quick_responses);
+        listView.setEmptyView(quickResponsesView.findViewById(R.id.quick_responses_empty_view));
+        listView.setAdapter(adapter);
         listView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -120,7 +128,7 @@ public class InsertQuickResponseDialog extends DialogFragment {
         getLoaderManager().initLoader(0, null, new LoaderManager.LoaderCallbacks<Cursor>() {
             @Override
             public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-                return new CursorLoader(getActivity(), account.quickResponseUri,
+                return new CursorLoader(context, account.quickResponseUri,
                         UIProvider.QUICK_RESPONSE_PROJECTION, null, null, null);
             }
 
@@ -135,17 +143,19 @@ public class InsertQuickResponseDialog extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder b = new AlertDialog.Builder(context);
-        b.setTitle(getResources()
-                .getString(R.string.message_compose_insert_quick_response_list_title))
-                .setView(listView)
+        final String dialogTitle = getResources()
+                .getString(R.string.message_compose_insert_quick_response_list_title);
+
+        return builder
+                .setTitle(dialogTitle)
+                .setView(quickResponsesView)
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
                     }
-                });
-        return b.create();
+                })
+                .create();
     }
 
     private Callback getCallback() {

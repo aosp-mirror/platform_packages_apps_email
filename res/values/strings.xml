@@ -860,4 +860,7 @@
 
     <string name="print_job_name" translatable="false">Email - <xliff:g id="subject">%1$s</xliff:g></string>
 
+    <!-- This message indicates no quick responses exist to choose from -->
+    <string name="no_quick_responses">None available</string>
+
 </resources>
