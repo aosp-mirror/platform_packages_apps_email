@@ -32,7 +32,9 @@ interface IEmailService {
             boolean background);
     oneway void updateFolderList(long accountId);
 
-    void sync(long accountId, boolean updateFolderList, int mailboxType, in long[] foldersToSync);
+    void syncFolders(long accountId, boolean updateFolderList, in long[] foldersToSync);
+
+    void syncMailboxType(long accountId, boolean updateFolderList, int mailboxType);
 
     // Push-related functionality.
 
@@ -43,6 +45,7 @@ interface IEmailService {
     // TODO: Decouple this call from HostAuth (i.e. use a dedicated data structure, or just pass
     // the necessary strings directly).
     Bundle validate(in HostAuth hostauth);
+
     int searchMessages(long accountId, in SearchParams params, long destMailboxId);
 
     // PIM functionality (not strictly EAS specific).
