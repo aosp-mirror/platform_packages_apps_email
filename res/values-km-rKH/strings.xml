@@ -310,4 +310,6 @@
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"ជ្រើស​ថត​ធុង​សំរាម​ម៉ាស៊ីន​​មេ​​សម្រាប់ <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"ជ្រើស​​ថត​ធាតុ​បាន​ផ្ញើ​ដោយ​ម៉ាស៊ីន​​មេ​សម្រាប់ <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"កំពុង​ផ្ទុក​បញ្ជី​ថត ..."</string>
+    <!-- no translation found for no_quick_responses (5774427722506187961) -->
+    <skip />
 </resources>

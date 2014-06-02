@@ -310,4 +310,5 @@
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"پوشه حذف‌ شده‌های سرور را برای <xliff:g id="ACCOUNT">%s</xliff:g> انتخاب کنید"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"سرور پوشه موارد ارسال‌ شده برای <xliff:g id="ACCOUNT">%s</xliff:g> را انتخاب کنید"</string>
     <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"در حال بارگیری لیست پوشه…"</string>
+    <string name="no_quick_responses" msgid="5774427722506187961">"در دسترس نیست"</string>
 </resources>

@@ -310,4 +310,5 @@
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"Velg tjenerens papirkurvmappe for <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"Velg tjenerens sendte elementer-mappe for <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Laster inn mappelisten …"</string>
+    <string name="no_quick_responses" msgid="5774427722506187961">"Ingen tilgjengelige"</string>
 </resources>

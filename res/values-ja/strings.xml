@@ -310,4 +310,5 @@
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"<xliff:g id="ACCOUNT">%s</xliff:g>のサーバーのゴミ箱フォルダを選択してください"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"<xliff:g id="ACCOUNT">%s</xliff:g>のサーバーの送信済みフォルダを選択してください"</string>
     <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"フォルダリストを読み込み中…"</string>
+    <string name="no_quick_responses" msgid="5774427722506187961">"クイック返信がありません"</string>
 </resources>

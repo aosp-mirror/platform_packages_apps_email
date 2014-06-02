@@ -310,4 +310,5 @@
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"Izberite mapo koša strežnika za račun <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"Izberite mapo strežnika za poslana sporočila za račun <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Nalaganje seznama map ..."</string>
+    <string name="no_quick_responses" msgid="5774427722506187961">"Na voljo ni hitrih odgovorov"</string>
 </resources>

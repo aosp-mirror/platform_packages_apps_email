@@ -310,4 +310,5 @@
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"选择 <xliff:g id="ACCOUNT">%s</xliff:g> 在服务器上的已删除邮件文件夹"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"选择 <xliff:g id="ACCOUNT">%s</xliff:g> 在服务器上的已发邮件文件夹"</string>
     <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"正在加载文件夹列表…"</string>
+    <string name="no_quick_responses" msgid="5774427722506187961">"没有可供选择的快速回复"</string>
 </resources>

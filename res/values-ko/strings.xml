@@ -310,4 +310,5 @@
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"서버의 <xliff:g id="ACCOUNT">%s</xliff:g>용 휴지통 폴더 선택"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"서버의 <xliff:g id="ACCOUNT">%s</xliff:g>용 전송 항목 폴더 선택"</string>
     <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"폴더 목록 로드 중…"</string>
+    <string name="no_quick_responses" msgid="5774427722506187961">"선택 가능한 항목 없음"</string>
 </resources>
