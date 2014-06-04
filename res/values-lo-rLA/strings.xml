@@ -310,4 +310,5 @@
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"ເລືອກໂຟນເດີຖັງຂີ້ເຫຍື້ອຂອງເຊີບເວີສຳລັບ <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"ເລືອກໂຟນເດີສົ່ງລາຍການຂອງເຊີບເວີສຳລັບ <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"ກໍາລັງໂຫລດລາຍຊື່ໂຟນເດີ..."</string>
+    <string name="no_quick_responses" msgid="5774427722506187961">"ບໍ່​ມີ​ອັນ​ໃດ​ທີ່​ສາ​ມາດ​ໃຊ້​ໄດ້"</string>
 </resources>

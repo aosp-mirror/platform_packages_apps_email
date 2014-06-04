@@ -310,4 +310,6 @@
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"選取 <xliff:g id="ACCOUNT">%s</xliff:g> 的伺服器垃圾桶資料夾"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"選取 <xliff:g id="ACCOUNT">%s</xliff:g> 的伺服器寄件備份資料夾"</string>
     <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"正在載入資料夾清單…"</string>
+    <!-- no translation found for no_quick_responses (5774427722506187961) -->
+    <skip />
 </resources>
