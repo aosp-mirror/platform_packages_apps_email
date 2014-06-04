@@ -43,7 +43,7 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Corbeille"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Messages envoyés"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Pourriel"</string>
-    <string name="mailbox_name_display_starred" msgid="7788694947644186069">"Messages suivis"</string>
+    <string name="mailbox_name_display_starred" msgid="7788694947644186069">"Messages favoris"</string>
     <string name="mailbox_name_display_unread" msgid="1015674989793998695">"Non lu"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Boîte de réception"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Marqué d\'une étoile"</string>
@@ -310,6 +310,5 @@
     <string name="trash_folder_selection_title" msgid="8052880079616386185">"Sélect. dossier Corbeille\" du serveur pour <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="sent_folder_selection_title" msgid="2668629667423320684">"Sélect. dossier d\'éléments envoyés du serveur pour <xliff:g id="ACCOUNT">%s</xliff:g>."</string>
     <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"Chargement de la liste des dossiers en cours…"</string>
-    <!-- no translation found for no_quick_responses (5774427722506187961) -->
-    <skip />
+    <string name="no_quick_responses" msgid="5774427722506187961">"Aucun réponse rapide"</string>
 </resources>
