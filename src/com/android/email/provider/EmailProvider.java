@@ -5246,7 +5246,9 @@ public class EmailProvider extends ContentProvider
         // Another special case - deleting a draft.
         final String operation = values.getAsString(
                 UIProvider.ConversationOperations.OPERATION_KEY);
-        if (UIProvider.ConversationOperations.DISCARD_DRAFTS.equals(operation)) {
+        // TODO: for now let's just default to delete for MOVE_FAILED_TO_DRAFT operation
+        if (UIProvider.ConversationOperations.DISCARD_DRAFTS.equals(operation) ||
+                UIProvider.ConversationOperations.MOVE_FAILED_TO_DRAFTS.equals(operation)) {
             uiDeleteMessage(uri);
             return 1;
         }
