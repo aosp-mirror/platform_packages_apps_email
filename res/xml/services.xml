@@ -48,7 +48,7 @@
          syncContacts: whether this service is capable of syncing contacts (offering a checkbox)
 -->
 
-<emailservices xmlns:email="http://schemas.android.com/apk/res/com.android.email">
+<emailservices xmlns:email="http://schemas.android.com/apk/res-auto">
     <emailservice
         email:protocol="pop3"
         email:name="@string/pop3_name"
