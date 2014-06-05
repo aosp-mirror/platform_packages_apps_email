@@ -16,9 +16,14 @@
 
 package com.android.email.service;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.service.EmailServiceStatus;
+import com.android.mail.providers.UIProvider;
 
 import junit.framework.TestCase;
 
@@ -398,27 +403,24 @@ public class AttachmentServiceTests extends TestCase {
      * whenever the onReceive() call is made by the AlarmManager
      */
     public void testAttachmentWatchdogAlarm() {
-        final MockAttachmentService mockAttachmentService = new MockAttachmentService();
+        final AttachmentService attachmentService = new AttachmentService();
+        final AttachmentService.AttachmentWatchdog watchdog = attachmentService.mWatchdog;
 
-        // Add a couple of items to the in-progress queue
-        final AttachmentService.AttachmentWatchdog testWatchdog =
-                new AttachmentService.AttachmentWatchdog();
+        final long now = System.currentTimeMillis();
 
         // Add one download request object to the in process map that should
         // should not need to be cancelled.
         final AttachmentService.DownloadRequest dr =
                 new AttachmentService.DownloadRequest(AttachmentService.PRIORITY_FOREGROUND, 1);
-        dr.mLastCallbackTime = System.currentTimeMillis();
-        mockAttachmentService.mDownloadsInProgress.put(dr.mAttachmentId, dr);
+        dr.mLastCallbackTime = now;
+        attachmentService.mDownloadsInProgress.put(dr.mAttachmentId, dr);
 
-        // Set the alarm to delay 1 second and too look for attachments that have been
-        // not updated for 60 seconds.
-        testWatchdog.watchdogAlarm(mockAttachmentService, 60000);
+        // Only request the DownloadRequest to cancelled if it is older than 60 seconds,
+        // which is not true in this case.
+        final boolean shouldCancel = watchdog.validateDownloadRequest(dr, 60000, now);
 
-        // Now check the results. The code should have called not cancelled anything but should
-        // have called processQueue()
-        assertTrue(mockAttachmentService.mCalledProcessQueue);
-        assertFalse(mockAttachmentService.mCalledCancel);
+        // Now check the results. We should not be asked to cancel this DownloadRequest
+        assertFalse(shouldCancel);
     }
 
     /**
@@ -426,57 +428,70 @@ public class AttachmentServiceTests extends TestCase {
      * whenever the onReceive() call is made by the AlarmManager
      */
     public void testAttachmentWatchdogAlarmNeedsCancel() {
-        final MockAttachmentService mockAttachmentService = new MockAttachmentService();
+        final AttachmentService attachmentService = new AttachmentService();
+        final AttachmentService.AttachmentWatchdog watchdog = attachmentService.mWatchdog;
 
-        // Add a couple of items to the in-progress queue
-        final AttachmentService.AttachmentWatchdog testWatchdog =
-                new AttachmentService.AttachmentWatchdog();
+        final long now = System.currentTimeMillis();
 
         // Add one download request object to the in process map that should
-        // be cancelled by the time the callback is executed.
+        // should not need to be cancelled.
         final AttachmentService.DownloadRequest dr =
                 new AttachmentService.DownloadRequest(AttachmentService.PRIORITY_FOREGROUND, 1);
-        dr.mLastCallbackTime = System.currentTimeMillis() - 60000;
-        mockAttachmentService.mDownloadsInProgress.put(dr.mAttachmentId, dr);
+        dr.mLastCallbackTime = now - 60000; // Set this request to be 60 seconds old.
+        attachmentService.mDownloadsInProgress.put(dr.mAttachmentId, dr);
 
-        // Set the alarm to delay 1 second and too look for attachments that have been
-        // not updated for 10 seconds.
-        // Set the alarm to delay 1 second and too look for attachments that have been
-        // not updated for 60 seconds.
-        testWatchdog.watchdogAlarm(mockAttachmentService, 1000);
+        // Request cancellation for DownloadRequests that are older than a second.
+        // For this test, this is true.
+        final boolean shouldCancel = watchdog.validateDownloadRequest(dr, 1000, now);
 
-        // Now check the results. The code should have called both cancelDownload and
-        // processQueue()
-        assertTrue(mockAttachmentService.mCalledProcessQueue);
-        assertTrue(mockAttachmentService.mCalledCancel);
+        // Now check the results. We should not be asked to cancel this DownloadRequest
+        assertTrue(shouldCancel);
     }
 
-    // Mock test class to stub out a couple of functions but record that they were called.
-    class MockAttachmentService extends AttachmentService {
-        // For AttachmentWatchdog tests to see if certain functions were called.
-        public boolean mCalledCancel = false;
-        public boolean mCalledProcessQueue = false;
+    public void testServiceCallbackAttachmentCompleteUpdate() {
+        final AttachmentService attachmentService = new AttachmentService();
+        final EmailContent.Attachment attachment = new EmailContent.Attachment();
+        attachment.mSize = 1000;
 
-        public MockAttachmentService() {
-            sRunningService = this;
-        }
+        // Only in progress status receives any updates so the function should not return any
+        // values.
+        final ContentValues values =
+                attachmentService.mServiceCallback.getAttachmentUpdateValues(attachment,
+                        EmailServiceStatus.SUCCESS, 75);
+        assertTrue(values.size() == 0);
+    }
 
-        @Override
-        boolean isConnected() { return true; }
+    public void testServiceCallbackAttachmentErrorUpdate() {
+        final AttachmentService attachmentService = new AttachmentService();
+        final EmailContent.Attachment attachment = new EmailContent.Attachment();
+        attachment.mSize = 1000;
 
-        @Override
-        void cancelDownload(final DownloadRequest req) {
-            mCalledCancel = true;
-        }
+        // Only in progress status receives any updates so the function should not return any
+        // values.
+        final ContentValues values =
+                attachmentService.mServiceCallback.getAttachmentUpdateValues(attachment,
+                        EmailServiceStatus.CONNECTION_ERROR, 75);
+        assertTrue(values.size() == 0);
+    }
 
-        @Override
-        void processQueue() {
-            mCalledProcessQueue = true;
-        }
+    public void testServiceCallbackAttachmentInProgressUpdate() {
+        final AttachmentService attachmentService = new AttachmentService();
+        final EmailContent.Attachment attachment = new EmailContent.Attachment();
+        attachment.mSize = 1000;
 
-        // Forcing this to be false so we don't reset the alarm during testing.
-        @Override
-        boolean areDownloadsInProgress() { return false; }
+        // Only in progress status receives any updates so this should send us some valid
+        // values in return.
+        final ContentValues values =
+                attachmentService.mServiceCallback.getAttachmentUpdateValues(attachment,
+                        EmailServiceStatus.IN_PROGRESS, 75);
 
+        assertTrue(values.size() == 2);
+        assertTrue(values.containsKey(EmailContent.AttachmentColumns.UI_STATE));
+        assertTrue(values.containsKey(EmailContent.AttachmentColumns.UI_DOWNLOADED_SIZE));
+
+        assertTrue(values.getAsInteger(EmailContent.AttachmentColumns.UI_STATE) ==
+                UIProvider.AttachmentState.DOWNLOADING);
+        assertTrue(values.getAsInteger(
+                EmailContent.AttachmentColumns.UI_DOWNLOADED_SIZE).intValue() == 750);
     }
 }

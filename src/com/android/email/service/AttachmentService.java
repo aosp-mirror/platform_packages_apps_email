@@ -106,7 +106,7 @@ public class AttachmentService extends Service implements Runnable {
 
     // This callback is invoked by the various service implementations to give us download progress
     // since those modules are responsible for the actual download.
-    private final ServiceCallback mServiceCallback = new ServiceCallback();
+    final ServiceCallback mServiceCallback = new ServiceCallback();
 
     // sRunningService is only set in the UI thread; it's visibility elsewhere is guaranteed
     // by the use of "volatile"
@@ -115,8 +115,10 @@ public class AttachmentService extends Service implements Runnable {
     // Signify that we are being shut down & destroyed.
     private volatile boolean mStop = false;
 
-    Context mContext;
     EmailConnectivityManager mConnectivityManager;
+
+    // Helper class that keeps track of in progress downloads to make sure that they
+    // are progressing well.
     final AttachmentWatchdog mWatchdog = new AttachmentWatchdog();
 
     private final Object mLock = new Object();
@@ -137,6 +139,16 @@ public class AttachmentService extends Service implements Runnable {
             new ConcurrentHashMap<Long, DownloadRequest>();
 
     final DownloadQueue mDownloadQueue = new DownloadQueue();
+
+    // The queue entries here are entries of the form {id, flags}, with the values passed in to
+    // attachmentChanged(). Entries in the queue are picked off by calls to attachmentChanged
+    // and processed in an async task in parallel.
+    private static final Queue<long[]> sAttachmentChangedQueue =
+            new ConcurrentLinkedQueue<long[]>();
+
+    // The task that pulls requests off of the queue of changed attachment and launches
+    // the AttachmentService as needed.  Access to this task is guarded by sAttachmentService.
+    private static AsyncTask<Void, Void, Void> sAttachmentChangedTask;
 
     /**
      * This class is used to contain the details and state of a particular request to download
@@ -185,7 +197,7 @@ public class AttachmentService extends Service implements Runnable {
             } else {
                 mAccountId = mMessageId = -1;
             }
-            mPriority = getPriority(attachment);
+            mPriority = getAttachmentPriority(attachment);
             mTime = SystemClock.elapsedRealtime();
         }
 
@@ -399,6 +411,10 @@ public class AttachmentService extends Service implements Runnable {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    // TODO: Really don't like hard coding the AttachmentService reference here
+                    // as it makes testing harder if we are trying to mock out the service
+                    // We should change this with some sort of getter that returns the
+                    // static (or test) AttachmentService instance to use.
                     final AttachmentService service = AttachmentService.sRunningService;
                     if (service != null) {
                         // If our service instance is gone, just leave
@@ -412,22 +428,32 @@ public class AttachmentService extends Service implements Runnable {
             }, "AttachmentService AttachmentWatchdog").start();
         }
 
+        boolean validateDownloadRequest(final DownloadRequest dr, final int callbackTimeout,
+                final long now) {
+            // Check how long it's been since receiving a callback
+            final long timeSinceCallback = now - dr.mLastCallbackTime;
+            if (timeSinceCallback > callbackTimeout) {
+                if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
+                    LogUtils.d(LOG_TAG, "== Download of " + dr.mAttachmentId + " timed out");
+                }
+                return true;
+            }
+            return false;
+        }
+
         /**
          * Watchdog for downloads; we use this in case we are hanging on a download, which might
          * have failed silently (the connection dropped, for example)
          */
         void watchdogAlarm(final AttachmentService service, final int callbackTimeout) {
-            final long now = System.currentTimeMillis();
             // We want to iterate on each of the downloads that are currently in progress and
             // cancel the ones that seem to be taking too long.
-            final Collection<DownloadRequest> inProgressRequests = service.getInProgressDownloads();
+            final Collection<DownloadRequest> inProgressRequests =
+                    service.mDownloadsInProgress.values();
             for (DownloadRequest req: inProgressRequests) {
-                // Check how long it's been since receiving a callback
-                final long timeSinceCallback = now - req.mLastCallbackTime;
-                if (timeSinceCallback > callbackTimeout) {
-                    if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
-                        LogUtils.d(LOG_TAG, "== Download of " + req.mAttachmentId + " timed out");
-                    }
+                final boolean shouldCancelDownload = validateDownloadRequest(req, callbackTimeout,
+                        System.currentTimeMillis());
+                if (shouldCancelDownload) {
                     service.cancelDownload(req);
                     // TODO: Should we also mark the attachment as failed at this point in time?
                 }
@@ -436,7 +462,11 @@ public class AttachmentService extends Service implements Runnable {
             if (service.isConnected()) {
                 service.processQueue();
             }
-            if (service.areDownloadsInProgress()) {
+            issueNextWatchdogAlarm(service);
+        }
+
+        void issueNextWatchdogAlarm(final AttachmentService service) {
+            if (!service.mDownloadsInProgress.isEmpty()) {
                 if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
                     LogUtils.d(LOG_TAG, "Reschedule watchdog...");
                 }
@@ -445,31 +475,257 @@ public class AttachmentService extends Service implements Runnable {
         }
     }
 
-    boolean isConnected() {
-        if (mConnectivityManager != null) {
-            return mConnectivityManager.hasConnectivity();
+    /**
+     * We use an EmailServiceCallback to keep track of the progress of downloads.  These callbacks
+     * come from either Controller (IMAP/POP) or ExchangeService (EAS).  Note that we only implement the
+     * single callback that's defined by the EmailServiceCallback interface.
+     */
+    class ServiceCallback extends IEmailServiceCallback.Stub {
+
+        /**
+         * Simple routine to generate updated status values for the Attachment based on the
+         * service callback. Right now it is very simple but factoring out this code allows us
+         * to test easier and very easy to expand in the future.
+         */
+        ContentValues getAttachmentUpdateValues(final Attachment attachment,
+                final int statusCode, final int progress) {
+            final ContentValues values = new ContentValues();
+            if (attachment != null) {
+                if (statusCode == EmailServiceStatus.IN_PROGRESS) {
+                    // TODO: What else do we want to expose about this in-progress download through
+                    // the provider?  If there is more, make sure that the service implementation
+                    // reports it and make sure that we add it here.
+                    values.put(AttachmentColumns.UI_STATE, AttachmentState.DOWNLOADING);
+                    values.put(AttachmentColumns.UI_DOWNLOADED_SIZE,
+                            attachment.mSize * progress / 100);
+                }
+            }
+            return values;
         }
-        return false;
-    }
 
-    Collection<DownloadRequest> getInProgressDownloads() {
-        return mDownloadsInProgress.values();
-    }
+        @Override
+        public void loadAttachmentStatus(final long messageId, final long attachmentId,
+                final int statusCode, final int progress) {
+            // Record status and progress
+            final DownloadRequest req = mDownloadsInProgress.get(attachmentId);
+            if (req != null) {
+                if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
+                    final String code;
+                    switch(statusCode) {
+                        case EmailServiceStatus.SUCCESS: code = "Success"; break;
+                        case EmailServiceStatus.IN_PROGRESS: code = "In progress"; break;
+                        default: code = Integer.toString(statusCode); break;
+                    }
+                    if (statusCode != EmailServiceStatus.IN_PROGRESS) {
+                        LogUtils.d(LOG_TAG, ">> Attachment status " + attachmentId + ": " + code);
+                    } else if (progress >= (req.mLastProgress + 10)) {
+                        LogUtils.d(LOG_TAG, ">> Attachment progress %d: %d%%", attachmentId,
+                                progress);
+                    }
+                }
 
-    boolean areDownloadsInProgress() {
-        return !mDownloadsInProgress.isEmpty();
+                // Update some state to keep track of the progress of the download
+                req.mLastStatusCode = statusCode;
+                req.mLastProgress = progress;
+                req.mLastCallbackTime = System.currentTimeMillis();
+
+                // Update the attachment status in the provider.
+                final Attachment attachment =
+                        Attachment.restoreAttachmentWithId(AttachmentService.this, attachmentId);
+                final ContentValues values = getAttachmentUpdateValues(attachment, statusCode,
+                        progress);
+                if (values.size() > 0) {
+                    attachment.update(AttachmentService.this, values);
+                }
+
+                switch (statusCode) {
+                    case EmailServiceStatus.IN_PROGRESS:
+                        break;
+                    default:
+                        // It is assumed that any other error is either a success or an error
+                        // Either way, the final updates to the DownloadRequest and attachment
+                        // objects will be handed there.
+                        endDownload(attachmentId, statusCode);
+                        break;
+                }
+            } else {
+                // The only way that we can get a callback from the service implementation for
+                // an attachment that doesn't exist is if it was cancelled due to the
+                // AttachmentWatchdog. This is a valid scenario and the Watchdog should have already
+                // marked this attachment as failed/cancelled.
+            }
+        }
     }
 
     /**
-     * Set the bits in the provider to mark this download as failed.
-     * @param att The attachment that failed to download.
+     * Called directly by EmailProvider whenever an attachment is inserted or changed. Since this
+     * call is being invoked on the UI thread, we need to make sure that the downloads are
+     * happening in the background.
+     * @param context the caller's context
+     * @param id the attachment's id
+     * @param flags the new flags for the attachment
      */
-    void markAttachmentAsFailed(final Attachment att) {
-        final ContentValues cv = new ContentValues();
-        final int flags = Attachment.FLAG_DOWNLOAD_FORWARD | Attachment.FLAG_DOWNLOAD_USER_REQUEST;
-        cv.put(AttachmentColumns.FLAGS, att.mFlags &= ~flags);
-        cv.put(AttachmentColumns.UI_STATE, AttachmentState.FAILED);
-        att.update(mContext, cv);
+    public static void attachmentChanged(final Context context, final long id, final int flags) {
+        synchronized (sAttachmentChangedQueue) {
+            sAttachmentChangedQueue.add(new long[]{id, flags});
+            if (sAttachmentChangedTask == null) {
+                sAttachmentChangedTask = new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        while (true) {
+                            final long[] change;
+                            synchronized (sAttachmentChangedQueue) {
+                                change = sAttachmentChangedQueue.poll();
+                                if (change == null) {
+                                    sAttachmentChangedTask = null;
+                                    return null;
+                                }
+                            }
+                            final long id = change[0];
+                            final long flags = change[1];
+                            final Attachment attachment =
+                                    Attachment.restoreAttachmentWithId(context, id);
+                            if (attachment == null) {
+                                continue;
+                            }
+                            attachment.mFlags = (int) flags;
+                            final Intent intent = new Intent(context, AttachmentService.class);
+                            intent.putExtra(EXTRA_ATTACHMENT, attachment);
+                            // This is result in a call to AttachmentService.onStartCommand()
+                            // which will queue the attachment in its internal prioritized queue.
+                            context.startService(intent);
+                        }
+                    }
+                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }
+        }
+    }
+
+    /**
+     * The main entry point for this service, the attachment to download can be identified
+     * by the EXTRA_ATTACHMENT extra in the intent.
+     */
+    @Override
+    public int onStartCommand(final Intent intent, final int flags, final int startId) {
+        if (sRunningService == null) {
+            sRunningService = this;
+        }
+        if (intent != null && intent.hasExtra(EXTRA_ATTACHMENT)) {
+            Attachment att = intent.getParcelableExtra(EXTRA_ATTACHMENT);
+            onChange(this, att);
+        } else {
+            LogUtils.wtf(LOG_TAG, "Received an invalid intent w/o EXTRA_ATTACHMENT");
+        }
+        return Service.START_STICKY;
+    }
+
+    /**
+     * Most of the leg work is done by our service thread that is created when this
+     * service is created.
+     */
+    @Override
+    public void onCreate() {
+        // Start up our service thread.
+        new Thread(this, "AttachmentService").start();
+    }
+
+    @Override
+    public IBinder onBind(final Intent intent) {
+        return null;
+    }
+
+    @Override
+    public void onDestroy() {
+        // Mark this instance of the service as stopped. Our main loop for the AttachmentService
+        // checks for this flag along with the AttachmentWatchdog.
+        mStop = true;
+        if (sRunningService != null) {
+            // Kick it awake to get it to realize that we are stopping.
+            kick();
+            sRunningService = null;
+        }
+        if (mConnectivityManager != null) {
+            mConnectivityManager.unregister();
+            mConnectivityManager.stopWait();
+            mConnectivityManager = null;
+        }
+    }
+
+    /**
+     * The main routine for our AttachmentService service thread.
+     */
+    @Override
+    public void run() {
+        // These fields are only used within the service thread
+        mConnectivityManager = new EmailConnectivityManager(this, LOG_TAG);
+        mAccountManagerStub = new AccountManagerStub(this);
+
+        // Run through all attachments in the database that require download and add them to
+        // the queue. This is the case where a previous AttachmentService may have been notified
+        // to stop before processing everything in its queue.
+        final int mask = Attachment.FLAG_DOWNLOAD_FORWARD | Attachment.FLAG_DOWNLOAD_USER_REQUEST;
+        final Cursor c = getContentResolver().query(Attachment.CONTENT_URI,
+                EmailContent.ID_PROJECTION, "(" + AttachmentColumns.FLAGS + " & ?) != 0",
+                new String[] {Integer.toString(mask)}, null);
+        try {
+            LogUtils.d(LOG_TAG, "Count: " + c.getCount());
+            while (c.moveToNext()) {
+                final Attachment attachment = Attachment.restoreAttachmentWithId(
+                        this, c.getLong(EmailContent.ID_PROJECTION_COLUMN));
+                if (attachment != null) {
+                    onChange(this, attachment);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            c.close();
+        }
+
+        // Loop until stopped, with a 30 minute wait loop
+        while (!mStop) {
+            // Here's where we run our attachment loading logic...
+            // Make a local copy of the variable so we don't null-crash on service shutdown
+            final EmailConnectivityManager ecm = mConnectivityManager;
+            if (ecm != null) {
+                ecm.waitForConnectivity();
+            }
+            if (mStop) {
+                // We might be bailing out here due to the service shutting down
+                LogUtils.d(LOG_TAG, "*** AttachmentService has been instructed to stop");
+                break;
+            }
+            processQueue();
+            if (mDownloadQueue.isEmpty()) {
+                LogUtils.d(LOG_TAG, "*** All done; shutting down service");
+                stopSelf();
+                break;
+            }
+            synchronized(mLock) {
+                try {
+                    mLock.wait(PROCESS_QUEUE_WAIT_TIME);
+                } catch (InterruptedException e) {
+                    // That's ok; we'll just keep looping
+                }
+            }
+        }
+
+        // Unregister now that we're done
+        // Make a local copy of the variable so we don't null-crash on service shutdown
+        final EmailConnectivityManager ecm = mConnectivityManager;
+        if (ecm != null) {
+            ecm.unregister();
+        }
+    }
+
+    /*
+     * Function that kicks the service into action as it may be waiting for this object
+     * as it processed the last round of attachments.
+     */
+    private void kick() {
+        synchronized(mLock) {
+            mLock.notify();
+        }
     }
 
     /**
@@ -480,7 +736,7 @@ public class AttachmentService extends Service implements Runnable {
      */
     public synchronized void onChange(final Context context, final Attachment att) {
         DownloadRequest req = mDownloadQueue.findRequestById(att.mId);
-        final long priority = getPriority(att);
+        final long priority = getAttachmentPriority(att);
         if (priority == PRIORITY_NONE) {
             if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
                 LogUtils.d(LOG_TAG, "== Attachment changed: " + att.mId);
@@ -537,6 +793,18 @@ public class AttachmentService extends Service implements Runnable {
     }
 
     /**
+     * Set the bits in the provider to mark this download as failed.
+     * @param att The attachment that failed to download.
+     */
+    void markAttachmentAsFailed(final Attachment att) {
+        final ContentValues cv = new ContentValues();
+        final int flags = Attachment.FLAG_DOWNLOAD_FORWARD | Attachment.FLAG_DOWNLOAD_USER_REQUEST;
+        cv.put(AttachmentColumns.FLAGS, att.mFlags &= ~flags);
+        cv.put(AttachmentColumns.UI_STATE, AttachmentState.FAILED);
+        att.update(this, cv);
+    }
+
+    /**
      * Run through the AttachmentMap and find DownloadRequests that can be executed, enforcing
      * the limit on maximum downloads
      */
@@ -553,20 +821,20 @@ public class AttachmentService extends Service implements Runnable {
                 break;
             }
              // Enforce per-account limit here
-            if (downloadsForAccount(req.mAccountId) >= MAX_SIMULTANEOUS_DOWNLOADS_PER_ACCOUNT) {
+            if (getDownloadsForAccount(req.mAccountId) >= MAX_SIMULTANEOUS_DOWNLOADS_PER_ACCOUNT) {
                 if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
                     LogUtils.d(LOG_TAG, "== Skip #" + req.mAttachmentId + "; maxed for acct #" +
                             req.mAccountId);
                 }
                 continue;
-            } else if (Attachment.restoreAttachmentWithId(mContext, req.mAttachmentId) == null) {
+            } else if (Attachment.restoreAttachmentWithId(this, req.mAttachmentId) == null) {
                 continue;
             }
             if (!req.mInProgress) {
                 final long currentTime = SystemClock.elapsedRealtime();
                 if (req.mRetryCount > 0 && req.mRetryStartTime > currentTime) {
                     LogUtils.d(LOG_TAG, "== waiting to retry attachment %d", req.mAttachmentId);
-                    mWatchdog.setWatchdogAlarm(mContext, CONNECTION_ERROR_RETRY_MILLIS,
+                    mWatchdog.setWatchdogAlarm(this, CONNECTION_ERROR_RETRY_MILLIS,
                             CALLBACK_TIMEOUT);
                     continue;
                 }
@@ -600,25 +868,25 @@ public class AttachmentService extends Service implements Runnable {
         // backgroundDownloads instead?  We should fix and test this.
         final Uri lookupUri = EmailContent.uriWithLimit(Attachment.CONTENT_URI,
                 MAX_ATTACHMENTS_TO_CHECK);
-        final Cursor c = mContext.getContentResolver().query(lookupUri,
+        final Cursor c = this.getContentResolver().query(lookupUri,
                 Attachment.CONTENT_PROJECTION,
                 EmailContent.Attachment.PRECACHE_INBOX_SELECTION,
                 null, AttachmentColumns._ID + " DESC");
-        File cacheDir = mContext.getCacheDir();
+        File cacheDir = this.getCacheDir();
         try {
             while (c.moveToNext()) {
                 final Attachment att = new Attachment();
                 att.restore(c);
-                final Account account = Account.restoreAccountWithId(mContext, att.mAccountKey);
+                final Account account = Account.restoreAccountWithId(this, att.mAccountKey);
                 if (account == null) {
                     // Clean up this orphaned attachment; there's no point in keeping it
                     // around; then try to find another one
-                    EmailContent.delete(mContext, Attachment.CONTENT_URI, att.mId);
+                    EmailContent.delete(this, Attachment.CONTENT_URI, att.mId);
                 } else {
                     // Check that the attachment meets system requirements for download
                     // Note that there couple be policy that does not allow this attachment
                     // to be downloaded.
-                    final AttachmentInfo info = new AttachmentInfo(mContext, att);
+                    final AttachmentInfo info = new AttachmentInfo(this, att);
                     if (info.isEligibleForDownload()) {
                         // Either the account must be able to prefetch or this must be
                         // an inline attachment.
@@ -630,7 +898,7 @@ public class AttachmentService extends Service implements Runnable {
                                 continue;
                             }
                             // Start this download and we're done
-                            final DownloadRequest req = new DownloadRequest(mContext, att);
+                            final DownloadRequest req = new DownloadRequest(this, att);
                             tryStartDownload(req);
                             break;
                         }
@@ -648,21 +916,6 @@ public class AttachmentService extends Service implements Runnable {
         } finally {
             c.close();
         }
-    }
-
-    /**
-     * Count the number of running downloads in progress for this account
-     * @param accountId the id of the account
-     * @return the count of running downloads
-     */
-    synchronized int downloadsForAccount(final long accountId) {
-        int count = 0;
-        for (final DownloadRequest req: mDownloadsInProgress.values()) {
-            if (req.mAccountId == accountId) {
-                count++;
-            }
-        }
-        return count;
     }
 
     /**
@@ -707,7 +960,7 @@ public class AttachmentService extends Service implements Runnable {
         mDownloadsInProgress.put(req.mAttachmentId, req);
         service.loadAttachment(mServiceCallback, req.mAccountId, req.mAttachmentId,
                 req.mPriority != PRIORITY_FOREGROUND);
-        mWatchdog.setWatchdogAlarm(mContext);
+        mWatchdog.setWatchdogAlarm(this);
     }
 
     synchronized void cancelDownload(final DownloadRequest req) {
@@ -778,7 +1031,7 @@ public class AttachmentService extends Service implements Runnable {
                     req.mInProgress = false;
                     req.mRetryStartTime = SystemClock.elapsedRealtime() +
                             CONNECTION_ERROR_RETRY_MILLIS;
-                    mWatchdog.setWatchdogAlarm(mContext, CONNECTION_ERROR_RETRY_MILLIS,
+                    mWatchdog.setWatchdogAlarm(this, CONNECTION_ERROR_RETRY_MILLIS,
                             CALLBACK_TIMEOUT);
                 } else {
                     LogUtils.d(LOG_TAG, "ConnectionError #%d, retried %d times, adding delay",
@@ -807,7 +1060,7 @@ public class AttachmentService extends Service implements Runnable {
                     + " seconds from request, status: " + status);
         }
 
-        final Attachment attachment = Attachment.restoreAttachmentWithId(mContext, attachmentId);
+        final Attachment attachment = Attachment.restoreAttachmentWithId(this, attachmentId);
         if (attachment != null) {
             final long accountId = attachment.mAccountKey;
             // Update our attachment storage for this account
@@ -822,22 +1075,22 @@ public class AttachmentService extends Service implements Runnable {
                     // If this is a forwarding download, and the attachment doesn't exist (or
                     // can't be downloaded) delete it from the outgoing message, lest that
                     // message never get sent
-                    EmailContent.delete(mContext, Attachment.CONTENT_URI, attachment.mId);
+                    EmailContent.delete(this, Attachment.CONTENT_URI, attachment.mId);
                     // TODO: Talk to UX about whether this is even worth doing
-                    NotificationController nc = NotificationController.getInstance(mContext);
+                    NotificationController nc = NotificationController.getInstance(this);
                     nc.showDownloadForwardFailedNotification(attachment);
                     deleted = true;
                 }
                 // If we're an attachment on forwarded mail, and if we're not still blocked,
                 // try to send pending mail now (as mediated by MailService)
                 if ((req != null) &&
-                        !Utility.hasUnloadedAttachments(mContext, attachment.mMessageKey)) {
+                        !Utility.hasUnloadedAttachments(this, attachment.mMessageKey)) {
                     if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
                         LogUtils.d(LOG_TAG, "== Downloads finished for outgoing msg #"
                                 + req.mMessageId);
                     }
                     EmailServiceProxy service = EmailServiceUtils.getServiceForAccount(
-                            mContext, accountId);
+                            this, accountId);
                     try {
                         service.sendMail(accountId);
                     } catch (RemoteException e) {
@@ -846,10 +1099,10 @@ public class AttachmentService extends Service implements Runnable {
                 }
             }
             if (statusCode == EmailServiceStatus.MESSAGE_NOT_FOUND) {
-                Message msg = Message.restoreMessageWithId(mContext, attachment.mMessageKey);
+                Message msg = Message.restoreMessageWithId(this, attachment.mMessageKey);
                 if (msg == null) {
                     // If there's no associated message, delete the attachment
-                    EmailContent.delete(mContext, Attachment.CONTENT_URI, attachment.mId);
+                    EmailContent.delete(this, Attachment.CONTENT_URI, attachment.mId);
                 } else {
                     // If there really is a message, retry
                     // TODO: How will this get retried? It's still marked as inProgress?
@@ -867,11 +1120,26 @@ public class AttachmentService extends Service implements Runnable {
                     Attachment.FLAG_DOWNLOAD_FORWARD | Attachment.FLAG_DOWNLOAD_USER_REQUEST;
                 cv.put(AttachmentColumns.FLAGS, attachment.mFlags &= ~flags);
                 cv.put(AttachmentColumns.UI_STATE, AttachmentState.SAVED);
-                attachment.update(mContext, cv);
+                attachment.update(this, cv);
             }
         }
         // Process the queue
         kick();
+    }
+
+    /**
+     * Count the number of running downloads in progress for this account
+     * @param accountId the id of the account
+     * @return the count of running downloads
+     */
+    synchronized int getDownloadsForAccount(final long accountId) {
+        int count = 0;
+        for (final DownloadRequest req: mDownloadsInProgress.values()) {
+            if (req.mAccountId == accountId) {
+                count++;
+            }
+        }
+        return count;
     }
 
     /**
@@ -880,7 +1148,7 @@ public class AttachmentService extends Service implements Runnable {
      * @param att the Attachment
      * @return the priority key of the Attachment
      */
-    private static int getPriority(final Attachment att) {
+    private static int getAttachmentPriority(final Attachment att) {
         int priorityClass = PRIORITY_NONE;
         final int flags = att.mFlags;
         if ((flags & Attachment.FLAG_DOWNLOAD_FORWARD) != 0) {
@@ -889,117 +1157,6 @@ public class AttachmentService extends Service implements Runnable {
             priorityClass = PRIORITY_FOREGROUND;
         }
         return priorityClass;
-    }
-
-    private void kick() {
-        synchronized(mLock) {
-            mLock.notify();
-        }
-    }
-
-    /**
-     * We use an EmailServiceCallback to keep track of the progress of downloads.  These callbacks
-     * come from either Controller (IMAP) or ExchangeService (EAS).  Note that we only implement the
-     * single callback that's defined by the EmailServiceCallback interface.
-     */
-    class ServiceCallback extends IEmailServiceCallback.Stub {
-        @Override
-        public void loadAttachmentStatus(final long messageId, final long attachmentId,
-                final int statusCode, final int progress) {
-            // Record status and progress
-            final DownloadRequest req = mDownloadsInProgress.get(attachmentId);
-            if (req != null) {
-                if (LogUtils.isLoggable(LOG_TAG, LogUtils.DEBUG)) {
-                    final String code;
-                    switch(statusCode) {
-                        case EmailServiceStatus.SUCCESS: code = "Success"; break;
-                        case EmailServiceStatus.IN_PROGRESS: code = "In progress"; break;
-                        default: code = Integer.toString(statusCode); break;
-                    }
-                    if (statusCode != EmailServiceStatus.IN_PROGRESS) {
-                        LogUtils.d(LOG_TAG, ">> Attachment status " + attachmentId + ": " + code);
-                    } else if (progress >= (req.mLastProgress + 10)) {
-                        LogUtils.d(LOG_TAG, ">> Attachment progress %d: %d%%", attachmentId, progress);
-                    }
-                }
-                req.mLastStatusCode = statusCode;
-                req.mLastProgress = progress;
-                req.mLastCallbackTime = System.currentTimeMillis();
-                final Attachment attachment =
-                        Attachment.restoreAttachmentWithId(mContext, attachmentId);
-                 if (attachment != null  && statusCode == EmailServiceStatus.IN_PROGRESS) {
-                    final ContentValues values = new ContentValues();
-                    values.put(AttachmentColumns.UI_DOWNLOADED_SIZE,
-                            attachment.mSize * progress / 100);
-                    // Update UIProvider with updated download size
-                    // Individual services will set contentUri and state when finished
-                    attachment.update(mContext, values);
-                }
-                switch (statusCode) {
-                    case EmailServiceStatus.IN_PROGRESS:
-                        break;
-                    default:
-                        endDownload(attachmentId, statusCode);
-                        break;
-                }
-            } else {
-                // The only way that we can get a callback from the service implementation for
-                // an attachment that doesn't exist is if it was cancelled due to the
-                // AttachmentWatchdog. This is a valid scenario and the Watchdog should have already
-                // marked this attachment as failed/cancelled.
-            }
-        }
-    }
-
-    // The queue entries here are entries of the form {id, flags}, with the values passed in to
-    // attachmentChanged()
-    private static final Queue<long[]> sAttachmentChangedQueue =
-            new ConcurrentLinkedQueue<long[]>();
-    private static AsyncTask<Void, Void, Void> sAttachmentChangedTask;
-
-    /**
-     * Called directly by EmailProvider whenever an attachment is inserted or changed. Since this
-     * call is being invoked on the UI thread, we need to make sure that the downloads are
-     * happening in the background.
-     * @param context the caller's context
-     * @param id the attachment's id
-     * @param flags the new flags for the attachment
-     */
-    public static void attachmentChanged(final Context context, final long id, final int flags) {
-        synchronized (sAttachmentChangedQueue) {
-            sAttachmentChangedQueue.add(new long[]{id, flags});
-            if (sAttachmentChangedTask == null) {
-                sAttachmentChangedTask = new AsyncTask<Void, Void, Void>() {
-                    @Override
-                    protected Void doInBackground(Void... params) {
-                        while (true) {
-                            final long[] change;
-                            synchronized (sAttachmentChangedQueue) {
-                                change = sAttachmentChangedQueue.poll();
-                                if (change == null) {
-                                    sAttachmentChangedTask = null;
-                                    return null;
-                                }
-                            }
-                            final long id = change[0];
-                            final long flags = change[1];
-                            final Attachment attachment =
-                                    Attachment.restoreAttachmentWithId(context, id);
-                            if (attachment == null) {
-                                continue;
-                            }
-                            attachment.mFlags = (int) flags;
-                            final Intent intent =
-                                    new Intent(context, AttachmentService.class);
-                            intent.putExtra(EXTRA_ATTACHMENT, attachment);
-                            // This is result in a call to AttachmentService.onStartCommand()
-                            // which will queue the attachment in its internal prioritized queue.
-                            context.startService(intent);
-                        }
-                    }
-                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            }
-        }
     }
 
     /**
@@ -1026,7 +1183,7 @@ public class AttachmentService extends Service implements Runnable {
         // do this as you may assign more storage to your corporate account rather than a personal
         // account.
         final long perAccountMaxStorage =
-            (long)(totalStorage * PREFETCH_MAXIMUM_ATTACHMENT_STORAGE / numberOfAccounts);
+                (long)(totalStorage * PREFETCH_MAXIMUM_ATTACHMENT_STORAGE / numberOfAccounts);
 
         // Retrieve our idea of currently used attachment storage; since we don't track deletions,
         // this number is the "worst case".  If the number is greater than what's allowed per
@@ -1056,114 +1213,11 @@ public class AttachmentService extends Service implements Runnable {
         return true;
     }
 
-    /**
-     * The main routine for our AttachmentService service thread.
-     */
-    @Override
-    public void run() {
-        // These fields are only used within the service thread
-        mContext = this;
-        mConnectivityManager = new EmailConnectivityManager(this, LOG_TAG);
-        mAccountManagerStub = new AccountManagerStub(this);
-
-        // Run through all attachments in the database that require download and add them to
-        // the queue. This is the case where a previous AttachmentService may have been notified
-        // to stop before processing everything in its queue.
-        final int mask = Attachment.FLAG_DOWNLOAD_FORWARD | Attachment.FLAG_DOWNLOAD_USER_REQUEST;
-        final Cursor c = getContentResolver().query(Attachment.CONTENT_URI,
-                EmailContent.ID_PROJECTION, "(" + AttachmentColumns.FLAGS + " & ?) != 0",
-                new String[] {Integer.toString(mask)}, null);
-        try {
-            LogUtils.d(LOG_TAG, "Count: " + c.getCount());
-            while (c.moveToNext()) {
-                final Attachment attachment = Attachment.restoreAttachmentWithId(
-                        this, c.getLong(EmailContent.ID_PROJECTION_COLUMN));
-                if (attachment != null) {
-                    onChange(this, attachment);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            c.close();
-        }
-
-        // Loop until stopped, with a 30 minute wait loop
-        while (!mStop) {
-            // Here's where we run our attachment loading logic...
-            // Make a local copy of the variable so we don't null-crash on service shutdown
-            final EmailConnectivityManager ecm = mConnectivityManager;
-            if (ecm != null) {
-                ecm.waitForConnectivity();
-            }
-            if (mStop) {
-                // We might be bailing out here due to the service shutting down
-                LogUtils.d(LOG_TAG, "*** AttachmentService has been instructed to stop");
-                break;
-            }
-            processQueue();
-            if (mDownloadQueue.isEmpty()) {
-                LogUtils.d(LOG_TAG, "*** All done; shutting down service");
-                stopSelf();
-                break;
-            }
-            synchronized(mLock) {
-                try {
-                    mLock.wait(PROCESS_QUEUE_WAIT_TIME);
-                } catch (InterruptedException e) {
-                    // That's ok; we'll just keep looping
-                }
-            }
-        }
-
-        // Unregister now that we're done
-        // Make a local copy of the variable so we don't null-crash on service shutdown
-        final EmailConnectivityManager ecm = mConnectivityManager;
-        if (ecm != null) {
-            ecm.unregister();
-        }
-    }
-
-    @Override
-    public int onStartCommand(final Intent intent, final int flags, final int startId) {
-        if (sRunningService == null) {
-            sRunningService = this;
-        }
-        if (intent != null && intent.hasExtra(EXTRA_ATTACHMENT)) {
-            Attachment att = intent.getParcelableExtra(EXTRA_ATTACHMENT);
-            onChange(mContext, att);
-        } else {
-            LogUtils.wtf(LOG_TAG, "Received an invalid intent w/o EXTRA_ATTACHMENT");
-        }
-        return Service.START_STICKY;
-    }
-
-    @Override
-    public void onCreate() {
-        // Start up our service thread.
-        new Thread(this, "AttachmentService").start();
-    }
-
-    @Override
-    public IBinder onBind(final Intent intent) {
-        return null;
-    }
-
-    @Override
-    public void onDestroy() {
-        // Mark this instance of the service as stopped. Our main loop for the AttachmentService
-        // checks for this flag along with the AttachmentWatchdog.
-        mStop = true;
-        if (sRunningService != null) {
-            // Kick it awake to get it to realize that we are stopping.
-            kick();
-            sRunningService = null;
-        }
+    boolean isConnected() {
         if (mConnectivityManager != null) {
-            mConnectivityManager.unregister();
-            mConnectivityManager.stopWait();
-            mConnectivityManager = null;
+            return mConnectivityManager.hasConnectivity();
         }
+        return false;
     }
 
     // For Debugging.
