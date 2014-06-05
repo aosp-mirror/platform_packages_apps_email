@@ -839,6 +839,7 @@
     <string name="account_manager_type_imap" translatable="false">com.android.email</string>
     <string name="account_manager_type_legacy_imap" translatable="false">com.android.email</string>
     <string name="intent_exchange_action" translatable="false">com.android.email.EXCHANGE_INTENT</string>
+    <string name="intent_exchange_cert_action" translatable="false">com.android.email.EXCHANGE_REQUEST_CERT</string>
     <string name="intent_exchange_package" translatable="false">com.android.exchange</string>
     <string name="intent_account_manager_entry" translatable="false">com.android.email.activity.setup.ACCOUNT_MANAGER_ENTRY</string>
     <string name="intent_create_account" translatable="false">com.android.email.CREATE_ACCOUNT</string>

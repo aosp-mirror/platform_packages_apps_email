@@ -18,7 +18,6 @@ package com.android.email.activity.setup;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -354,8 +353,10 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
 
     @Override
     public void onCertificateRequested() {
-        final Intent intent = new Intent(CertificateRequestor.ACTION_REQUEST_CERT);
-        intent.setData(Uri.parse("eas://com.android.emailcommon/certrequest"));
+        final Intent intent = new Intent(getString(R.string.intent_exchange_cert_action));
+        intent.setData(CertificateRequestor.CERTIFICATE_REQUEST_URI);
+        // We don't set EXTRA_HOST or EXTRA_PORT here because we don't know the final host/port
+        // that we're connecting to yet, and autodiscover might point us somewhere else
         startActivityForResult(intent, CERTIFICATE_REQUEST);
     }
 }

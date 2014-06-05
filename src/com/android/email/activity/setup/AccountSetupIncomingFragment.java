@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.text.Editable;
@@ -611,8 +610,15 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
 
     @Override
     public void onCertificateRequested() {
-        final Intent intent = new Intent(CertificateRequestor.ACTION_REQUEST_CERT);
-        intent.setData(Uri.parse("eas://com.android.emailcommon/certrequest"));
+        final Intent intent = new Intent(getString(R.string.intent_exchange_cert_action));
+        intent.setData(CertificateRequestor.CERTIFICATE_REQUEST_URI);
+        intent.putExtra(CertificateRequestor.EXTRA_HOST, mServerView.getText().toString().trim());
+        try {
+            intent.putExtra(CertificateRequestor.EXTRA_PORT,
+                    Integer.parseInt(mPortView.getText().toString().trim()));
+        } catch (final NumberFormatException e) {
+            LogUtils.d(LogUtils.TAG, "Couldn't parse port %s", mPortView.getText());
+        }
         startActivityForResult(intent, CERTIFICATE_REQUEST);
     }
 
