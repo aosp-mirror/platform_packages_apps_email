@@ -19,6 +19,7 @@ package com.android.emailcommon.utility;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.security.KeyChain;
 import android.security.KeyChainAliasCallback;
@@ -28,13 +29,13 @@ import android.security.KeyChainAliasCallback;
  * a certificate to use for establishing secure connections in the Email app.
  */
 public class CertificateRequestor extends Activity implements KeyChainAliasCallback {
-
-    public static final String ACTION_REQUEST_CERT = "com.android.emailcommon.REQUEST_CERT";
-
     public static final String EXTRA_HOST = "CertificateRequestor.host";
     public static final String EXTRA_PORT = "CertificateRequestor.port";
 
     public static final String RESULT_ALIAS = "CertificateRequestor.alias";
+
+    public static final Uri CERTIFICATE_REQUEST_URI =
+            Uri.parse("eas://com.android.emailcommon/certrequest");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,11 +45,13 @@ public class CertificateRequestor extends Activity implements KeyChainAliasCallb
         String host = i.getStringExtra(EXTRA_HOST);
         int port = i.getIntExtra(EXTRA_PORT, -1);
 
-        KeyChain.choosePrivateKeyAlias(
-                this, this,
-                null /* keytypes */, null /* issuers */,
-                host, port,
-                null /* alias */);
+        if (savedInstanceState == null) {
+            KeyChain.choosePrivateKeyAlias(
+                    this, this,
+                    null /* keytypes */, null /* issuers */,
+                    host, port,
+                    null /* alias */);
+        }
     }
 
     /**
