@@ -35,6 +35,7 @@ import android.os.RemoteException;
 
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.utils.LogUtils;
+import com.google.common.annotations.VisibleForTesting;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -141,8 +142,10 @@ public final class Account extends EmailContent implements Parcelable {
     public long mPolicyKey;
     public long mPingDuration;
 
-    private static final String JSON_TAG_HOST_AUTH_RECV = "hostAuthRecv";
-    private static final String JSON_TAG_HOST_AUTH_SEND = "hostAuthSend";
+    @VisibleForTesting
+    static final String JSON_TAG_HOST_AUTH_RECV = "hostAuthRecv";
+    @VisibleForTesting
+    static final String JSON_TAG_HOST_AUTH_SEND = "hostAuthSend";
 
     // Convenience for creating/working with an account
     public transient HostAuth mHostAuthRecv;
