@@ -27,6 +27,7 @@ import android.text.TextUtils;
 
 import com.android.emailcommon.utility.SSLUtils;
 import com.android.mail.utils.LogUtils;
+import com.google.common.annotations.VisibleForTesting;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -71,7 +72,8 @@ public class HostAuth extends EmailContent implements Parcelable {
     public byte[] mServerCert = null;
     public long mCredentialKey;
 
-    private static final String JSON_TAG_CREDENTIAL = "credential";
+    @VisibleForTesting
+    static final String JSON_TAG_CREDENTIAL = "credential";
     public transient Credential mCredential;
 
     public static final int CONTENT_ID_COLUMN = 0;
