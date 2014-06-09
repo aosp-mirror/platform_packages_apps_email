@@ -91,7 +91,7 @@ public class AuthenticationCache {
 
     private CacheEntry getEntry(Context context, Account account) {
         CacheEntry entry;
-        if (account.isSaved()) {
+        if (account.isSaved() && !account.isTemporary()) {
             entry = mCache.get(account.mId);
             if (entry == null) {
                 LogUtils.d(Logging.LOG_TAG, "initializing entry from database");
@@ -102,7 +102,7 @@ public class AuthenticationCache {
                 mCache.put(account.mId, entry);
             }
         } else {
-            // This account is not yet saved, just create a temporary entry. Don't store
+            // This account is temporary, just create a temporary entry. Don't store
             // it in the cache, it won't be findable because we don't yet have an account Id.
             final HostAuth hostAuth = account.getOrCreateHostAuthRecv(context);
             final Credential credential = hostAuth.getCredential(context);
@@ -157,5 +157,6 @@ public class AuthenticationCache {
         entry.mRefreshToken = "";
         entry.mExpirationTime = 0;
         saveEntry(context, entry);
+        mCache.remove(entry.mAccountId);
     }
 }

@@ -71,7 +71,7 @@ public class SetupDataFragment extends Fragment implements Parcelable {
 
     public SetupDataFragment() {
         mPolicy = null;
-        mAccount = new Account();
+        setAccount(new Account());
         mEmail = null;
         mCredentialResults = null;
     }
@@ -83,7 +83,7 @@ public class SetupDataFragment extends Fragment implements Parcelable {
 
     public SetupDataFragment(int flowMode, Account account) {
         this(flowMode);
-        mAccount = account;
+        setAccount(account);
     }
 
     @Override
@@ -105,7 +105,7 @@ public class SetupDataFragment extends Fragment implements Parcelable {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
             mFlowMode = savedInstanceState.getInt(SAVESTATE_FLOWMODE);
-            mAccount = savedInstanceState.getParcelable(SAVESTATE_ACCOUNT);
+            setAccount((Account) savedInstanceState.getParcelable(SAVESTATE_ACCOUNT));
             mEmail = savedInstanceState.getString(SAVESTATE_EMAIL);
             mCredentialResults = savedInstanceState.getParcelable(SAVESTATE_CREDENTIAL);
             mIncomingCredLoaded = savedInstanceState.getBoolean(SAVESTATE_INCOMING_LOADED);
@@ -132,6 +132,7 @@ public class SetupDataFragment extends Fragment implements Parcelable {
 
     public void setAccount(Account account) {
         mAccount = account;
+        mAccount.setTemporary(true);
     }
 
     public String getEmail() {
@@ -269,7 +270,7 @@ public class SetupDataFragment extends Fragment implements Parcelable {
     public SetupDataFragment(Parcel in) {
         final ClassLoader loader = getClass().getClassLoader();
         mFlowMode = in.readInt();
-        mAccount = in.readParcelable(loader);
+        setAccount((Account) in.readParcelable(loader));
         mEmail = in.readString();
         mCredentialResults = in.readParcelable(loader);
         final boolean[] credsLoaded = in.createBooleanArray();
