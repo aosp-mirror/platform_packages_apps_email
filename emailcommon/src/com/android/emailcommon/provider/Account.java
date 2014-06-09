@@ -147,6 +147,10 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     public transient HostAuth mHostAuthSend;
     public transient Policy mPolicy;
 
+    // Marks this account as being a temporary entry, so we know to use it directly and not go
+    // through the database or any caches
+    private transient boolean mTemporary;
+
     public static final int CONTENT_ID_COLUMN = 0;
     public static final int CONTENT_DISPLAY_NAME_COLUMN = 1;
     public static final int CONTENT_EMAIL_ADDRESS_COLUMN = 2;
@@ -280,6 +284,14 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         mSignature = cursor.getString(CONTENT_SIGNATURE_COLUMN);
         mPolicyKey = cursor.getLong(CONTENT_POLICY_KEY_COLUMN);
         mPingDuration = cursor.getLong(CONTENT_PING_DURATION_COLUMN);
+    }
+
+    public boolean isTemporary() {
+        return mTemporary;
+    }
+
+    public void setTemporary(boolean temporary) {
+        mTemporary = temporary;
     }
 
     private static long getId(Uri u) {

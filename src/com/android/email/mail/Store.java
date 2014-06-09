@@ -77,6 +77,7 @@ public abstract class Store {
      * a critical problem. However, it is something we should consider fixing.
      *
      * @param account The account of the store.
+     * @param context For all the usual context-y stuff
      * @return an initialized store of the appropriate class
      * @throws MessagingException If the store cannot be obtained or if the account is invalid.
      */
@@ -89,27 +90,43 @@ public abstract class Store {
         HostAuth hostAuth = account.getOrCreateHostAuthRecv(context);
         // An existing account might have been deleted
         if (hostAuth == null) return null;
-        Store store = sStores.get(hostAuth);
-        if (store == null) {
-            Context appContext = context.getApplicationContext();
-            Class<? extends Store> klass = sStoreClasses.get(hostAuth.mProtocol);
-            if (klass == null) {
-                klass = ServiceStore.class;
+        if (!account.isTemporary()) {
+            Store store = sStores.get(hostAuth);
+            if (store == null) {
+                store = createInstanceInternal(account, context, true);
+            } else {
+                // Make sure the account object is up to date (according to the caller, at least)
+                store.mAccount = account;
             }
-            try {
-                // invoke "newInstance" class method
-                Method m = klass.getMethod("newInstance", Account.class, Context.class);
-                store = (Store)m.invoke(null, account, appContext);
-            } catch (Exception e) {
-                LogUtils.d(Logging.LOG_TAG, String.format(
-                        "exception %s invoking method %s#newInstance(Account, Context) for %s",
-                        e.toString(), klass.getName(), account.mDisplayName));
-                throw new MessagingException("Can't instantiate Store for " + account.mDisplayName);
-            }
-            // Don't cache this unless it's we've got a saved HostAuth
-            if (hostAuth.mId != EmailContent.NOT_SAVED) {
-                sStores.put(hostAuth, store);
-            }
+            return store;
+        } else {
+            return createInstanceInternal(account, context, false);
+        }
+    }
+
+    private synchronized static Store createInstanceInternal(final Account account,
+            final Context context, final boolean cacheInstance)
+            throws MessagingException {
+        Context appContext = context.getApplicationContext();
+        final HostAuth hostAuth = account.getOrCreateHostAuthRecv(context);
+        Class<? extends Store> klass = sStoreClasses.get(hostAuth.mProtocol);
+        if (klass == null) {
+            klass = ServiceStore.class;
+        }
+        final Store store;
+        try {
+            // invoke "newInstance" class method
+            Method m = klass.getMethod("newInstance", Account.class, Context.class);
+            store = (Store)m.invoke(null, account, appContext);
+        } catch (Exception e) {
+            LogUtils.d(Logging.LOG_TAG, String.format(
+                    "exception %s invoking method %s#newInstance(Account, Context) for %s",
+                    e.toString(), klass.getName(), account.mDisplayName));
+            throw new MessagingException("Can't instantiate Store for " + account.mDisplayName);
+        }
+        // Don't cache this unless it's we've got a saved HostAuth
+        if (hostAuth.mId != EmailContent.NOT_SAVED && cacheInstance) {
+            sStores.put(hostAuth, store);
         }
         return store;
     }
