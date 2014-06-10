@@ -53,8 +53,6 @@ public class GeneralPreferences extends PreferenceFragment implements
 
     private boolean mSettingsChanged = false;
 
-    CharSequence[] mSizeSummaries;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

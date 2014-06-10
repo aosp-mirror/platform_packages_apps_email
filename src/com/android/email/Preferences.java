@@ -48,7 +48,6 @@ public class Preferences {
     private static final String AUTO_ADVANCE_DIRECTION = "autoAdvance";
     private static final String TRUSTED_SENDERS = "trustedSenders";
     private static final String LAST_ACCOUNT_USED = "lastAccountUsed";
-    private static final String REQUIRE_MANUAL_SYNC_DIALOG_SHOWN = "requireManualSyncDialogShown";
     private static final String CONFIRM_DELETE = "confirm_delete";
     private static final String CONFIRM_SEND = "confirm_send";
     @Deprecated
@@ -257,22 +256,6 @@ public class Preferences {
                 .apply();
     }
 
-    /**
-     * Gets whether the require manual sync dialog has been shown for the specified account.
-     * It should only be shown once per account.
-     */
-    public boolean getHasShownRequireManualSync(Account account) {
-        return getBoolean(account.getEmailAddress(), REQUIRE_MANUAL_SYNC_DIALOG_SHOWN, false);
-    }
-
-    /**
-     * Sets whether the require manual sync dialog has been shown for the specified account.
-     * It should only be shown once per account.
-     */
-    public void setHasShownRequireManualSync(Account account, boolean value) {
-        setBoolean(account.getEmailAddress(), REQUIRE_MANUAL_SYNC_DIALOG_SHOWN, value);
-    }
-
     public void clear() {
         mSharedPreferences.edit().clear().apply();
     }
@@ -283,20 +266,6 @@ public class Preferences {
                 LogUtils.v(Logging.LOG_TAG, key + " = " + mSharedPreferences.getAll().get(key));
             }
         }
-    }
-
-    /**
-     * Utility method for setting a boolean value on a per-account preference.
-     */
-    private void setBoolean(String account, String key, Boolean value) {
-        mSharedPreferences.edit().putBoolean(makeKey(account, key), value).apply();
-    }
-
-    /**
-     * Utility method for getting a boolean value from a per-account preference.
-     */
-    private boolean getBoolean(String account, String key, boolean def) {
-        return mSharedPreferences.getBoolean(makeKey(account, key), def);
     }
 
     /**
