@@ -3458,12 +3458,6 @@ public class EmailProvider extends ContentProvider {
             values.put(UIProvider.AccountColumns.SettingsColumns.AUTO_ADVANCE,
                     autoAdvanceToUiValue(autoAdvance));
         }
-        if (projectionColumns.contains(
-                UIProvider.AccountColumns.SettingsColumns.MESSAGE_TEXT_SIZE)) {
-            int textZoom = prefs.getTextZoom();
-            values.put(UIProvider.AccountColumns.SettingsColumns.MESSAGE_TEXT_SIZE,
-                    textZoomToUiValue(textZoom));
-        }
         // Set default inbox, if we've got an inbox; otherwise, say initial sync needed
         final long inboxMailboxId =
                 Mailbox.findMailboxOfType(context, accountId, Mailbox.TYPE_INBOX);
@@ -3566,23 +3560,6 @@ public class EmailProvider extends ContentProvider {
             case Preferences.AUTO_ADVANCE_MESSAGE_LIST:
             default:
                 return UIProvider.AutoAdvance.LIST;
-        }
-    }
-
-    private static int textZoomToUiValue(int textZoom) {
-        switch(textZoom) {
-            case Preferences.TEXT_ZOOM_HUGE:
-                return UIProvider.MessageTextSize.HUGE;
-            case Preferences.TEXT_ZOOM_LARGE:
-                return UIProvider.MessageTextSize.LARGE;
-            case Preferences.TEXT_ZOOM_NORMAL:
-                return UIProvider.MessageTextSize.NORMAL;
-            case Preferences.TEXT_ZOOM_SMALL:
-                return UIProvider.MessageTextSize.SMALL;
-            case Preferences.TEXT_ZOOM_TINY:
-                return UIProvider.MessageTextSize.TINY;
-            default:
-                return UIProvider.MessageTextSize.NORMAL;
         }
     }
 
@@ -3697,10 +3674,6 @@ public class EmailProvider extends ContentProvider {
         if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.AUTO_ADVANCE)) {
             values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.AUTO_ADVANCE)] =
                     Integer.toString(UIProvider.AutoAdvance.NEWER);
-        }
-        if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.MESSAGE_TEXT_SIZE)) {
-            values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.MESSAGE_TEXT_SIZE)] =
-                    Integer.toString(UIProvider.MessageTextSize.NORMAL);
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.SNAP_HEADERS)) {
             values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.SNAP_HEADERS)] =

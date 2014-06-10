@@ -37,14 +37,6 @@
         android:entryValues="@array/prefValues_autoAdvance"
         android:dialogTitle="@string/auto_advance_help_title" />
 
-    <!-- Note, summary is set dynamically in GeneralPreferences.java -->
-    <ListPreference
-        android:key="text_zoom"
-        android:title="@string/general_preference_text_zoom_label"
-        android:entries="@array/general_preference_text_zoom_entries"
-        android:entryValues="@array/general_preference_text_zoom_values"
-        android:dialogTitle="@string/general_preference_text_zoom_dialog_title" />
-
     <CheckBoxPreference
         android:key="conversation_list_icon"
         android:persistent="false"

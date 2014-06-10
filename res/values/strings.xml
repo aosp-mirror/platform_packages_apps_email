@@ -726,51 +726,11 @@
     <string name="general_preference_confirm_delete_label">Confirm before deleting</string>
     <!-- General preference: Description of the setting for requiring confirmation before
          message deletion [CHAR LIMIT=64] -->
-    <!-- TODO: Delete this string, no longer used -->
-    <string name="general_preference_confirm_delete_summary">Messages</string>
     <!-- General preference: Label of the setting for requiring confirmation before
          message sending [CHAR LIMIT=32] -->
     <string name="general_preference_confirm_send_label">Confirm before sending</string>
     <!-- General preference: Description of the setting for requiring confirmation before
          message sending [CHAR LIMIT=32] -->
-    <!-- TODO: Delete this string, no longer used -->
-    <string name="general_preference_confirm_send_summary">Messages</string>
-
-    <!-- General preference: Label of the setting for the text zoom.  [CHAR LIMIT=32] -->
-    <string name="general_preference_text_zoom_label">Message text size</string>
-    <!-- General preference: Description of each setting for text zoom.  The entries here must
-         correspond to the strings general_preference_text_zoom_tiny,
-         general_preference_text_zoom_small, general_preference_text_zoom_normal, etc.
-         [CHAR LIMIT=64] -->
-    <string-array name="general_preference_text_zoom_summary_array">
-        <item>Tiny text</item>
-        <item>Small text</item>
-        <item>Normal-sized text</item>
-        <item>Large text</item>
-        <item>Huge text</item>
-    </string-array>
-
-    <!-- The message text size values -->
-    <string-array translatable="false" name="general_preference_text_zoom_size">
-        <item>0.8</item>
-        <item>0.9</item>
-        <item>1.0</item>
-        <item>1.2</item>
-        <item>1.5</item>
-    </string-array>
-
-    <!-- General preference: Title of the dialog box with options for text zoom. [CHAR LIMIT=32] -->
-    <string name="general_preference_text_zoom_dialog_title">Message text size</string>
-    <!-- General preference:  Text zoom.  Value is "tiny" (-2) [CHAR LIMIT=32] -->
-    <string name="general_preference_text_zoom_tiny">Tiny</string>
-    <!-- General preference:  Text zoom.  Value is "small" (-1) [CHAR LIMIT=32] -->
-    <string name="general_preference_text_zoom_small">Small</string>
-    <!-- General preference:  Text zoom.  Value is "normal" (0) [CHAR LIMIT=32] -->
-    <string name="general_preference_text_zoom_normal">Normal</string>
-    <!-- General preference:  Text zoom.  Value is "large" (+1) [CHAR LIMIT=32] -->
-    <string name="general_preference_text_zoom_large">Large</string>
-    <!-- General preference:  Text zoom.  Value is "huge" (+2) [CHAR LIMIT=32] -->
-    <string name="general_preference_text_zoom_huge">Huge</string>
 
     <!-- Generic string shown instead of regular numbers, when a number is larger than 999.
          This should not be altered if the original string ("999+") makes sense in the

@@ -39,7 +39,6 @@ public class GeneralPreferences extends PreferenceFragment implements
         OnPreferenceChangeListener {
 
     private static final String PREFERENCE_KEY_AUTO_ADVANCE = "auto_advance";
-    private static final String PREFERENCE_KEY_TEXT_ZOOM = "text_zoom";
     private static final String PREFERENCE_KEY_CONFIRM_DELETE = "confirm_delete";
     private static final String PREFERENCE_KEY_CONFIRM_SEND = "confirm_send";
     private static final String PREFERENCE_KEY_CONV_LIST_ICON = "conversation_list_icon";
@@ -47,12 +46,6 @@ public class GeneralPreferences extends PreferenceFragment implements
     private MailPrefs mMailPrefs;
     private Preferences mPreferences;
     private ListPreference mAutoAdvance;
-    /**
-     * TODO: remove this when we've decided for certain that an app setting is unnecessary
-     * (b/5287963)
-     */
-    @Deprecated
-    private ListPreference mTextZoom;
     private CheckBoxPreference mConfirmDelete;
     private CheckBoxPreference mConfirmSend;
     //private CheckBoxPreference mConvListAttachmentPreviews;
@@ -72,10 +65,6 @@ public class GeneralPreferences extends PreferenceFragment implements
 
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.general_preferences);
-
-        final PreferenceScreen ps = getPreferenceScreen();
-        // Merely hide app pref for font size until we're sure it's unnecessary (b/5287963)
-        ps.removePreference(findPreference(PREFERENCE_KEY_TEXT_ZOOM));
     }
 
     @Override
@@ -102,10 +91,6 @@ public class GeneralPreferences extends PreferenceFragment implements
         mSettingsChanged = true;
         if (PREFERENCE_KEY_AUTO_ADVANCE.equals(key)) {
             mPreferences.setAutoAdvanceDirection(mAutoAdvance.findIndexOfValue((String) newValue));
-            return true;
-        } else if (PREFERENCE_KEY_TEXT_ZOOM.equals(key)) {
-            mPreferences.setTextZoom(mTextZoom.findIndexOfValue((String) newValue));
-            reloadDynamicSummaries();
             return true;
         } else if (MailPrefs.PreferenceKeys.DEFAULT_REPLY_ALL.equals(key)) {
             mMailPrefs.setDefaultReplyAll((Boolean) newValue);
@@ -144,12 +129,6 @@ public class GeneralPreferences extends PreferenceFragment implements
         mAutoAdvance.setValueIndex(mPreferences.getAutoAdvanceDirection());
         mAutoAdvance.setOnPreferenceChangeListener(this);
 
-        mTextZoom = (ListPreference) findPreference(PREFERENCE_KEY_TEXT_ZOOM);
-        if (mTextZoom != null) {
-            mTextZoom.setValueIndex(mPreferences.getTextZoom());
-            mTextZoom.setOnPreferenceChangeListener(this);
-        }
-
         final CheckBoxPreference convListIcon =
                 (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONV_LIST_ICON);
         if (convListIcon != null) {
@@ -168,27 +147,6 @@ public class GeneralPreferences extends PreferenceFragment implements
                 (CheckBoxPreference) findPreference(MailPrefs.PreferenceKeys.DEFAULT_REPLY_ALL);
         replyAllPreference.setChecked(mMailPrefs.getDefaultReplyAll());
         replyAllPreference.setOnPreferenceChangeListener(this);
-
-        reloadDynamicSummaries();
-    }
-
-    /**
-     * Reload any preference summaries that are updated dynamically
-     */
-    private void reloadDynamicSummaries() {
-        if (mTextZoom != null) {
-            int textZoomIndex = mPreferences.getTextZoom();
-            // Update summary - but only load the array once
-            if (mSizeSummaries == null) {
-                mSizeSummaries = getActivity().getResources()
-                        .getTextArray(R.array.general_preference_text_zoom_summary_array);
-            }
-            CharSequence summary = null;
-            if (textZoomIndex >= 0 && textZoomIndex < mSizeSummaries.length) {
-                summary = mSizeSummaries[textZoomIndex];
-            }
-            mTextZoom.setSummary(summary);
-        }
     }
 
     @Override

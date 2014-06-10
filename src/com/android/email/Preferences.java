@@ -42,14 +42,10 @@ public class Preferences {
     private static final String ENABLE_DEBUG_LOGGING = "enableDebugLogging";
     private static final String ENABLE_EXCHANGE_LOGGING = "enableExchangeLogging";
     private static final String ENABLE_EXCHANGE_FILE_LOGGING = "enableExchangeFileLogging";
-    private static final String INHIBIT_GRAPHICS_ACCELERATION = "inhibitGraphicsAcceleration";
-    private static final String FORCE_ONE_MINUTE_REFRESH = "forceOneMinuteRefresh";
     private static final String ENABLE_STRICT_MODE = "enableStrictMode";
     private static final String DEVICE_UID = "deviceUID";
     private static final String ONE_TIME_INITIALIZATION_PROGRESS = "oneTimeInitializationProgress";
     private static final String AUTO_ADVANCE_DIRECTION = "autoAdvance";
-    private static final String TEXT_ZOOM = "textZoom";
-    private static final String BACKGROUND_ATTACHMENTS = "backgroundAttachments";
     private static final String TRUSTED_SENDERS = "trustedSenders";
     private static final String LAST_ACCOUNT_USED = "lastAccountUsed";
     private static final String REQUIRE_MANUAL_SYNC_DIALOG_SHOWN = "requireManualSyncDialogShown";
@@ -68,15 +64,6 @@ public class Preferences {
     private static final int AUTO_ADVANCE_DEFAULT = AUTO_ADVANCE_OLDER;
     private static final boolean CONFIRM_DELETE_DEFAULT = false;
     private static final boolean CONFIRM_SEND_DEFAULT = false;
-
-    // The following constants are used as offsets into R.array.general_preference_text_zoom_size.
-    public static final int TEXT_ZOOM_TINY = 0;
-    public static final int TEXT_ZOOM_SMALL = 1;
-    public static final int TEXT_ZOOM_NORMAL = 2;
-    public static final int TEXT_ZOOM_LARGE = 3;
-    public static final int TEXT_ZOOM_HUGE = 4;
-    // "normal" will be the default
-    public static final int TEXT_ZOOM_DEFAULT = TEXT_ZOOM_NORMAL;
 
     public static final String CONV_LIST_ICON_SENDER_IMAGE = "senderimage";
     public static final String CONV_LIST_ICON_NONE = "none";
@@ -137,22 +124,6 @@ public class Preferences {
 
     public boolean getEnableExchangeFileLogging() {
         return mSharedPreferences.getBoolean(ENABLE_EXCHANGE_FILE_LOGGING, false);
-    }
-
-    public void setInhibitGraphicsAcceleration(boolean value) {
-        mSharedPreferences.edit().putBoolean(INHIBIT_GRAPHICS_ACCELERATION, value).apply();
-    }
-
-    public boolean getInhibitGraphicsAcceleration() {
-        return mSharedPreferences.getBoolean(INHIBIT_GRAPHICS_ACCELERATION, false);
-    }
-
-    public void setForceOneMinuteRefresh(boolean value) {
-        mSharedPreferences.edit().putBoolean(FORCE_ONE_MINUTE_REFRESH, value).apply();
-    }
-
-    public boolean getForceOneMinuteRefresh() {
-        return mSharedPreferences.getBoolean(FORCE_ONE_MINUTE_REFRESH, false);
     }
 
     public void setEnableStrictMode(boolean value) {
@@ -239,24 +210,9 @@ public class Preferences {
         return mSharedPreferences.getBoolean(REPLY_ALL, false);
     }
 
-    public int getTextZoom() {
-        return mSharedPreferences.getInt(TEXT_ZOOM, TEXT_ZOOM_DEFAULT);
-    }
-
-    public void setTextZoom(int zoom) {
-        mSharedPreferences.edit().putInt(TEXT_ZOOM, zoom).apply();
-    }
-
-    public boolean getBackgroundAttachments() {
-        return mSharedPreferences.getBoolean(BACKGROUND_ATTACHMENTS, false);
-    }
-
-    public void setBackgroundAttachments(boolean allowed) {
-        mSharedPreferences.edit().putBoolean(BACKGROUND_ATTACHMENTS, allowed).apply();
-    }
-
     /**
-     * @deprecated This has been moved to {@link com.android.mail.preferences.MailPrefs}, and is only here for migration.
+     * @deprecated This has been moved to {@link com.android.mail.preferences.MailPrefs}, and is
+     * only here for migration.
      */
     @Deprecated
     public Set<String> getWhitelistedSenderAddresses() {
@@ -276,10 +232,6 @@ public class Preferences {
             }
         }
         return result;
-    }
-
-    String packEmailSet(HashSet<String> set) {
-        return new JSONArray(set).toString();
     }
 
     /**
@@ -319,17 +271,6 @@ public class Preferences {
      */
     public void setHasShownRequireManualSync(Account account, boolean value) {
         setBoolean(account.getEmailAddress(), REQUIRE_MANUAL_SYNC_DIALOG_SHOWN, value);
-    }
-
-
-    /**
-     * Get whether to show the manual sync dialog. This dialog is shown when the user is roaming,
-     * connected to a mobile network, the administrator has set the RequireManualSyncWhenRoaming
-     * flag to true, and the dialog has not been shown before for the supplied account.
-     */
-    public boolean shouldShowRequireManualSync(Context context, Account account) {
-        return Account.isAutomaticSyncDisabledByRoaming(context, account.mId)
-                && !getHasShownRequireManualSync(account);
     }
 
     public void clear() {

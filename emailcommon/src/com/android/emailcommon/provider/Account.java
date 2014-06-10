@@ -26,8 +26,6 @@ import android.content.OperationApplicationException;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.media.RingtoneManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -592,33 +590,6 @@ public final class Account extends EmailContent implements Parcelable {
         } finally {
             c.close();
         }
-    }
-
-    /**
-     * Given an account id, determine whether the account is currently prohibited from automatic
-     * sync, due to roaming while the account's policy disables this
-     * @param context the caller's context
-     * @param accountId the account id
-     * @return true if the account can't automatically sync due to roaming; false otherwise
-     */
-    public static boolean isAutomaticSyncDisabledByRoaming(Context context, long accountId) {
-        Account account = Account.restoreAccountWithId(context, accountId);
-        // Account being deleted; just return
-        if (account == null) return false;
-        long policyKey = account.mPolicyKey;
-        // If no security policy, we're good
-        if (policyKey <= 0) return false;
-
-        ConnectivityManager cm =
-            (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = cm.getActiveNetworkInfo();
-        // If we're not on mobile, we're good
-        if (info == null || (info.getType() != ConnectivityManager.TYPE_MOBILE)) return false;
-        // If we're not roaming, we're good
-        if (!info.isRoaming()) return false;
-        Policy policy = Policy.restorePolicyWithId(context, policyKey);
-        // Account being deleted; just return
-        return policy != null && policy.mRequireManualSyncWhenRoaming;
     }
 
     /*
