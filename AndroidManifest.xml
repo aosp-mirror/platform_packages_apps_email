@@ -702,6 +702,7 @@
                  android:exported="false">
             <intent-filter>
                 <action android:name="com.android.mail.action.RESEND_NOTIFICATIONS" />
+                <action android:name="com.android.mail.action.RESEND_NOTIFICATIONS_WEAR" />
                 <action android:name="com.android.mail.action.SEND_SET_NEW_EMAIL_INDICATOR" />
             </intent-filter>
             <intent-filter>
