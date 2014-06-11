@@ -2458,6 +2458,7 @@ public class EmailProvider extends ContentProvider {
                 .add(UIProvider.ConversationColumns.ACCOUNT_URI,
                         uriWithColumn("uiaccount", MessageColumns.ACCOUNT_KEY))
                 .add(UIProvider.ConversationColumns.SENDER_INFO, MessageColumns.FROM_LIST)
+                .add(UIProvider.ConversationColumns.ORDER_KEY, MessageColumns.TIMESTAMP)
                 .build();
         }
         return sMessageListMap;
