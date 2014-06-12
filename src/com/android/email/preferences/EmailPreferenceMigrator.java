@@ -67,6 +67,7 @@ public class EmailPreferenceMigrator extends BasePreferenceMigrator {
         migrate(context, oldVersion, newVersion, accounts);
     }
 
+    @SuppressWarnings("deprecation")
     protected static void migrate(final Context context, final int oldVersion, final int newVersion,
             final List<Account> accounts) {
         final Preferences preferences = Preferences.getPreferences(context);
@@ -74,19 +75,15 @@ public class EmailPreferenceMigrator extends BasePreferenceMigrator {
         if (oldVersion < 1) {
             // Move global settings
 
-            @SuppressWarnings("deprecation")
             final boolean hasSwipeDelete = preferences.hasSwipeDelete();
             if (hasSwipeDelete) {
-                @SuppressWarnings("deprecation")
                 final boolean swipeDelete = preferences.getSwipeDelete();
                 mailPrefs.setConversationListSwipeEnabled(swipeDelete);
             }
 
             // Move reply-all setting
-            @SuppressWarnings("deprecation")
             final boolean isReplyAllSet = preferences.hasReplyAll();
             if (isReplyAllSet) {
-                @SuppressWarnings("deprecation")
                 final boolean replyAll = preferences.getReplyAll();
                 mailPrefs.setDefaultReplyAll(replyAll);
             }
@@ -148,16 +145,13 @@ public class EmailPreferenceMigrator extends BasePreferenceMigrator {
                         new FolderPreferences(context, account.getEmailAddress(), folder,
                                 true /* inbox */);
 
-                @SuppressWarnings("deprecation")
                 final boolean notify = (ecAccount.getFlags()
                         & com.android.emailcommon.provider.Account.FLAGS_NOTIFY_NEW_MAIL) != 0;
                 folderPreferences.setNotificationsEnabled(notify);
 
-                @SuppressWarnings("deprecation")
                 final String ringtoneUri = ecAccount.getRingtone();
                 folderPreferences.setNotificationRingtoneUri(ringtoneUri);
 
-                @SuppressWarnings("deprecation")
                 final boolean vibrate = (ecAccount.getFlags()
                         & com.android.emailcommon.provider.Account.FLAGS_VIBRATE) != 0;
                 folderPreferences.setNotificationVibrateEnabled(vibrate);
@@ -167,17 +161,34 @@ public class EmailPreferenceMigrator extends BasePreferenceMigrator {
         }
 
         if (oldVersion < 2) {
-            @SuppressWarnings("deprecation")
             final Set<String> whitelistedAddresses = preferences.getWhitelistedSenderAddresses();
             mailPrefs.setSenderWhitelist(whitelistedAddresses);
         }
 
         if (oldVersion < 3) {
-            @SuppressWarnings("deprecation")
             // The default for the conversation list icon is the sender image.
             final boolean showSenderImages = !TextUtils.equals(
                     Preferences.CONV_LIST_ICON_NONE, preferences.getConversationListIcon());
             mailPrefs.setShowSenderImages(showSenderImages);
+        }
+
+        if (oldVersion < 4) {
+            final boolean confirmDelete = preferences.getConfirmDelete();
+            mailPrefs.setConfirmDelete(confirmDelete);
+
+            final boolean confirmSend = preferences.getConfirmSend();
+            mailPrefs.setConfirmSend(confirmSend);
+
+            final int autoAdvance = preferences.getAutoAdvanceDirection();
+            switch(autoAdvance) {
+                case Preferences.AUTO_ADVANCE_OLDER:
+                    mailPrefs.setAutoAdvanceMode(UIProvider.AutoAdvance.OLDER);
+                case Preferences.AUTO_ADVANCE_NEWER:
+                    mailPrefs.setAutoAdvanceMode(UIProvider.AutoAdvance.NEWER);
+                case Preferences.AUTO_ADVANCE_MESSAGE_LIST:
+                default:
+                    mailPrefs.setAutoAdvanceMode(UIProvider.AutoAdvance.LIST);
+            }
         }
     }
 }

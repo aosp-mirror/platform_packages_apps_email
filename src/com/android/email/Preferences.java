@@ -38,6 +38,7 @@ public class Preferences {
     public static final String PREFERENCES_FILE = "AndroidMail.Main";
 
     // Preferences field names
+    @Deprecated
     private static final String ACCOUNT_UUIDS = "accountUuids";
     private static final String ENABLE_DEBUG_LOGGING = "enableDebugLogging";
     private static final String ENABLE_EXCHANGE_LOGGING = "enableExchangeLogging";
@@ -45,27 +46,42 @@ public class Preferences {
     private static final String ENABLE_STRICT_MODE = "enableStrictMode";
     private static final String DEVICE_UID = "deviceUID";
     private static final String ONE_TIME_INITIALIZATION_PROGRESS = "oneTimeInitializationProgress";
-    private static final String AUTO_ADVANCE_DIRECTION = "autoAdvance";
-    private static final String TRUSTED_SENDERS = "trustedSenders";
     private static final String LAST_ACCOUNT_USED = "lastAccountUsed";
+    // The following are only used for migration
+    @Deprecated
+    private static final String AUTO_ADVANCE_DIRECTION = "autoAdvance";
+    @Deprecated
+    private static final String TRUSTED_SENDERS = "trustedSenders";
+    @Deprecated
     private static final String CONFIRM_DELETE = "confirm_delete";
+    @Deprecated
     private static final String CONFIRM_SEND = "confirm_send";
     @Deprecated
     private static final String SWIPE_DELETE = "swipe_delete";
+    @Deprecated
     private static final String CONV_LIST_ICON = "conversation_list_icons";
     @Deprecated
     private static final String REPLY_ALL = "reply_all";
 
+    @Deprecated
     public static final int AUTO_ADVANCE_NEWER = 0;
+    @Deprecated
     public static final int AUTO_ADVANCE_OLDER = 1;
+    @Deprecated
     public static final int AUTO_ADVANCE_MESSAGE_LIST = 2;
     // "move to older" was the behavior on older versions.
+    @Deprecated
     private static final int AUTO_ADVANCE_DEFAULT = AUTO_ADVANCE_OLDER;
+    @Deprecated
     private static final boolean CONFIRM_DELETE_DEFAULT = false;
+    @Deprecated
     private static final boolean CONFIRM_SEND_DEFAULT = false;
 
+    @Deprecated
     public static final String CONV_LIST_ICON_SENDER_IMAGE = "senderimage";
+    @Deprecated
     public static final String CONV_LIST_ICON_NONE = "none";
+    @Deprecated
     public static final String CONV_LIST_ICON_DEFAULT = CONV_LIST_ICON_SENDER_IMAGE;
 
     private static Preferences sPreferences;
@@ -155,12 +171,10 @@ public class Preferences {
         mSharedPreferences.edit().putInt(ONE_TIME_INITIALIZATION_PROGRESS, progress).apply();
     }
 
+    /** @deprecated Only used for migration */
+    @Deprecated
     public int getAutoAdvanceDirection() {
         return mSharedPreferences.getInt(AUTO_ADVANCE_DIRECTION, AUTO_ADVANCE_DEFAULT);
-    }
-
-    public void setAutoAdvanceDirection(int direction) {
-        mSharedPreferences.edit().putInt(AUTO_ADVANCE_DIRECTION, direction).apply();
     }
 
     /** @deprecated Only used for migration */
@@ -169,20 +183,16 @@ public class Preferences {
         return mSharedPreferences.getString(CONV_LIST_ICON, CONV_LIST_ICON_SENDER_IMAGE);
     }
 
+    /** @deprecated Only used for migration */
+    @Deprecated
     public boolean getConfirmDelete() {
         return mSharedPreferences.getBoolean(CONFIRM_DELETE, CONFIRM_DELETE_DEFAULT);
     }
 
-    public void setConfirmDelete(boolean set) {
-        mSharedPreferences.edit().putBoolean(CONFIRM_DELETE, set).apply();
-    }
-
+    /** @deprecated Only used for migration */
+    @Deprecated
     public boolean getConfirmSend() {
         return mSharedPreferences.getBoolean(CONFIRM_SEND, CONFIRM_SEND_DEFAULT);
-    }
-
-    public void setConfirmSend(boolean set) {
-        mSharedPreferences.edit().putBoolean(CONFIRM_SEND, set).apply();
     }
 
     /** @deprecated Only used for migration */
@@ -266,12 +276,5 @@ public class Preferences {
                 LogUtils.v(Logging.LOG_TAG, key + " = " + mSharedPreferences.getAll().get(key));
             }
         }
-    }
-
-    /**
-     * Utility method for creating a per account preference key.
-     */
-    private static String makeKey(String account, String key) {
-        return account != null ? account + "-" + key : key;
     }
 }
