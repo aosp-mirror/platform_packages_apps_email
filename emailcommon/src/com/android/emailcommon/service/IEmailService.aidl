@@ -26,15 +26,18 @@ import android.os.Bundle;
 
 interface IEmailService {
     // Core email operations.
-    // TODO: is sendMail really necessary, or should we standardize on sync(outbox)?
-    void sendMail(long accountId);
+    // Many of these functions return status codes. The valid status codes are defined in
+    // EmailServiceStatus.java
     oneway void loadAttachment(IEmailServiceCallback cb, long accountId, long attachmentId,
             boolean background);
-    oneway void updateFolderList(long accountId);
 
-    void syncFolders(long accountId, boolean updateFolderList, in long[] foldersToSync);
+    void updateFolderList(long accountId);
 
-    void syncMailboxType(long accountId, boolean updateFolderList, int mailboxType);
+    // TODO: For Eas, sync() will also sync the outbox. We should make IMAP and POP work the same
+    // way and get rid of sendMail().
+    void sendMail(long accountId);
+
+    int sync(long accountId, inout Bundle syncExtras);
 
     // Push-related functionality.
 
@@ -55,7 +58,9 @@ interface IEmailService {
     Bundle autoDiscover(String userName, String password);
 
     // Service control operations (i.e. does not generate a client-server message).
-    oneway void setLogging(int on);
+    // TODO: We should store the logging flags in the contentProvider, and this call should just
+    // trigger the service to reload the flags.
+    oneway void setLogging(int flags);
 
     // Needs to get moved into Email since this is NOT a client-server command.
     void deleteAccountPIMData(String emailAddress);
