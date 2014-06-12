@@ -51,6 +51,24 @@ public abstract class EmailServiceStatus {
     // Client certificates used to authenticate cannot be retrieved from the system.
     public static final int CLIENT_CERTIFICATE_ERROR = 0x21;
 
+    // Data is invalid on the client side, sync cannot proceed.
+    public static final int HARD_DATA_ERROR = 0x22;
+
+    // Sync failed due to some type of IO error.
+    public static final int IO_ERROR = 0x23;
+
+    // The sync call encountered a protocol error.
+    public static final int PROTOCOL_ERROR = 0x24;
+
+    // The sync call encountered too many redirects.
+    public static final int TOO_MANY_REDIRECTS = 0x25;
+
+    // The sync call encountered a provisioning error.
+    public static final int PROVISIONING_ERROR = 0x26;
+
+    // We have encountered some sort of unexpected illegal state.
+    public static final int INTERNAL_ERROR = 0x27;
+
     // Keys for the sync extras Bundle that specify the callback.
     public static final String SYNC_EXTRAS_CALLBACK_URI = "callback_uri";
     public static final String SYNC_EXTRAS_CALLBACK_METHOD = "callback_method";
@@ -125,5 +143,6 @@ public abstract class EmailServiceStatus {
         syncStatus(cr, syncExtras, SYNC_STATUS_TYPE_MAILBOX, mailboxId, statusCode, progress,
                 syncResult, null);
     }
+
 
 }
