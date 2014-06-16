@@ -30,6 +30,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.PeriodicSync;
+import android.content.SharedPreferences;
 import android.content.UriMatcher;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -105,6 +106,7 @@ import com.android.emailcommon.utility.IntentUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.android.ex.photo.provider.PhotoContract;
 import com.android.mail.preferences.MailPrefs;
+import com.android.mail.preferences.MailPrefs.PreferenceKeys;
 import com.android.mail.providers.Folder;
 import com.android.mail.providers.FolderList;
 import com.android.mail.providers.Settings;
@@ -146,7 +148,8 @@ import java.util.regex.Pattern;
  * @author mblank
  *
  */
-public class EmailProvider extends ContentProvider {
+public class EmailProvider extends ContentProvider
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = LogTag.getLogTag();
 
@@ -1036,6 +1039,8 @@ public class EmailProvider extends ContentProvider {
             @Override
             public void onLowMemory() {}
         });
+
+        MailPrefs.get(context).registerOnSharedPreferenceChangeListener(this);
 
         return false;
     }
@@ -6078,6 +6083,22 @@ public class EmailProvider extends ContentProvider {
             result = 31 * result + mAccount.hashCode();
             result = 31 * result + (int) (mMailboxId ^ (mMailboxId >>> 32));
             return result;
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (PreferenceKeys.REMOVAL_ACTION.equals(key) ||
+                PreferenceKeys.CONVERSATION_LIST_SWIPE.equals(key) ||
+                PreferenceKeys.SHOW_SENDER_IMAGES.equals(key) ||
+                PreferenceKeys.DEFAULT_REPLY_ALL.equals(key) ||
+                PreferenceKeys.CONVERSATION_OVERVIEW_MODE.equals(key) ||
+                PreferenceKeys.AUTO_ADVANCE_MODE.equals(key) ||
+                PreferenceKeys.SNAP_HEADER_MODE.equals(key) ||
+                PreferenceKeys.CONFIRM_DELETE.equals(key) ||
+                PreferenceKeys.CONFIRM_ARCHIVE.equals(key) ||
+                PreferenceKeys.CONFIRM_SEND.equals(key)) {
+            notifyUI(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
         }
     }
 }
