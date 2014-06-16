@@ -40,8 +40,6 @@ public class GeneralPreferences extends PreferenceFragment implements
     private MailPrefs mMailPrefs;
     private ListPreference mAutoAdvance;
 
-    private boolean mSettingsChanged = false;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,40 +55,17 @@ public class GeneralPreferences extends PreferenceFragment implements
     @Override
     public void onResume() {
         loadSettings();
-        mSettingsChanged = false;
         super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (mSettingsChanged) {
-            // Notify the account list that we have changes
-            ContentResolver resolver = getActivity().getContentResolver();
-            resolver.notifyChange(EmailProvider.UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
-        }
     }
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         String key = preference.getKey();
         // Indicate we need to send notifications to UI
-        mSettingsChanged = true;
         if (AUTO_ADVANCE_MODE_WIDGET.equals(key)) {
             mMailPrefs.setAutoAdvanceMode(mAutoAdvance.findIndexOfValue((String) newValue) + 1);
             return true;
         }
-        return false;
-    }
-
-    @Override
-    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-        if (getActivity() == null) {
-            // Guard against monkeys.
-            return false;
-        }
-        // Indicate we need to send notifications to UI
-        mSettingsChanged = true;
         return false;
     }
 
