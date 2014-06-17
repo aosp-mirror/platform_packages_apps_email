@@ -244,16 +244,20 @@ public class AccountReconciler {
             }
         }
 
-        // If there are no accounts remaining after reconciliation, disable the compose activity
-        final boolean enableCompose = emailProviderAccounts.size() - accountsDeleted > 0;
-        final ComponentName componentName =
-                new ComponentName(context, ComposeActivityEmail.class.getName());
-        context.getPackageManager().setComponentEnabledSetting(componentName,
-                enableCompose ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
-                                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                PackageManager.DONT_KILL_APP);
-        LogUtils.d(LogUtils.TAG, "Setting compose activity to "
-                + (enableCompose ? "enabled" : "disabled"));
+        final String composeActivityName =
+                context.getString(R.string.reconciliation_compose_activity_name);
+        if (!TextUtils.isEmpty(composeActivityName)) {
+            // If there are no accounts remaining after reconciliation, disable the compose activity
+            final boolean enableCompose = emailProviderAccounts.size() - accountsDeleted > 0;
+            final ComponentName componentName = new ComponentName(context, composeActivityName);
+            context.getPackageManager().setComponentEnabledSetting(componentName,
+                    enableCompose ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
+                            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                    PackageManager.DONT_KILL_APP);
+            LogUtils.d(LogUtils.TAG, "Setting compose activity to "
+                    + (enableCompose ? "enabled" : "disabled"));
+        }
+
 
         // If an account has been deleted, the simplest thing is just to kill our process.
         // Otherwise we might have a service running trying to do something for the account
