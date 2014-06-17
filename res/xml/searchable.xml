@@ -18,7 +18,7 @@
 <searchable xmlns:android="http://schemas.android.com/apk/res/android"
     android:label="@string/search_title"
     android:hint="@string/search_hint"
-    android:icon="@drawable/ic_menu_search_holo_light"
+    android:icon="@drawable/ic_menu_search"
     android:searchSuggestAuthority="com.android.email.suggestionsprovider"
     android:searchSuggestSelection="query LIKE ?"
     android:searchSuggestIntentAction="android.intent.action.SEARCH"
