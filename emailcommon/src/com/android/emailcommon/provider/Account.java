@@ -292,7 +292,9 @@ public final class Account extends EmailContent implements Parcelable {
     }
 
     /**
-     * @return the user-visible name for the account
+     * Returns the user-visible name for the account, eg. "My work address"
+     * or "foo@exemple.com".
+     * @return the user-visible name for the account.
      */
     public String getDisplayName() {
         return mDisplayName;
