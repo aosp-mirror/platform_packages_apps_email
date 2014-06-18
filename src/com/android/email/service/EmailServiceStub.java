@@ -281,9 +281,12 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
     }
 
     @Override
-    public void updateFolderList(long accountId) throws RemoteException {
+    public void updateFolderList(final long accountId) throws RemoteException {
         final Account account = Account.restoreAccountWithId(mContext, accountId);
-        if (account == null) return;
+        if (account == null) {
+            LogUtils.e(LogUtils.TAG, "Account %d not found in updateFolderList", accountId);
+            return;
+        };
         long inboxId = -1;
         TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(mContext, account));
         Cursor localFolderCursor = null;
@@ -350,6 +353,9 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
         } catch (MessagingException me) {
             LogUtils.i(Logging.LOG_TAG, me, "Error in updateFolderList");
             // We'll hope this is temporary
+            // TODO: Figure out what type of messaging exception it was and return an appropriate
+            // result. If we start doing this from sync, it's important to let the sync manager
+            // know if the failure was due to IO error or authentication errors.
         } finally {
             if (localFolderCursor != null) {
                 localFolderCursor.close();
@@ -365,18 +371,20 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
     }
 
     @Override
-    public void setLogging(int on) throws RemoteException {
+    public void setLogging(final int flags) throws RemoteException {
         // Not required
     }
 
     @Override
-    public Bundle autoDiscover(String userName, String password) throws RemoteException {
+    public Bundle autoDiscover(final String userName, final String password)
+            throws RemoteException {
         // Not required
        return null;
     }
 
     @Override
-    public void sendMeetingResponse(long messageId, int response) throws RemoteException {
+    public void sendMeetingResponse(final long messageId, final int response)
+            throws RemoteException {
         // Not required
     }
 
@@ -386,32 +394,35 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
     }
 
     @Override
-    public int searchMessages(long accountId, SearchParams params, long destMailboxId)
+    public int searchMessages(final long accountId, final SearchParams params,
+                              final long destMailboxId)
             throws RemoteException {
         // Not required
-        return 0;
+        return EmailServiceStatus.SUCCESS;
     }
 
     @Override
-    public void pushModify(long accountId) throws RemoteException {
+    public void pushModify(final long accountId) throws RemoteException {
         LogUtils.e(Logging.LOG_TAG, "pushModify invalid for account type for %d", accountId);
     }
 
     @Override
-    public void syncFolders(final long accountId, final boolean updateFolderList,
-                     final long[] folders) {}
+    public int sync(final long accountId, final Bundle syncExtras) {
+        return EmailServiceStatus.SUCCESS;
+
+    }
 
     @Override
-    public void syncMailboxType(final long accountId, final boolean updateFolderList,
-                     final int mailboxType) {}
-
-    @Override
-    public void sendMail(long accountId) throws RemoteException {
+    public void sendMail(final long accountId) throws RemoteException {
         sendMailImpl(mContext, accountId);
     }
 
-    public static void sendMailImpl(Context context, long accountId) {
+    public static void sendMailImpl(final Context context, final long accountId) {
         final Account account = Account.restoreAccountWithId(context, accountId);
+        if (account == null) {
+            LogUtils.e(LogUtils.TAG, "account %d not found in sendMailImpl", accountId);
+            return;
+        }
         TrafficStats.setThreadStatsTag(TrafficFlags.getSmtpFlags(context, account));
         final NotificationController nc = NotificationController.getInstance(context);
         // 1.  Loop through all messages in the account's outbox
@@ -503,6 +514,5 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
         } finally {
             c.close();
         }
-
     }
 }
