@@ -42,12 +42,15 @@ import com.android.email.R;
 import com.android.email.activity.UiUtilities;
 import com.android.email.activity.setup.AuthenticationView.AuthenticationCallback;
 import com.android.email.provider.AccountBackupRestore;
+import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.Credential;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.ui.MailAsyncTaskLoader;
 import com.android.mail.utils.LogUtils;
+
+import java.util.List;
 
 /**
  * Provides UI for SMTP account settings (for IMAP/POP accounts).
@@ -236,7 +239,9 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
                 mRequireLoginView.setChecked(true);
             }
 
-            mAuthenticationView.setAuthInfo(true, sendAuth);
+            final List<VendorPolicyLoader.OAuthProvider> oauthProviders =
+                    AccountSettingsUtils.getAllOAuthProviders(getActivity());
+            mAuthenticationView.setAuthInfo(oauthProviders.size() > 0, sendAuth);
             if (mAuthenticationLabel != null) {
                 mAuthenticationLabel.setText(R.string.authentication_label);
             }
