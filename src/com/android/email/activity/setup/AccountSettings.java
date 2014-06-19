@@ -30,7 +30,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
@@ -49,6 +48,7 @@ import com.android.emailcommon.utility.IntentUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.providers.Folder;
 import com.android.mail.providers.UIProvider.EditSettingsExtras;
+import com.android.mail.ui.settings.MailPreferenceActivity;
 import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.Utils;
 import com.google.common.annotations.VisibleForTesting;
@@ -70,7 +70,7 @@ import java.util.List;
  *       sense to use a loader for the accounts list, because it would provide better support for
  *       dealing with accounts being added/deleted and triggering the header reload.
  */
-public class AccountSettings extends PreferenceActivity implements
+public class AccountSettings extends MailPreferenceActivity implements
         SetupDataFragment.SetupDataContainer, SecurityRequiredDialogFragment.Callback,
         CheckSettingsErrorDialogFragment.Callback, AccountCheckSettingsFragment.Callback,
         AccountServerBaseFragment.Callback, CheckSettingsProgressDialogFragment.Callback {
@@ -347,7 +347,8 @@ public class AccountSettings extends PreferenceActivity implements
                 TextUtils.equals(AccountSetupIncomingFragment.class.getName(), fragmentName) ||
                 TextUtils.equals(AccountSettingsEditQuickResponsesFragment.class.getName(),
                         fragmentName) ||
-                TextUtils.equals(DebugFragment.class.getName(), fragmentName));
+                TextUtils.equals(DebugFragment.class.getName(), fragmentName) ||
+                super.isValidFragment(fragmentName));
     }
 
     @Override
@@ -482,7 +483,7 @@ public class AccountSettings extends PreferenceActivity implements
             mAppPreferencesHeader.title = getText(R.string.header_label_general_preferences);
             mAppPreferencesHeader.summary = null;
             mAppPreferencesHeader.iconRes = 0;
-            mAppPreferencesHeader.fragment = GeneralPreferences.class.getCanonicalName();
+            mAppPreferencesHeader.fragment = GeneralPreferences.class.getName();
             mAppPreferencesHeader.fragmentArguments = null;
         }
         return mAppPreferencesHeader;
