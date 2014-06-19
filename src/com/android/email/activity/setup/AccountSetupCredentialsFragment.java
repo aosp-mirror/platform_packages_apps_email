@@ -79,6 +79,7 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
     private boolean mOfferOAuth;
     private boolean mOfferCerts;
     private String mProviderId;
+    List<OAuthProvider> mOauthProviders;
 
     private Context mAppContext;
 
@@ -168,15 +169,21 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
         mAppContext = getActivity().getApplicationContext();
         mEmailAddress = getArguments().getString(EXTRA_EMAIL);
         final String protocol = getArguments().getString(EXTRA_PROTOCOL);
-        // TODO: for now, we might not know what protocol we're using, so just default to
-        // offering oauth
-        mOfferOAuth = true;
+        mOauthProviders = AccountSettingsUtils.getAllOAuthProviders(mAppContext);
         mOfferCerts = true;
         if (protocol != null) {
             final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(mAppContext, protocol);
             if (info != null) {
-                mOfferOAuth = info.offerOAuth;
+                if (mOauthProviders.size() > 0) {
+                    mOfferOAuth = info.offerOAuth;
+                }
                 mOfferCerts = info.offerCerts;
+            }
+        } else {
+            // For now, we might not know what protocol we're using, so just default to
+            // offering oauth
+            if (mOauthProviders.size() > 0) {
+                mOfferOAuth = true;
             }
         }
         mOAuthGroup.setVisibility(mOfferOAuth ? View.VISIBLE : View.GONE);
@@ -279,13 +286,11 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
     public void onClick(final View view) {
         final int viewId = view.getId();
         if (viewId == R.id.sign_in_with_oauth) {
-            List<OAuthProvider> oauthProviders = AccountSettingsUtils.getAllOAuthProviders(
-                    mAppContext);
             // TODO currently the only oauth provider we support is google.
             // If we ever have more than 1 oauth provider, then we need to implement some sort
             // of picker UI. For now, just always take the first oauth provider.
-            if (oauthProviders.size() > 0) {
-                mProviderId = oauthProviders.get(0).id;
+            if (mOauthProviders.size() > 0) {
+                mProviderId = mOauthProviders.get(0).id;
                 final Intent i = new Intent(getActivity(), OAuthAuthenticationActivity.class);
                 i.putExtra(OAuthAuthenticationActivity.EXTRA_EMAIL_ADDRESS, mEmailAddress);
                 i.putExtra(OAuthAuthenticationActivity.EXTRA_PROVIDER, mProviderId);
