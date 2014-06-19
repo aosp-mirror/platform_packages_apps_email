@@ -53,6 +53,7 @@ import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.EmailServiceProxy;
+import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
@@ -663,11 +664,10 @@ public class EmailServiceUtils {
         }
 
         @Override
-        public void updateFolderList(long accountId) throws RemoteException {
-        }
+        public void updateFolderList(long accountId) throws RemoteException {}
 
         @Override
-        public void setLogging(int on) throws RemoteException {
+        public void setLogging(int flags) throws RemoteException {
         }
 
         @Override
@@ -698,13 +698,8 @@ public class EmailServiceUtils {
         }
 
         @Override
-        public void syncFolders(final long accountId, final boolean updateFolderList,
-                         final long[] folders) {
-        }
-
-        @Override
-        public void syncMailboxType(final long accountId, final boolean updateFolderList,
-                         final int mailboxType) {
+        public int sync(final long accountId, final Bundle syncExtras) {
+            return EmailServiceStatus.SUCCESS;
         }
 
     }

@@ -30,6 +30,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.PeriodicSync;
+import android.content.SharedPreferences;
 import android.content.UriMatcher;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -105,6 +106,7 @@ import com.android.emailcommon.utility.IntentUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.android.ex.photo.provider.PhotoContract;
 import com.android.mail.preferences.MailPrefs;
+import com.android.mail.preferences.MailPrefs.PreferenceKeys;
 import com.android.mail.providers.Folder;
 import com.android.mail.providers.FolderList;
 import com.android.mail.providers.Settings;
@@ -146,7 +148,8 @@ import java.util.regex.Pattern;
  * @author mblank
  *
  */
-public class EmailProvider extends ContentProvider {
+public class EmailProvider extends ContentProvider
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = LogTag.getLogTag();
 
@@ -1036,6 +1039,8 @@ public class EmailProvider extends ContentProvider {
             @Override
             public void onLowMemory() {}
         });
+
+        MailPrefs.get(context).registerOnSharedPreferenceChangeListener(this);
 
         return false;
     }
@@ -3430,15 +3435,16 @@ public class EmailProvider extends ContentProvider {
             values.put(UIProvider.AccountColumns.COLOR, ACCOUNT_COLOR);
         }
 
-        final Preferences prefs = Preferences.getPreferences(getContext());
+        // TODO: if we're getting the values out of MailPrefs then we don't need to be passing the
+        // values this way
         final MailPrefs mailPrefs = MailPrefs.get(getContext());
         if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE)) {
             values.put(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE,
-                    prefs.getConfirmDelete() ? "1" : "0");
+                    mailPrefs.getConfirmDelete() ? "1" : "0");
         }
         if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.CONFIRM_SEND)) {
             values.put(UIProvider.AccountColumns.SettingsColumns.CONFIRM_SEND,
-                    prefs.getConfirmSend() ? "1" : "0");
+                    mailPrefs.getConfirmSend() ? "1" : "0");
         }
         if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.SWIPE)) {
             values.put(UIProvider.AccountColumns.SettingsColumns.SWIPE,
@@ -3455,9 +3461,8 @@ public class EmailProvider extends ContentProvider {
                     "0");
         }
         if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.AUTO_ADVANCE)) {
-            int autoAdvance = prefs.getAutoAdvanceDirection();
             values.put(UIProvider.AccountColumns.SettingsColumns.AUTO_ADVANCE,
-                    autoAdvanceToUiValue(autoAdvance));
+                    Integer.toString(mailPrefs.getAutoAdvanceMode()));
         }
         // Set default inbox, if we've got an inbox; otherwise, say initial sync needed
         final long inboxMailboxId =
@@ -3550,18 +3555,6 @@ public class EmailProvider extends ContentProvider {
         final StringBuilder sb = genSelect(getAccountListMap(getContext()), uiProjection, values);
         sb.append(" FROM " + Account.TABLE_NAME + " WHERE " + AccountColumns._ID + "=?");
         return sb.toString();
-    }
-
-    private static int autoAdvanceToUiValue(int autoAdvance) {
-        switch(autoAdvance) {
-            case Preferences.AUTO_ADVANCE_OLDER:
-                return UIProvider.AutoAdvance.OLDER;
-            case Preferences.AUTO_ADVANCE_NEWER:
-                return UIProvider.AutoAdvance.NEWER;
-            case Preferences.AUTO_ADVANCE_MESSAGE_LIST:
-            default:
-                return UIProvider.AutoAdvance.LIST;
-        }
     }
 
     /**
@@ -3670,11 +3663,9 @@ public class EmailProvider extends ContentProvider {
                     getExternalUriStringEmail2("compose", Long.toString(id));
         }
 
-        // TODO: Get these from default account?
-        Preferences prefs = Preferences.getPreferences(getContext());
         if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.AUTO_ADVANCE)) {
             values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.AUTO_ADVANCE)] =
-                    Integer.toString(UIProvider.AutoAdvance.NEWER);
+                    Integer.toString(mailPrefs.getAutoAdvanceMode());
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.SNAP_HEADERS)) {
             values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.SNAP_HEADERS)] =
@@ -3698,7 +3689,7 @@ public class EmailProvider extends ContentProvider {
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE)) {
             values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.CONFIRM_DELETE)] =
-                    prefs.getConfirmDelete() ? 1 : 0;
+                    mailPrefs.getConfirmDelete() ? 1 : 0;
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.CONFIRM_ARCHIVE)) {
             values[colPosMap.get(
@@ -3706,7 +3697,7 @@ public class EmailProvider extends ContentProvider {
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.CONFIRM_SEND)) {
             values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.CONFIRM_SEND)] =
-                    prefs.getConfirmSend() ? 1 : 0;
+                    mailPrefs.getConfirmSend() ? 1 : 0;
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX)) {
             values[colPosMap.get(UIProvider.AccountColumns.SettingsColumns.DEFAULT_INBOX)] =
@@ -6092,6 +6083,22 @@ public class EmailProvider extends ContentProvider {
             result = 31 * result + mAccount.hashCode();
             result = 31 * result + (int) (mMailboxId ^ (mMailboxId >>> 32));
             return result;
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (PreferenceKeys.REMOVAL_ACTION.equals(key) ||
+                PreferenceKeys.CONVERSATION_LIST_SWIPE.equals(key) ||
+                PreferenceKeys.SHOW_SENDER_IMAGES.equals(key) ||
+                PreferenceKeys.DEFAULT_REPLY_ALL.equals(key) ||
+                PreferenceKeys.CONVERSATION_OVERVIEW_MODE.equals(key) ||
+                PreferenceKeys.AUTO_ADVANCE_MODE.equals(key) ||
+                PreferenceKeys.SNAP_HEADER_MODE.equals(key) ||
+                PreferenceKeys.CONFIRM_DELETE.equals(key) ||
+                PreferenceKeys.CONFIRM_ARCHIVE.equals(key) ||
+                PreferenceKeys.CONFIRM_SEND.equals(key)) {
+            notifyUI(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
         }
     }
 }

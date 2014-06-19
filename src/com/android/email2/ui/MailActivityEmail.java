@@ -45,6 +45,7 @@ import com.android.mail.providers.UIProvider;
 import com.android.mail.utils.LogTag;
 import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.Utils;
+import com.android.mail.welcome.WelcomeTourCompletionListener;
 
 public class MailActivityEmail extends com.android.mail.ui.MailActivity {
     /**
@@ -211,6 +212,12 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
 
     public static void enableStrictMode(boolean enabled) {
         Utility.enableStrictMode(enabled);
+    }
+
+    @Override
+    public void onWelcomeTourRequested(
+            WelcomeTourCompletionListener completionListener) {
+        // Do nothing.
     }
 
     private Intent getViewIntent(long accountId, long mailboxId) {

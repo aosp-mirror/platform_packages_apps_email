@@ -90,6 +90,8 @@
         <activity
             android:name="com.android.email.activity.ComposeActivityEmail"
             android:label="@string/app_name"
+            android:documentLaunchMode="intoExisting"
+            android:autoRemoveFromRecents="true"
             android:theme="@style/ComposeTheme">
             <intent-filter>
                 <action

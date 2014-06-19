@@ -298,14 +298,14 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         if (mReturn == null) {
             return 0;
         } else {
-            return (Integer)mReturn;
+            return (Integer) mReturn;
         }
     }
 
     /**
      * Request the service to send mail in the specified account's Outbox
      *
-     * @param accountId the account whose outgoing mail should be sent
+     * @param accountId the account whose outgoing mail should be sent.
      */
     @Override
     public void sendMail(final long accountId) throws RemoteException {
@@ -329,16 +329,26 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
             public void run() throws RemoteException{
                 mService.pushModify(accountId);
             }
-        }, "sendMail");
+        }, "pushModify");
     }
 
     @Override
-    public void syncFolders(final long accountId, final boolean updateFolderList,
-                     final long[] folders) {}
-
-    @Override
-    public void syncMailboxType(final long accountId, final boolean updateFolderList,
-                     final int mailboxType) {}
+    public int sync(final long accountId, final Bundle syncExtras) {
+        setTask(new ProxyTask() {
+            @Override
+            public void run() throws RemoteException{
+                mReturn = mService.sync(accountId, syncExtras);
+            }
+        }, "sync");
+        waitForCompletion();
+        if (mReturn == null) {
+            // This occurs if sync times out.
+            // TODO: Sync may take a long time, maybe we should extend the timeout here.
+            return EmailServiceStatus.IO_ERROR;
+        } else {
+            return (Integer)mReturn;
+        }
+    }
 
     @Override
     public IBinder asBinder() {

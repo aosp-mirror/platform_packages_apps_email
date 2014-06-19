@@ -18,18 +18,15 @@ package com.android.email.activity.setup;
 
 import android.content.ContentResolver;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.provider.EmailProvider;
 import com.android.mail.preferences.MailPrefs;
@@ -38,20 +35,10 @@ import com.android.mail.ui.settings.ClearPictureApprovalsDialogFragment;
 public class GeneralPreferences extends PreferenceFragment implements
         OnPreferenceChangeListener {
 
-    private static final String PREFERENCE_KEY_AUTO_ADVANCE = "auto_advance";
-    private static final String PREFERENCE_KEY_CONFIRM_DELETE = "confirm_delete";
-    private static final String PREFERENCE_KEY_CONFIRM_SEND = "confirm_send";
-    private static final String PREFERENCE_KEY_CONV_LIST_ICON = "conversation_list_icon";
+    private static final String AUTO_ADVANCE_MODE_WIDGET = "auto-advance-mode-widget";
 
     private MailPrefs mMailPrefs;
-    private Preferences mPreferences;
     private ListPreference mAutoAdvance;
-    private CheckBoxPreference mConfirmDelete;
-    private CheckBoxPreference mConfirmSend;
-    //private CheckBoxPreference mConvListAttachmentPreviews;
-    private CheckBoxPreference mSwipeDelete;
-
-    private boolean mSettingsChanged = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,7 +46,7 @@ public class GeneralPreferences extends PreferenceFragment implements
         setHasOptionsMenu(true);
 
         mMailPrefs = MailPrefs.get(getActivity());
-        getPreferenceManager().setSharedPreferencesName(Preferences.PREFERENCES_FILE);
+        getPreferenceManager().setSharedPreferencesName(mMailPrefs.getSharedPreferencesName());
 
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.general_preferences);
@@ -68,83 +55,24 @@ public class GeneralPreferences extends PreferenceFragment implements
     @Override
     public void onResume() {
         loadSettings();
-        mSettingsChanged = false;
         super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (mSettingsChanged) {
-            // Notify the account list that we have changes
-            ContentResolver resolver = getActivity().getContentResolver();
-            resolver.notifyChange(EmailProvider.UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
-        }
     }
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         String key = preference.getKey();
         // Indicate we need to send notifications to UI
-        mSettingsChanged = true;
-        if (PREFERENCE_KEY_AUTO_ADVANCE.equals(key)) {
-            mPreferences.setAutoAdvanceDirection(mAutoAdvance.findIndexOfValue((String) newValue));
-            return true;
-        } else if (MailPrefs.PreferenceKeys.DEFAULT_REPLY_ALL.equals(key)) {
-            mMailPrefs.setDefaultReplyAll((Boolean) newValue);
-            return true;
-        } else if (PREFERENCE_KEY_CONV_LIST_ICON.equals(key)) {
-            mMailPrefs.setShowSenderImages((Boolean) newValue);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-        if (getActivity() == null) {
-            // Guard against monkeys.
-            return false;
-        }
-        mSettingsChanged = true;
-        String key = preference.getKey();
-        if (PREFERENCE_KEY_CONFIRM_DELETE.equals(key)) {
-            mPreferences.setConfirmDelete(mConfirmDelete.isChecked());
-            return true;
-        } else if (PREFERENCE_KEY_CONFIRM_SEND.equals(key)) {
-            mPreferences.setConfirmSend(mConfirmSend.isChecked());
-            return true;
-        } else if (MailPrefs.PreferenceKeys.CONVERSATION_LIST_SWIPE.equals(key)) {
-            mMailPrefs.setConversationListSwipeEnabled(mSwipeDelete.isChecked());
+        if (AUTO_ADVANCE_MODE_WIDGET.equals(key)) {
+            mMailPrefs.setAutoAdvanceMode(mAutoAdvance.findIndexOfValue((String) newValue) + 1);
             return true;
         }
         return false;
     }
 
     private void loadSettings() {
-        mPreferences = Preferences.getPreferences(getActivity());
-        mAutoAdvance = (ListPreference) findPreference(PREFERENCE_KEY_AUTO_ADVANCE);
-        mAutoAdvance.setValueIndex(mPreferences.getAutoAdvanceDirection());
+        mAutoAdvance = (ListPreference) findPreference(AUTO_ADVANCE_MODE_WIDGET);
+        mAutoAdvance.setValueIndex(mMailPrefs.getAutoAdvanceMode() - 1);
         mAutoAdvance.setOnPreferenceChangeListener(this);
-
-        final CheckBoxPreference convListIcon =
-                (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONV_LIST_ICON);
-        if (convListIcon != null) {
-            final boolean showSenderImage = mMailPrefs.getShowSenderImages();
-            convListIcon.setChecked(showSenderImage);
-            convListIcon.setOnPreferenceChangeListener(this);
-        }
-
-        mConfirmDelete = (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONFIRM_DELETE);
-        mConfirmSend = (CheckBoxPreference) findPreference(PREFERENCE_KEY_CONFIRM_SEND);
-        mSwipeDelete = (CheckBoxPreference)
-                findPreference(MailPrefs.PreferenceKeys.CONVERSATION_LIST_SWIPE);
-        mSwipeDelete.setChecked(mMailPrefs.getIsConversationListSwipeEnabled());
-
-        final CheckBoxPreference replyAllPreference =
-                (CheckBoxPreference) findPreference(MailPrefs.PreferenceKeys.DEFAULT_REPLY_ALL);
-        replyAllPreference.setChecked(mMailPrefs.getDefaultReplyAll());
-        replyAllPreference.setOnPreferenceChangeListener(this);
     }
 
     @Override
