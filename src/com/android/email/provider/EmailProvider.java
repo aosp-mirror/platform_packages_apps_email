@@ -1289,7 +1289,11 @@ public class EmailProvider extends ContentProvider
                     c = uiSearch(uri, projection);
                     return c;
                 case UI_ACCTS:
-                    c = uiAccounts(projection);
+                    final String suppressParam =
+                            uri.getQueryParameter(EmailContent.SUPPRESS_COMBINED_ACCOUNT_PARAM);
+                    final boolean suppressCombined =
+                            suppressParam != null && Boolean.parseBoolean(suppressParam);
+                    c = uiAccounts(projection, suppressCombined);
                     return c;
                 case UI_UNDO:
                     return uiUndo(projection);
@@ -3801,7 +3805,7 @@ public class EmailProvider extends ContentProvider
         return values;
     }
 
-    private Cursor uiAccounts(String[] uiProjection) {
+    private Cursor uiAccounts(String[] uiProjection, boolean suppressCombined) {
         final Context context = getContext();
         final SQLiteDatabase db = getDatabase(context);
         final Cursor accountIdCursor =
@@ -3809,7 +3813,7 @@ public class EmailProvider extends ContentProvider
         final MatrixCursor mc;
         try {
             boolean combinedAccount = false;
-            if (accountIdCursor.getCount() > 1) {
+            if (!suppressCombined && accountIdCursor.getCount() > 1) {
                 combinedAccount = true;
             }
             final Bundle extras = new Bundle();
