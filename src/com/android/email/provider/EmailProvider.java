@@ -66,6 +66,7 @@ import com.android.common.content.ProjectionMap;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
+import com.android.email.activity.setup.AccountSettingsFragment;
 import com.android.email.activity.setup.AccountSettingsUtils;
 import com.android.email.service.AttachmentDownloadService;
 import com.android.email.service.EmailServiceUtils;
@@ -3544,6 +3545,10 @@ public class EmailProvider extends ContentProvider
         if (projectionColumns.contains(UIProvider.AccountColumns.QUICK_RESPONSE_URI)) {
             values.put(UIProvider.AccountColumns.QUICK_RESPONSE_URI,
                     combinedUriString("quickresponse/account", id));
+        }
+        if (projectionColumns.contains(UIProvider.AccountColumns.SETTINGS_FRAGMENT_CLASS)) {
+            values.put(UIProvider.AccountColumns.SETTINGS_FRAGMENT_CLASS,
+                    AccountSettingsFragment.class.getName());
         }
         if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR)) {
             values.put(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR,
