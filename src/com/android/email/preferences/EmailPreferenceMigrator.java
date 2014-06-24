@@ -136,6 +136,11 @@ public class EmailPreferenceMigrator extends BasePreferenceMigrator {
                 try {
                     if (folderCursor.moveToFirst()) {
                         folder = new Folder(folderCursor);
+                    } else {
+                        LogUtils.e(LOG_TAG, "Empty folder cursor for mailbox %s",
+                                LogUtils.sanitizeName(LOG_TAG,
+                                        account.settings.defaultInbox.toString()));
+                        continue;
                     }
                 } finally {
                     folderCursor.close();
