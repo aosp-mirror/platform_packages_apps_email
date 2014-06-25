@@ -172,7 +172,9 @@ public class AccountSetupOptionsTests
         final HostAuth auth = account.getOrCreateHostAuthRecv(context);
         auth.setHostAuthFromString(storeUri);
         final SetupDataFragment setupDataFragment =
-                new SetupDataFragment(SetupDataFragment.FLOW_MODE_NORMAL, account);
+                new SetupDataFragment();
+        setupDataFragment.setFlowMode(SetupDataFragment.FLOW_MODE_NORMAL);
+        setupDataFragment.setAccount(account);
         final Intent i = new Intent(AccountSetupFinal.ACTION_JUMP_TO_OPTIONS);
         i.putExtra(SetupDataFragment.EXTRA_SETUP_DATA, setupDataFragment);
         return i;

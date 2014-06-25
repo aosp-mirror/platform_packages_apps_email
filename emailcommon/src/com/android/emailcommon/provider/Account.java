@@ -215,6 +215,23 @@ public final class Account extends EmailContent implements Parcelable {
                 Account.CONTENT_URI, Account.CONTENT_PROJECTION, id, observer);
     }
 
+    public static Account restoreAccountWithAddress(Context context, String emailAddress) {
+        return restoreAccountWithAddress(context, emailAddress, null);
+    }
+
+    public static Account restoreAccountWithAddress(Context context, String emailAddress,
+            ContentObserver observer) {
+        final Cursor c = context.getContentResolver().query(CONTENT_URI,
+                new String[] {AccountColumns._ID},
+                AccountColumns.EMAIL_ADDRESS + "=?", new String[] {emailAddress},
+                null);
+        if (c == null || !c.moveToFirst()) {
+            return null;
+        }
+        final long id = c.getLong(c.getColumnIndex(AccountColumns._ID));
+        return restoreAccountWithId(context, id, observer);
+    }
+
     @Override
     protected Uri getContentNotificationUri() {
         return Account.CONTENT_URI;
@@ -323,6 +340,7 @@ public final class Account extends EmailContent implements Parcelable {
         return mSignature;
     }
 
+    @VisibleForTesting
     public void setSignature(String signature) {
         mSignature = signature;
     }
