@@ -34,7 +34,7 @@ import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.test.suitebuilder.annotation.Suppress;
 
-import com.android.email.provider.EmailProvider.AttachmentService;
+import com.android.email.provider.EmailProvider.EmailAttachmentService;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
@@ -110,7 +110,8 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         }
     }
 
-    private static final AttachmentService MOCK_ATTACHMENT_SERVICE = new AttachmentService() {
+    private static final EmailAttachmentService MOCK_ATTACHMENT_SERVICE =
+            new EmailAttachmentService() {
         @Override
         public void attachmentChanged(Context context, long id, int flags) {
             // Noop. Don't download attachments.

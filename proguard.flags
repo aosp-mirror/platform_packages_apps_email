@@ -60,14 +60,6 @@
   *** createUniqueFile(java.lang.String);
 }
 
--keepclasseswithmembers class com.android.email.service.AttachmentDownloadService {
-  *** addServiceClass(long, java.lang.Class);
-}
-
--keepclasseswithmembers class com.android.email.service.AttachmentDownloadService$AccountManagerStub {
-  *** setNumberOfAccounts(int);
-}
-
 -keepclasseswithmembers class com.android.email.Preferences {
   *** getAccountByContentUri(android.net.Uri);
 }
@@ -129,21 +121,6 @@
 }
 
 -keep class com.android.emailcommon.mail.Flag
-
--keepclasseswithmembers class com.android.email.service.AttachmentService$DownloadQueue {
-  *** addRequest(com.android.email.service.AttachmentService$DownloadRequest);
-  *** removeRequest(com.android.email.service.AttachmentService$DownloadRequest);
-  *** getNextRequest();
-  *** findRequestById(long);
-  *** getSize();
-  *** isEmpty();
-}
-
--keepclasseswithmembers class com.android.email.service.AttachmentService$DownloadRequest {
-  <init>(int, long);
-  *** hashCode();
-  *** equals(java.lang.Object);
-}
 
 -keepclasseswithmembers class com.android.emailcommon.mail.Folder {
   *** getUnreadMessageCount();
