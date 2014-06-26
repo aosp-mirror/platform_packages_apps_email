@@ -3634,7 +3634,7 @@ public class EmailProvider extends ContentProvider
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.CAPABILITIES)) {
             values[colPosMap.get(UIProvider.AccountColumns.CAPABILITIES)] =
-                    AccountCapabilities.UNDO | AccountCapabilities.SENDING_UNAVAILABLE;
+                    AccountCapabilities.UNDO | AccountCapabilities.VIRTUAL_ACCOUNT;
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.FOLDER_LIST_URI)) {
             values[colPosMap.get(UIProvider.AccountColumns.FOLDER_LIST_URI)] =
