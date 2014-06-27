@@ -128,9 +128,9 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
 
         runTestOnUiThread(new Runnable() {
             public void run() {
-                AccountSettingsFragment f = theActivity.getSettingsFragment();
-                mCheckFrequency =
-                    (ListPreference) f.findPreference(PREFERENCE_FREQUENCY);
+                //AccountSettingsFragment f = theActivity.getSettingsFragment();
+                //mCheckFrequency =
+                //    (ListPreference) f.findPreference(PREFERENCE_FREQUENCY);
             }
         });
     }

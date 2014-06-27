@@ -55,11 +55,16 @@ import android.widget.TextView;
 public class AccountSettingsEditQuickResponsesFragment extends Fragment {
     private Account mAccount;
 
-    private static final String BUNDLE_KEY_ACTIVITY_TITLE
-            = "AccountSettingsEditQuickResponsesFragment.title";
+    private static final String ARG_ACCOUNT = "account";
 
     // Public no-args constructor needed for fragment re-instantiation
     public AccountSettingsEditQuickResponsesFragment() {}
+
+    public static Bundle createArgs(final Account account) {
+        final Bundle b = new Bundle(1);
+        b.putParcelable(ARG_ACCOUNT, account);
+        return b;
+    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -69,11 +74,6 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        // startPreferencePanel launches this fragment with the right title initially, but
-        // if the device is rotated we must set the title ourselves
-        if (savedInstanceState != null) {
-            getActivity().setTitle(savedInstanceState.getString(BUNDLE_KEY_ACTIVITY_TITLE));
-        }
 
         final SimpleCursorAdapter adapter = new SimpleCursorAdapter(getActivity(),
                 R.layout.quick_response_item, null,
@@ -104,16 +104,11 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putString(BUNDLE_KEY_ACTIVITY_TITLE, (String) getActivity().getTitle());
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Bundle args = getArguments();
-        mAccount = args.getParcelable("account");
+        mAccount = args.getParcelable(ARG_ACCOUNT);
 
         setHasOptionsMenu(true);
     }

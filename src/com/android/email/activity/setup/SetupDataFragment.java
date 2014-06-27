@@ -76,16 +76,6 @@ public class SetupDataFragment extends Fragment implements Parcelable {
         mCredentialResults = null;
     }
 
-    public SetupDataFragment(int flowMode) {
-        this();
-        mFlowMode = flowMode;
-    }
-
-    public SetupDataFragment(int flowMode, Account account) {
-        this(flowMode);
-        setAccount(account);
-    }
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);

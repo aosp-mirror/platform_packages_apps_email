@@ -202,7 +202,9 @@ public class AccountSetupOutgoingTests extends
         final HostAuth auth = account.getOrCreateHostAuthSend(context);
         auth.setHostAuthFromString(senderUriString);
         final SetupDataFragment setupDataFragment =
-                new SetupDataFragment(SetupDataFragment.FLOW_MODE_NORMAL, account);
+                new SetupDataFragment();
+        setupDataFragment.setFlowMode(SetupDataFragment.FLOW_MODE_NORMAL);
+        setupDataFragment.setAccount(account);
         final Intent i = new Intent(AccountSetupFinal.ACTION_JUMP_TO_OUTGOING);
         i.putExtra(SetupDataFragment.EXTRA_SETUP_DATA, setupDataFragment);
         return i;

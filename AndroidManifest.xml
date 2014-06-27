@@ -272,29 +272,39 @@
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <!-- Must be exported in order for the AccountManager to launch it -->
         <activity
             android:name=".activity.setup.AccountSettings"
             android:label="@string/settings_activity_title"
-            android:exported="true"
-            >
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="android.intent.action.EDIT" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data
+                        android:scheme="content"
+                        android:host="ui.email.android.com"
+                        android:pathPrefix="/settings"
+                        />
+            </intent-filter>
+        </activity>
+        <activity
+                android:name="com.android.mail.ui.settings.PublicPreferenceActivity"
+                android:label="@string/settings_activity_title"
+                android:exported="true"
+                android:theme="@android:style/Theme.NoDisplay" >
+            <!-- Must be exported in order for the AccountManager to launch it -->
             <intent-filter>
                 <action android:name="com.android.email.activity.setup.ACCOUNT_MANAGER_ENTRY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.EDIT" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data
-                    android:scheme="content"
-                    android:host="ui.email.android.com"
-                    android:pathPrefix="/settings"
-                    />
-            </intent-filter>
-            <intent-filter>
                 <action android:name="android.intent.action.MANAGE_NETWORK_USAGE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+        </activity>
+        <activity android:name=".activity.setup.AccountServerSettingsActivity"
+                  android:label="@string/mailbox_settings_activity_title"
+                  android:exported="false">
         </activity>
         <!-- a Headless Activity to load the account from the account id before navigating to the
         Incoming Account Settings fragment -->
