@@ -271,7 +271,23 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"Подешавања"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Општа подешавања"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Потврди пре брисања"</string>
+    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Поруке"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Потврди пре слања"</string>
+    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Поруке"</string>
+    <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Величина текста поруке"</string>
+  <string-array name="general_preference_text_zoom_summary_array">
+    <item msgid="4693576184223089069">"Сићушан текст"</item>
+    <item msgid="4415205108584620118">"Мали текст"</item>
+    <item msgid="4550219696381691112">"Текст нормалне величине"</item>
+    <item msgid="6227813549949219991">"Велики текст"</item>
+    <item msgid="1197917420815786571">"Огроман текст"</item>
+  </string-array>
+    <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Величина текста поруке"</string>
+    <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Мајушно"</string>
+    <string name="general_preference_text_zoom_small" msgid="6618520238223144876">"Мало"</string>
+    <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Нормалан"</string>
+    <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Велика"</string>
+    <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Огромно"</string>
     <string name="more_than_999" msgid="8704425397397918798">"&gt;999"</string>
     <string name="search_hint" msgid="2200412192574686497">"Search email"</string>
     <string name="policy_dont_allow_camera" msgid="5744573062306937302">"Онемогући коришћење камере уређаја"</string>

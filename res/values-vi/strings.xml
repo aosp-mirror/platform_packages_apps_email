@@ -271,7 +271,23 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"Cài đặt"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Cài đặt chung"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Xác nhận trước khi xóa"</string>
+    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Thư"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Xác nhận trước khi gửi"</string>
+    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Thư"</string>
+    <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Kích thước nội dung tin nhắn"</string>
+  <string-array name="general_preference_text_zoom_summary_array">
+    <item msgid="4693576184223089069">"Văn bản rất nhỏ"</item>
+    <item msgid="4415205108584620118">"Văn bản nhỏ"</item>
+    <item msgid="4550219696381691112">"Văn bản cỡ thường"</item>
+    <item msgid="6227813549949219991">"Chữ lớn"</item>
+    <item msgid="1197917420815786571">"Văn bản rất lớn"</item>
+  </string-array>
+    <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Kích thước nội dung tin nhắn"</string>
+    <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Rất nhỏ"</string>
+    <string name="general_preference_text_zoom_small" msgid="6618520238223144876">"Nhỏ"</string>
+    <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Thường"</string>
+    <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Lớn"</string>
+    <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Rất lớn"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Tìm kiếm email"</string>
     <string name="policy_dont_allow_camera" msgid="5744573062306937302">"Ko cho phép sử dụng máy ảnh của thiết bị"</string>
