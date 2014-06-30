@@ -105,24 +105,6 @@
         <item>6</item>
     </string-array>
 
-    <!-- Text Zoom options (DO NOT change the order.  Code assumes this order)-->
-    <string-array name="general_preference_text_zoom_entries">
-        <item>@string/general_preference_text_zoom_tiny</item>
-        <item>@string/general_preference_text_zoom_small</item>
-        <item>@string/general_preference_text_zoom_normal</item>
-        <item>@string/general_preference_text_zoom_large</item>
-        <item>@string/general_preference_text_zoom_huge</item>
-    </string-array>
-
-    <!-- Text Zoom option values (DO NOT change the order.  Code assumes this order)-->
-    <string-array translatable="false" name="general_preference_text_zoom_values">
-        <item>tiny</item>
-        <item>small</item>
-        <item>normal</item>
-        <item>large</item>
-        <item>huge</item>
-    </string-array>
-
     <!-- A small number of default quick responses -->
     <string-array name="default_quick_responses">
         <item>@string/quick_1</item>
