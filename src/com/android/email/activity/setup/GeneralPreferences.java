@@ -44,4 +44,9 @@ public class GeneralPreferences extends GeneralPrefsFragment {
             removalGroup.removePreference(confirmArchive);
         }
     }
+
+    @Override
+    protected boolean supportsArchive() {
+        return false;
+    }
 }
