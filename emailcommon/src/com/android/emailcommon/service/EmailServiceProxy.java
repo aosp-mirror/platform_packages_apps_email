@@ -25,9 +25,7 @@ import android.os.RemoteException;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.Policy;
 import com.android.mail.utils.LogUtils;
 
@@ -145,15 +143,15 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
      * address that serves the specified protocol and credentials sufficient to be authorized
      * by the server to do so.
      *
-     * @param hostAuth the hostauth object to validate
+     * @param hostAuthCom the hostAuthCom object to validate
      * @return a Bundle as described above
      */
     @Override
-    public Bundle validate(final HostAuth hostAuth) throws RemoteException {
+    public Bundle validate(final HostAuthCompat hostAuthCom) throws RemoteException {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException{
-                mReturn = mService.validate(hostAuth);
+                mReturn = mService.validate(hostAuthCom);
             }
         }, "validate");
         waitForCompletion();

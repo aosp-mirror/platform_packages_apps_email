@@ -34,6 +34,7 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.service.EmailServiceProxy;
+import com.android.emailcommon.service.HostAuthCompat;
 import com.android.emailcommon.utility.Utility;
 import com.android.mail.utils.LogUtils;
 
@@ -358,8 +359,12 @@ public class AccountCheckSettingsFragment extends Fragment {
                     } else if (errorCode != MessagingException.NO_ERROR) {
                         return new AutoDiscoverResults(false, null);
                     } else {
-                        HostAuth serverInfo =
+                        final HostAuthCompat hostAuthCompat =
                             result.getParcelable(EmailServiceProxy.AUTO_DISCOVER_BUNDLE_HOST_AUTH);
+                        HostAuth serverInfo = null;
+                        if (hostAuthCompat != null) {
+                            serverInfo = hostAuthCompat.toHostAuth();
+                        }
                         return new AutoDiscoverResults(false, serverInfo);
                     }
                 }

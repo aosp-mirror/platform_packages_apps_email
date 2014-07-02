@@ -26,6 +26,7 @@ import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.EmailServiceProxy;
+import com.android.emailcommon.service.HostAuthCompat;
 import com.android.emailcommon.service.IEmailService;
 
 /**
@@ -66,7 +67,8 @@ public class ServiceStore extends Store {
             if (svc instanceof EmailServiceProxy) {
                 ((EmailServiceProxy)svc).setTimeout(90);
             }
-            return svc.validate(mHostAuth);
+            HostAuthCompat hostAuthCom = new HostAuthCompat(mHostAuth);
+            return svc.validate(hostAuthCom);
         } catch (RemoteException e) {
             throw new MessagingException("Call to validate generated an exception", e);
         }

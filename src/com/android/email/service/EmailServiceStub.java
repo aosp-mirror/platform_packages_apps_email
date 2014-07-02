@@ -51,9 +51,9 @@ import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.BodyColumns;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
-import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceStatus;
+import com.android.emailcommon.service.HostAuthCompat;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
@@ -90,7 +90,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
     }
 
     @Override
-    public Bundle validate(HostAuth hostauth) throws RemoteException {
+    public Bundle validate(HostAuthCompat hostAuthCom) throws RemoteException {
         // TODO Auto-generated method stub
         return null;
     }
