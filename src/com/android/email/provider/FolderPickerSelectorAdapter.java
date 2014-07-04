@@ -29,8 +29,8 @@ import java.util.Set;
 public class FolderPickerSelectorAdapter extends HierarchicalFolderSelectorAdapter {
 
     public FolderPickerSelectorAdapter(Context context, Cursor folders,
-            Set<String> initiallySelected, int layout, String header) {
-        super(context, folders, initiallySelected, layout, header);
+            Set<String> initiallySelected, int layout) {
+        super(context, folders, initiallySelected, layout);
     }
 
     /**
