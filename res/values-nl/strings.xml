@@ -271,7 +271,23 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"Instellingen"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Algemene instellingen"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Bevestigen vóór verwijderen"</string>
+    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Berichten"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Bevestigen vóór verzenden"</string>
+    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Berichten"</string>
+    <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Tekstgrootte bericht"</string>
+  <string-array name="general_preference_text_zoom_summary_array">
+    <item msgid="4693576184223089069">"Heel kleine tekst"</item>
+    <item msgid="4415205108584620118">"Kleine tekst"</item>
+    <item msgid="4550219696381691112">"Normale tekst"</item>
+    <item msgid="6227813549949219991">"Grote tekst"</item>
+    <item msgid="1197917420815786571">"Heel grote tekst"</item>
+  </string-array>
+    <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Tekstgrootte bericht"</string>
+    <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Minuscuul"</string>
+    <string name="general_preference_text_zoom_small" msgid="6618520238223144876">"Klein"</string>
+    <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Normaal"</string>
+    <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Groot"</string>
+    <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Enorm"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Zoeken in e-mail"</string>
     <string name="policy_dont_allow_camera" msgid="5744573062306937302">"Gebruik van apparaatcamera niet toestaan"</string>
