@@ -17,7 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="permission_read_attachment_label" msgid="9208086010625033590">"ईमेल अनुलग्‍नक पढ़ें"</string>
-    <string name="permission_read_attachment_desc" msgid="3394721085306308972">"ऐप्स  को आपके ईमेल अनुलग्नक पढ़ने देता है."</string>
+    <string name="permission_read_attachment_desc" msgid="3394721085306308972">"ऐप्स  को आपके ईमेल अटैचमेंट पढ़ने देता है."</string>
     <string name="permission_access_provider_label" msgid="378256653525377586">"ईमेल प्रदाता के डेटा तक पहुंचें"</string>
     <string name="permission_access_provider_desc" msgid="6296566558584670348">"इस ऐप्स को प्राप्‍त संदेशों, भेजे गए संदेशों, उपयोगकर्ता नाम और पासवर्ड सहित आपके ईमेल डेटाबेस में पहुंच देता है."</string>
     <string name="app_name" msgid="5815426892327290362">"ईमेल"</string>
@@ -157,7 +157,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"संपर्कों को इस खाते से समन्ववित करें"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"इस खाते से कैलेंडर समन्‍वयित करें"</string>
     <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"इस खाते से ईमेल समन्वयित करें"</string>
-    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Wi-Fi से कनेक्‍ट होने पर अनुलग्‍नकों को स्‍वचालित रूप से डाउनलोड करें"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Wi-Fi से कनेक्‍ट होने पर अटैचमेंट को स्‍वचालित रूप से डाउनलोड करें"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"पूरा नहीं हो सका"</string>
     <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"समन्वयन के लिए दिन:"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"स्वचालित"</string>
@@ -214,7 +214,7 @@
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"<xliff:g id="ACCOUNT">%s</xliff:g> का उपयोगकर्ता नाम या पासवर्ड गलत है. क्या आप उन्हें अभी अपडेट करना चाहते हैं?"</string>
     <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"<xliff:g id="ACCOUNT">%s</xliff:g> पर आपका प्रवेश विफल हो गया; सर्वर ने बताया: <xliff:g id="REASON">%s</xliff:g> क्या आप अपना उपयोगकर्ता नाम और/या पासवर्ड अपडेट करना चाहते हैं?"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"अनुलग्नकों को डाउनलोड करें"</string>
-    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"WiFi के माध्यम से हाल के संदेशों के अनुलग्नक स्वत: डाउनलोड करें"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"WiFi के माध्यम से हाल के संदेशों के अटैचमेंट स्वत: डाउनलोड करें"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"ईमेल सूचनाएं"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"आवृत्ति, सूचनाएं आदि समन्वयन करें."</string>
     <string name="account_settings_notify_summary" msgid="8134339460923068254">"ईमेल आने पर सूचना भेजें"</string>

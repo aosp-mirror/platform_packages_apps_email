@@ -20,7 +20,7 @@
     <string name="permission_read_attachment_desc" msgid="3394721085306308972">"Омогућава апликацији да чита прилоге у порукама е-поште."</string>
     <string name="permission_access_provider_label" msgid="378256653525377586">"Приступ подацима о добављачу е-поште"</string>
     <string name="permission_access_provider_desc" msgid="6296566558584670348">"Омогућава да ова апликација приступа бази података е-поште, укључујући примљене поруке, послате поруке, корисничка имена и лозинке."</string>
-    <string name="app_name" msgid="5815426892327290362">"Пошаљи е-поштом"</string>
+    <string name="app_name" msgid="5815426892327290362">"Пошаљи имејлом"</string>
     <string name="debug_title" msgid="5175710493691536719">"Отклањање грешака"</string>
     <string name="next_action" msgid="3931301986364184415">"Следеће"</string>
     <string name="previous_action" msgid="5181616311579820981">"Претходно"</string>
@@ -183,13 +183,13 @@
     <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"Сервер не подржава методе потврде аутентичности."</string>
     <string name="account_setup_failed_security" msgid="925820957665764964">"Није могуће отворити везу са сервером због безбедносне грешке."</string>
     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Није могуће отворити везу са сервером."</string>
-    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Унели сте нетачну адресу сервера или сервер захтева верзију протокола коју Е-пошта не подржава."</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Унели сте нетачну адресу сервера или сервер захтева верзију протокола коју Имејл не подржава."</string>
     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Немате дозволу за синхронизацију са овим сервером. Контактирајте администратора сервера за више информација."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Удаљено безбедносно администрирање"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Сервер <xliff:g id="SERVER">%s</xliff:g> захтева да му омогућите удаљену контролу појединих безбедносних функција Android уређаја. Желите ли да завршите подешавање овог налога?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"Овај сервер захтева безбедносне функције које Android уређај не подржава, укључујући: <xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"Не можете да промените корисничко име налога. Да бисте додали налог са другим корисничким именом, додирните Додај налог."</string>
-    <string name="disable_admin_warning" msgid="6196985268695592382">"УПОЗОРЕЊЕ: Деактивирањем овлашћења апликације Е-пошта за управљање уређајем избрисаћете све налоге е-поште који то·захтевају, заједно са адресом е-поште, контактима, догађајима календара и другим подацима."</string>
+    <string name="disable_admin_warning" msgid="6196985268695592382">"УПОЗОРЕЊЕ: Деактивирањем овлашћења апликације Имејл за управљање уређајем избрисаћете све налоге е-поште који то·захтевају, заједно са адресом е-поште, контактима, догађајима календара и другим подацима."</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"Безбедносно ажурирање"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> захтева да ажурирате безбедносна подешавања."</string>
     <string name="security_unsupported_ticker_fmt" msgid="5166579214529283975">"Налог „<xliff:g id="ACCOUNT">%s</xliff:g>“ не може да се синхронизује због безбедносних захтева."</string>
@@ -215,7 +215,7 @@
     <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Пријављивање на <xliff:g id="ACCOUNT">%s</xliff:g> није успело; сервер је рекао: <xliff:g id="REASON">%s</xliff:g> Желите ли да ажурирате корисничко име и/или лозинку?"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Преузми прилоге"</string>
     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Аутоматско преузимање прилога за недавне поруке преко Wi-Fi-ја"</string>
-    <string name="account_settings_notify_label" msgid="1630001017303007974">"Обавештења е-поштом"</string>
+    <string name="account_settings_notify_label" msgid="1630001017303007974">"Обавештења имејлом"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Синхронизација учесталости, обавештења итд."</string>
     <string name="account_settings_notify_summary" msgid="8134339460923068254">"Пошаљи обавештење када стигне е-пошта"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="4322235101687302250">"Синхронизуј фреквенцију"</string>
@@ -265,7 +265,7 @@
     <string name="exchange_name" msgid="1190783774800310346">"Corporate"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="3673792980526246177">"Није могуће отворити налог. Покушајте поново."</string>
-    <string name="device_admin_label" msgid="8680224994637869414">"Пошаљи е-поштом"</string>
+    <string name="device_admin_label" msgid="8680224994637869414">"Пошаљи имејлом"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Омогућава безбедносне смернице за одређене сервере"</string>
     <string name="settings_activity_title" msgid="5185915603716333904">"Подешавања"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Општа подешавања"</string>

@@ -124,9 +124,9 @@
     <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (ยอมรับใบรับรองทั้งหมด)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
-    <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"ลบอีเมลจากเซิร์ฟเวอร์"</string>
+    <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"นำออกอีเมลจากเซิร์ฟเวอร์"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"ไม่ต้องเลย"</string>
-    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"เมื่อฉันลบจากกล่องจดหมาย"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"เมื่อฉันนำออกจากกล่องจดหมาย"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"ส่วนนำของพาธ IMAP"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"เป็นตัวเลือก"</string>
     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"การตั้งค่าบัญชี"</string>
@@ -186,10 +186,10 @@
     <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"คุณพิมพ์ที่อยู่เซิร์ฟเวอร์ไม่ถูกต้อง หรือเซิร์ฟเวอร์ต้องใช้โปรโตคอลในรุ่นที่อีเมลไม่สนับสนุน"</string>
     <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"คุณไม่ได้รับอนุญาตให้ซิงค์กับเซิร์ฟเวอร์นี้ โปรดติดต่อผู้ดูแลระบบเซิร์ฟเวอร์ของคุณเพื่อขอข้อมูลเพิ่มเติม"</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"การจัดการด้านความปลอดภัยจากระยะไกล"</string>
-    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"เซิร์ฟเวอร์ <xliff:g id="SERVER">%s</xliff:g> ต้องการให้คุณอนุญาตให้ควบคุมคุณลักษณะความปลอดภัยบางอย่างของอุปกรณ์แอนดรอยด์ของคุณได้จากระยะไกล คุณต้องการตั้งค่าบัญชีนี้ให้เสร็จหรือไม่"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"เซิร์ฟเวอร์นี้ต้องการคุณลักษณะความปลอดภัยที่อุปกรณ์แอนดรอยด์ของคุณไม่สนับสนุน ซึ่งรวมถึง: <xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"เซิร์ฟเวอร์ <xliff:g id="SERVER">%s</xliff:g> ต้องการให้คุณอนุญาตให้ควบคุมคุณลักษณะความปลอดภัยบางอย่างของอุปกรณ์ Android ของคุณได้จากระยะไกล คุณต้องการตั้งค่าบัญชีนี้ให้เสร็จหรือไม่"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"เซิร์ฟเวอร์นี้ต้องการคุณลักษณะความปลอดภัยที่อุปกรณ์ Android ของคุณไม่สนับสนุน ซึ่งรวมถึง: <xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"คุณไม่สามารถเปลี่ยนชื่อผู้ใช้ของบัญชีได้ หากต้องการเพิ่มบัญชีด้วยชื่อผู้ใช้อื่น ให้แตะ \"เพิ่มบัญชี\""</string>
-    <string name="disable_admin_warning" msgid="6196985268695592382">"คำเตือน: การปิดใช้งานสิทธิ์ของแอปพลิเคชันอีเมลในการดูแลอุปกรณ์ของคุณจะเป็นการลบบัญชีอีเมลทั้งหมดที่จำเป็นต้องใช้สิทธิ์นั้น พร้อมทั้งอีเมล สมุดโทรศัพท์ กิจกรรมในปฏิทิน และข้อมูลอื่นๆ"</string>
+    <string name="disable_admin_warning" msgid="6196985268695592382">"คำเตือน: การปิดใช้งานสิทธิ์ของแอปพลิเคชันอีเมลในการดูแลอุปกรณ์ของคุณจะเป็นการนำออกบัญชีอีเมลทั้งหมดที่จำเป็นต้องใช้สิทธิ์นั้น พร้อมทั้งอีเมล สมุดโทรศัพท์ กิจกรรมในปฏิทิน และข้อมูลอื่นๆ"</string>
     <string name="account_security_dialog_title" msgid="430041952584831904">"การอัปเดตความปลอดภัย"</string>
     <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"<xliff:g id="ACCOUNT">%s</xliff:g> กำหนดให้คุณต้องอัปเดตการตั้งค่าความปลอดภัย"</string>
     <string name="security_unsupported_ticker_fmt" msgid="5166579214529283975">"ไม่สามารถซิงค์บัญชี \"<xliff:g id="ACCOUNT">%s</xliff:g>\" เนื่องจากข้อกำหนดด้านความปลอดภัย"</string>
@@ -199,16 +199,16 @@
     <string name="security_notification_content_change_title" msgid="443490921895642130">"เปลี่ยนนโยบายความปลอดภัยแล้ว"</string>
     <string name="security_notification_content_unsupported_title" msgid="7315219208043169233">"ไม่ตรงกับนโยบายความปลอดภัย"</string>
     <string name="account_security_title" msgid="3511543138560418587">"ความปลอดภัยของอุปกรณ์"</string>
-    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"เซิร์ฟเวอร์ <xliff:g id="SERVER">%s</xliff:g> ต้องการให้คุณอนุญาตให้ควบคุมคุณลักษณะความปลอดภัยบางอย่างของอุปกรณ์แอนดรอยด์ของคุณได้จากระยะไกล"</string>
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"เซิร์ฟเวอร์ <xliff:g id="SERVER">%s</xliff:g> ต้องการให้คุณอนุญาตให้ควบคุมคุณลักษณะความปลอดภัยบางอย่างของอุปกรณ์ Android ของคุณได้จากระยะไกล"</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"แก้ไขรายละเอียด"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" ระบุให้คุณเปลี่ยน PIN หรือรหัสผ่านล็อกหน้าจอของคุณ"</string>
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"รหัสผ่านล็อกหน้าจอใกล้หมดอายุ"</string>
     <string name="password_expired_ticker" msgid="4230570412974108968">"PIN หรือรหัสผ่านล็อกหน้าจอของคุณหมดอายุแล้ว"</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"รหัสผ่านล็อกหน้าจอหมดอายุแล้ว"</string>
     <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"รหัสผ่านล็อกหน้าจอใกล้หมดอายุ"</string>
-    <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"คุณต้องเปลี่ยน PIN หรือรหัสผ่านสำหรับการล็อกหน้าจอโดยเร็ว ไม่เช่นนั้นข้อมูลของ <xliff:g id="ACCOUNT">%s</xliff:g> จะถูกลบ คุณต้องการเปลี่ยนตอนนี้หรือไม่"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"คุณต้องเปลี่ยน PIN หรือรหัสผ่านสำหรับการล็อกหน้าจอโดยเร็ว ไม่เช่นนั้นข้อมูลของ <xliff:g id="ACCOUNT">%s</xliff:g> จะถูกนำออก คุณต้องการเปลี่ยนตอนนี้หรือไม่"</string>
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"รหัสผ่านล็อกหน้าจอหมดอายุแล้ว"</string>
-    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"ข้อมูลสำหรับ <xliff:g id="ACCOUNT">%s</xliff:g> กำลังถูกลบออกจากอุปกรณ์ของคุณ คุณสามารถคืนค่าข้อมูลได้โดยเปลี่ยน PIN หรือรหัสผ่านล็อกหน้าจอของคุณ เปลี่ยนรหัสตอนนี้หรือไม่"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"ข้อมูลสำหรับ <xliff:g id="ACCOUNT">%s</xliff:g> กำลังถูกนำออกออกจากอุปกรณ์ของคุณ คุณสามารถคืนค่าข้อมูลได้โดยเปลี่ยน PIN หรือรหัสผ่านล็อกหน้าจอของคุณ เปลี่ยนรหัสตอนนี้หรือไม่"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"ยกเลิกการเปลี่ยนแปลงที่ยังไม่ได้บันทึกหรือไม่"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"ลงชื่อเข้าใช้ไม่ได้"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"ชื่อผู้ใช้หรือรหัสผ่านสำหรับ <xliff:g id="ACCOUNT">%s</xliff:g> ไม่ถูกต้อง คุณต้องการอัปเดตตอนนี้หรือไม่"</string>
@@ -269,7 +269,7 @@
     <string name="device_admin_description" msgid="426727923791430306">"เปิดการใช้งานนโยบายความปลอดภัยที่ระบุโดยเซิร์ฟเวอร์"</string>
     <string name="settings_activity_title" msgid="5185915603716333904">"การตั้งค่า"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"การตั้งค่าทั่วไป"</string>
-    <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"ยืนยันก่อนลบ"</string>
+    <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"ยืนยันก่อนนำออก"</string>
     <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"ข้อความ"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"ยืนยันก่อนส่ง"</string>
     <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"ข้อความ"</string>
