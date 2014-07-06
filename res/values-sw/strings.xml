@@ -172,7 +172,7 @@
     <string name="account_setup_failed_security" msgid="925820957665764964">"Haiwezi kufungua muunganisho kwa seva kwa sababu ya hitilafu ya kiusalama."</string>
     <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"Haiwezi kufungua muunganisho kwa seva."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"Uliingiza anwani ya seva isiyo sahihi au seva inahitaji toleo la itifaki ambalo haiauniwi na Barua pepe."</string>
-    <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Hauna idhini ya kusawazisha kwa seva hii. Tafadhali wasiliana na msimamizi wako wa seva kwa maelezo zaidi."</string>
+    <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"Hauna idhini ya kusawazisha na seva hii. Tafadhali wasiliana na msimamizi wako wa seva kwa maelezo zaidi."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Udhibiti wa usalama kutoka mbali"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Seva ya <xliff:g id="SERVER">%s</xliff:g> inahitaji uiruhusu idhibiti kwa umbali baadhi ya vipengele vya usalama vya simu yako. Ungependa kumaliza kufungua akaunti hii?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"Seva hii inahitaji vipengele vya usalama ambavyo kifaa chako cha Android haiauni, ikijumlisha: <xliff:g id="ERROR">%s</xliff:g>"</string>
@@ -216,7 +216,7 @@
     <string name="account_settings_unsupported_label" msgid="1954091071454235577">"Sera zisizokubaliwa"</string>
     <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"Hamna"</string>
     <string name="account_settings_retry_label" msgid="1104680719299842829">"Jaribu usawazishi"</string>
-    <string name="account_settings_retry_summary" msgid="2703599639846201913">"Gusa hapa ili kusawazisha akaunti hii"</string>
+    <string name="account_settings_retry_summary" msgid="2703599639846201913">"Gusa hapa ili usawazishe akaunti hii"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Jina la akaunti"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Jina lako"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Majibu ya haraka"</string>
@@ -246,7 +246,7 @@
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"Sawazisha chaguo ( <xliff:g id="MAILBOXX_NAME">%s</xliff:g> )"</string>
     <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"Sawazisha folda hii"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Barua pepe zote zitapakuliwa muunganisho wa intaneti utakaporejea"</string>
-    <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Siku za kusawazisha barua"</string>
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Sawazisha barua pepe za kipindi hiki"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Picha ya mtumaji"</string>
     <string name="provider_note_live" msgid="2995297671709325333">"Akaunti zingine za \"Plus\" tu ndizo zinazojumuisha ufikivu wa POP na kwa hivyo kuruhusu programu hii kuunganisha. Kama hauwezi kuingia kwa kutumia anwani yako ya barua pepe na nenosiri lako sahihi, huenda usiwe na akaunti iliyolipiwa ya \"Plus\". Tafadhali zindua Kivinjari cha Wavuti ili uweze kufikia akaunti hizi za barua pepe."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Kabla ya kusanidi akaunti ya barua pepe hii, tembelea wavuti ya T-Online na unda nenosiri ya ufikivu wa barua pepe ya POP3."</string>
