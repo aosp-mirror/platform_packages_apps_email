@@ -17,7 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="permission_read_attachment_label" msgid="9208086010625033590">"ईमेल अनुलग्‍नक पढ़ें"</string>
-    <string name="permission_read_attachment_desc" msgid="3394721085306308972">"ऐप्स  को आपके ईमेल अनुलग्नक पढ़ने देता है."</string>
+    <string name="permission_read_attachment_desc" msgid="3394721085306308972">"ऐप्स  को आपके ईमेल अटैचमेंट पढ़ने देता है."</string>
     <string name="permission_access_provider_label" msgid="378256653525377586">"ईमेल प्रदाता के डेटा तक पहुंचें"</string>
     <string name="permission_access_provider_desc" msgid="6296566558584670348">"इस ऐप्स को प्राप्‍त संदेशों, भेजे गए संदेशों, उपयोगकर्ता नाम और पासवर्ड सहित आपके ईमेल डेटाबेस में पहुंच देता है."</string>
     <string name="app_name" msgid="5815426892327290362">"ईमेल"</string>
@@ -158,7 +158,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"संपर्कों को इस खाते से समन्ववित करें"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"इस खाते से कैलेंडर समन्‍वयित करें"</string>
     <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"इस खाते से ईमेल समन्वयित करें"</string>
-    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Wi-Fi से कनेक्‍ट होने पर अनुलग्‍नकों को स्‍वचालित रूप से डाउनलोड करें"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Wi-Fi से कनेक्‍ट होने पर अटैचमेंट को स्‍वचालित रूप से डाउनलोड करें"</string>
     <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"पूरा नहीं हो सका"</string>
     <string name="account_setup_options_mail_window_label" msgid="7603869690500525594">"ईमेल यहां से समन्वयित करें:"</string>
     <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"स्वचालित"</string>
@@ -215,7 +215,7 @@
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"<xliff:g id="ACCOUNT">%s</xliff:g> का उपयोगकर्ता नाम या पासवर्ड गलत है. क्या आप उन्हें अभी अपडेट करना चाहते हैं?"</string>
     <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"<xliff:g id="ACCOUNT">%s</xliff:g> पर आपका प्रवेश विफल हो गया; सर्वर ने बताया: <xliff:g id="REASON">%s</xliff:g> क्या आप अपना उपयोगकर्ता नाम और/या पासवर्ड अपडेट करना चाहते हैं?"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"अनुलग्नकों को डाउनलोड करें"</string>
-    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"WiFi के माध्यम से हाल के संदेशों के अनुलग्नक स्वत: डाउनलोड करें"</string>
+    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"WiFi के माध्यम से हाल के संदेशों के अटैचमेंट स्वत: डाउनलोड करें"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"ईमेल सूचनाएं"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"आवृत्ति, सूचनाएं आदि समन्वयन करें."</string>
     <string name="account_settings_notify_summary" msgid="8134339460923068254">"ईमेल आने पर सूचना भेजें"</string>
@@ -271,23 +271,7 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"सेटिंग"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"सामान्य सेटिंग"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"हटाने से पहले पुष्‍टि करें"</string>
-    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"संदेश"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"भेजने से पहले पुष्‍टि करें"</string>
-    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"संदेश"</string>
-    <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"संदेश पाठ का आकार"</string>
-  <string-array name="general_preference_text_zoom_summary_array">
-    <item msgid="4693576184223089069">"छोटा पाठ"</item>
-    <item msgid="4415205108584620118">"छोटा पाठ"</item>
-    <item msgid="4550219696381691112">"सामान्य आकार का पाठ"</item>
-    <item msgid="6227813549949219991">"बड़ा पाठ"</item>
-    <item msgid="1197917420815786571">"बड़ा पाठ"</item>
-  </string-array>
-    <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"संदेश पाठ का आकार"</string>
-    <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"बहुत छोटा"</string>
-    <string name="general_preference_text_zoom_small" msgid="6618520238223144876">"छोटा"</string>
-    <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"सामान्य"</string>
-    <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"बड़ा"</string>
-    <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"बहुत बड़ा"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"ईमेल खोजें"</string>
     <string name="policy_dont_allow_camera" msgid="5744573062306937302">"उपकरण के कैमरे के उपयोग की अनुमति न दें"</string>
