@@ -27,7 +27,7 @@
     <string name="cancel_action" msgid="6967435583794021865">"Abbrechen"</string>
     <string name="previous_action" msgid="5181616311579820981">"Zurück"</string>
     <string name="done_action" msgid="7497990549515580249">"Fertig"</string>
-    <string name="create_action" msgid="3062715563215392251">"Neue erstellen"</string>
+    <string name="create_action" msgid="3062715563215392251">"Neue hinzufügen"</string>
     <string name="quick_responses_empty_view" msgid="3960050972306132367">"Keine Kurzantworten"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Kontoeinstellungen"</string>
     <string name="menu_folder_options" msgid="2871906096248843471">"Synchronisierungsoptionen"</string>
@@ -99,9 +99,9 @@
     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Dieses Feld darf nicht leer sein."</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Kontoeinrichtung"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Kontotyp"</string>
-    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Um welchen Kontotyp handelt es sich hierbei?"</string>
+    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Um welchen Kontotyp handelt es sich?"</string>
     <string name="account_setup_incoming_title" msgid="6796626791039136005">"Kontoeinrichtung"</string>
-    <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Einstellungen des Eingangsserver"</string>
+    <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Einstellungen des Eingangsservers"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Nutzername"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Passwort"</string>
     <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"Server"</string>
@@ -189,14 +189,14 @@
     <string name="account_security_title" msgid="3511543138560418587">"Gerätesicherheit"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Der Server <xliff:g id="SERVER">%s</xliff:g> fordert die Erlaubnis zur Remote-Steuerung einiger Sicherheitsfunktionen auf Ihrem Android-Gerät an."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Details bearbeiten"</string>
-    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" erfordert, dass Sie PIN bzw. Passwort für die Display-Sperre ändern."</string>
+    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" erfordert, dass Sie PIN bzw. Passwort für die Displaysperre ändern."</string>
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Sperr-Passwort läuft ab"</string>
     <string name="password_expired_ticker" msgid="4230570412974108968">"Ihre PIN bzw. Ihr Passwort zum Sperren des Bildschirms ist abgelaufen."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"Sperr-Passwort abgelaufen"</string>
-    <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"Passwort für Display-Sperre läuft ab"</string>
-    <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"Sie müssen Ihre PIN für die Display-Sperre bald ändern, weil sonst die Daten für <xliff:g id="ACCOUNT">%s</xliff:g> gelöscht werden. Möchten Sie sie jetzt ändern?"</string>
+    <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"Passwort für Displaysperre läuft ab"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"Sie müssen Ihre PIN für die Displaysperre bald ändern, weil sonst die Daten für <xliff:g id="ACCOUNT">%s</xliff:g> gelöscht werden. Möchten Sie sie jetzt ändern?"</string>
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"Sperr-Passwort abgelaufen"</string>
-    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"Die Daten für <xliff:g id="ACCOUNT">%s</xliff:g> werden von Ihrem Gerät gelöscht. Sie können die Daten wiederherstellen, indem Sie Ihre PIN für die Display-Sperre oder Ihr Passwort ändern. Möchten Sie die PIN oder das Passwort jetzt ändern?"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"Die Daten für <xliff:g id="ACCOUNT">%s</xliff:g> werden von Ihrem Gerät gelöscht. Sie können die Daten wiederherstellen, indem Sie Ihre PIN für die Displaysperre oder Ihr Passwort ändern. Möchten Sie die PIN oder das Passwort jetzt ändern?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Nicht gespeicherte Änderungen verwerfen?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Anmeldung nicht möglich"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Nutzername oder Passwort für <xliff:g id="ACCOUNT">%s</xliff:g> ist falsch. Möchten Sie die Daten jetzt ändern?"</string>
@@ -281,7 +281,7 @@
     <string name="policy_require_password" msgid="7177274900480984702">"Geräte-Passwort erforderlich"</string>
     <string name="policy_password_history" msgid="5743544498302303181">"Einsatz der letzten Passw. beschränken"</string>
     <string name="policy_password_expiration" msgid="1248123255253649199">"Ablaufen von Passwörtern erforderlich"</string>
-    <string name="policy_screen_timeout" msgid="414869965358468080">"Display-Sperre für inaktives Gerät"</string>
+    <string name="policy_screen_timeout" msgid="414869965358468080">"Displaysperre für inaktives Gerät"</string>
     <string name="policy_calendar_age" msgid="627405158087482302">"Anzahl synchronisierter Kalendereinträge begrenzen"</string>
     <string name="policy_email_age" msgid="7144148367145424963">"Anzahl synchronisierter E-Mails begrenzen"</string>
     <string name="quick_1" msgid="3426057697353380951">"Vielen Dank!"</string>

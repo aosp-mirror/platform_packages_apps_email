@@ -157,7 +157,7 @@
     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Alles"</string>
     <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"Accountstandaard gebruiken"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"Gebruikersnaam of wachtwoord is onjuist."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Aanmelden mislukt.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"Inloggen mislukt.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_autodiscover_dlg_authfail_title" msgid="7365992662150541370">"Probleem met instellen van account"</string>
     <string name="account_setup_autodiscover_dlg_authfail_message" msgid="8354874879956702097">"Controleer of de gebruikersnaam, het wachtwoord en de accountinstellingen correct zijn."</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"Kan geen veilige verbinding met de server tot stand brengen."</string>
@@ -200,7 +200,7 @@
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Niet-opgeslagen wijzigingen annuleren?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Kan niet inloggen"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"De gebruikersnaam of het wachtwoord voor <xliff:g id="ACCOUNT">%s</xliff:g> is onjuist. Wilt u deze nu bijwerken?"</string>
-    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Uw aanmelding bij <xliff:g id="ACCOUNT">%s</xliff:g> is mislukt. De server retourneerde het volgende bericht: <xliff:g id="REASON">%s</xliff:g> Wilt u uw gebruikersnaam en/of wachtwoord bijwerken?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Inloggen bij <xliff:g id="ACCOUNT">%s</xliff:g> is mislukt. De server retourneerde het volgende bericht: <xliff:g id="REASON">%s</xliff:g> Wilt u uw gebruikersnaam en/of wachtwoord bijwerken?"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Bijlagen downloaden"</string>
     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Bijlagen van recente berichten automatisch downloaden via wifi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Meldingen via e-mail"</string>

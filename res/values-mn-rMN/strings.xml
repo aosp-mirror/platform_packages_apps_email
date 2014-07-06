@@ -114,7 +114,7 @@
     <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Имэйлийг серверээс устгах"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Хэзээ ч үгүй"</string>
-    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Намайг Ирсэн имэйлээс устгах үед"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Би Ирсэн имэйлээс устгах үед"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"IMAP замын угтвар"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Сонголтын"</string>
     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Акаунт тохируулах"</string>

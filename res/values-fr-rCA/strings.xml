@@ -45,7 +45,7 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Corbeille"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Messages envoyés"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Pourriel"</string>
-    <string name="mailbox_name_display_starred" msgid="7788694947644186069">"Messages suivis"</string>
+    <string name="mailbox_name_display_starred" msgid="7788694947644186069">"Messages favoris"</string>
     <string name="mailbox_name_display_unread" msgid="1015674989793998695">"Non lu"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Boîte de réception"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Marqué d\'une étoile"</string>
@@ -99,7 +99,7 @@
     <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"Ce champ est obligatoire."</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Configuration du compte"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Type de compte"</string>
-    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"De quel type de compte s\'agit-il ?"</string>
+    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"De quel type de compte s\'agit-il?"</string>
     <string name="account_setup_incoming_title" msgid="6796626791039136005">"Configuration du compte"</string>
     <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Paramètres du serveur entrant"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Nom d\'utilisateur"</string>
@@ -189,18 +189,18 @@
     <string name="account_security_title" msgid="3511543138560418587">"Sécurité de l\'appareil"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Vous devez autoriser le serveur <xliff:g id="SERVER">%s</xliff:g> à contrôler à distance certaines fonctionnalités de sécurité de votre mobile Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Modifier les détails"</string>
-    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" exige que le code PIN ou mot de passe d\'écran de verrouillage soit modifié."</string>
+    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"« <xliff:g id="ACCOUNT">%s</xliff:g> » exige que le NIP ou mot de passe d\'écran de verrouillage soit modifié."</string>
     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Expiration mot de passe de verrouillage"</string>
-    <string name="password_expired_ticker" msgid="4230570412974108968">"Le code PIN ou le mot de passe de verrouillage de votre écran a expiré."</string>
+    <string name="password_expired_ticker" msgid="4230570412974108968">"Le NIP ou le mot de passe de verrouillage de votre écran a expiré."</string>
     <string name="password_expired_content_title" msgid="4349518706602252979">"Mot de passe verrou. expiré"</string>
     <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"Expiration mot de passe de verrouillage"</string>
-    <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"Vous allez bientôt devoir modifier le code PIN ou le mot de passe de verrouillage de l\'écran, faute de quoi les données de <xliff:g id="ACCOUNT">%s</xliff:g> vont être effacées. Voulez-vous le modifier maintenant?"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"Vous allez bientôt devoir modifier le NIP ou le mot de passe de verrouillage de l\'écran, faute de quoi les données de <xliff:g id="ACCOUNT">%s</xliff:g> vont être effacées. Voulez-vous le modifier maintenant?"</string>
     <string name="password_expired_dialog_title" msgid="2186547998125938084">"Mot de passe verrou. expiré"</string>
-    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"Les données de <xliff:g id="ACCOUNT">%s</xliff:g> sont en cours d\'effacement de votre appareil. Vous pouvez les restaurer en modifiant le code PIN ou le mot de passe de verrouillage de l\'écran. Voulez-vous le modifier maintenant?"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"Les données de <xliff:g id="ACCOUNT">%s</xliff:g> sont en cours d\'effacement de votre appareil. Vous pouvez les restaurer en modifiant le NIP ou le mot de passe de verrouillage de l\'écran. Voulez-vous le modifier maintenant?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Annuler les modifications non enregistrées ?"</string>
     <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"Impossible de se connecter"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"Le nom d\'utilisateur ou le mot de passe de <xliff:g id="ACCOUNT">%s</xliff:g> est incorrect. Voulez-vous les mettre à jour maintenant ?"</string>
-    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Échec de la connexion au compte <xliff:g id="ACCOUNT">%s</xliff:g>. Motif donné par le serveur : <xliff:g id="REASON">%s</xliff:g>. Voulez-vous mettre à jour votre nom d\'utilisateur et/ou votre mot de passe ?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"Échec de la connexion au compte <xliff:g id="ACCOUNT">%s</xliff:g>. Motif donné par le serveur : <xliff:g id="REASON">%s</xliff:g>. Voulez-vous mettre à jour votre nom d\'utilisateur et/ou votre mot de passe?"</string>
     <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"Télécharger les pièces jointes"</string>
     <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"Télécharger automatiquement les pièces jointes aux messages récents via Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Notifications par courriel"</string>
@@ -248,7 +248,7 @@
     <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"Tous les messages sont téléchargés lorsque vous vous connectez"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"Nombre de jours à synchroniser"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"Image de l\'expéditeur"</string>
-    <string name="provider_note_live" msgid="2995297671709325333">"Seuls certains comptes \"Plus\" disposent d\'un accès POP permettant à ce programme de se connecter. Si vous ne parvenez pas à vous connecter avec l\'adresse de courriel et le mot de passe corrects, vous ne possédez peut-être pas de compte payant \"Plus\". Pour accéder à ces comptes de messagerie, lancez le navigateur Web."</string>
+    <string name="provider_note_live" msgid="2995297671709325333">"Seuls certains comptes « Plus » disposent d\'un accès POP permettant à ce programme de se connecter. Si vous ne parvenez pas à vous connecter avec l\'adresse de courriel et le mot de passe corrects, vous ne possédez peut-être pas de compte payant « Plus ». Pour accéder à ces comptes de messagerie, lancez le navigateur Web."</string>
     <string name="provider_note_t_online" msgid="1630642061431427894">"Avant de configurer ce compte de messagerie, consultez le site Web de T-Online et créez un mot de passe d\'accès à la messagerie POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Entreprise"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
