@@ -271,23 +271,7 @@
     <string name="settings_activity_title" msgid="5185915603716333904">"Настройки"</string>
     <string name="header_label_general_preferences" msgid="8243724566056800991">"Общи настройки"</string>
     <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"Потвърждаване преди изтр."</string>
-    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"Съобщения"</string>
     <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"Потвърждаване преди изпращане"</string>
-    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"Съобщения"</string>
-    <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Размер на текста на съобщенията"</string>
-  <string-array name="general_preference_text_zoom_summary_array">
-    <item msgid="4693576184223089069">"Миниатюрен шрифт на текста"</item>
-    <item msgid="4415205108584620118">"Малък шрифт на текста"</item>
-    <item msgid="4550219696381691112">"Нормален шрифт на текста"</item>
-    <item msgid="6227813549949219991">"Голям шрифт на текста"</item>
-    <item msgid="1197917420815786571">"Огромен текст"</item>
-  </string-array>
-    <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Размер на текста на съобщенията"</string>
-    <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Миниатюрен"</string>
-    <string name="general_preference_text_zoom_small" msgid="6618520238223144876">"Малък"</string>
-    <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Нормален"</string>
-    <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Голям"</string>
-    <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Огромен"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Търсете по имейл"</string>
     <string name="policy_dont_allow_camera" msgid="5744573062306937302">"Забраняване на използването на камерата"</string>
