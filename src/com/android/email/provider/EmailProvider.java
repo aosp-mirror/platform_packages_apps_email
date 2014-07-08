@@ -2673,13 +2673,13 @@ public class EmailProvider extends ContentProvider
             + " ELSE " + UIProvider.FolderType.DEFAULT + " END";
 
     private static final String FOLDER_ICON = "CASE " + MailboxColumns.TYPE
-            + " WHEN " + Mailbox.TYPE_INBOX   + " THEN " + R.drawable.ic_folder_inbox
-            + " WHEN " + Mailbox.TYPE_DRAFTS  + " THEN " + R.drawable.ic_folder_drafts
-            + " WHEN " + Mailbox.TYPE_OUTBOX  + " THEN " + R.drawable.ic_folder_outbox
-            + " WHEN " + Mailbox.TYPE_SENT    + " THEN " + R.drawable.ic_folder_sent
-            + " WHEN " + Mailbox.TYPE_TRASH   + " THEN " + R.drawable.ic_folder_trash
-            + " WHEN " + Mailbox.TYPE_STARRED + " THEN " + R.drawable.ic_folder_star
-            + " ELSE -1 END";
+            + " WHEN " + Mailbox.TYPE_INBOX   + " THEN " + R.drawable.ic_drawer_inbox
+            + " WHEN " + Mailbox.TYPE_DRAFTS  + " THEN " + R.drawable.ic_drawer_drafts
+            + " WHEN " + Mailbox.TYPE_OUTBOX  + " THEN " + R.drawable.ic_drawer_outbox
+            + " WHEN " + Mailbox.TYPE_SENT    + " THEN " + R.drawable.ic_drawer_sent
+            + " WHEN " + Mailbox.TYPE_TRASH   + " THEN " + R.drawable.ic_drawer_trash
+            + " WHEN " + Mailbox.TYPE_STARRED + " THEN " + R.drawable.ic_drawer_starred
+            + " ELSE " + R.drawable.ic_drawer_folder + " END";
 
     /**
      * Local-only folders set totalCount < 0; such folders should substitute message count for
@@ -3799,11 +3799,11 @@ public class EmailProvider extends ContentProvider
                 }
             } else if (column.equals(UIProvider.FolderColumns.ICON_RES_ID)) {
                 if (mailboxType == Mailbox.TYPE_INBOX) {
-                    values[i] = R.drawable.ic_folder_inbox;
+                    values[i] = R.drawable.ic_drawer_inbox;
                 } else if (mailboxType == Mailbox.TYPE_UNREAD) {
-                    values[i] = R.drawable.ic_folder_unread;
+                    values[i] = R.drawable.ic_drawer_unread;
                 } else if (mailboxType == Mailbox.TYPE_STARRED) {
-                    values[i] = R.drawable.ic_folder_star;
+                    values[i] = R.drawable.ic_drawer_starred;
                 }
             }
         }
