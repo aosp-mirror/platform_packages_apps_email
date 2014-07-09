@@ -347,7 +347,7 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
                 // numeric value we have stored says.
                 final android.accounts.Account androidAcct = new android.accounts.Account(
                         mAccount.mEmailAddress, mServiceInfo.accountType);
-                if ((Integer) newValue == Account.CHECK_INTERVAL_NEVER) {
+                if (Integer.parseInt(summary) == Account.CHECK_INTERVAL_NEVER) {
                     // Disable syncing from the account manager. Leave the current sync frequency
                     // in the database.
                     ContentResolver.setSyncAutomatically(androidAcct, EmailContent.AUTHORITY,
