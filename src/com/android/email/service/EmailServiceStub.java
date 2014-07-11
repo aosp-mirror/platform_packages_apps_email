@@ -472,7 +472,8 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                 } catch (MessagingException me) {
                     // report error for this message, but keep trying others
                     if (me instanceof AuthenticationFailedException) {
-                        nc.showLoginFailedNotification(account.mId);
+                        nc.showLoginFailedNotificationSynchronous(account.mId,
+                                false /* incoming */);
                     }
                     continue;
                 }
@@ -509,7 +510,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             nc.cancelLoginFailedNotification(account.mId);
         } catch (MessagingException me) {
             if (me instanceof AuthenticationFailedException) {
-                nc.showLoginFailedNotification(account.mId);
+                nc.showLoginFailedNotificationSynchronous(account.mId, false /* incoming */);
             }
         } finally {
             c.close();

@@ -1134,7 +1134,7 @@ public class AttachmentService extends Service implements Runnable {
                     EmailContent.delete(this, Attachment.CONTENT_URI, attachment.mId);
                     // TODO: Talk to UX about whether this is even worth doing
                     NotificationController nc = NotificationController.getInstance(this);
-                    nc.showDownloadForwardFailedNotification(attachment);
+                    nc.showDownloadForwardFailedNotificationSynchronous(attachment);
                     deleted = true;
                     LogUtils.w(LOG_TAG, "Deleting forwarded attachment #%d for message #%d",
                         attachmentId, attachment.mMessageKey);

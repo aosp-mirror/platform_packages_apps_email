@@ -63,9 +63,6 @@ public class AccountSetupFinal extends AccountSetupActivity
         AccountServerBaseFragment.Callback, AccountSetupCredentialsFragment.Callback,
         DuplicateAccountDialogFragment.Callback, AccountSetupABFragment.Callback {
 
-    // Set to false before shipping, logs PII
-    private final static boolean ENTER_DEBUG_SCREEN = false;
-
     /**
      * Direct access for forcing account creation
      * For use by continuous automated test system (e.g. in conjunction with monkey tests)
@@ -556,16 +553,6 @@ public class AccountSetupFinal extends AccountSetupActivity
                 } // else fall through
             case STATE_BASICS_POST:
                 if (shouldDivertToManual()) {
-                    // Alternate entry to the debug options screen (for devices without a physical
-                    // keyboard):
-                    //  Username: d@d.d
-                    if (ENTER_DEBUG_SCREEN) {
-                        if ("d@d.d".equals(mSetupData.getEmail())) {
-                            AccountSettings.actionSettingsWithDebug(this);
-                            return;
-                        }
-                    }
-
                     mSkipAutoDiscover = true;
                     mIsPreConfiguredProvider = false;
                     mState = STATE_TYPE;

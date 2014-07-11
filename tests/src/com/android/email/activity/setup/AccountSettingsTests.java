@@ -162,8 +162,8 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
         mAccount.save(mContext);
         mAccountId = mAccount.mId;
 
-        // accountId, loginWarningAccountName, loginWarningReason
-        return AccountSettings.createAccountSettingsIntent(mContext, mAccountId, null, null);
+        // TODO: We don't have an intent that takes an account object
+        return null;
     }
 
 }

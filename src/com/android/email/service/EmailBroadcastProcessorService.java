@@ -38,7 +38,6 @@ import com.android.email.EmailIntentService;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
-import com.android.email.activity.setup.AccountSettings;
 import com.android.email.provider.AccountReconciler;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.VendorPolicyLoader;
@@ -73,10 +72,6 @@ import java.util.Set;
 public class EmailBroadcastProcessorService extends IntentService {
     // Action used for BroadcastReceiver entry point
     private static final String ACTION_BROADCAST = "broadcast_receiver";
-
-    // Dialing "*#*#36245#*#*" to open the debug screen.   "36245" = "email"
-    private static final String ACTION_SECRET_CODE = "android.provider.Telephony.SECRET_CODE";
-    private static final String SECRET_CODE_HOST_DEBUG_SCREEN = "36245";
 
     // This is a helper used to process DeviceAdminReceiver messages
     private static final String ACTION_DEVICE_POLICY_ADMIN = "com.android.email.devicepolicy";
@@ -133,9 +128,6 @@ public class EmailBroadcastProcessorService extends IntentService {
 
             if (Intent.ACTION_BOOT_COMPLETED.equals(broadcastAction)) {
                 onBootCompleted();
-            } else if (ACTION_SECRET_CODE.equals(broadcastAction)
-                    && SECRET_CODE_HOST_DEBUG_SCREEN.equals(broadcastIntent.getData().getHost())) {
-                AccountSettings.actionSettingsWithDebug(this);
             } else if (AccountManager.LOGIN_ACCOUNTS_CHANGED_ACTION.equals(broadcastAction)) {
                 onSystemAccountChanged();
             } else if (Intent.ACTION_LOCALE_CHANGED.equals(broadcastAction) ||

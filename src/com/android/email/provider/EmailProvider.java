@@ -68,6 +68,7 @@ import com.android.email.R;
 import com.android.email.SecurityPolicy;
 import com.android.email.activity.setup.AccountSettingsFragment;
 import com.android.email.activity.setup.AccountSettingsUtils;
+import com.android.email.activity.setup.HeadlessAccountSettingsLoader;
 import com.android.email.service.AttachmentService;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
@@ -181,9 +182,6 @@ public class EmailProvider extends ContentProvider
         "vnd.android.cursor.item/email-message";
     private static final String EMAIL_ATTACHMENT_MIME_TYPE =
         "vnd.android.cursor.item/email-attachment";
-
-    /** The base of the URI that navigates to the settings page to alter email auth credentials */
-    private static Uri BASE_AUTH_URI;
 
     /** Appended to the notification URI for delete operations */
     private static final String NOTIFICATION_OP_DELETE = "delete";
@@ -1086,9 +1084,6 @@ public class EmailProvider extends ContentProvider
                     Uri.parse("content://" + uiNotificationAuthority + "/uimessage");
             UIPROVIDER_RECENT_FOLDERS_NOTIFIER =
                     Uri.parse("content://" + uiNotificationAuthority + "/uirecentfolders");
-
-            BASE_AUTH_URI = Uri.parse("auth://" + EmailContent.EMAIL_PACKAGE_NAME +
-                    ".INCOMING_SETTINGS/incoming/");
 
             // All accounts
             sURIMatcher.addURI(EmailContent.AUTHORITY, "account", ACCOUNT);
@@ -3311,12 +3306,6 @@ public class EmailProvider extends ContentProvider
                 .appendQueryParameter("account", account).build().toString();
     }
 
-    private static String getExternalUriStringReathentication(long accountId) {
-        final Uri.Builder builder = BASE_AUTH_URI.buildUpon();
-        IntentUtilities.setAccountId(builder, accountId);
-        return builder.build().toString();
-    }
-
     private static String getBits(int bitField) {
         StringBuilder sb = new StringBuilder(" ");
         for (int i = 0; i < 32; i++, bitField >>= 1) {
@@ -3431,7 +3420,8 @@ public class EmailProvider extends ContentProvider
         }
         if (projectionColumns.contains(UIProvider.AccountColumns.REAUTHENTICATION_INTENT_URI)) {
             values.put(UIProvider.AccountColumns.REAUTHENTICATION_INTENT_URI,
-                    getExternalUriStringReathentication(accountId));
+                    HeadlessAccountSettingsLoader.getIncomingSettingsUri(accountId)
+                    .toString());
         }
         if (projectionColumns.contains(UIProvider.AccountColumns.MIME_TYPE)) {
             values.put(UIProvider.AccountColumns.MIME_TYPE, EMAIL_APP_MIME_TYPE);
