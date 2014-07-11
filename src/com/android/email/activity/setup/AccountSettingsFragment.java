@@ -210,6 +210,7 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
         }
     }
 
+    @Override
     public void onSaveInstanceState(Bundle outstate) {
         super.onSaveInstanceState(outstate);
         if (mCheckFrequency != null) {
@@ -459,7 +460,7 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
             }
 
             final com.android.mail.providers.Account uiAccount =
-                    new com.android.mail.providers.Account(uiAccountCursor);
+                    com.android.mail.providers.Account.builder().buildFrom(uiAccountCursor);
 
             map.put(RESULT_KEY_UIACCOUNT, uiAccount);
 
