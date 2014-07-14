@@ -28,7 +28,6 @@ import android.os.RemoteException;
 import com.android.email.NotificationController;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
-import com.android.email.provider.AccountReconciler;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
@@ -53,6 +52,7 @@ import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceStatus;
+import com.android.emailcommon.service.EmailServiceVersion;
 import com.android.emailcommon.service.HostAuthCompat;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
@@ -389,8 +389,8 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
     }
 
     @Override
-    public void deleteAccountPIMData(final String emailAddress) throws RemoteException {
-        AccountReconciler.reconcileAccounts(mContext);
+    public void deleteExternalAccountPIMData(final String emailAddress) throws RemoteException {
+        // No need to do anything here, for IMAP and POP accounts none of our data is external.
     }
 
     @Override
@@ -433,7 +433,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
         final ContentResolver resolver = context.getContentResolver();
         final Cursor c = resolver.query(EmailContent.Message.CONTENT_URI,
                 EmailContent.Message.ID_COLUMN_PROJECTION,
-                MessageColumns.MAILBOX_KEY + "=?", new String[] { Long.toString(outboxId) },
+                MessageColumns.MAILBOX_KEY + "=?", new String[] { Long.toString(outboxId)},
                 null);
         try {
             // 2.  exit early
@@ -515,5 +515,9 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
         } finally {
             c.close();
         }
+    }
+
+    public int getApiVersion() {
+        return EmailServiceVersion.CURRENT;
     }
 }

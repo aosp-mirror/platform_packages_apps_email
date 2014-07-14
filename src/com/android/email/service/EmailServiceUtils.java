@@ -54,6 +54,7 @@ import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.EmailServiceStatus;
+import com.android.emailcommon.service.EmailServiceVersion;
 import com.android.emailcommon.service.HostAuthCompat;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
@@ -681,7 +682,7 @@ public class EmailServiceUtils {
         }
 
         @Override
-        public void deleteAccountPIMData(final String emailAddress) throws RemoteException {
+        public void deleteExternalAccountPIMData(final String emailAddress) throws RemoteException {
         }
 
         @Override
@@ -703,5 +704,8 @@ public class EmailServiceUtils {
             return EmailServiceStatus.SUCCESS;
         }
 
+        public int getApiVersion() {
+            return EmailServiceVersion.CURRENT;
+        }
     }
 }
