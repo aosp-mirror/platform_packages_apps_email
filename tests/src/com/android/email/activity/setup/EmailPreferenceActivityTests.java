@@ -40,7 +40,8 @@ import java.net.URISyntaxException;
  */
 @Suppress
 @MediumTest
-public class AccountSettingsTests extends ActivityInstrumentationTestCase2<AccountSettings> {
+public class EmailPreferenceActivityTests
+        extends ActivityInstrumentationTestCase2<EmailPreferenceActivity> {
 
     private long mAccountId;
     private Account mAccount;
@@ -50,8 +51,8 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
 
     private static final String PREFERENCE_FREQUENCY = "account_check_frequency";
 
-    public AccountSettingsTests() {
-        super(AccountSettings.class);
+    public EmailPreferenceActivityTests() {
+        super(EmailPreferenceActivity.class);
     }
 
     /**
@@ -124,7 +125,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
      * Get the activity (which causes it to be started, using our intent) and get the UI fields
      */
     private void getActivityAndFields() throws Throwable {
-        final AccountSettings theActivity = getActivity();
+        final EmailPreferenceActivity theActivity = getActivity();
 
         runTestOnUiThread(new Runnable() {
             public void run() {
