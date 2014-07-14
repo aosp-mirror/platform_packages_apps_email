@@ -315,7 +315,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:host="com.android.email.INCOMING_SETTINGS" />
+                <data android:host="com.android.email.ACCOUNT_SETTINGS" />
                 <data android:scheme="auth"/>
             </intent-filter>
         </activity>

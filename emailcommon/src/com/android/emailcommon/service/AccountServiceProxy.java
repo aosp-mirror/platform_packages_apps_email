@@ -42,38 +42,6 @@ public class AccountServiceProxy extends ServiceProxy implements IAccountService
         return null;
     }
 
-    @Override
-    public void notifyLoginFailed(final long accountId, final String reason) {
-        setTask(new ProxyTask() {
-            @Override
-            public void run() throws RemoteException {
-                mService.notifyLoginFailed(accountId, reason);
-            }
-        }, "notifyLoginFailed");
-    }
-
-    @Override
-    public void notifyLoginSucceeded(final long accountId) {
-        setTask(new ProxyTask() {
-            @Override
-            public void run() throws RemoteException {
-                mService.notifyLoginSucceeded(accountId);
-            }
-        }, "notifyLoginSucceeded");
-    }
-
-    // The following call is synchronous, and should not be made from the UI thread
-    @Override
-    public void reconcileAccounts(final String protocol, final String accountManagerType) {
-        setTask(new ProxyTask() {
-            @Override
-            public void run() throws RemoteException {
-                mService.reconcileAccounts(protocol, accountManagerType);
-            }
-        }, "reconcileAccounts");
-        waitForCompletion();
-    }
-
     // The following call is synchronous, and should not be made from the UI thread
     @Override
     public int getAccountColor(final long accountId) {
