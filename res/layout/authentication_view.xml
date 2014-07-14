@@ -42,7 +42,7 @@
             android:padding="16dip"
             android:drawablePadding="16dip"
             style="@style/account_setup_label_text"
-            android:drawableStart="@drawable/ic_setup_add_authentication"
+            android:drawableStart="@drawable/ic_settings_add"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="?android:attr/textColorPrimary"/>
     </LinearLayout>
