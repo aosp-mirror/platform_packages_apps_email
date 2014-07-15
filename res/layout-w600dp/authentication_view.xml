@@ -31,7 +31,7 @@
             android:layout_weight="1"
             android:padding="16dip"
             android:drawablePadding="16dip"
-            android:drawableStart="@drawable/ic_setup_add_authentication"
+            android:drawableStart="@drawable/ic_settings_add"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="?android:attr/textColorPrimary"/>
     </LinearLayout>
