@@ -178,6 +178,13 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.account_settings_preferences);
 
+        if (!getResources().getBoolean(R.bool.quickresponse_supported)) {
+            final Preference quickResponsePref = findPreference(PREFERENCE_QUICK_RESPONSES);
+            if (quickResponsePref != null) {
+                getPreferenceScreen().removePreference(quickResponsePref);
+            }
+        }
+
         // Start loading the account data, if provided in the arguments
         // If not, activity must call startLoadingAccount() directly
         Bundle b = getArguments();
@@ -633,7 +640,9 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
         mAccountName = (EditTextPreference) findPreference(PREFERENCE_NAME);
         String senderName = mUiAccount.getSenderName();
         // In rare cases, sendername will be null;  Change this to empty string to avoid NPE's
-        if (senderName == null) senderName = "";
+        if (senderName == null) {
+            senderName = "";
+        }
         mAccountName.setSummary(senderName);
         mAccountName.setText(senderName);
         mAccountName.setOnPreferenceChangeListener(this);
@@ -671,17 +680,20 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
         mCheckFrequency.setSummary(mCheckFrequency.getEntry());
         mCheckFrequency.setOnPreferenceChangeListener(this);
 
-        findPreference(PREFERENCE_QUICK_RESPONSES).setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        onEditQuickResponses(mUiAccount);
-                        return true;
-                    }
-                });
+        final Preference quickResponsePref = findPreference(PREFERENCE_QUICK_RESPONSES);
+        if (quickResponsePref != null) {
+            quickResponsePref.setOnPreferenceClickListener(
+                    new Preference.OnPreferenceClickListener() {
+                        @Override
+                        public boolean onPreferenceClick(Preference preference) {
+                            onEditQuickResponses(mUiAccount);
+                            return true;
+                        }
+                    });
+        }
 
         // Add check window preference
-        PreferenceCategory dataUsageCategory =
+        final PreferenceCategory dataUsageCategory =
                 (PreferenceCategory) findPreference(PREFERENCE_CATEGORY_DATA_USAGE);
 
         if (mServiceInfo.offerLookback) {
@@ -707,7 +719,7 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
             mSyncWindow.setOnPreferenceChangeListener(this);
         }
 
-        PreferenceCategory folderPrefs =
+        final PreferenceCategory folderPrefs =
                 (PreferenceCategory) findPreference(PREFERENCE_SYSTEM_FOLDERS);
         if (folderPrefs != null) {
             if (mServiceInfo.requiresSetup) {
@@ -729,7 +741,7 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
             }
         }
 
-        CheckBoxPreference backgroundAttachments = (CheckBoxPreference)
+        final CheckBoxPreference backgroundAttachments = (CheckBoxPreference)
                 findPreference(PREFERENCE_BACKGROUND_ATTACHMENTS);
         if (backgroundAttachments != null) {
             if (!mServiceInfo.offerAttachmentPreload) {
@@ -842,7 +854,7 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
                 });
 
         // Hide the outgoing account setup link if it's not activated
-        Preference prefOutgoing = findPreference(PREFERENCE_OUTGOING);
+        final Preference prefOutgoing = findPreference(PREFERENCE_OUTGOING);
         if (prefOutgoing != null) {
             if (mServiceInfo.usesSmtp && mAccount.mHostAuthSend != null) {
                 prefOutgoing.setOnPreferenceClickListener(
