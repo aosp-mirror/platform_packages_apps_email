@@ -25,8 +25,9 @@ unified_email_dir := ../UnifiedEmail
 photo_dir := ../../../frameworks/opt/photoviewer/res ../../../frameworks/opt/photoviewer/activity/res
 emailcommon_dir := emailcommon
 gridlayout_dir := ../../../frameworks/support/v7/gridlayout/res
+bitmap_dir := ../../../frameworks/opt/bitmap/res
 datetimepicker_dir := ../../../frameworks/opt/datetimepicker/res
-res_dir := res $(unified_email_dir)/res $(chips_dir) $(photo_dir) $(emailcommon_dir)/res $(gridlayout_dir) $(datetimepicker_dir)
+res_dir := res $(unified_email_dir)/res $(chips_dir) $(photo_dir) $(emailcommon_dir)/res $(gridlayout_dir) $(bitmap_dir) $(datetimepicker_dir)
 
 LOCAL_MODULE_TAGS := optional
 
@@ -41,12 +42,13 @@ LOCAL_RESOURCE_DIR := $(addprefix $(LOCAL_PATH)/, $(res_dir))
 LOCAL_ASSET_DIR := $(LOCAL_PATH)/$(unified_email_dir)/assets
 
 LOCAL_AAPT_FLAGS := --auto-add-overlay
-LOCAL_AAPT_FLAGS += --extra-packages com.android.ex.chips:com.android.mail:com.android.email:com.android.emailcommon:com.android.ex.photo:android.support.v7.gridlayout:com.android.datetimepicker
+LOCAL_AAPT_FLAGS += --extra-packages com.android.ex.chips:com.android.mail:com.android.email:com.android.emailcommon:com.android.ex.photo:android.support.v7.gridlayout:com.android.bitmap:com.android.datetimepicker
 
 LOCAL_STATIC_JAVA_LIBRARIES := android-common com.android.emailcommon guava libchips libphotoviewer
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v7-gridlayout
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v13
+LOCAL_STATIC_JAVA_LIBRARIES += android-opt-bitmap
 LOCAL_STATIC_JAVA_LIBRARIES += android-opt-datetimepicker
 LOCAL_STATIC_JAVA_LIBRARIES += owasp-html-sanitizer
 
