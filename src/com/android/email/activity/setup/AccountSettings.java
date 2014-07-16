@@ -17,41 +17,21 @@
 package com.android.email.activity.setup;
 
 import android.app.ActionBar;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.database.ContentObserver;
-import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
-import android.text.util.Linkify;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 
 import com.android.email.R;
-import com.android.email.provider.EmailProvider;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.utility.IntentUtilities;
-import com.android.emailcommon.utility.Utility;
 import com.android.mail.providers.Folder;
 import com.android.mail.providers.UIProvider.EditSettingsExtras;
 import com.android.mail.ui.settings.MailPreferenceActivity;
-import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.Utils;
-import com.google.common.annotations.VisibleForTesting;
 
 import java.util.List;
 
@@ -60,20 +40,11 @@ import java.util.List;
  *
  * This activity uses the following fragments:
  *   AccountSettingsFragment
- *   Account{Incoming/Outgoing}Fragment
- *   AccountCheckSettingsFragment
  *   GeneralPreferences
  *   DebugFragment
  *
- * TODO: Delete account - on single-pane view (phone UX) the account list doesn't update properly
- * TODO: Handle dynamic changes to the account list (exit if necessary).  It probably makes
- *       sense to use a loader for the accounts list, because it would provide better support for
- *       dealing with accounts being added/deleted and triggering the header reload.
  */
-public class AccountSettings extends MailPreferenceActivity implements
-        SetupDataFragment.SetupDataContainer, SecurityRequiredDialogFragment.Callback,
-        CheckSettingsErrorDialogFragment.Callback, AccountCheckSettingsFragment.Callback,
-        AccountServerBaseFragment.Callback, CheckSettingsProgressDialogFragment.Callback {
+public class AccountSettings extends MailPreferenceActivity {
     /*
      * Intent to open account settings for account=1
         adb shell am start -a android.intent.action.EDIT \
@@ -85,20 +56,13 @@ public class AccountSettings extends MailPreferenceActivity implements
     private static final String EXTRA_LOGIN_WARNING_FOR_ACCOUNT = "AccountSettings.for_account";
     private static final String EXTRA_LOGIN_WARNING_REASON_FOR_ACCOUNT =
             "AccountSettings.for_account_reason";
-    private static final String EXTRA_TITLE = "AccountSettings.title";
     // STOPSHIP: Do not ship with the debug menu allowed.
     private static final boolean DEBUG_MENU_ALLOWED = false;
     public static final String EXTRA_NO_ACCOUNTS = "AccountSettings.no_account";
-    public static final String EXTRA_ACCOUNT = "AccountSettings.account";
 
     // Intent extras for launch directly from system account manager
     // NOTE: This string must match the one in res/xml/account_preferences.xml
     private static String INTENT_ACCOUNT_MANAGER_ENTRY;
-    // NOTE: This constant should eventually be defined in android.accounts.Constants
-    private static final String EXTRA_ACCOUNT_MANAGER_ACCOUNT = "account";
-
-    // Key for arguments bundle for QuickResponse editing
-    private static final String QUICK_RESPONSE_ACCOUNT_KEY = "account";
 
     // Key codes used to open a debug settings fragment.
     private static final int[] SECRET_KEY_CODES = {
@@ -107,34 +71,12 @@ public class AccountSettings extends MailPreferenceActivity implements
             };
     private int mSecretKeyCodeIndex = 0;
 
-    // Support for account-by-name lookup
-    private static final String SELECTION_ACCOUNT_EMAIL_ADDRESS =
-        AccountColumns.EMAIL_ADDRESS + "=?";
-
     // When the user taps "Email Preferences" 10 times in a row, we'll enable the debug settings.
     private int mNumGeneralHeaderClicked = 0;
 
-    private long mRequestedAccountId;
-    private Header[] mAccountListHeaders;
-    private Header mAppPreferencesHeader;
-    private AccountSettingsFragment mAccountSettingsFragment;
-    private AccountServerBaseFragment mAccountServerFragment;
-    private long mDeletingAccountId = -1;
     private boolean mShowDebugMenu;
-    private List<Header> mGeneratedHeaders;
     private Uri mFeedbackUri;
     private MenuItem mFeedbackMenuItem;
-
-    private SetupDataFragment mSetupData;
-
-    // Async Tasks
-    private LoadAccountListTask mLoadAccountListTask;
-    private GetAccountIdFromAccountTask mGetAccountIdFromAccountTask;
-    private ContentObserver mAccountObserver;
-
-    // Specific callbacks used by settings fragments
-    private final AccountSettingsFragmentCallback mAccountSettingsFragmentCallback
-            = new AccountSettingsFragmentCallback();
 
     /**
      * Create and return an intent to display (and edit) settings for a specific account, or -1
@@ -169,7 +111,7 @@ public class AccountSettings extends MailPreferenceActivity implements
         modIntent.putExtra(
                 EXTRA_SHOW_FRAGMENT_ARGUMENTS,
                 AccountSettingsFragment.buildArguments(
-                        accountId, IntentUtilities.getAccountNameFromIntent(intent)));
+                        IntentUtilities.getAccountNameFromIntent(intent)));
         modIntent.putExtra(EXTRA_NO_HEADERS, true);
         return modIntent;
     }
@@ -198,10 +140,12 @@ public class AccountSettings extends MailPreferenceActivity implements
                 INTENT_ACCOUNT_MANAGER_ENTRY = getString(R.string.intent_account_manager_entry);
             }
             if (INTENT_ACCOUNT_MANAGER_ENTRY.equals(i.getAction())) {
-                // This case occurs if we're changing account settings from Settings -> Accounts
-                mGetAccountIdFromAccountTask =
-                        (GetAccountIdFromAccountTask) new GetAccountIdFromAccountTask()
-                        .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, i);
+                // This case occurs if we're changing account settings from Settings -> Accounts.
+                // We get an account object in the intent, but it's not actually useful to us since
+                // it's always just the first account of that type. The user can't specify which
+                // account they wish to view from within the settings UI, so just dump them at the
+                // main screen.
+                // android.accounts.Account acct = i.getParcelableExtra("account");
             } else if (i.hasExtra(EditSettingsExtras.EXTRA_FOLDER)) {
                 launchMailboxSettings(i);
                 return;
@@ -210,73 +154,26 @@ public class AccountSettings extends MailPreferenceActivity implements
                 startActivity(setupIntent);
                 finish();
                 return;
-            } else if (i.hasExtra(EXTRA_ACCOUNT)) {
-                final Account account = i.getParcelableExtra(EXTRA_ACCOUNT);
-                mSetupData = new SetupDataFragment(SetupDataFragment.FLOW_MODE_EDIT, account);
             } else {
                 // Otherwise, we're called from within the Email app and look for our extras
-                mRequestedAccountId = IntentUtilities.getAccountIdFromIntent(i);
-                String loginWarningAccount = i.getStringExtra(EXTRA_LOGIN_WARNING_FOR_ACCOUNT);
-                String loginWarningReason =
-                        i.getStringExtra(EXTRA_LOGIN_WARNING_REASON_FOR_ACCOUNT);
-                if (loginWarningAccount != null) {
-                    // Show dialog (first time only - don't re-show on a rotation)
-                    LoginWarningDialog dialog =
-                            LoginWarningDialog.newInstance(loginWarningAccount, loginWarningReason);
-                    dialog.show(getFragmentManager(), "loginwarning");
+                final long accountId = IntentUtilities.getAccountIdFromIntent(i);
+                if (accountId != -1) {
+                    String loginWarningAccount = i.getStringExtra(EXTRA_LOGIN_WARNING_FOR_ACCOUNT);
+                    String loginWarningReason =
+                            i.getStringExtra(EXTRA_LOGIN_WARNING_REASON_FOR_ACCOUNT);
+                    final Bundle args = AccountSettingsFragment.buildArguments(accountId,
+                            loginWarningAccount, loginWarningReason);
+                    startPreferencePanel(AccountSettingsFragment.class.getName(), args,
+                            0, null, null, 0);
                 }
             }
-        } else {
-            mSetupData = savedInstanceState.getParcelable(SetupDataFragment.EXTRA_SETUP_DATA);
         }
         mShowDebugMenu = i.getBooleanExtra(EXTRA_ENABLE_DEBUG, false);
-
-        final String title = i.getStringExtra(EXTRA_TITLE);
-        if (title != null) {
-            setTitle(title);
-        }
 
         getActionBar().setDisplayOptions(
                 ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
 
-        mAccountObserver = new ContentObserver(Utility.getMainThreadHandler()) {
-            @Override
-            public void onChange(boolean selfChange) {
-                updateAccounts();
-            }
-        };
-
         mFeedbackUri = Utils.getValidUri(getString(R.string.email_feedback_uri));
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(
-                outState);
-        // TODO: use the fragment manager to persist this
-        outState.putParcelable(SetupDataFragment.EXTRA_SETUP_DATA, mSetupData);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        getContentResolver().registerContentObserver(Account.NOTIFIER_URI, true, mAccountObserver);
-        updateAccounts();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        getContentResolver().unregisterContentObserver(mAccountObserver);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Utility.cancelTaskInterrupt(mLoadAccountListTask);
-        mLoadAccountListTask = null;
-        Utility.cancelTaskInterrupt(mGetAccountIdFromAccountTask);
-        mGetAccountIdFromAccountTask = null;
     }
 
     /**
@@ -339,55 +236,10 @@ public class AccountSettings extends MailPreferenceActivity implements
         return true;
     }
 
+    @Override
     public boolean isValidFragment(String fragmentName) {
-        // We need to make sure that a fragment about to be attached is valid. This corrects
-        // a security vulnerability.
-        return (TextUtils.equals(AccountSettingsFragment.class.getName(), fragmentName) ||
-                TextUtils.equals(GeneralPreferences.class.getName(), fragmentName) ||
-                TextUtils.equals(AccountSetupIncomingFragment.class.getName(), fragmentName) ||
-                TextUtils.equals(AccountSettingsEditQuickResponsesFragment.class.getName(),
-                        fragmentName) ||
-                TextUtils.equals(DebugFragment.class.getName(), fragmentName) ||
-                super.isValidFragment(fragmentName));
-    }
-
-    @Override
-    public Intent onBuildStartFragmentIntent(String fragmentName, Bundle args,
-            int titleRes, int shortTitleRes) {
-        final Intent intent = super.onBuildStartFragmentIntent(
-                fragmentName, args, titleRes, shortTitleRes);
-
-        // When opening a sub-settings page (e.g. account specific page), see if we want to modify
-        // the activity title.
-        String title = AccountSettingsFragment.getTitleFromArgs(args);
-        if ((titleRes == 0) && (title != null)) {
-            intent.putExtra(EXTRA_TITLE, title);
-        }
-        return intent;
-    }
-
-    /**
-     * Any time we exit via this pathway, and we are showing a server settings fragment,
-     * we put up the exit-save-changes dialog.  This will work for the following cases:
-     *   Cancel button
-     *   Back button
-     *   Up arrow in application icon
-     * It will *not* apply in the following cases:
-     *   Click the parent breadcrumb - need to find a hook for this
-     *   Click in the header list (e.g. another account) - handled elsewhere
-     */
-    @Override
-    public void onBackPressed() {
-        final AccountServerBaseFragment accountServerFragment = getAccountServerFragment();
-        if (accountServerFragment != null) {
-            if (accountServerFragment.haveSettingsChanged()) {
-                UnsavedChangesDialogFragment dialogFragment =
-                        UnsavedChangesDialogFragment.newInstanceForBack();
-                dialogFragment.show(getFragmentManager(), UnsavedChangesDialogFragment.TAG);
-                return; // Prevent "back" from being handled
-            }
-        }
-        super.onBackPressed();
+        // This activity is not exported, so we can allow any fragment
+        return true;
     }
 
 
@@ -415,46 +267,9 @@ public class AccountSettings extends MailPreferenceActivity implements
         startActivity(setupIntent);
     }
 
-    /**
-     * Start the async reload of the accounts list (if the headers are being displayed)
-     */
-    private void updateAccounts() {
-        if (hasHeaders()) {
-            Utility.cancelTaskInterrupt(mLoadAccountListTask);
-            mLoadAccountListTask = (LoadAccountListTask)
-                    new LoadAccountListTask().executeOnExecutor(
-                            AsyncTask.THREAD_POOL_EXECUTOR, mDeletingAccountId);
-        }
-    }
-
-    /**
-     * Write the current header (accounts) array into the one provided by the PreferenceActivity.
-     * Skip any headers that match mDeletingAccountId (this is a quick-hide algorithm while a
-     * background thread works on deleting the account).  Also sets mRequestedAccountHeader if
-     * we find the requested account (by id).
-     */
     @Override
-    public void onBuildHeaders(List<Header> target) {
-        // Always add app preferences as first header
-        target.clear();
-        target.add(getAppPreferencesHeader());
-
-        // Then add zero or more account headers as necessary
-        if (mAccountListHeaders != null) {
-            final int headerCount = mAccountListHeaders.length;
-            for (int index = 0; index < headerCount; index++) {
-                Header header = mAccountListHeaders[index];
-                if (header != null && header.id != HEADER_ID_UNDEFINED) {
-                    if (header.id != mDeletingAccountId) {
-                        target.add(header);
-                        if (header.id == mRequestedAccountId) {
-                            mRequestedAccountId = -1;
-                        }
-                    }
-                }
-            }
-        }
-
+    public void onBuildExtraHeaders(List<Header> target) {
+        super.onBuildExtraHeaders(target);
         // finally, if debug header is enabled, show it
         if (DEBUG_MENU_ALLOWED) {
             if (mShowDebugMenu) {
@@ -468,92 +283,6 @@ public class AccountSettings extends MailPreferenceActivity implements
                 target.add(debugHeader);
             }
         }
-
-        // Save for later use (see forceSwitch)
-        mGeneratedHeaders = target;
-    }
-
-    /**
-     * Generate and return the first header, for app preferences
-     */
-    private Header getAppPreferencesHeader() {
-        // Set up fixed header for general settings
-        if (mAppPreferencesHeader == null) {
-            mAppPreferencesHeader = new Header();
-            mAppPreferencesHeader.title = getText(R.string.header_label_general_preferences);
-            mAppPreferencesHeader.summary = null;
-            mAppPreferencesHeader.iconRes = 0;
-            mAppPreferencesHeader.fragment = GeneralPreferences.class.getName();
-            mAppPreferencesHeader.fragmentArguments = null;
-        }
-        return mAppPreferencesHeader;
-    }
-
-    /**
-     * This AsyncTask reads the accounts list and generates the headers.  When the headers are
-     * ready, we'll trigger PreferenceActivity to refresh the account list with them.
-     *
-     * The array generated and stored in mAccountListHeaders may be sparse so any readers should
-     * check for and skip over null entries, and should not assume array length is # of accounts.
-     *
-     * TODO: Smaller projection
-     * TODO: Convert to Loader
-     * TODO: Write a test, including operation of deletingAccountId param
-     */
-    private class LoadAccountListTask extends AsyncTask<Long, Void, Object[]> {
-
-        @Override
-        protected Object[] doInBackground(Long... params) {
-            Header[] result = null;
-            Boolean deletingAccountFound = false;
-            final long deletingAccountId = params[0];
-
-            Cursor c = getContentResolver().query(
-                    Account.CONTENT_URI,
-                    Account.CONTENT_PROJECTION, null, null, null);
-            try {
-                int index = 0;
-                result = new Header[c.getCount()];
-
-                while (c.moveToNext()) {
-                    final long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
-                    if (accountId == deletingAccountId) {
-                        deletingAccountFound = true;
-                        continue;
-                    }
-                    final String name = c.getString(Account.CONTENT_DISPLAY_NAME_COLUMN);
-                    final String email = c.getString(Account.CONTENT_EMAIL_ADDRESS_COLUMN);
-                    final Header newHeader = new Header();
-                    newHeader.id = accountId;
-                    newHeader.title = name;
-                    newHeader.summary = email;
-                    newHeader.fragment = AccountSettingsFragment.class.getCanonicalName();
-                    newHeader.fragmentArguments =
-                            AccountSettingsFragment.buildArguments(accountId, email);
-
-                    result[index++] = newHeader;
-                }
-            } finally {
-                if (c != null) {
-                    c.close();
-                }
-            }
-            return new Object[] { result, deletingAccountFound };
-        }
-
-        @Override
-        protected void onPostExecute(Object[] result) {
-            if (isCancelled() || result == null) return;
-            // Extract the results
-            final Header[] headers = (Header[]) result[0];
-            final boolean deletingAccountFound = (Boolean) result[1];
-            // report the settings
-            mAccountListHeaders = headers;
-            invalidateHeaders();
-            if (!deletingAccountFound) {
-                mDeletingAccountId = -1;
-            }
-        }
     }
 
     /**
@@ -564,15 +293,6 @@ public class AccountSettings extends MailPreferenceActivity implements
      */
     @Override
     public void onHeaderClick(Header header, int position) {
-        // special case when exiting the server settings fragments
-        final AccountServerBaseFragment accountServerFragment = getAccountServerFragment();
-        if ((accountServerFragment != null) && accountServerFragment.haveSettingsChanged()) {
-            UnsavedChangesDialogFragment dialogFragment =
-                UnsavedChangesDialogFragment.newInstanceForHeader(position);
-            dialogFragment.show(getFragmentManager(), UnsavedChangesDialogFragment.TAG);
-            return;
-        }
-
         // Secret keys:  Click 10x to enable debug settings
         if (position == 0) {
             mNumGeneralHeaderClicked++;
@@ -587,424 +307,10 @@ public class AccountSettings extends MailPreferenceActivity implements
         super.onHeaderClick(header, position);
     }
 
-    /**
-     * Switch to a specific header without checking for server settings fragments as done
-     * in {@link #onHeaderClick(Header, int)}.  Called after we interrupted a header switch
-     * with a dialog, and the user OK'd it.
-     */
-    private void forceSwitchHeader(int position) {
-        // Ensure the UI visually shows the correct header selected
-        setSelection(position);
-        switchToHeader(mGeneratedHeaders.get(position));
-    }
-
-    /**
-     * Forcefully go backward in the stack. This may potentially discard unsaved settings.
-     */
-    private void forceBack() {
-        super.onBackPressed();
-    }
-
     @Override
     public void onAttachFragment(Fragment f) {
         super.onAttachFragment(f);
-
-        if (f instanceof AccountSettingsFragment) {
-            final AccountSettingsFragment asf = (AccountSettingsFragment) f;
-            mAccountSettingsFragment = asf;
-            asf.setCallback(mAccountSettingsFragmentCallback);
-        } else if (f instanceof AccountServerBaseFragment) {
-            mAccountServerFragment = (AccountServerBaseFragment) f;
-        } else {
-            // Possibly uninteresting fragment, such as a dialog.
-            return;
-        }
         // When we're changing fragments, enable/disable the add account button
         invalidateOptionsMenu();
-    }
-
-    @VisibleForTesting
-    protected AccountSettingsFragment getSettingsFragment() {
-        return mAccountSettingsFragment != null && mAccountSettingsFragment.isAdded() ?
-                mAccountSettingsFragment : null;
-    }
-
-    protected AccountServerBaseFragment getAccountServerFragment() {
-        return mAccountServerFragment != null && mAccountServerFragment.isAdded() ?
-                mAccountServerFragment : null;
-    }
-
-    /**
-     * Callbacks for AccountSettingsFragment
-     */
-    private class AccountSettingsFragmentCallback implements AccountSettingsFragment.Callback {
-        @Override
-        public void onSettingsChanged(long accountId, String preference, Object value) {
-            AccountSettings.this.onSettingsChanged(accountId, preference, value);
-        }
-        @Override
-        public void onEditQuickResponses(com.android.mail.providers.Account account) {
-            AccountSettings.this.onEditQuickResponses(account);
-        }
-        @Override
-        public void onIncomingSettings(Account account) {
-            AccountSettings.this.onIncomingSettings(account);
-        }
-        @Override
-        public void onOutgoingSettings(Account account) {
-            AccountSettings.this.onOutgoingSettings(account);
-        }
-        @Override
-        public void abandonEdit() {
-            finish();
-        }
-    }
-
-    @Override
-    public void onNextButton() {}
-
-    /**
-     * Save process is done, dismiss the fragment.
-     */
-    @Override
-    public void onAccountServerSaveComplete() {
-        super.onBackPressed();
-    }
-
-    @Override
-    public void onAccountServerUIComplete(int checkMode) {
-        Fragment checkerDialog = CheckSettingsProgressDialogFragment.newInstance(checkMode);
-        Fragment checkerFragment = AccountCheckSettingsFragment.newInstance(checkMode);
-        getFragmentManager().beginTransaction()
-                .add(checkerDialog, CheckSettingsProgressDialogFragment.TAG)
-                .add(checkerFragment, AccountCheckSettingsFragment.TAG)
-                .commit();
-    }
-
-    @Override
-    public void onCheckSettingsProgressDialogCancel() {
-        dismissCheckSettingsFragment();
-    }
-
-    /**
-     * After verifying a new server configuration as OK, we return here and continue. This kicks
-     * off the save process.
-     */
-    @Override
-    public void onCheckSettingsComplete() {
-        dismissCheckSettingsFragment();
-        final AccountServerBaseFragment f = getAccountServerFragment();
-        if (f != null) {
-            f.saveSettings();
-        }
-    }
-
-    @Override
-    public void onCheckSettingsSecurityRequired(String hostName) {
-        dismissCheckSettingsFragment();
-        SecurityRequiredDialogFragment.newInstance(hostName)
-                .show(getFragmentManager(), SecurityRequiredDialogFragment.TAG);
-    }
-
-    @Override
-    public void onCheckSettingsError(int reason, String message) {
-        dismissCheckSettingsFragment();
-        CheckSettingsErrorDialogFragment.newInstance(reason, message)
-                .show(getFragmentManager(), CheckSettingsErrorDialogFragment.TAG);
-    }
-
-    @Override
-    public void onCheckSettingsAutoDiscoverComplete(int result) {
-        throw new IllegalStateException();
-    }
-
-    private void dismissCheckSettingsFragment() {
-        final Fragment f =
-                getFragmentManager().findFragmentByTag(AccountCheckSettingsFragment.TAG);
-        final Fragment d =
-                getFragmentManager().findFragmentByTag(CheckSettingsProgressDialogFragment.TAG);
-        getFragmentManager().beginTransaction()
-                .remove(f)
-                .remove(d)
-                .commit();
-    }
-
-    @Override
-    public void onSecurityRequiredDialogResult(boolean ok) {
-        if (ok) {
-            final AccountServerBaseFragment f = getAccountServerFragment();
-            if (f != null) {
-                f.saveSettings();
-            }
-        }
-        // else just stay here
-    }
-
-    @Override
-    public void onCheckSettingsErrorDialogEditSettings() {
-        // Just stay here
-    }
-
-    @Override
-    public void onCheckSettingsErrorDialogEditCertificate() {
-        final AccountServerBaseFragment f = getAccountServerFragment();
-        if (f instanceof AccountSetupIncomingFragment) {
-            AccountSetupIncomingFragment asif = (AccountSetupIncomingFragment) f;
-            asif.onCertificateRequested();
-        } else {
-            LogUtils.wtf(LogUtils.TAG, "Tried to change cert on non-incoming screen?");
-        }
-    }
-
-    /**
-     * Some of the settings have changed. Update internal state as necessary.
-     */
-    public void onSettingsChanged(long accountId, String preference, Object value) {
-        if (AccountSettingsFragment.PREFERENCE_DESCRIPTION.equals(preference)) {
-            for (Header header : mAccountListHeaders) {
-                if (header.id == accountId) {
-                    // Manually tweak the header title. We cannot rebuild the header list from
-                    // an account cursor as the account database has not been saved yet.
-                    header.title = value.toString();
-                    invalidateHeaders();
-                    break;
-                }
-            }
-        }
-    }
-
-    /**
-     * Dispatch to edit quick responses.
-     */
-    public void onEditQuickResponses(com.android.mail.providers.Account account) {
-        try {
-            final Bundle args = new Bundle(1);
-            args.putParcelable(QUICK_RESPONSE_ACCOUNT_KEY, account);
-            startPreferencePanel(AccountSettingsEditQuickResponsesFragment.class.getName(), args,
-                    R.string.account_settings_edit_quick_responses_label, null, null, 0);
-        } catch (Exception e) {
-            LogUtils.d(Logging.LOG_TAG, "Error while trying to invoke edit quick responses.", e);
-        }
-    }
-
-    /**
-     * Dispatch to edit incoming settings.
-     */
-    public void onIncomingSettings(Account account) {
-        try {
-            mSetupData = new SetupDataFragment(SetupDataFragment.FLOW_MODE_EDIT, account);
-            final Fragment f = AccountSetupIncomingFragment.newInstance(true);
-            // Use startPreferenceFragment here because we need to keep this activity instance
-            startPreferenceFragment(f, true);
-        } catch (Exception e) {
-            LogUtils.d(Logging.LOG_TAG, "Error while trying to invoke store settings.", e);
-        }
-    }
-
-    /**
-     * Dispatch to edit outgoing settings.
-     */
-    public void onOutgoingSettings(Account account) {
-        try {
-            mSetupData = new SetupDataFragment(SetupDataFragment.FLOW_MODE_EDIT, account);
-            final Fragment f = AccountSetupOutgoingFragment.newInstance(true);
-            // Use startPreferenceFragment here because we need to keep this activity instance
-            startPreferenceFragment(f, true);
-        } catch (Exception e) {
-            LogUtils.d(Logging.LOG_TAG, "Error while trying to invoke sender settings.", e);
-        }
-    }
-
-    /**
-     * Delete the selected account
-     */
-    public void deleteAccount(final Account account) {
-        // Kick off the work to actually delete the account
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final Uri uri = EmailProvider.uiUri("uiaccount", account.mId);
-                getContentResolver().delete(uri, null, null);
-            }}).start();
-
-        // TODO: Remove ui glue for unified
-        // Then update the UI as appropriate:
-        // If single pane, return to the header list.  If multi, rebuild header list
-        if (onIsMultiPane()) {
-            final Header prefsHeader = getAppPreferencesHeader();
-            this.switchToHeader(prefsHeader.fragment, prefsHeader.fragmentArguments);
-            mDeletingAccountId = account.mId;
-            updateAccounts();
-        } else {
-            // We should only be calling this while showing AccountSettingsFragment,
-            // so a finish() should bring us back to headers.  No point hiding the deleted account.
-            finish();
-        }
-    }
-
-    /**
-     * This AsyncTask looks up an account based on its email address (which is what we get from
-     * the Account Manager).  When the account id is determined, we refresh the header list,
-     * which will select the preferences for that account.
-     */
-    private class GetAccountIdFromAccountTask extends AsyncTask<Intent, Void, Long> {
-
-        @Override
-        protected Long doInBackground(Intent... params) {
-            final Intent intent = params[0];
-            android.accounts.Account acct =
-                intent.getParcelableExtra(EXTRA_ACCOUNT_MANAGER_ACCOUNT);
-            return Utility.getFirstRowLong(AccountSettings.this, Account.CONTENT_URI,
-                    Account.ID_PROJECTION, SELECTION_ACCOUNT_EMAIL_ADDRESS,
-                    new String[] {acct.name}, null, Account.ID_PROJECTION_COLUMN, -1L);
-        }
-
-        @Override
-        protected void onPostExecute(Long accountId) {
-            if (accountId != -1 && !isCancelled()) {
-                mRequestedAccountId = accountId;
-                invalidateHeaders();
-            }
-        }
-    }
-
-    /**
-     * Dialog fragment to show "exit with unsaved changes?" dialog
-     */
-    public static class UnsavedChangesDialogFragment extends DialogFragment {
-        final static String TAG = "UnsavedChangesDialogFragment";
-
-        // Argument bundle keys
-        private final static String BUNDLE_KEY_HEADER = "UnsavedChangesDialogFragment.Header";
-        private final static String BUNDLE_KEY_BACK = "UnsavedChangesDialogFragment.Back";
-
-        /**
-         * Creates a save changes dialog when the user selects a new header
-         * @param position The new header index to make active if the user accepts the dialog. This
-         * must be a valid header index although there is no error checking.
-         */
-        public static UnsavedChangesDialogFragment newInstanceForHeader(int position) {
-            final UnsavedChangesDialogFragment f = new UnsavedChangesDialogFragment();
-            final Bundle b = new Bundle(1);
-            b.putInt(BUNDLE_KEY_HEADER, position);
-            f.setArguments(b);
-            return f;
-        }
-
-        /**
-         * Creates a save changes dialog when the user navigates "back".
-         * {@link #onBackPressed()} defines in which case this may be triggered.
-         */
-        public static UnsavedChangesDialogFragment newInstanceForBack() {
-            final UnsavedChangesDialogFragment f = new UnsavedChangesDialogFragment();
-            final Bundle b = new Bundle(1);
-            b.putBoolean(BUNDLE_KEY_BACK, true);
-            f.setArguments(b);
-            return f;
-        }
-
-        // Force usage of newInstance()
-        public UnsavedChangesDialogFragment() {}
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final AccountSettings activity = (AccountSettings) getActivity();
-            final int position = getArguments().getInt(BUNDLE_KEY_HEADER);
-            final boolean isBack = getArguments().getBoolean(BUNDLE_KEY_BACK);
-
-            return new AlertDialog.Builder(activity)
-                .setIconAttribute(android.R.attr.alertDialogIcon)
-                .setTitle(android.R.string.dialog_alert_title)
-                .setMessage(R.string.account_settings_exit_server_settings)
-                .setPositiveButton(
-                        android.R.string.ok,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (isBack) {
-                                    activity.forceBack();
-                                } else {
-                                    activity.forceSwitchHeader(position);
-                                }
-                                dismiss();
-                            }
-                        })
-                .setNegativeButton(
-                        activity.getString(android.R.string.cancel), null)
-                .create();
-        }
-    }
-
-    /**
-     * Dialog briefly shown in some cases, to indicate the user that login failed.  If the user
-     * clicks OK, we simply dismiss the dialog, leaving the user in the account settings for
-     * that account;  If the user clicks "cancel", we exit account settings.
-     */
-    public static class LoginWarningDialog extends DialogFragment
-            implements DialogInterface.OnClickListener {
-        private static final String BUNDLE_KEY_ACCOUNT_NAME = "account_name";
-        private String mReason;
-
-        // Public no-args constructor needed for fragment re-instantiation
-        public LoginWarningDialog() {}
-
-        /**
-         * Create a new dialog.
-         */
-        public static LoginWarningDialog newInstance(String accountName, String reason) {
-            final LoginWarningDialog dialog = new LoginWarningDialog();
-            final Bundle b = new Bundle(1);
-            b.putString(BUNDLE_KEY_ACCOUNT_NAME, accountName);
-            dialog.setArguments(b);
-            dialog.mReason = reason;
-            return dialog;
-        }
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final String accountName = getArguments().getString(BUNDLE_KEY_ACCOUNT_NAME);
-
-            final Context context = getActivity();
-            final Resources res = context.getResources();
-            final AlertDialog.Builder b = new AlertDialog.Builder(context);
-            b.setTitle(R.string.account_settings_login_dialog_title);
-            b.setIconAttribute(android.R.attr.alertDialogIcon);
-            if (mReason != null) {
-                final TextView message = new TextView(context);
-                final String alert = res.getString(
-                        R.string.account_settings_login_dialog_reason_fmt, accountName, mReason);
-                SpannableString spannableAlertString = new SpannableString(alert);
-                Linkify.addLinks(spannableAlertString, Linkify.WEB_URLS);
-                message.setText(spannableAlertString);
-                // There must be a better way than specifying size/padding this way
-                // It does work and look right, though
-                final int textSize = res.getDimensionPixelSize(R.dimen.dialog_text_size);
-                message.setTextSize(textSize);
-                final int paddingLeft = res.getDimensionPixelSize(R.dimen.dialog_padding_left);
-                final int paddingOther = res.getDimensionPixelSize(R.dimen.dialog_padding_other);
-                message.setPadding(paddingLeft, paddingOther, paddingOther, paddingOther);
-                message.setMovementMethod(LinkMovementMethod.getInstance());
-                b.setView(message);
-            } else {
-                b.setMessage(res.getString(R.string.account_settings_login_dialog_content_fmt,
-                        accountName));
-            }
-            b.setPositiveButton(android.R.string.ok, this);
-            b.setNegativeButton(android.R.string.cancel, this);
-            return b.create();
-        }
-
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            dismiss();
-            if (which == DialogInterface.BUTTON_NEGATIVE) {
-                getActivity().finish();
-            }
-        }
-    }
-
-    @Override
-    public SetupDataFragment getSetupData() {
-        return mSetupData;
     }
 }

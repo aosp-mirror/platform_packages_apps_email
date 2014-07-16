@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
 
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.utility.IntentUtilities;
@@ -46,21 +45,9 @@ public class HeadlessAccountSettingsLoader extends Activity {
 
         protected void onPostExecute(Account result) {
             // create an Intent to view a new activity
-            final Intent intent = new Intent(Intent.ACTION_VIEW);
+            final Intent intent =
+                    AccountServerSettingsActivity.getIntentForIncoming(mContext, result);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-            // we are navigating explicitly to the AccountSettings activity
-            intent.setClass(mContext, AccountSettings.class);
-
-            // place the account in the intent as an extra
-            intent.putExtra(AccountSettings.EXTRA_ACCOUNT, result);
-
-            // these extras show the "incoming fragment" in the AccountSettings activity by default
-            intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT,
-                    AccountSetupIncomingFragment.class.getCanonicalName());
-            intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT_ARGUMENTS,
-                    AccountSetupIncomingFragment.getArgs(true));
-            intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
 
             mContext.startActivity(intent);
 

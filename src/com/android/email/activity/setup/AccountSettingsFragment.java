@@ -17,8 +17,16 @@
 package com.android.email.activity.setup;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.LoaderManager;
-import android.content.*;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.Loader;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.media.Ringtone;
@@ -30,15 +38,19 @@ import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceFragment;
 import android.provider.CalendarContract;
 import android.provider.ContactsContract;
 import android.provider.Settings;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.widget.TextView;
 
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
@@ -47,9 +59,9 @@ import com.android.email.provider.FolderPickerActivity;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email2.ui.MailActivityEmail;
-import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.Policy;
 import com.android.mail.preferences.AccountPreferences;
@@ -57,7 +69,9 @@ import com.android.mail.preferences.FolderPreferences;
 import com.android.mail.providers.Folder;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.ui.MailAsyncTaskLoader;
+import com.android.mail.ui.settings.MailAccountPrefsFragment;
 import com.android.mail.ui.settings.SettingsUtils;
+import com.android.mail.utils.ContentProviderTask.UpdateTask;
 import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.NotificationUtils;
 
@@ -72,18 +86,23 @@ import java.util.Map;
  * TODO: Can we defer calling addPreferencesFromResource() until after we load the account?  This
  *       could reduce flicker.
  */
-public class AccountSettingsFragment extends PreferenceFragment
+public class AccountSettingsFragment extends MailAccountPrefsFragment
         implements Preference.OnPreferenceChangeListener {
 
-    // Keys used for arguments bundle
-    private static final String BUNDLE_KEY_ACCOUNT_ID = "AccountSettingsFragment.AccountId";
-    private static final String BUNDLE_KEY_ACCOUNT_EMAIL = "AccountSettingsFragment.Email";
+    private static final String ARG_ACCOUNT_ID = "account_id";
+    private static final String ARG_LOGIN_WARNING_FOR_ACCOUNT = "warning_for_account";
+    private static final String ARG_LOGIN_WARNING_REASON_FOR_ACCOUNT = "warning_for_account_reason";
+
 
     public static final String PREFERENCE_DESCRIPTION = "account_description";
     private static final String PREFERENCE_NAME = "account_name";
     private static final String PREFERENCE_SIGNATURE = "account_signature";
     private static final String PREFERENCE_QUICK_RESPONSES = "account_quick_responses";
     private static final String PREFERENCE_FREQUENCY = "account_check_frequency";
+    private static final String PREFERENCE_SYNC_WINDOW = "account_sync_window";
+    private static final String PREFERENCE_SYNC_EMAIL = "account_sync_email";
+    private static final String PREFERENCE_SYNC_CONTACTS = "account_sync_contacts";
+    private static final String PREFERENCE_SYNC_CALENDAR = "account_sync_calendar";
     private static final String PREFERENCE_BACKGROUND_ATTACHMENTS =
             "account_background_attachments";
     private static final String PREFERENCE_CATEGORY_DATA_USAGE = "data_usage";
@@ -97,9 +116,6 @@ public class AccountSettingsFragment extends PreferenceFragment
     private static final String PREFERENCE_POLICIES_RETRY_ACCOUNT = "policies_retry_account";
     private static final String PREFERENCE_INCOMING = "incoming";
     private static final String PREFERENCE_OUTGOING = "outgoing";
-    private static final String PREFERENCE_SYNC_CONTACTS = "account_sync_contacts";
-    private static final String PREFERENCE_SYNC_CALENDAR = "account_sync_calendar";
-    private static final String PREFERENCE_SYNC_EMAIL = "account_sync_email";
 
     private static final String PREFERENCE_SYSTEM_FOLDERS = "system_folders";
     private static final String PREFERENCE_SYSTEM_FOLDERS_TRASH = "system_folders_trash";
@@ -116,19 +132,14 @@ public class AccountSettingsFragment extends PreferenceFragment
     private EditTextPreference mAccountSignature;
     private ListPreference mCheckFrequency;
     private ListPreference mSyncWindow;
-    private CheckBoxPreference mAccountBackgroundAttachments;
     private CheckBoxPreference mInboxVibrate;
     private Preference mInboxRingtone;
-    private CheckBoxPreference mSyncContacts;
-    private CheckBoxPreference mSyncCalendar;
-    private CheckBoxPreference mSyncEmail;
 
     private Context mContext;
 
     private Account mAccount;
     private com.android.mail.providers.Account mUiAccount;
-    private Callback mCallback = EmptyCallback.INSTANCE;
-    private boolean mSaveOnExit;
+    private EmailServiceInfo mServiceInfo;
 
     private Ringtone mRingtone;
 
@@ -138,41 +149,29 @@ public class AccountSettingsFragment extends PreferenceFragment
      */
     private FolderPreferences mInboxFolderPreferences;
 
-    // The ID of the account being edited
-    private long mAccountId;
+    // The email of the account being edited
+    private String mAccountEmail;
 
     /**
-     * Callback interface that owning activities must provide
+     * If launching with an email address, use this method to build the arguments.
      */
-    public interface Callback {
-        public void onSettingsChanged(long accountId, String preference, Object value);
-        public void onEditQuickResponses(com.android.mail.providers.Account account);
-        public void onIncomingSettings(Account account);
-        public void onOutgoingSettings(Account account);
-        public void abandonEdit();
-    }
-
-    private static class EmptyCallback implements Callback {
-        public static final Callback INSTANCE = new EmptyCallback();
-        @Override public void onSettingsChanged(long accountId, String preference, Object value) {}
-        @Override public void onEditQuickResponses(com.android.mail.providers.Account account) {}
-        @Override public void onIncomingSettings(Account account) {}
-        @Override public void onOutgoingSettings(Account account) {}
-        @Override public void abandonEdit() {}
-    }
-
-    /**
-     * If launching with an arguments bundle, use this method to build the arguments.
-     */
-    public static Bundle buildArguments(long accountId, String email) {
-        Bundle b = new Bundle();
-        b.putLong(BUNDLE_KEY_ACCOUNT_ID, accountId);
-        b.putString(BUNDLE_KEY_ACCOUNT_EMAIL, email);
+    public static Bundle buildArguments(final String email) {
+        final Bundle b = new Bundle(1);
+        b.putString(ARG_ACCOUNT_EMAIL, email);
         return b;
     }
 
-    public static String getTitleFromArgs(Bundle args) {
-        return (args == null) ? null : args.getString(BUNDLE_KEY_ACCOUNT_EMAIL);
+    /**
+     * When launching for the login warning, we don't have the account email address, so we use the
+     * account ID, along with a few strings explaining the warning.
+     */
+    public static Bundle buildArguments(final long accountId, final String warningAccount,
+            final String warningReason) {
+        final Bundle b = new Bundle(3);
+        b.putLong(ARG_ACCOUNT_ID, accountId);
+        b.putString(ARG_LOGIN_WARNING_FOR_ACCOUNT, warningAccount);
+        b.putString(ARG_LOGIN_WARNING_REASON_FOR_ACCOUNT, warningReason);
+        return b;
     }
 
     @Override
@@ -198,7 +197,7 @@ public class AccountSettingsFragment extends PreferenceFragment
         // If not, activity must call startLoadingAccount() directly
         Bundle b = getArguments();
         if (b != null) {
-            mAccountId = b.getLong(BUNDLE_KEY_ACCOUNT_ID, -1);
+            mAccountEmail = b.getString(ARG_ACCOUNT_EMAIL);
         }
         if (savedInstanceState != null) {
             // We won't know what the correct set of sync interval values and strings are until
@@ -233,15 +232,25 @@ public class AccountSettingsFragment extends PreferenceFragment
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         final Bundle args = new Bundle(1);
-        args.putLong(AccountLoaderCallbacks.ARG_ACCOUNT_ID, mAccountId);
+        if (!TextUtils.isEmpty(mAccountEmail)) {
+            args.putString(AccountLoaderCallbacks.ARG_ACCOUNT_EMAIL, mAccountEmail);
+        } else {
+            args.putLong(AccountLoaderCallbacks.ARG_ACCOUNT_ID,
+                    getArguments().getLong(ARG_ACCOUNT_ID, -1));
+        }
         getLoaderManager().initLoader(0, args, new AccountLoaderCallbacks(getActivity()));
-    }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (mSaveOnExit) {
-            saveSettings();
+        if (savedInstanceState == null) {
+            final String loginWarningAccount =
+                    getArguments().getString(ARG_LOGIN_WARNING_FOR_ACCOUNT);
+            final String loginWarningReason =
+                    getArguments().getString(ARG_LOGIN_WARNING_REASON_FOR_ACCOUNT);
+            if (loginWarningAccount != null) {
+                // Show dialog (first time only - don't re-show on a rotation)
+                LoginWarningDialog dialog =
+                        LoginWarningDialog.newInstance(loginWarningAccount, loginWarningReason);
+                dialog.show(getFragmentManager(), "loginwarning");
+            }
         }
     }
 
@@ -287,9 +296,10 @@ public class AccountSettingsFragment extends PreferenceFragment
      * @return True to update the state of the Preference with the new value
      */
     @Override
-    public boolean onPreferenceChange(Preference preference, Object newValue){
+    public boolean onPreferenceChange(Preference preference, Object newValue) {
         // Can't use a switch here. Falling back to a giant conditional.
         final String key = preference.getKey();
+        final ContentValues cv = new ContentValues(1);
         if (key.equals(PREFERENCE_DESCRIPTION)){
             String summary = newValue.toString().trim();
             if (TextUtils.isEmpty(summary)) {
@@ -297,15 +307,14 @@ public class AccountSettingsFragment extends PreferenceFragment
             }
             mAccountDescription.setSummary(summary);
             mAccountDescription.setText(summary);
-            preferenceChanged(PREFERENCE_DESCRIPTION, summary);
-            return false;
-        } else if (key.equals(PREFERENCE_FREQUENCY)) {
-            final String summary = newValue.toString();
-            final int index = mCheckFrequency.findIndexOfValue(summary);
-            mCheckFrequency.setSummary(mCheckFrequency.getEntries()[index]);
-            mCheckFrequency.setValue(summary);
-            preferenceChanged(PREFERENCE_FREQUENCY, newValue);
-            return false;
+            cv.put(AccountColumns.DISPLAY_NAME, summary);
+        } else if (key.equals(PREFERENCE_NAME)) {
+            final String summary = newValue.toString().trim();
+            if (!TextUtils.isEmpty(summary)) {
+                mAccountName.setSummary(summary);
+                mAccountName.setText(summary);
+                cv.put(AccountColumns.SENDER_NAME, summary);
+            }
         } else if (key.equals(PREFERENCE_SIGNATURE)) {
             // Clean up signature if it's only whitespace (which is easy to do on a
             // soft keyboard) but leave whitespace in place otherwise, to give the user
@@ -317,31 +326,87 @@ public class AccountSettingsFragment extends PreferenceFragment
             mAccountSignature.setText(signature);
             SettingsUtils.updatePreferenceSummary(mAccountSignature, signature,
                     R.string.preferences_signature_summary_not_set);
-            preferenceChanged(PREFERENCE_SIGNATURE, signature);
-            return false;
-        } else if (key.equals(PREFERENCE_NAME)) {
-            final String summary = newValue.toString().trim();
-            if (!TextUtils.isEmpty(summary)) {
-                mAccountName.setSummary(summary);
-                mAccountName.setText(summary);
-                preferenceChanged(PREFERENCE_NAME, summary);
+            cv.put(AccountColumns.SIGNATURE, signature);
+        } else if (key.equals(PREFERENCE_FREQUENCY)) {
+            final String summary = newValue.toString();
+            final int index = mCheckFrequency.findIndexOfValue(summary);
+            mCheckFrequency.setSummary(mCheckFrequency.getEntries()[index]);
+            mCheckFrequency.setValue(summary);
+            if (mServiceInfo.syncContacts || mServiceInfo.syncCalendar) {
+                // This account allows syncing of contacts and/or calendar, so we will always have
+                // separate preferences to enable or disable syncing of email, contacts, and
+                // calendar.
+                // The "sync frequency" preference really just needs to control the frequency value
+                // in our database.
+                cv.put(AccountColumns.SYNC_INTERVAL, Integer.parseInt(summary));
+            } else {
+                // This account only syncs email (not contacts or calendar), which means that we
+                // will hide the preference to turn syncing on and off. In this case, we want the
+                // sync frequency preference to also control whether or not syncing is enabled at
+                // all. If sync is turned off, we will display "sync never" regardless of what the
+                // numeric value we have stored says.
+                final android.accounts.Account androidAcct = new android.accounts.Account(
+                        mAccount.mEmailAddress, mServiceInfo.accountType);
+                if ((Integer) newValue == Account.CHECK_INTERVAL_NEVER) {
+                    // Disable syncing from the account manager. Leave the current sync frequency
+                    // in the database.
+                    ContentResolver.setSyncAutomatically(androidAcct, EmailContent.AUTHORITY,
+                            false);
+                } else {
+                    // Enable syncing from the account manager.
+                    ContentResolver.setSyncAutomatically(androidAcct, EmailContent.AUTHORITY,
+                            true);
+                    cv.put(AccountColumns.SYNC_INTERVAL, Integer.parseInt(summary));
+                }
             }
-            return false;
+        } else if (key.equals(PREFERENCE_SYNC_WINDOW)) {
+            final String summary = newValue.toString();
+            int index = mSyncWindow.findIndexOfValue(summary);
+            mSyncWindow.setSummary(mSyncWindow.getEntries()[index]);
+            mSyncWindow.setValue(summary);
+            cv.put(AccountColumns.SYNC_LOOKBACK, Integer.parseInt(summary));
+        } else if (key.equals(PREFERENCE_SYNC_EMAIL)) {
+            final android.accounts.Account androidAcct = new android.accounts.Account(
+                    mAccount.mEmailAddress, mServiceInfo.accountType);
+            ContentResolver.setSyncAutomatically(androidAcct, EmailContent.AUTHORITY,
+                    (Boolean) newValue);
+        } else if (key.equals(PREFERENCE_SYNC_CONTACTS)) {
+            final android.accounts.Account androidAcct = new android.accounts.Account(
+                    mAccount.mEmailAddress, mServiceInfo.accountType);
+            ContentResolver.setSyncAutomatically(androidAcct, ContactsContract.AUTHORITY,
+                    (Boolean) newValue);
+        } else if (key.equals(PREFERENCE_SYNC_CALENDAR)) {
+            final android.accounts.Account androidAcct = new android.accounts.Account(
+                    mAccount.mEmailAddress, mServiceInfo.accountType);
+            ContentResolver.setSyncAutomatically(androidAcct, CalendarContract.AUTHORITY,
+                    (Boolean) newValue);
+        } else if (key.equals(PREFERENCE_BACKGROUND_ATTACHMENTS)) {
+            int newFlags = mAccount.getFlags() & ~(Account.FLAGS_BACKGROUND_ATTACHMENTS);
+
+            newFlags |= (Boolean) newValue ?
+                    Account.FLAGS_BACKGROUND_ATTACHMENTS : 0;
+
+            cv.put(AccountColumns.FLAGS, newFlags);
+        } else if (FolderPreferences.PreferenceKeys.NOTIFICATIONS_ENABLED.equals(key)) {
+            mInboxFolderPreferences.setNotificationsEnabled((Boolean) newValue);
+            return true;
         } else if (FolderPreferences.PreferenceKeys.NOTIFICATION_VIBRATE.equals(key)) {
             final boolean vibrateSetting = (Boolean) newValue;
             mInboxVibrate.setChecked(vibrateSetting);
             mInboxFolderPreferences.setNotificationVibrateEnabled(vibrateSetting);
-            preferenceChanged(FolderPreferences.PreferenceKeys.NOTIFICATION_VIBRATE, newValue);
             return true;
-        } else if (FolderPreferences.PreferenceKeys.NOTIFICATIONS_ENABLED.equals(key)) {
-            mInboxFolderPreferences.setNotificationsEnabled((Boolean) newValue);
-            preferenceChanged(FolderPreferences.PreferenceKeys.NOTIFICATIONS_ENABLED, newValue);
+        } else if (FolderPreferences.PreferenceKeys.NOTIFICATION_RINGTONE.equals(key)) {
             return true;
         } else {
             // Default behavior, just indicate that the preferences were written
-            preferenceChanged(key, newValue);
+            LogUtils.d(LogUtils.TAG, "Unknown preference key %s", key);
             return true;
         }
+        if (cv.size() > 0) {
+            new UpdateTask().run(mContext.getContentResolver(), mAccount.getUri(), cv, null, null);
+            MailActivityEmail.setServicesEnabledAsync(mContext);
+        }
+        return false;
     }
 
     @Override
@@ -351,14 +416,7 @@ public class AccountSettingsFragment extends PreferenceFragment
     }
 
     /**
-     * Activity provides callbacks here
-     */
-    public void setCallback(Callback callback) {
-        mCallback = (callback == null) ? EmptyCallback.INSTANCE : callback;
-    }
-
-    /**
-     * Async task to load account in order to view/edit it
+     * Async task loader to load account in order to view/edit it
      */
     private static class AccountLoader extends MailAsyncTaskLoader<Map<String, Object>> {
         public static final String RESULT_KEY_ACCOUNT = "account";
@@ -367,11 +425,13 @@ public class AccountSettingsFragment extends PreferenceFragment
         public static final String RESULT_KEY_INBOX = "inbox";
 
         private final ForceLoadContentObserver mObserver;
+        private final String mAccountEmail;
         private final long mAccountId;
 
-        private AccountLoader(Context context, long accountId) {
+        private AccountLoader(Context context, String accountEmail, long accountId) {
             super(context);
             mObserver = new ForceLoadContentObserver();
+            mAccountEmail = accountEmail;
             mAccountId = accountId;
         }
 
@@ -379,7 +439,12 @@ public class AccountSettingsFragment extends PreferenceFragment
         public Map<String, Object> loadInBackground() {
             final Map<String, Object> map = new HashMap<String, Object>();
 
-            Account account = Account.restoreAccountWithId(getContext(), mAccountId, mObserver);
+            final Account account;
+            if (!TextUtils.isEmpty(mAccountEmail)) {
+                account = Account.restoreAccountWithAddress(getContext(), mAccountEmail, mObserver);
+            } else {
+                account = Account.restoreAccountWithId(getContext(), mAccountId, mObserver);
+            }
             if (account == null) {
                 return map;
             }
@@ -399,7 +464,8 @@ public class AccountSettingsFragment extends PreferenceFragment
                     Policy.restorePolicyWithId(getContext(), account.mPolicyKey, mObserver);
 
             final Cursor uiAccountCursor = getContext().getContentResolver().query(
-                    EmailProvider.uiUri("uiaccount", mAccountId), UIProvider.ACCOUNTS_PROJECTION,
+                    EmailProvider.uiUri("uiaccount", account.getId()),
+                    UIProvider.ACCOUNTS_PROJECTION,
                     null, null, null);
 
             if (uiAccountCursor != null) {
@@ -457,6 +523,7 @@ public class AccountSettingsFragment extends PreferenceFragment
 
     private class AccountLoaderCallbacks
             implements LoaderManager.LoaderCallbacks<Map<String, Object>> {
+        public static final String ARG_ACCOUNT_EMAIL = "accountEmail";
         public static final String ARG_ACCOUNT_ID = "accountId";
         private final Context mContext;
 
@@ -466,9 +533,12 @@ public class AccountSettingsFragment extends PreferenceFragment
 
         @Override
         public void onLoadFinished(Loader<Map<String, Object>> loader, Map<String, Object> data) {
+            final Activity activity = getActivity();
+            if (activity == null) {
+                return;
+            }
             if (data == null) {
-                mSaveOnExit = false;
-                mCallback.abandonEdit();
+                activity.finish();
                 return;
             }
 
@@ -480,18 +550,19 @@ public class AccountSettingsFragment extends PreferenceFragment
                 final Intent i = AccountSecurity.actionUpdateSecurityIntent(mContext,
                         mAccount.getId(), true);
                 mContext.startActivity(i);
-                mSaveOnExit = false;
-                mCallback.abandonEdit();
+                activity.finish();
                 return;
             }
 
             final Folder inbox = (Folder) data.get(AccountLoader.RESULT_KEY_INBOX);
 
             if (mUiAccount == null || mAccount == null) {
-                mSaveOnExit = false;
-                mCallback.abandonEdit();
+                activity.finish();
                 return;
             }
+
+            mServiceInfo =
+                    EmailServiceUtils.getServiceInfo(mContext, mAccount.getProtocol(mContext));
 
             if (inbox == null) {
                 mInboxFolderPreferences = null;
@@ -499,14 +570,13 @@ public class AccountSettingsFragment extends PreferenceFragment
                 mInboxFolderPreferences =
                         new FolderPreferences(mContext, mUiAccount.getEmailAddress(), inbox, true);
             }
-            if (!mSaveOnExit) {
-                loadSettings();
-            }
+            loadSettings();
         }
 
         @Override
         public Loader<Map<String, Object>> onCreateLoader(int id, Bundle args) {
-            return new AccountLoader(mContext, args.getLong(ARG_ACCOUNT_ID));
+            return new AccountLoader(mContext, args.getString(ARG_ACCOUNT_EMAIL),
+                    args.getLong(ARG_ACCOUNT_ID));
         }
 
         @Override
@@ -565,9 +635,6 @@ public class AccountSettingsFragment extends PreferenceFragment
      * Load account data into preference UI. This must be called on the main thread.
      */
     private void loadSettings() {
-        // Once loaded the data is ready to be saved, as well
-        mSaveOnExit = false;
-
         final AccountPreferences accountPreferences =
                 new AccountPreferences(mContext, mUiAccount.getEmailAddress());
         if (mInboxFolderPreferences != null) {
@@ -576,9 +643,8 @@ public class AccountSettingsFragment extends PreferenceFragment
         }
 
         final String protocol = mAccount.getProtocol(mContext);
-        final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(mContext, protocol);
-        if (info == null) {
-            LogUtils.e(Logging.LOG_TAG,
+        if (mServiceInfo == null) {
+            LogUtils.e(LogUtils.TAG,
                     "Could not find service info for account %d with protocol %s", mAccount.mId,
                     protocol);
             getActivity().onBackPressed();
@@ -608,9 +674,9 @@ public class AccountSettingsFragment extends PreferenceFragment
                 R.string.preferences_signature_summary_not_set);
 
         mCheckFrequency = (ListPreference) findPreference(PREFERENCE_FREQUENCY);
-        mCheckFrequency.setEntries(info.syncIntervalStrings);
-        mCheckFrequency.setEntryValues(info.syncIntervals);
-        if (info.syncContacts || info.syncCalendar) {
+        mCheckFrequency.setEntries(mServiceInfo.syncIntervalStrings);
+        mCheckFrequency.setEntryValues(mServiceInfo.syncIntervals);
+        if (mServiceInfo.syncContacts || mServiceInfo.syncCalendar) {
             // This account allows syncing of contacts and/or calendar, so we will always have
             // separate preferences to enable or disable syncing of email, contacts, and calendar.
             // The "sync frequency" preference really just needs to control the frequency value
@@ -637,7 +703,7 @@ public class AccountSettingsFragment extends PreferenceFragment
                 new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        mCallback.onEditQuickResponses(mUiAccount);
+                        onEditQuickResponses(mUiAccount);
                         return true;
                     }
                 });
@@ -646,9 +712,10 @@ public class AccountSettingsFragment extends PreferenceFragment
         PreferenceCategory dataUsageCategory =
                 (PreferenceCategory) findPreference(PREFERENCE_CATEGORY_DATA_USAGE);
 
-        if (info.offerLookback) {
+        if (mServiceInfo.offerLookback) {
             if (mSyncWindow == null) {
                 mSyncWindow = new ListPreference(mContext);
+                mSyncWindow.setKey(PREFERENCE_SYNC_WINDOW);
                 dataUsageCategory.addPreference(mSyncWindow);
             }
             mSyncWindow.setTitle(R.string.account_setup_options_mail_window_label);
@@ -665,27 +732,17 @@ public class AccountSettingsFragment extends PreferenceFragment
 
             // Must correspond to the hole in the XML file that's reserved.
             mSyncWindow.setOrder(2);
-            mSyncWindow.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    final String summary = newValue.toString();
-                    int index = mSyncWindow.findIndexOfValue(summary);
-                    mSyncWindow.setSummary(mSyncWindow.getEntries()[index]);
-                    mSyncWindow.setValue(summary);
-                    preferenceChanged(preference.getKey(), newValue);
-                    return false;
-                }
-            });
+            mSyncWindow.setOnPreferenceChangeListener(this);
         }
 
         PreferenceCategory folderPrefs =
                 (PreferenceCategory) findPreference(PREFERENCE_SYSTEM_FOLDERS);
         if (folderPrefs != null) {
-            if (info.requiresSetup) {
+            if (mServiceInfo.requiresSetup) {
                 Preference trashPreference = findPreference(PREFERENCE_SYSTEM_FOLDERS_TRASH);
                 Intent i = new Intent(mContext, FolderPickerActivity.class);
                 Uri uri = EmailContent.CONTENT_URI.buildUpon().appendQueryParameter(
-                        "account", Long.toString(mAccountId)).build();
+                        "account", Long.toString(mAccount.getId())).build();
                 i.setData(uri);
                 i.putExtra(FolderPickerActivity.MAILBOX_TYPE_EXTRA, Mailbox.TYPE_TRASH);
                 trashPreference.setIntent(i);
@@ -700,16 +757,15 @@ public class AccountSettingsFragment extends PreferenceFragment
             }
         }
 
-        mAccountBackgroundAttachments = (CheckBoxPreference)
+        CheckBoxPreference backgroundAttachments = (CheckBoxPreference)
                 findPreference(PREFERENCE_BACKGROUND_ATTACHMENTS);
-        if (mAccountBackgroundAttachments != null) {
-            if (!info.offerAttachmentPreload) {
-                dataUsageCategory.removePreference(mAccountBackgroundAttachments);
-                mAccountBackgroundAttachments = null;
+        if (backgroundAttachments != null) {
+            if (!mServiceInfo.offerAttachmentPreload) {
+                dataUsageCategory.removePreference(backgroundAttachments);
             } else {
-                mAccountBackgroundAttachments.setChecked(
+                backgroundAttachments.setChecked(
                         0 != (mAccount.getFlags() & Account.FLAGS_BACKGROUND_ATTACHMENTS));
-                mAccountBackgroundAttachments.setOnPreferenceChangeListener(this);
+                backgroundAttachments.setOnPreferenceChangeListener(this);
             }
         }
 
@@ -808,7 +864,7 @@ public class AccountSettingsFragment extends PreferenceFragment
                 new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        mCallback.onIncomingSettings(mAccount);
+                        onIncomingSettings(mAccount);
                         return true;
                     }
                 });
@@ -816,21 +872,21 @@ public class AccountSettingsFragment extends PreferenceFragment
         // Hide the outgoing account setup link if it's not activated
         Preference prefOutgoing = findPreference(PREFERENCE_OUTGOING);
         if (prefOutgoing != null) {
-            if (info.usesSmtp && mAccount.mHostAuthSend != null) {
+            if (mServiceInfo.usesSmtp && mAccount.mHostAuthSend != null) {
                 prefOutgoing.setOnPreferenceClickListener(
                         new Preference.OnPreferenceClickListener() {
                             @Override
                             public boolean onPreferenceClick(Preference preference) {
-                                mCallback.onOutgoingSettings(mAccount);
+                                onOutgoingSettings(mAccount);
                                 return true;
                             }
                         });
             } else {
-                if (info.usesSmtp) {
+                if (mServiceInfo.usesSmtp) {
                     // We really ought to have an outgoing host auth but we don't.
                     // There's nothing we can do at this point, so just log the error.
-                    LogUtils.e(Logging.LOG_TAG, "Account %d has a bad outbound hostauth",
-                            mAccountId);
+                    LogUtils.e(LogUtils.TAG, "Account %d has a bad outbound hostauth",
+                            mAccount.getId());
                 }
                 PreferenceCategory serverCategory = (PreferenceCategory) findPreference(
                         PREFERENCE_CATEGORY_SERVER);
@@ -838,119 +894,39 @@ public class AccountSettingsFragment extends PreferenceFragment
             }
         }
 
-        mSyncContacts = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_CONTACTS);
-        mSyncCalendar = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_CALENDAR);
-        mSyncEmail = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_EMAIL);
-        if (mSyncContacts != null && mSyncCalendar != null && mSyncEmail != null) {
-            if (info.syncContacts || info.syncCalendar) {
-                if (info.syncContacts) {
-                    mSyncContacts.setChecked(ContentResolver
+        final CheckBoxPreference syncContacts =
+                (CheckBoxPreference) findPreference(PREFERENCE_SYNC_CONTACTS);
+        final CheckBoxPreference syncCalendar =
+                (CheckBoxPreference) findPreference(PREFERENCE_SYNC_CALENDAR);
+        final CheckBoxPreference syncEmail =
+                (CheckBoxPreference) findPreference(PREFERENCE_SYNC_EMAIL);
+        if (syncContacts != null && syncCalendar != null && syncEmail != null) {
+            if (mServiceInfo.syncContacts || mServiceInfo.syncCalendar) {
+                if (mServiceInfo.syncContacts) {
+                    syncContacts.setChecked(ContentResolver
                             .getSyncAutomatically(androidAcct, ContactsContract.AUTHORITY));
-                    mSyncContacts.setOnPreferenceChangeListener(this);
+                    syncContacts.setOnPreferenceChangeListener(this);
                 } else {
-                    mSyncContacts.setChecked(false);
-                    mSyncContacts.setEnabled(false);
+                    syncContacts.setChecked(false);
+                    syncContacts.setEnabled(false);
                 }
-                if (info.syncCalendar) {
-                    mSyncCalendar.setChecked(ContentResolver
+                if (mServiceInfo.syncCalendar) {
+                    syncCalendar.setChecked(ContentResolver
                             .getSyncAutomatically(androidAcct, CalendarContract.AUTHORITY));
-                    mSyncCalendar.setOnPreferenceChangeListener(this);
+                    syncCalendar.setOnPreferenceChangeListener(this);
                 } else {
-                    mSyncCalendar.setChecked(false);
-                    mSyncCalendar.setEnabled(false);
+                    syncCalendar.setChecked(false);
+                    syncCalendar.setEnabled(false);
                 }
-                mSyncEmail.setChecked(ContentResolver
+                syncEmail.setChecked(ContentResolver
                         .getSyncAutomatically(androidAcct, EmailContent.AUTHORITY));
-                mSyncEmail.setOnPreferenceChangeListener(this);
+                syncEmail.setOnPreferenceChangeListener(this);
             } else {
-                dataUsageCategory.removePreference(mSyncContacts);
-                mSyncContacts = null;
-                dataUsageCategory.removePreference(mSyncCalendar);
-                mSyncCalendar = null;
-                dataUsageCategory.removePreference(mSyncEmail);
-                mSyncEmail = null;
+                dataUsageCategory.removePreference(syncContacts);
+                dataUsageCategory.removePreference(syncCalendar);
+                dataUsageCategory.removePreference(syncEmail);
             }
         }
-    }
-
-    /**
-     * Called any time a preference is changed.
-     */
-    private void preferenceChanged(String preference, Object value) {
-        mCallback.onSettingsChanged(mAccountId, preference, value);
-        mSaveOnExit = true;
-    }
-
-    /*
-     * Note: This writes the settings on the UI thread.  This has to be done so the settings are
-     * committed before we might be killed.
-     */
-    private void saveSettings() {
-        // Turn off all controlled flags - will turn them back on while checking UI elements
-        int newFlags = mAccount.getFlags() & ~(Account.FLAGS_BACKGROUND_ATTACHMENTS);
-
-        if (mAccountBackgroundAttachments != null) {
-            newFlags |= mAccountBackgroundAttachments.isChecked() ?
-                    Account.FLAGS_BACKGROUND_ATTACHMENTS : 0;
-        }
-
-        final EmailServiceInfo info =
-                EmailServiceUtils.getServiceInfo(mContext, mAccount.getProtocol(mContext));
-        final android.accounts.Account androidAcct = new android.accounts.Account(
-                mAccount.mEmailAddress, info.accountType);
-
-        // If the display name has been cleared, we'll reset it to the default value (email addr)
-        mAccount.setDisplayName(mAccountDescription.getText().trim());
-        // The sender name must never be empty (this is enforced by the preference editor)
-        mAccount.setSenderName(mAccountName.getText().trim());
-        mAccount.setSignature(mAccountSignature.getText());
-        int freq = Integer.parseInt(mCheckFrequency.getValue());
-        if (info.syncContacts || info.syncCalendar) {
-            // This account allows syncing of contacts and/or calendar, so we will always have
-            // separate preferences to enable or disable syncing of email, contacts, and calendar.
-            // The "sync frequency" preference really just needs to control the frequency value
-            // in our database.
-            mAccount.setSyncInterval(Integer.parseInt(mCheckFrequency.getValue()));
-        } else {
-            // This account only syncs email (not contacts or calendar), which means that we will
-            // hide the preference to turn syncing on and off. In this case, we want the sync
-            // frequency preference to also control whether or not syncing is enabled at all. If
-            // sync is turned off, we will display "sync never" regardless of what the numeric
-            // value we have stored says.
-            if (freq == Account.CHECK_INTERVAL_NEVER) {
-                // Disable syncing from the account manager. Leave the current sync frequency
-                // in the database.
-                ContentResolver.setSyncAutomatically(androidAcct, EmailContent.AUTHORITY, false);
-            } else {
-                // Enable syncing from the account manager.
-                ContentResolver.setSyncAutomatically(androidAcct, EmailContent.AUTHORITY, true);
-                mAccount.setSyncInterval(Integer.parseInt(mCheckFrequency.getValue()));
-            }
-        }
-        if (mSyncWindow != null) {
-            mAccount.setSyncLookback(Integer.parseInt(mSyncWindow.getValue()));
-        }
-        mAccount.setFlags(newFlags);
-
-        if (info.syncContacts || info.syncCalendar) {
-            ContentResolver.setSyncAutomatically(androidAcct, ContactsContract.AUTHORITY,
-                    mSyncContacts.isChecked());
-            ContentResolver.setSyncAutomatically(androidAcct, CalendarContract.AUTHORITY,
-                    mSyncCalendar.isChecked());
-            ContentResolver.setSyncAutomatically(androidAcct, EmailContent.AUTHORITY,
-                    mSyncEmail.isChecked());
-        }
-
-        // Commit the changes
-        // Note, this is done in the UI thread because at this point, we must commit
-        // all changes - any time after onPause completes, we could be killed.  This is analogous
-        // to the way that SharedPreferences tries to work off-thread in apply(), but will pause
-        // until completion in onPause().
-        ContentValues cv = AccountSettingsUtils.getAccountContentValues(mAccount);
-        mAccount.update(mContext, cv);
-
-        // Run the remaining changes off-thread
-        MailActivityEmail.setServicesEnabledAsync(mContext);
     }
 
     /**
@@ -968,5 +944,101 @@ public class AccountSettingsFragment extends PreferenceFragment
         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true);
         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
         startActivityForResult(intent, RINGTONE_REQUEST_CODE);
+    }
+
+    /**
+     * Dispatch to edit quick responses.
+     */
+    public void onEditQuickResponses(com.android.mail.providers.Account account) {
+        final Bundle args = AccountSettingsEditQuickResponsesFragment.createArgs(account);
+        final PreferenceActivity activity = (PreferenceActivity) getActivity();
+        activity.startPreferencePanel(AccountSettingsEditQuickResponsesFragment.class.getName(),
+                args, R.string.account_settings_edit_quick_responses_label, null, null, 0);
+    }
+
+    /**
+     * Dispatch to edit incoming settings.
+     */
+    public void onIncomingSettings(Account account) {
+        final Intent intent =
+                AccountServerSettingsActivity.getIntentForIncoming(getActivity(), account);
+        getActivity().startActivity(intent);
+    }
+
+    /**
+     * Dispatch to edit outgoing settings.
+     */
+    public void onOutgoingSettings(Account account) {
+        final Intent intent =
+                AccountServerSettingsActivity.getIntentForOutgoing(getActivity(), account);
+        getActivity().startActivity(intent);
+    }
+
+    /**
+     * Dialog briefly shown in some cases, to indicate the user that login failed.  If the user
+     * clicks OK, we simply dismiss the dialog, leaving the user in the account settings for
+     * that account;  If the user clicks "cancel", we exit account settings.
+     */
+    public static class LoginWarningDialog extends DialogFragment
+            implements DialogInterface.OnClickListener {
+        private static final String BUNDLE_KEY_ACCOUNT_NAME = "account_name";
+        private String mReason;
+
+        // Public no-args constructor needed for fragment re-instantiation
+        public LoginWarningDialog() {}
+
+        /**
+         * Create a new dialog.
+         */
+        public static LoginWarningDialog newInstance(String accountName, String reason) {
+            final LoginWarningDialog dialog = new LoginWarningDialog();
+            final Bundle b = new Bundle(1);
+            b.putString(BUNDLE_KEY_ACCOUNT_NAME, accountName);
+            dialog.setArguments(b);
+            dialog.mReason = reason;
+            return dialog;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            final String accountName = getArguments().getString(BUNDLE_KEY_ACCOUNT_NAME);
+
+            final Context context = getActivity();
+            final Resources res = context.getResources();
+            final AlertDialog.Builder b = new AlertDialog.Builder(context);
+            b.setTitle(R.string.account_settings_login_dialog_title);
+            b.setIconAttribute(android.R.attr.alertDialogIcon);
+            if (mReason != null) {
+                final TextView message = new TextView(context);
+                final String alert = res.getString(
+                        R.string.account_settings_login_dialog_reason_fmt, accountName, mReason);
+                SpannableString spannableAlertString = new SpannableString(alert);
+                Linkify.addLinks(spannableAlertString, Linkify.WEB_URLS);
+                message.setText(spannableAlertString);
+                // There must be a better way than specifying size/padding this way
+                // It does work and look right, though
+                final int textSize = res.getDimensionPixelSize(R.dimen.dialog_text_size);
+                message.setTextSize(textSize);
+                final int paddingLeft = res.getDimensionPixelSize(R.dimen.dialog_padding_left);
+                final int paddingOther = res.getDimensionPixelSize(R.dimen.dialog_padding_other);
+                message.setPadding(paddingLeft, paddingOther, paddingOther, paddingOther);
+                message.setMovementMethod(LinkMovementMethod.getInstance());
+                b.setView(message);
+            } else {
+                b.setMessage(res.getString(R.string.account_settings_login_dialog_content_fmt,
+                        accountName));
+            }
+            b.setPositiveButton(android.R.string.ok, this);
+            b.setNegativeButton(android.R.string.cancel, this);
+            return b.create();
+        }
+
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            dismiss();
+            if (which == DialogInterface.BUTTON_NEGATIVE) {
+                getActivity().finish();
+            }
+        }
     }
 }
