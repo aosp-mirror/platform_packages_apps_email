@@ -43,7 +43,7 @@ import java.util.List;
  *   DebugFragment
  *
  */
-public class AccountSettings extends MailPreferenceActivity {
+public class EmailPreferenceActivity extends MailPreferenceActivity {
     /*
      * Intent to open account settings for account=1
         adb shell am start -a android.intent.action.EDIT \

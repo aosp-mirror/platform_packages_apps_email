@@ -273,7 +273,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.setup.AccountSettings"
+            android:name=".activity.setup.EmailPreferenceActivity"
             android:label="@string/settings_activity_title"
             android:exported="false" >
             <intent-filter>
