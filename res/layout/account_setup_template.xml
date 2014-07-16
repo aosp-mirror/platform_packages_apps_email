@@ -57,12 +57,12 @@
             android:orientation="horizontal">
             <ImageButton
                 style="@style/account_setup_nav_button"
-                android:contentDescription="@string/previous_action"
+                android:contentDescription="@string/previous"
                 android:id="@+id/previous"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:src="@drawable/ic_nav_arrow_previous_button"
-                android:text="@string/next_action" />
+                android:text="@string/next" />
             <Button
                 android:id="@+id/manual_setup"
                 android:layout_height="wrap_content"
@@ -77,12 +77,12 @@
                 android:layout_weight="1" />
             <ImageButton
                 style="@style/account_setup_nav_button"
-                android:contentDescription="@string/next_action"
+                android:contentDescription="@string/next"
                 android:id="@+id/next"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:src="@drawable/ic_nav_arrow_next_button"
-                android:text="@string/next_action" />
+                android:text="@string/next" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>
