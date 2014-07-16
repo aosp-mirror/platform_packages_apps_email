@@ -22,11 +22,6 @@
   *** apply();
 }
 
--keepclasseswithmembers class com.android.emailcommon.utility.Utility$CloseTraceCursorWrapper {
-  *** getTraceIfAvailable(android.database.Cursor);
-  *** log(android.database.Cursor);
-}
-
 -keep class * extends org.apache.james.mime4j.util.TempStorage
 
 # Keep names that are used only by unit tests or by animators
@@ -55,10 +50,6 @@
   *** fromUtf8(byte[]);
   *** isFirstUtf8Byte(byte);
   *** replaceBareLfWithCrlf(java.lang.String);
-}
--keepclasseswithmembers class com.android.emailcommon.utility.Utility$CloseTraceCursorWrapper {
-  *** getTraceIfAvailable(android.database.Cursor);
-  *** log(android.database.Cursor);
 }
 
 -keepclasseswithmembers class com.android.email.provider.EmailProvider {
