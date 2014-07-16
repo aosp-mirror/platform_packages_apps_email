@@ -18,7 +18,6 @@ package com.android.email.activity.setup;
 
 import android.app.ActionBar;
 import android.app.Fragment;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -53,12 +52,8 @@ public class AccountSettings extends MailPreferenceActivity {
 
     // Intent extras for our internal activity launch
     private static final String EXTRA_ENABLE_DEBUG = "AccountSettings.enable_debug";
-    private static final String EXTRA_LOGIN_WARNING_FOR_ACCOUNT = "AccountSettings.for_account";
-    private static final String EXTRA_LOGIN_WARNING_REASON_FOR_ACCOUNT =
-            "AccountSettings.for_account_reason";
     // STOPSHIP: Do not ship with the debug menu allowed.
     private static final boolean DEBUG_MENU_ALLOWED = false;
-    public static final String EXTRA_NO_ACCOUNTS = "AccountSettings.no_account";
 
     // Intent extras for launch directly from system account manager
     // NOTE: This string must match the one in res/xml/account_preferences.xml
@@ -78,27 +73,6 @@ public class AccountSettings extends MailPreferenceActivity {
     private Uri mFeedbackUri;
     private MenuItem mFeedbackMenuItem;
 
-    /**
-     * Create and return an intent to display (and edit) settings for a specific account, or -1
-     * for any/all accounts.  If an account name string is provided, a warning dialog will be
-     * displayed as well.
-     */
-    public static Intent createAccountSettingsIntent(final Context context, final long accountId,
-            final String loginWarningAccountName, final String loginWarningReason) {
-        final Uri.Builder b = IntentUtilities.createActivityIntentUrlBuilder(
-                IntentUtilities.PATH_SETTINGS);
-        IntentUtilities.setAccountId(b, accountId);
-        final Intent i = new Intent(Intent.ACTION_EDIT, b.build());
-        i.setPackage(context.getPackageName());
-        if (loginWarningAccountName != null) {
-            i.putExtra(EXTRA_LOGIN_WARNING_FOR_ACCOUNT, loginWarningAccountName);
-        }
-        if (loginWarningReason != null) {
-            i.putExtra(EXTRA_LOGIN_WARNING_REASON_FOR_ACCOUNT, loginWarningReason);
-        }
-        return i;
-    }
-
     @Override
     public Intent getIntent() {
         final Intent intent = super.getIntent();
@@ -114,17 +88,6 @@ public class AccountSettings extends MailPreferenceActivity {
                         IntentUtilities.getAccountNameFromIntent(intent)));
         modIntent.putExtra(EXTRA_NO_HEADERS, true);
         return modIntent;
-    }
-
-
-    /**
-     * Launch generic settings and pre-enable the debug preferences
-     */
-    public static void actionSettingsWithDebug(Context fromContext) {
-        final Intent i = new Intent(fromContext, AccountSettings.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        i.putExtra(EXTRA_ENABLE_DEBUG, true);
-        fromContext.startActivity(i);
     }
 
     @Override
@@ -149,20 +112,11 @@ public class AccountSettings extends MailPreferenceActivity {
             } else if (i.hasExtra(EditSettingsExtras.EXTRA_FOLDER)) {
                 launchMailboxSettings(i);
                 return;
-            } else if (i.hasExtra(EXTRA_NO_ACCOUNTS)) {
-                final Intent setupIntent = AccountSetupFinal.actionNewAccountWithResultIntent(this);
-                startActivity(setupIntent);
-                finish();
-                return;
             } else {
                 // Otherwise, we're called from within the Email app and look for our extras
                 final long accountId = IntentUtilities.getAccountIdFromIntent(i);
                 if (accountId != -1) {
-                    String loginWarningAccount = i.getStringExtra(EXTRA_LOGIN_WARNING_FOR_ACCOUNT);
-                    String loginWarningReason =
-                            i.getStringExtra(EXTRA_LOGIN_WARNING_REASON_FOR_ACCOUNT);
-                    final Bundle args = AccountSettingsFragment.buildArguments(accountId,
-                            loginWarningAccount, loginWarningReason);
+                    final Bundle args = AccountSettingsFragment.buildArguments(accountId);
                     startPreferencePanel(AccountSettingsFragment.class.getName(), args,
                             0, null, null, 0);
                 }
@@ -224,9 +178,6 @@ public class AccountSettings extends MailPreferenceActivity {
                 // when necessary.
                 onBackPressed();
                 break;
-            case R.id.add_new_account:
-                onAddNewAccount();
-                break;
             case R.id.feedback_menu_item:
                 Utils.sendFeedback(this, mFeedbackUri, false /* reportingProblem */);
                 break;
@@ -241,7 +192,6 @@ public class AccountSettings extends MailPreferenceActivity {
         // This activity is not exported, so we can allow any fragment
         return true;
     }
-
 
     private void launchMailboxSettings(Intent intent) {
         final Folder folder = intent.getParcelableExtra(EditSettingsExtras.EXTRA_FOLDER);

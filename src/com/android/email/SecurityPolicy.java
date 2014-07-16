@@ -758,13 +758,13 @@ public class SecurityPolicy {
         if (!expired) {
             // 4.  If warning, simply put up a generic notification and report that it came from
             // the shortest-expiring account.
-            NotificationController.getInstance(mContext).showPasswordExpiringNotification(
+            NotificationController.getInstance(mContext).showPasswordExpiringNotificationSynchronous(
                     nextExpiringAccountId);
         } else {
             // 5.  Actually expired - find all accounts that expire passwords, and wipe them
             boolean wiped = wipeExpiredAccounts(context);
             if (wiped) {
-                NotificationController.getInstance(mContext).showPasswordExpiredNotification(
+                NotificationController.getInstance(mContext).showPasswordExpiredNotificationSynchronous(
                         nextExpiringAccountId);
             }
         }

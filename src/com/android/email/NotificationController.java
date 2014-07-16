@@ -37,7 +37,7 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 
 import com.android.email.activity.setup.AccountSecurity;
-import com.android.email.activity.setup.AccountSettings;
+import com.android.email.activity.setup.HeadlessAccountSettingsLoader;
 import com.android.email.provider.EmailProvider;
 import com.android.email.service.EmailServiceUtils;
 import com.android.emailcommon.provider.Account;
@@ -388,10 +388,10 @@ public class NotificationController {
      *
      * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
      */
-    public void showDownloadForwardFailedNotification(Attachment attachment) {
-        Message message = Message.restoreMessageWithId(mContext, attachment.mMessageKey);
+    public void showDownloadForwardFailedNotificationSynchronous(Attachment attachment) {
+        final Message message = Message.restoreMessageWithId(mContext, attachment.mMessageKey);
         if (message == null) return;
-        Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, message.mMailboxKey);
+        final Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, message.mMailboxKey);
         showNotification(mailbox.mAccountKey,
                 mContext.getString(R.string.forward_download_failed_ticker),
                 mContext.getString(R.string.forward_download_failed_title),
@@ -412,22 +412,27 @@ public class NotificationController {
      *
      * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
      */
-    public void showLoginFailedNotification(long accountId) {
-        showLoginFailedNotification(accountId, null);
-    }
-
-    public void showLoginFailedNotification(long accountId, String reason) {
+    public void showLoginFailedNotificationSynchronous(long accountId, boolean incoming) {
         final Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) return;
-        final Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, account.mId,
+        final Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, accountId,
                 Mailbox.TYPE_INBOX);
         if (mailbox == null) return;
+
+        final Intent settingsIntent;
+        if (incoming) {
+            settingsIntent = new Intent(Intent.ACTION_VIEW,
+                    HeadlessAccountSettingsLoader.getIncomingSettingsUri(accountId));
+        } else {
+            settingsIntent = new Intent(Intent.ACTION_VIEW,
+                    HeadlessAccountSettingsLoader.getOutgoingSettingsUri(accountId));
+        }
         showNotification(mailbox.mAccountKey,
                 mContext.getString(R.string.login_failed_ticker, account.mDisplayName),
                 mContext.getString(R.string.login_failed_title),
                 account.getDisplayName(),
-                AccountSettings.createAccountSettingsIntent(mContext, accountId,
-                        account.mDisplayName, reason), getLoginFailedNotificationId(accountId));
+                settingsIntent,
+                getLoginFailedNotificationId(accountId));
     }
 
     /**
@@ -443,16 +448,16 @@ public class NotificationController {
      *
      * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
      */
-    public void showPasswordExpiringNotification(long accountId) {
-        Account account = Account.restoreAccountWithId(mContext, accountId);
+    public void showPasswordExpiringNotificationSynchronous(long accountId) {
+        final Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) return;
 
-        Intent intent = AccountSecurity.actionDevicePasswordExpirationIntent(mContext,
+        final Intent intent = AccountSecurity.actionDevicePasswordExpirationIntent(mContext,
                 accountId, false);
-        String accountName = account.getDisplayName();
-        String ticker =
+        final String accountName = account.getDisplayName();
+        final String ticker =
             mContext.getString(R.string.password_expire_warning_ticker_fmt, accountName);
-        String title = mContext.getString(R.string.password_expire_warning_content_title);
+        final String title = mContext.getString(R.string.password_expire_warning_content_title);
         showNotification(accountId, ticker, title, accountName, intent,
                 NOTIFICATION_ID_PASSWORD_EXPIRING);
     }
@@ -463,15 +468,15 @@ public class NotificationController {
      *
      * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
      */
-    public void showPasswordExpiredNotification(long accountId) {
-        Account account = Account.restoreAccountWithId(mContext, accountId);
+    public void showPasswordExpiredNotificationSynchronous(long accountId) {
+        final Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) return;
 
-        Intent intent = AccountSecurity.actionDevicePasswordExpirationIntent(mContext,
+        final Intent intent = AccountSecurity.actionDevicePasswordExpirationIntent(mContext,
                 accountId, true);
-        String accountName = account.getDisplayName();
-        String ticker = mContext.getString(R.string.password_expired_ticker);
-        String title = mContext.getString(R.string.password_expired_content_title);
+        final String accountName = account.getDisplayName();
+        final String ticker = mContext.getString(R.string.password_expired_ticker);
+        final String title = mContext.getString(R.string.password_expired_content_title);
         showNotification(accountId, ticker, title, accountName, intent,
                 NOTIFICATION_ID_PASSWORD_EXPIRED);
     }
@@ -503,12 +508,13 @@ public class NotificationController {
      * account settings screen where he can view the list of enforced policies
      */
     public void showSecurityChangedNotification(Account account) {
-        Intent intent =
-                AccountSettings.createAccountSettingsIntent(mContext, account.mId, null, null);
-        String accountName = account.getDisplayName();
-        String ticker =
+        final Intent intent = new Intent(Intent.ACTION_VIEW,
+                HeadlessAccountSettingsLoader.getIncomingSettingsUri(account.getId()));
+        final String accountName = account.getDisplayName();
+        final String ticker =
             mContext.getString(R.string.security_changed_ticker_fmt, accountName);
-        String title = mContext.getString(R.string.security_notification_content_change_title);
+        final String title =
+                mContext.getString(R.string.security_notification_content_change_title);
         showNotification(account.mId, ticker, title, accountName, intent,
                 (int)(NOTIFICATION_ID_BASE_SECURITY_CHANGED + account.mId));
     }
@@ -518,12 +524,13 @@ public class NotificationController {
      * account settings screen where he can view the list of unsupported policies
      */
     public void showSecurityUnsupportedNotification(Account account) {
-        Intent intent =
-                AccountSettings.createAccountSettingsIntent(mContext, account.mId, null, null);
-        String accountName = account.getDisplayName();
-        String ticker =
+        final Intent intent = new Intent(Intent.ACTION_VIEW,
+                HeadlessAccountSettingsLoader.getIncomingSettingsUri(account.getId()));
+        final String accountName = account.getDisplayName();
+        final String ticker =
             mContext.getString(R.string.security_unsupported_ticker_fmt, accountName);
-        String title = mContext.getString(R.string.security_notification_content_unsupported_title);
+        final String title =
+                mContext.getString(R.string.security_notification_content_unsupported_title);
         showNotification(account.mId, ticker, title, accountName, intent,
                 (int)(NOTIFICATION_ID_BASE_SECURITY_NEEDED + account.mId));
    }

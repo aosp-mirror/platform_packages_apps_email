@@ -118,7 +118,7 @@ public class Pop3Service extends Service {
             }
             if (e instanceof AuthenticationFailedException) {
                 // Generate authentication notification
-                nc.showLoginFailedNotification(account.mId);
+                nc.showLoginFailedNotificationSynchronous(account.mId, true /* incoming */);
             }
             throw e;
         }

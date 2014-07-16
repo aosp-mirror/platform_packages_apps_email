@@ -17,14 +17,10 @@
 package com.android.email.activity.setup;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.app.LoaderManager;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.res.Resources;
@@ -44,13 +40,9 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.provider.CalendarContract;
 import android.provider.ContactsContract;
 import android.provider.Settings;
-import android.text.SpannableString;
 import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
-import android.text.util.Linkify;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.widget.TextView;
 
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
@@ -90,9 +82,6 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
         implements Preference.OnPreferenceChangeListener {
 
     private static final String ARG_ACCOUNT_ID = "account_id";
-    private static final String ARG_LOGIN_WARNING_FOR_ACCOUNT = "warning_for_account";
-    private static final String ARG_LOGIN_WARNING_REASON_FOR_ACCOUNT = "warning_for_account_reason";
-
 
     public static final String PREFERENCE_DESCRIPTION = "account_description";
     private static final String PREFERENCE_NAME = "account_name";
@@ -162,15 +151,11 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
     }
 
     /**
-     * When launching for the login warning, we don't have the account email address, so we use the
-     * account ID, along with a few strings explaining the warning.
+     * If launching with an account ID, use this method to build the arguments.
      */
-    public static Bundle buildArguments(final long accountId, final String warningAccount,
-            final String warningReason) {
-        final Bundle b = new Bundle(3);
+    public static Bundle buildArguments(final long accountId) {
+        final Bundle b = new Bundle(1);
         b.putLong(ARG_ACCOUNT_ID, accountId);
-        b.putString(ARG_LOGIN_WARNING_FOR_ACCOUNT, warningAccount);
-        b.putString(ARG_LOGIN_WARNING_REASON_FOR_ACCOUNT, warningReason);
         return b;
     }
 
@@ -239,19 +224,6 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
                     getArguments().getLong(ARG_ACCOUNT_ID, -1));
         }
         getLoaderManager().initLoader(0, args, new AccountLoaderCallbacks(getActivity()));
-
-        if (savedInstanceState == null) {
-            final String loginWarningAccount =
-                    getArguments().getString(ARG_LOGIN_WARNING_FOR_ACCOUNT);
-            final String loginWarningReason =
-                    getArguments().getString(ARG_LOGIN_WARNING_REASON_FOR_ACCOUNT);
-            if (loginWarningAccount != null) {
-                // Show dialog (first time only - don't re-show on a rotation)
-                LoginWarningDialog dialog =
-                        LoginWarningDialog.newInstance(loginWarningAccount, loginWarningReason);
-                dialog.show(getFragmentManager(), "loginwarning");
-            }
-        }
     }
 
     @Override
@@ -972,73 +944,5 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
         final Intent intent =
                 AccountServerSettingsActivity.getIntentForOutgoing(getActivity(), account);
         getActivity().startActivity(intent);
-    }
-
-    /**
-     * Dialog briefly shown in some cases, to indicate the user that login failed.  If the user
-     * clicks OK, we simply dismiss the dialog, leaving the user in the account settings for
-     * that account;  If the user clicks "cancel", we exit account settings.
-     */
-    public static class LoginWarningDialog extends DialogFragment
-            implements DialogInterface.OnClickListener {
-        private static final String BUNDLE_KEY_ACCOUNT_NAME = "account_name";
-        private String mReason;
-
-        // Public no-args constructor needed for fragment re-instantiation
-        public LoginWarningDialog() {}
-
-        /**
-         * Create a new dialog.
-         */
-        public static LoginWarningDialog newInstance(String accountName, String reason) {
-            final LoginWarningDialog dialog = new LoginWarningDialog();
-            final Bundle b = new Bundle(1);
-            b.putString(BUNDLE_KEY_ACCOUNT_NAME, accountName);
-            dialog.setArguments(b);
-            dialog.mReason = reason;
-            return dialog;
-        }
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final String accountName = getArguments().getString(BUNDLE_KEY_ACCOUNT_NAME);
-
-            final Context context = getActivity();
-            final Resources res = context.getResources();
-            final AlertDialog.Builder b = new AlertDialog.Builder(context);
-            b.setTitle(R.string.account_settings_login_dialog_title);
-            b.setIconAttribute(android.R.attr.alertDialogIcon);
-            if (mReason != null) {
-                final TextView message = new TextView(context);
-                final String alert = res.getString(
-                        R.string.account_settings_login_dialog_reason_fmt, accountName, mReason);
-                SpannableString spannableAlertString = new SpannableString(alert);
-                Linkify.addLinks(spannableAlertString, Linkify.WEB_URLS);
-                message.setText(spannableAlertString);
-                // There must be a better way than specifying size/padding this way
-                // It does work and look right, though
-                final int textSize = res.getDimensionPixelSize(R.dimen.dialog_text_size);
-                message.setTextSize(textSize);
-                final int paddingLeft = res.getDimensionPixelSize(R.dimen.dialog_padding_left);
-                final int paddingOther = res.getDimensionPixelSize(R.dimen.dialog_padding_other);
-                message.setPadding(paddingLeft, paddingOther, paddingOther, paddingOther);
-                message.setMovementMethod(LinkMovementMethod.getInstance());
-                b.setView(message);
-            } else {
-                b.setMessage(res.getString(R.string.account_settings_login_dialog_content_fmt,
-                        accountName));
-            }
-            b.setPositiveButton(android.R.string.ok, this);
-            b.setNegativeButton(android.R.string.cancel, this);
-            return b.create();
-        }
-
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            dismiss();
-            if (which == DialogInterface.BUTTON_NEGATIVE) {
-                getActivity().finish();
-            }
-        }
     }
 }
