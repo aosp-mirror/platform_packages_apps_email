@@ -4887,11 +4887,12 @@ public class EmailProvider extends ContentProvider
         final Mailbox mailbox =
                 getMailboxByAccountIdAndType(accountId, Mailbox.TYPE_DRAFTS);
         if (mailbox == null) return null;
-        final Message msg;
+        Message msg = null;
         if (extras.containsKey(BaseColumns._ID)) {
             final long messageId = extras.getLong(BaseColumns._ID);
             msg = Message.restoreMessageWithId(getContext(), messageId);
-        } else {
+        }
+        if (msg == null) {
             msg = new Message();
         }
         return uiSaveMessage(msg, mailbox, extras);
