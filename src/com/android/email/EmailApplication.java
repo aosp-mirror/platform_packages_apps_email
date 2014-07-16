@@ -20,7 +20,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 
-import com.android.email.activity.setup.AccountSettings;
+import com.android.email.activity.setup.EmailPreferenceActivity;
 import com.android.email.preferences.EmailPreferenceMigrator;
 import com.android.mail.browse.ConversationMessage;
 import com.android.mail.browse.InlineAttachmentViewIntentBuilder;
@@ -60,6 +60,6 @@ public class EmailApplication extends Application {
                     }
                 });
 
-        PublicPreferenceActivity.sPreferenceActivityClass = AccountSettings.class;
+        PublicPreferenceActivity.sPreferenceActivityClass = EmailPreferenceActivity.class;
     }
 }
