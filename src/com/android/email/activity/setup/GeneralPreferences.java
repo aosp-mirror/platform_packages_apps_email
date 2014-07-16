@@ -16,87 +16,32 @@
 
 package com.android.email.activity.setup;
 
-import android.content.ContentResolver;
 import android.os.Bundle;
-import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.Preference.OnPreferenceChangeListener;
-import android.preference.PreferenceFragment;
+import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 
-import com.android.email.R;
-import com.android.email.provider.EmailProvider;
-import com.android.mail.preferences.MailPrefs;
-import com.android.mail.ui.settings.ClearPictureApprovalsDialogFragment;
+import com.android.mail.preferences.MailPrefs.PreferenceKeys;
+import com.android.mail.ui.settings.GeneralPrefsFragment;
 
-public class GeneralPreferences extends PreferenceFragment implements
-        OnPreferenceChangeListener {
+public class GeneralPreferences extends GeneralPrefsFragment {
 
-    private static final String AUTO_ADVANCE_MODE_WIDGET = "auto-advance-mode-widget";
-
-    private MailPrefs mMailPrefs;
-    private ListPreference mAutoAdvance;
+    public GeneralPreferences() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
 
-        mMailPrefs = MailPrefs.get(getActivity());
-        getPreferenceManager().setSharedPreferencesName(mMailPrefs.getSharedPreferencesName());
-
-        // Load the preferences from an XML resource
-        addPreferencesFromResource(R.xml.general_preferences);
-    }
-
-    @Override
-    public void onResume() {
-        loadSettings();
-        super.onResume();
-    }
-
-    @Override
-    public boolean onPreferenceChange(Preference preference, Object newValue) {
-        String key = preference.getKey();
-        // Indicate we need to send notifications to UI
-        if (AUTO_ADVANCE_MODE_WIDGET.equals(key)) {
-            mMailPrefs.setAutoAdvanceMode(mAutoAdvance.findIndexOfValue((String) newValue) + 1);
-            return true;
+        final PreferenceScreen ps = getPreferenceScreen();
+        final Preference removalAction = findPreference(PreferenceKeys.REMOVAL_ACTION);
+        if (removalAction != null) {
+            ps.removePreference(removalAction);
         }
-        return false;
-    }
-
-    private void loadSettings() {
-        mAutoAdvance = (ListPreference) findPreference(AUTO_ADVANCE_MODE_WIDGET);
-        mAutoAdvance.setValueIndex(mMailPrefs.getAutoAdvanceMode() - 1);
-        mAutoAdvance.setOnPreferenceChangeListener(this);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        menu.clear();
-        inflater.inflate(R.menu.general_prefs_fragment_menu, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.clear_picture_approvals_menu_item:
-                clearDisplayImages();
-                return true;
+        final Preference confirmArchive = findPreference(PreferenceKeys.CONFIRM_ARCHIVE);
+        final PreferenceGroup removalGroup =
+                (PreferenceGroup) findPreference(REMOVAL_ACTIONS_GROUP);
+        if (confirmArchive != null) {
+            removalGroup.removePreference(confirmArchive);
         }
-
-        return super.onOptionsItemSelected(item);
     }
-
-    private void clearDisplayImages() {
-        final ClearPictureApprovalsDialogFragment fragment =
-                ClearPictureApprovalsDialogFragment.newInstance();
-        fragment.show(getActivity().getFragmentManager(),
-                ClearPictureApprovalsDialogFragment.FRAGMENT_TAG);
-    }
-
 }
