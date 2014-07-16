@@ -4592,9 +4592,14 @@ public class EmailProvider extends ContentProvider
                     final int nameColumn = projectionList.indexOf(UIProvider.FolderColumns.NAME);
                     final int typeColumn = projectionList.indexOf(UIProvider.FolderColumns.TYPE);
                     if (c.moveToFirst()) {
-                        c = getUiFolderCursorRowFromMailboxCursorRow(
-                                new MatrixCursorWithCachedColumns(uiProjection),
-                                uiProjection.length, c, nameColumn, typeColumn);
+                        final Cursor closeThis = c;
+                        try {
+                            c = getUiFolderCursorRowFromMailboxCursorRow(
+                                    new MatrixCursorWithCachedColumns(uiProjection),
+                                    uiProjection.length, c, nameColumn, typeColumn);
+                        } finally {
+                            closeThis.close();
+                        }
                     }
                     notifyUri = UIPROVIDER_FOLDER_NOTIFIER.buildUpon().appendPath(mailboxIdString)
                             .build();
