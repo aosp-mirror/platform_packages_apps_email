@@ -54,6 +54,7 @@ import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.EmailServiceStatus;
+import com.android.emailcommon.service.HostAuthCompat;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
@@ -654,7 +655,7 @@ public class EmailServiceUtils {
         }
 
         @Override
-        public Bundle validate(HostAuth hostauth) throws RemoteException {
+        public Bundle validate(HostAuthCompat hostauth) throws RemoteException {
             return null;
         }
 
