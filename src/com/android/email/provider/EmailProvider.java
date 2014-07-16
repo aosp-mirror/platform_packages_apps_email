@@ -113,6 +113,7 @@ import com.android.mail.providers.FolderList;
 import com.android.mail.providers.Settings;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.providers.UIProvider.AccountCapabilities;
+import com.android.mail.providers.UIProvider.AccountColumns.SettingsColumns;
 import com.android.mail.providers.UIProvider.AccountCursorExtraKeys;
 import com.android.mail.providers.UIProvider.ConversationPriority;
 import com.android.mail.providers.UIProvider.ConversationSendingState;
@@ -145,10 +146,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-/**
- * @author mblank
- *
- */
 public class EmailProvider extends ContentProvider
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -275,6 +272,7 @@ public class EmailProvider extends ContentProvider
     private static final int UI_ALL_FOLDERS = UI_BASE + 19;
     private static final int UI_PURGE_FOLDER = UI_BASE + 20;
     private static final int UI_INBOX = UI_BASE + 21;
+    private static final int UI_ACCTSETTINGS = UI_BASE + 22;
 
     private static final int BODY_BASE = 0xA000;
     private static final int BODY = BODY_BASE;
@@ -1196,9 +1194,11 @@ public class EmailProvider extends ContentProvider
             sURIMatcher.addURI(EmailContent.AUTHORITY, "uiinbox/#", UI_INBOX);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "uiaccount/#", UI_ACCOUNT);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "uiaccts", UI_ACCTS);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uiacctsettings", UI_ACCTSETTINGS);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "uiattachments/#", UI_ATTACHMENTS);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "uiattachment/#", UI_ATTACHMENT);
-            sURIMatcher.addURI(EmailContent.AUTHORITY, "uiattachmentbycid/#/*", UI_ATTACHMENT_BY_CID);
+            sURIMatcher.addURI(EmailContent.AUTHORITY, "uiattachmentbycid/#/*",
+                    UI_ATTACHMENT_BY_CID);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "uisearch/#", UI_SEARCH);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "uiaccountdata/#", UI_ACCOUNT_DATA);
             sURIMatcher.addURI(EmailContent.AUTHORITY, "uiloadmore/#", UI_FOLDER_LOAD_MORE);
@@ -1846,6 +1846,8 @@ public class EmailProvider extends ContentProvider
                     return pickTrashFolder(uri);
                 case ACCOUNT_PICK_SENT_FOLDER:
                     return pickSentFolder(uri);
+                case UI_ACCTSETTINGS:
+                    return uiUpdateSettings(context, values);
                 case UI_FOLDER:
                     return uiUpdateFolder(context, uri, values);
                 case UI_RECENT_FOLDERS:
@@ -3494,6 +3496,10 @@ public class EmailProvider extends ContentProvider
                         UIProvider.SyncStatus.INITIAL_SYNC_NEEDED);
             }
         }
+        if (projectionColumns.contains(UIProvider.AccountColumns.UPDATE_SETTINGS_URI)) {
+            values.put(UIProvider.AccountColumns.UPDATE_SETTINGS_URI,
+                    uiUriString("uiacctsettings", -1));
+        }
         if (projectionColumns.contains(UIProvider.AccountColumns.ENABLE_MESSAGE_TRANSFORMS)) {
             // Email is now sanitized, which grants the ability to inject beautifying javascript.
             values.put(UIProvider.AccountColumns.ENABLE_MESSAGE_TRANSFORMS, 1);
@@ -3670,6 +3676,10 @@ public class EmailProvider extends ContentProvider
         if (colPosMap.containsKey(UIProvider.AccountColumns.COMPOSE_URI)) {
             values[colPosMap.get(UIProvider.AccountColumns.COMPOSE_URI)] =
                     getExternalUriStringEmail2("compose", Long.toString(id));
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.UPDATE_SETTINGS_URI)) {
+            values[colPosMap.get(UIProvider.AccountColumns.UPDATE_SETTINGS_URI)] =
+                    uiUriString("uiacctsettings", -1);
         }
 
         if (colPosMap.containsKey(UIProvider.AccountColumns.SettingsColumns.AUTO_ADVANCE)) {
@@ -5082,6 +5092,23 @@ public class EmailProvider extends ContentProvider
             }
         }
         return update(ourUri, ourValues, null, null);
+    }
+
+    private int uiUpdateSettings(final Context c, final ContentValues uiValues) {
+        final MailPrefs mailPrefs = MailPrefs.get(c);
+
+        if (uiValues.containsKey(SettingsColumns.AUTO_ADVANCE)) {
+            mailPrefs.setAutoAdvanceMode(uiValues.getAsInteger(SettingsColumns.AUTO_ADVANCE));
+        }
+        if (uiValues.containsKey(SettingsColumns.CONVERSATION_VIEW_MODE)) {
+            final int value = uiValues.getAsInteger(SettingsColumns.CONVERSATION_VIEW_MODE);
+            final boolean overviewMode = value == UIProvider.ConversationViewMode.OVERVIEW;
+            mailPrefs.setConversationOverviewMode(overviewMode);
+        }
+
+        c.getContentResolver().notifyChange(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null, false);
+
+        return 1;
     }
 
     private int markAllSeen(final Context context, final String mailboxId) {
