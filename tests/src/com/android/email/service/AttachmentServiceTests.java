@@ -391,7 +391,7 @@ public class AttachmentServiceTests extends TestCase {
         for (int i = 0; i < dq.getSize(); i++){
             final AttachmentService.DownloadRequest returnRequest = dq.getNextRequest();
             assertNotNull(returnRequest);
-            final long requestTime = returnRequest.mTime;
+            final long requestTime = returnRequest.mCreatedTime;
             // The time should be going up.
             assertTrue(requestTime >= lastTime);
             lastTime = requestTime;
