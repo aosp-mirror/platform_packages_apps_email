@@ -41,22 +41,6 @@ public class AccountService extends Service {
     private final IAccountService.Stub mBinder = new IAccountService.Stub() {
 
         @Override
-        public void notifyLoginFailed(long accountId, String reason) {
-            NotificationController nc = NotificationController.getInstance(mContext);
-            nc.showLoginFailedNotification(accountId, reason);
-        }
-
-        @Override
-        public void notifyLoginSucceeded(long accountId) {
-            NotificationController.getInstance(mContext).cancelLoginFailedNotification(accountId);
-        }
-
-        @Override
-        public void reconcileAccounts(String protocol, String accountManagerType) {
-            // TODO: No longer used, delete this.
-        }
-
-        @Override
         public int getAccountColor(long accountId) {
             return ResourceHelper.getInstance(mContext).getAccountColor(accountId);
         }
