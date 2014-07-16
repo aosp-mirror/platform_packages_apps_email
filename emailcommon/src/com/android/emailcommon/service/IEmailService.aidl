@@ -17,8 +17,7 @@
 
 package com.android.emailcommon.service;
 
-import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.service.HostAuthCompat;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
 
@@ -45,9 +44,7 @@ interface IEmailService {
     void pushModify(long accountId);
 
     // Other email operations.
-    // TODO: Decouple this call from HostAuth (i.e. use a dedicated data structure, or just pass
-    // the necessary strings directly).
-    Bundle validate(in HostAuth hostauth);
+    Bundle validate(in HostAuthCompat hostauth);
 
     int searchMessages(long accountId, in SearchParams params, long destMailboxId);
 
@@ -55,6 +52,7 @@ interface IEmailService {
     oneway void sendMeetingResponse(long messageId, int response);
 
     // Specific to EAS protocol.
+    // TODO: this passes a HostAuth back in the bundle. We should be using a HostAuthCom for that.
     Bundle autoDiscover(String userName, String password);
 
     // Service control operations (i.e. does not generate a client-server message).
