@@ -144,6 +144,11 @@ public abstract class EmailContent {
     public static String NOTIFIER_AUTHORITY;
     public static Uri CONTENT_URI;
     public static final String PARAMETER_LIMIT = "limit";
+
+    /**
+     * Query parameter for the UI accounts query to enable suppression of the combined account.
+     */
+    public static final String SUPPRESS_COMBINED_ACCOUNT_PARAM = "suppress_combined";
     public static Uri CONTENT_NOTIFIER_URI;
     public static Uri PICK_TRASH_FOLDER_URI;
     public static Uri PICK_SENT_FOLDER_URI;
