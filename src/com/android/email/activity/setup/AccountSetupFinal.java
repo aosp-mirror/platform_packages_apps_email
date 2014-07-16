@@ -767,7 +767,8 @@ public class AccountSetupFinal extends AccountSetupActivity
             }
         } else {
             mIsPreConfiguredProvider = false;
-            final String existingAccountName = mExistingAccountsMap.get(email);
+            final String existingAccountName =
+                mExistingAccountsMap != null ? mExistingAccountsMap.get(email) : null;
             if (!TextUtils.isEmpty(existingAccountName)) {
                 showDuplicateAccountDialog(existingAccountName);
                 return false;
