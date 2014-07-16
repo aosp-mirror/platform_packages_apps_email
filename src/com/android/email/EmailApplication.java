@@ -20,6 +20,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 
+import com.android.email.activity.setup.AccountSettings;
 import com.android.email.preferences.EmailPreferenceMigrator;
 import com.android.mail.browse.ConversationMessage;
 import com.android.mail.browse.InlineAttachmentViewIntentBuilder;
@@ -28,6 +29,7 @@ import com.android.mail.browse.InlineAttachmentViewIntentBuilderCreatorHolder;
 import com.android.mail.preferences.BasePreferenceMigrator;
 import com.android.mail.preferences.PreferenceMigratorHolder;
 import com.android.mail.preferences.PreferenceMigratorHolder.PreferenceMigratorCreator;
+import com.android.mail.ui.settings.PublicPreferenceActivity;
 import com.android.mail.utils.LogTag;
 
 public class EmailApplication extends Application {
@@ -58,5 +60,6 @@ public class EmailApplication extends Application {
                     }
                 });
 
+        PublicPreferenceActivity.sPreferenceActivityClass = AccountSettings.class;
     }
 }
