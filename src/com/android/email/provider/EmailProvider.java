@@ -5620,8 +5620,8 @@ public class EmailProvider extends ContentProvider
             return;
         }
 
-        LogUtils.d(TAG, "Setting sync interval for account " + accountId + " to " + syncInterval +
-                " minutes");
+        LogUtils.d(TAG, "Setting sync interval for account %s to %d minutes",
+                accountId, syncInterval);
 
         // First remove all existing periodic syncs.
         final List<PeriodicSync> syncs =
@@ -5963,7 +5963,7 @@ public class EmailProvider extends ContentProvider
                     EmailServiceUtils.getServiceForAccount(context, accountId);
             if (service != null) {
                 try {
-                    service.deleteAccountPIMData(emailAddress);
+                    service.deleteExternalAccountPIMData(emailAddress);
                 } catch (final RemoteException e) {
                     // Can't do anything about this
                 }
