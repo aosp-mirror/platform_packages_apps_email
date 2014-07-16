@@ -29,7 +29,7 @@ import android.os.Bundle;
 import com.android.email.NotificationController;
 import com.android.email.Preferences;
 import com.android.email.provider.EmailProvider;
-import com.android.email.service.AttachmentDownloadService;
+import com.android.email.service.AttachmentService;
 import com.android.email.service.EmailServiceUtils;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.TempDirectory;
@@ -124,13 +124,15 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
     private static void setServicesEnabled(Context context, boolean enabled) {
         PackageManager pm = context.getPackageManager();
         pm.setComponentEnabledSetting(
-                new ComponentName(context, AttachmentDownloadService.class),
+                new ComponentName(context, AttachmentService.class),
                 enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
                     PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP);
 
         // Start/stop the various services depending on whether there are any accounts
-        startOrStopService(enabled, context, new Intent(context, AttachmentDownloadService.class));
+        // TODO: Make sure that the AttachmentService responds to this request as it
+        // expects a particular set of data in the intents that it receives or it ignores.
+        startOrStopService(enabled, context, new Intent(context, AttachmentService.class));
         NotificationController.getInstance(context).watchForMessages();
     }
 

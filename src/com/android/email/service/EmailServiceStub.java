@@ -219,7 +219,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                     new MessageRetrievalListenerBridge(messageId, attachmentId, cb));
 
             // If we failed to load the attachment, throw an Exception here, so that
-            // AttachmentDownloadService knows that we failed
+            // AttachmentService knows that we failed
             if (storePart.getBody() == null) {
                 throw new MessagingException("Attachment not loaded.");
             }

@@ -68,7 +68,7 @@ import com.android.email.R;
 import com.android.email.SecurityPolicy;
 import com.android.email.activity.setup.AccountSettingsFragment;
 import com.android.email.activity.setup.AccountSettingsUtils;
-import com.android.email.service.AttachmentDownloadService;
+import com.android.email.service.AttachmentService;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email2.ui.MailActivityEmail;
@@ -2439,24 +2439,24 @@ public class EmailProvider extends ContentProvider
         }
     }
 
-    public static interface AttachmentService {
+    public static interface EmailAttachmentService {
         /**
          * Notify the service that an attachment has changed.
          */
-        void attachmentChanged(Context context, long id, int flags);
+        void attachmentChanged(final Context context, final long id, final int flags);
     }
 
-    private final AttachmentService DEFAULT_ATTACHMENT_SERVICE = new AttachmentService() {
+    private final EmailAttachmentService DEFAULT_ATTACHMENT_SERVICE = new EmailAttachmentService() {
         @Override
-        public void attachmentChanged(Context context, long id, int flags) {
+        public void attachmentChanged(final Context context, final long id, final int flags) {
             // The default implementation delegates to the real service.
-            AttachmentDownloadService.attachmentChanged(context, id, flags);
+            AttachmentService.attachmentChanged(context, id, flags);
         }
     };
-    private AttachmentService mAttachmentService = DEFAULT_ATTACHMENT_SERVICE;
+    private EmailAttachmentService mAttachmentService = DEFAULT_ATTACHMENT_SERVICE;
 
     // exposed for testing
-    public void injectAttachmentService(AttachmentService attachmentService) {
+    public void injectAttachmentService(final EmailAttachmentService attachmentService) {
         mAttachmentService =
             attachmentService == null ? DEFAULT_ATTACHMENT_SERVICE : attachmentService;
     }

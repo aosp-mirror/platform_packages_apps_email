@@ -424,7 +424,7 @@
         <!-- From Email application -->
 
         <receiver
-            android:name=".service.AttachmentDownloadService$Watchdog"
+            android:name=".service.AttachmentService$AttachmentWatchdog"
             android:enabled="true"/>
 
         <!-- Handles app upgrade. This disables itself after running once. -->
@@ -482,7 +482,7 @@
         </receiver>
 
         <service
-            android:name=".service.AttachmentDownloadService"
+            android:name=".service.AttachmentService"
             android:enabled="false"
             >
         </service>

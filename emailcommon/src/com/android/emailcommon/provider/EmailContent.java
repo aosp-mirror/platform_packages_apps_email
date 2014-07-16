@@ -1407,7 +1407,7 @@ public abstract class EmailContent {
             +     ")";
 
         // Bits used in mFlags
-        // WARNING: AttachmentDownloadService relies on the fact that ALL of the flags below
+        // WARNING: AttachmentService relies on the fact that ALL of the flags below
         // disqualify attachments for precaching.  If you add a flag that does NOT disqualify an
         // attachment for precaching, you MUST change the PRECACHE_SELECTION definition above
 
