@@ -40,12 +40,6 @@
     <!-- Actions will be used as buttons and in menu items -->
     <skip />
 
-    <!-- Button name used as part of a multi-step process -->
-    <string name="next_action">Next</string>
-    <!-- Button name used to cancel out of dialog boxes -->
-    <string name="previous_action">Previous</string>
-    <!--  Button name used to complete a multi-step process -->
-    <string name="done_action">Done</string>
     <!--  Menu item used to create a new quick response [CHAR_LIMIT=16] -->
     <string name="create_action">Create new</string>
     <!-- Message informing user when a list that would contain quick responses

@@ -32,5 +32,5 @@
         style="@style/account_settings_button"
         android:layout_width="0dip"
         android:layout_weight="1"
-        android:text="@string/done_action" />
+        android:text="@string/done" />
 </LinearLayout>
