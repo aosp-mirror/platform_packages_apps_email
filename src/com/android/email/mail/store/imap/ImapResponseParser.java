@@ -438,6 +438,9 @@ public class ImapResponseParser {
         } catch (NumberFormatException nfe) {
             throw new MessagingException("Invalid length in literal");
         }
+        if (size < 0) {
+            throw new MessagingException("Invalid negative length in literal");
+        }
         expect('\r');
         expect('\n');
         FixedLengthInputStream in = new FixedLengthInputStream(mIn, size);
