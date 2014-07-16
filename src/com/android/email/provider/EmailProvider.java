@@ -4130,23 +4130,32 @@ public class EmailProvider extends ContentProvider
         private final int mContentUriIndex;
         private final int mUriIndex;
         private final Context mContext;
+        private final String[] mContentUriStrings;
 
         public AttachmentsCursor(Context context, Cursor cursor) {
             super(cursor);
             mContentUriIndex = cursor.getColumnIndex(UIProvider.AttachmentColumns.CONTENT_URI);
             mUriIndex = cursor.getColumnIndex(UIProvider.AttachmentColumns.URI);
             mContext = context;
-        }
-
-        @Override
-        public String getString(int column) {
-            if (column == mContentUriIndex) {
+            mContentUriStrings = new String[cursor.getCount()];
+            if (mContentUriIndex == -1) {
+                // Nothing to do here, move along
+                return;
+            }
+            while (cursor.moveToNext()) {
+                final int index = cursor.getPosition();
                 final Uri uri = Uri.parse(getString(mUriIndex));
                 final long id = Long.parseLong(uri.getLastPathSegment());
                 final Attachment att = Attachment.restoreAttachmentWithId(mContext, id);
-                if (att == null) return "";
+
+                if (att == null) {
+                    mContentUriStrings[index] = "";
+                    continue;
+                }
+
                 if (!TextUtils.isEmpty(att.getCachedFileUri())) {
-                    return att.getCachedFileUri();
+                    mContentUriStrings[index] = att.getCachedFileUri();
+                    continue;
                 }
 
                 final String contentUri;
@@ -4172,8 +4181,16 @@ public class EmailProvider extends ContentProvider
                                 .toString();
                     }
                 }
-                return contentUri;
+                mContentUriStrings[index] = contentUri;
 
+            }
+            cursor.moveToPosition(-1);
+        }
+
+        @Override
+        public String getString(int column) {
+            if (column == mContentUriIndex) {
+                return mContentUriStrings[getPosition()];
             } else {
                 return super.getString(column);
             }
