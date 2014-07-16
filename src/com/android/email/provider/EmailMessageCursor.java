@@ -70,7 +70,12 @@ public class EmailMessageCursor extends CursorWrapper {
                 if (mHtmlColumnIndex != -1) {
                     final Uri htmlUri = Body.getBodyHtmlUriForMessageWithId(messageId);
                     final InputStream in = cr.openInputStream(htmlUri);
-                    final String underlyingHtmlString = IOUtils.toString(in);
+                    final String underlyingHtmlString;
+                    try {
+                        underlyingHtmlString = IOUtils.toString(in);
+                    } finally {
+                        in.close();
+                    }
                     final String sanitizedHtml = HtmlSanitizer.sanitizeHtml(underlyingHtmlString);
                     mHtmlParts.put(position, sanitizedHtml);
                 }
@@ -81,7 +86,12 @@ public class EmailMessageCursor extends CursorWrapper {
                 if (mTextColumnIndex != -1) {
                     final Uri textUri = Body.getBodyTextUriForMessageWithId(messageId);
                     final InputStream in = cr.openInputStream(textUri);
-                    final String underlyingTextString = IOUtils.toString(in);
+                    final String underlyingTextString;
+                    try {
+                        underlyingTextString = IOUtils.toString(in);
+                    } finally {
+                        in.close();
+                    }
                     mTextParts.put(position, underlyingTextString);
                 }
             } catch (final IOException e) {
