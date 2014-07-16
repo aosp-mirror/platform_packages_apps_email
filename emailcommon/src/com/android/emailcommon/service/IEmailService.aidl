@@ -60,6 +60,7 @@ interface IEmailService {
     // trigger the service to reload the flags.
     oneway void setLogging(int flags);
 
-    // Needs to get moved into Email since this is NOT a client-server command.
-    void deleteAccountPIMData(String emailAddress);
+    void deleteExternalAccountPIMData(String emailAddress);
+
+    int getApiVersion();
 }

@@ -33,7 +33,7 @@ import java.io.IOException;
 
 /**
  * The EmailServiceProxy class provides a simple interface for the UI to call into the various
- * EmailService classes (e.g. ExchangeService for EAS).  It wraps the service connect/disconnect
+ * EmailService classes (e.g. EasService for EAS).  It wraps the service connect/disconnect
  * process so that the caller need not be concerned with it.
  *
  * Use the class like this:
@@ -256,11 +256,11 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
      * @param emailAddress the email address for the account whose data should be deleted
      */
     @Override
-    public void deleteAccountPIMData(final String emailAddress) throws RemoteException {
+    public void deleteExternalAccountPIMData(final String emailAddress) throws RemoteException {
         setTask(new ProxyTask() {
             @Override
             public void run() throws RemoteException {
-                mService.deleteAccountPIMData(emailAddress);
+                mService.deleteExternalAccountPIMData(emailAddress);
             }
         }, "deleteAccountPIMData");
         // This can be called when deleting accounts. After making this call, the caller will
@@ -351,5 +351,22 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
     @Override
     public IBinder asBinder() {
         return null;
+    }
+
+    public int getApiVersion() {
+        setTask(new ProxyTask() {
+            @Override
+            public void run() throws RemoteException{
+                mReturn = mService.getApiVersion();
+            }
+        }, "getApiVersion");
+        waitForCompletion();
+        if (mReturn == null) {
+            // This occurs if there is a timeout or remote exception. Is not expected to happen.
+            LogUtils.wtf(TAG, "failed to get api version");
+            return -1;
+        } else {
+            return (Integer) mReturn;
+        }
     }
 }
