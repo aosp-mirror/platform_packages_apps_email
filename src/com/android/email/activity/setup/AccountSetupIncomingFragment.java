@@ -44,6 +44,7 @@ import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.email.view.CertificateSelector;
 import com.android.email.view.CertificateSelector.HostCallback;
 import com.android.emailcommon.Device;
+import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.Credential;
 import com.android.emailcommon.provider.HostAuth;
@@ -54,6 +55,7 @@ import com.android.mail.utils.LogUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Provides UI for IMAP/POP account settings.
@@ -83,6 +85,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
     private View mDeviceIdSection;
     private View mImapPathPrefixSectionView;
     private EditText mImapPathPrefixView;
+    private boolean mOAuthProviderPresent;
     // Delete policy as loaded from the device
     private int mLoadedDeletePolicy;
 
@@ -337,9 +340,13 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         final Account account = mSetupData.getAccount();
         final HostAuth recvAuth = account.getOrCreateHostAuthRecv(mAppContext);
         mServiceInfo = mSetupData.getIncomingServiceInfo(getActivity());
-        mAuthenticationView.setAuthInfo(mServiceInfo.offerOAuth, recvAuth);
+        final List<VendorPolicyLoader.OAuthProvider> oauthProviders =
+                AccountSettingsUtils.getAllOAuthProviders(getActivity());
+        final boolean offerOAuth = (mServiceInfo.offerOAuth && oauthProviders.size() > 0);
+
+        mAuthenticationView.setAuthInfo(offerOAuth, recvAuth);
         if (mAuthenticationLabel != null) {
-            if (mServiceInfo.offerOAuth) {
+            if (offerOAuth) {
                 mAuthenticationLabel.setText(R.string.authentication_label);
             } else {
                 mAuthenticationLabel.setText(R.string.account_setup_basics_password_label);
