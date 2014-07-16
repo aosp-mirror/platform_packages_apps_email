@@ -824,4 +824,7 @@
     <!-- This message indicates no quick responses exist to choose from -->
     <string name="no_quick_responses">None available</string>
 
+    <!-- Activity name of the compose activity that should be reconciled -->
+    <string name="reconciliation_compose_activity_name" translatable="false">com.android.email.activity.ComposeActivityEmail</string>
+
 </resources>
