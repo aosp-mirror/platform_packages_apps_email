@@ -186,7 +186,7 @@
     <string name="account_setup_security_required_title" msgid="667943309546419435">"Pentadbiran keselamatan jauh"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="9029471168291631932">"Pelayan <xliff:g id="SERVER">%s</xliff:g> menghendaki anda membenarkannya mengawal beberapa ciri keselamatan peranti Android anda secara jauh. Adakah anda mahu menyelesaikan persediaan akaun ini?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="4619685657253094627">"Pelayan ini memerlukan ciri-ciri keselamatan yang tidak disokong oleh peranti Android anda, termasuk: <xliff:g id="ERROR">%s</xliff:g>"</string>
-    <string name="account_setup_username_uneditable_error" msgid="3607769783124215764">"Anda tidak boleh menukar nama pengguna akaun. Untuk menambah sebuah akaun dengan nama pengguna yang berbeza, sentuh Tambah Akaun."</string>
+    <string name="account_setup_username_uneditable_error" msgid="3607769783124215764">"Anda tidak boleh menukar nama pengguna akaun. Untuk menambahkan akaun dengan nama pengguna yang lain, sentuh Tambahkan Akaun."</string>
     <string name="disable_admin_warning" msgid="6001542250505146252">"AMARAN: Menyahaktifkan autoriti aplikasi E-mel untuk mentadbir peranti anda akan memadamkan semua akaun e-mel yang memerlukannya, bersama-sama dengan e-mel, kenalan, acara kalendar dan datanya yang lain."</string>
     <string name="account_security_dialog_title" msgid="7003032393805438164">"Kemas kini keselamatan"</string>
     <string name="account_security_dialog_content_fmt" msgid="4107093049191103780">"<xliff:g id="ACCOUNT">%s</xliff:g> memerlukan anda untuk mengemas kini tetapan keselamatan anda."</string>

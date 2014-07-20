@@ -186,7 +186,7 @@
     <string name="account_setup_security_required_title" msgid="667943309546419435">"የሩቅ አስተዳደር ደህንነት"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="9029471168291631932">"<xliff:g id="SERVER">%s</xliff:g> አገልጋይ የAndroid መሣሪያዎ አንዳንድ ገፅታዎች በርቀት ለመቆጣጠር እንዲፈቅዱ ይጠይቃል። ይህን መለያ ጨርሰው ለማቀናበር ይፈልጋሉ?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="4619685657253094627">"ይህ አገልጋይ የአንተ Android መሣሪያ የማይደግፈው የደህንነት ገፅታዎችን ይጠይቃል፣<xliff:g id="ERROR">%s</xliff:g> ጨምሮ።"</string>
-    <string name="account_setup_username_uneditable_error" msgid="3607769783124215764">"የመለያውን ተጠቃሚ ስም መለወጥ አትችልም። መለያውን በተለየ ተጠቃሚ ስም ለማከል መለያ አክል ንካ።"</string>
+    <string name="account_setup_username_uneditable_error" msgid="3607769783124215764">"የመለያውን ተጠቃሚ ስም መለወጥ አይችሉም። መለያውን በተለየ ተጠቃሚ ስም ለማከል መለያ አክልን ይንኩ።"</string>
     <string name="disable_admin_warning" msgid="6001542250505146252">"ማስጠንቀቂያ፣ መሣሪያህን ለማስተዳደር የኢሜይል ትግበራዎችን ኃላፊነት ማቦዘን የሚጠይቁትን ሁሉ የኢሜይል መለያዎች ከኢሜይል፣ ዕውቂያዎች፣ ቀን መቁጠሪያ ክስተቶች፣ እና ሌላ ውሂብ ጋር አብሮ ይሰርዛል።"</string>
     <string name="account_security_dialog_title" msgid="7003032393805438164">"ደህንነት ዝማኔ"</string>
     <string name="account_security_dialog_content_fmt" msgid="4107093049191103780">"<xliff:g id="ACCOUNT">%s</xliff:g> የደህንነት ቅንጅቶችህን ማዘመን ይጠይቅሃል።"</string>
