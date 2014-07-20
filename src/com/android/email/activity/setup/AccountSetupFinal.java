@@ -184,7 +184,7 @@ public class AccountSetupFinal extends AccountSetupActivity
     }
 
     public static Intent actionNewAccountWithResultIntent(final Context context) {
-        final Intent i = new ForwardingIntent(context, AccountSetupFinal.class);
+        final Intent i = new Intent(context, AccountSetupFinal.class);
         i.putExtra(EXTRA_FLOW_MODE, SetupDataFragment.FLOW_MODE_NO_ACCOUNTS);
         return i;
     }
