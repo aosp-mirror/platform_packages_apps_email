@@ -2748,6 +2748,8 @@ public class EmailProvider extends ContentProvider
                     .add(UIProvider.AccountColumns.NAME, AccountColumns.DISPLAY_NAME)
                     .add(UIProvider.AccountColumns.ACCOUNT_MANAGER_NAME,
                             AccountColumns.EMAIL_ADDRESS)
+                    .add(UIProvider.AccountColumns.ACCOUNT_ID,
+                            AccountColumns.EMAIL_ADDRESS)
                     .add(UIProvider.AccountColumns.SENDER_NAME,
                             AccountColumns.SENDER_NAME)
                     .add(UIProvider.AccountColumns.UNDO_URI,
@@ -3638,6 +3640,9 @@ public class EmailProvider extends ContentProvider
         if (colPosMap.containsKey(UIProvider.AccountColumns.ACCOUNT_MANAGER_NAME)) {
             values[colPosMap.get(UIProvider.AccountColumns.ACCOUNT_MANAGER_NAME)] =
                     getContext().getString(R.string.mailbox_list_account_selector_combined_view);
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.ACCOUNT_ID)) {
+            values[colPosMap.get(UIProvider.AccountColumns.ACCOUNT_ID)] = "Account Id";
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.TYPE)) {
             values[colPosMap.get(UIProvider.AccountColumns.TYPE)] = "unknown";
