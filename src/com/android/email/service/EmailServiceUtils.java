@@ -284,19 +284,38 @@ public class EmailServiceUtils {
     public static AccountManagerFuture<Bundle> setupAccountManagerAccount(final Context context,
             final Account account, final boolean email, final boolean calendar,
             final boolean contacts, final AccountManagerCallback<Bundle> callback) {
-        final Bundle options = new Bundle(5);
         final HostAuth hostAuthRecv =
                 HostAuth.restoreHostAuthWithId(context, account.mHostAuthKeyRecv);
-        if (hostAuthRecv == null) {
+        return setupAccountManagerAccount(context, account, email, calendar, contacts,
+                hostAuthRecv, callback);
+    }
+
+    /**
+     * Add an account to the AccountManager.
+     * @param context Our {@link Context}.
+     * @param account The {@link Account} we're adding.
+     * @param email Whether the user wants to sync email on this account.
+     * @param calendar Whether the user wants to sync calendar on this account.
+     * @param contacts Whether the user wants to sync contacts on this account.
+     * @param hostAuth HostAuth that identifies the protocol and password for this account.
+     * @param callback A callback for when the AccountManager is done.
+     * @return The result of {@link AccountManager#addAccount}.
+     */
+    public static AccountManagerFuture<Bundle> setupAccountManagerAccount(final Context context,
+            final Account account, final boolean email, final boolean calendar,
+            final boolean contacts, final HostAuth hostAuth,
+            final AccountManagerCallback<Bundle> callback) {
+        if (hostAuth == null) {
             return null;
         }
         // Set up username/password
+        final Bundle options = new Bundle(5);
         options.putString(EasAuthenticatorService.OPTIONS_USERNAME, account.mEmailAddress);
-        options.putString(EasAuthenticatorService.OPTIONS_PASSWORD, hostAuthRecv.mPassword);
+        options.putString(EasAuthenticatorService.OPTIONS_PASSWORD, hostAuth.mPassword);
         options.putBoolean(EasAuthenticatorService.OPTIONS_CONTACTS_SYNC_ENABLED, contacts);
         options.putBoolean(EasAuthenticatorService.OPTIONS_CALENDAR_SYNC_ENABLED, calendar);
         options.putBoolean(EasAuthenticatorService.OPTIONS_EMAIL_SYNC_ENABLED, email);
-        final EmailServiceInfo info = getServiceInfo(context, hostAuthRecv.mProtocol);
+        final EmailServiceInfo info = getServiceInfo(context, hostAuth.mProtocol);
         return AccountManager.get(context).addAccount(info.accountType, null, null, options, null,
                 callback, null);
     }
