@@ -538,8 +538,7 @@ public class LegacyConversions {
         if (mailboxName == null || mailboxName.length() == 0) {
             return Mailbox.TYPE_MAIL;
         }
-        String lowerCaseName = mailboxName.toLowerCase();
-        Integer type = sServerMailboxNames.get(lowerCaseName);
+        Integer type = sServerMailboxNames.get(mailboxName);
         if (type != null) {
             return type;
         }
