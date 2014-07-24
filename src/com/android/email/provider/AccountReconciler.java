@@ -32,6 +32,8 @@ import android.text.TextUtils;
 import com.android.email.NotificationController;
 import com.android.email.R;
 import com.android.email.activity.ComposeActivityEmail;
+import com.android.email.service.EasAuthenticatorService;
+import com.android.email.service.EasAuthenticatorServiceAlternate;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.emailcommon.Logging;
@@ -154,7 +156,20 @@ public class AccountReconciler {
         boolean exchangeAccountDeleted = false;
 
         LogUtils.d(Logging.LOG_TAG, "reconcileAccountsInternal");
+        // See if we should have the Eas authenticators enabled.
 
+        if (!EmailServiceUtils.isServiceAvailable(context,
+                context.getString(R.string.protocol_eas))) {
+            LogUtils.d(Logging.LOG_TAG, "disabling eas authenticator");
+            EmailServiceUtils.setComponentEnabled(context, EasAuthenticatorServiceAlternate.class,
+                    false);
+            EmailServiceUtils.setComponentEnabled(context, EasAuthenticatorService.class, false);
+        } else {
+            LogUtils.d(Logging.LOG_TAG, "enabling eas authenticator");
+            EmailServiceUtils.setComponentEnabled(context, EasAuthenticatorServiceAlternate.class,
+                    true);
+            EmailServiceUtils.setComponentEnabled(context, EasAuthenticatorService.class, true);
+        }
         // First, look through our EmailProvider accounts to make sure there's a corresponding
         // AccountManager account
         for (final Account providerAccount : emailProviderAccounts) {
