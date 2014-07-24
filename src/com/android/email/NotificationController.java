@@ -331,7 +331,7 @@ public class NotificationController {
         com.android.mail.providers.Account uiAccount = null;
         try {
             if (accountCursor.moveToFirst()) {
-                uiAccount = new com.android.mail.providers.Account(accountCursor);
+                uiAccount = com.android.mail.providers.Account.builder().buildFrom(accountCursor);
             }
         } finally {
             accountCursor.close();
@@ -671,7 +671,7 @@ public class NotificationController {
         com.android.mail.providers.Account account = null;
         try {
             if (accountCursor.moveToFirst()) {
-                account = new com.android.mail.providers.Account(accountCursor);
+                account = com.android.mail.providers.Account.builder().buildFrom(accountCursor);
             }
         } finally {
             accountCursor.close();
