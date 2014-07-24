@@ -5402,7 +5402,7 @@ public class EmailProvider extends ContentProvider
         try {
             if (ac.moveToFirst()) {
                 final com.android.mail.providers.Account uiAccount =
-                        new com.android.mail.providers.Account(ac);
+                        com.android.mail.providers.Account.builder().buildFrom(ac);
                 Intent intent = new Intent(context, FolderPickerActivity.class);
                 intent.putExtra(PICKER_UI_ACCOUNT, uiAccount);
                 intent.putExtra(PICKER_MAILBOX_TYPE, type);

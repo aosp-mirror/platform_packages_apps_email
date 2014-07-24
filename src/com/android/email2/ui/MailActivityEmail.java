@@ -231,7 +231,7 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
         com.android.mail.providers.Account account = null;
         try {
             if (accountCursor.moveToFirst()) {
-                account = new com.android.mail.providers.Account(accountCursor);
+                account = com.android.mail.providers.Account.builder().buildFrom(accountCursor);
             }
         } finally {
             accountCursor.close();

@@ -57,7 +57,7 @@ public class EmailPreferenceMigrator extends BasePreferenceMigrator {
         } else {
             try {
                 while (accountCursor.moveToNext()) {
-                    accounts.add(new Account(accountCursor));
+                    accounts.add(Account.builder().buildFrom(accountCursor));
                 }
             } finally {
                 accountCursor.close();
