@@ -176,6 +176,8 @@ public class EmailConversationCursor extends CursorWrapper implements
         final ConversationInfo conversationInfo = new ConversationInfo(numMessages);
 
         conversationInfo.firstSnippet = getString(getColumnIndex(ConversationColumns.SNIPPET));
+        conversationInfo.lastSnippet = conversationInfo.firstSnippet;
+        conversationInfo.firstUnreadSnippet = conversationInfo.firstSnippet;
 
         final boolean isRead = getInt(getColumnIndex(ConversationColumns.READ)) != 0;
         final String senderString = getString(getColumnIndex(EmailContent.MessageColumns.DISPLAY_NAME));
