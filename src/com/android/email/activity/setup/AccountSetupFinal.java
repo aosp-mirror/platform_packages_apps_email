@@ -68,14 +68,14 @@ public class AccountSetupFinal extends AccountSetupActivity
      * For use by continuous automated test system (e.g. in conjunction with monkey tests)
      *
      * === Support for automated testing ==
-     * This activity can also be launched directly via INTENT_CREATE_ACCOUNT.  This is intended
+     * This activity can also be launched directly via INTENT_FORCE_CREATE_ACCOUNT. This is intended
      * only for use by continuous test systems, and is currently only available when
      * {@link ActivityManager#isRunningInTestHarness()} is set.  To use this mode, you must
      * construct an intent which contains all necessary information to create the account.  No
      * connection checking is done, so the account may or may not actually work.  Here is a sample
      * command, for a gmail account "test_account" with a password of "test_password".
      *
-     *      $ adb shell am start -a com.android.email.CREATE_ACCOUNT \
+     *      $ adb shell am start -a com.android.email.FORCE_CREATE_ACCOUNT \
      *          -e EMAIL test_account@gmail.com \
      *          -e USER "Test Account Name" \
      *          -e INCOMING imap+ssl+://test_account:test_password@imap.gmail.com \
@@ -87,13 +87,13 @@ public class AccountSetupFinal extends AccountSetupActivity
      *
      * For accounts that correspond to services in providers.xml you can also use the following form
      *
-     *      $adb shell am start -a com.android.email.CREATE_ACCOUNT \
+     *      $adb shell am start -a com.android.email.FORCE_CREATE_ACCOUNT \
      *          -e EMAIL test_account@gmail.com \
      *          -e PASSWORD test_password
      *
      * and the appropriate incoming/outgoing information will be filled in automatically.
      */
-    private static String INTENT_CREATE_ACCOUNT;
+    private static String INTENT_FORCE_CREATE_ACCOUNT;
     private static final String EXTRA_FLOW_MODE = "FLOW_MODE";
     private static final String EXTRA_FLOW_ACCOUNT_TYPE = "FLOW_ACCOUNT_TYPE";
     private static final String EXTRA_CREATE_ACCOUNT_EMAIL = "EMAIL";
@@ -204,8 +204,8 @@ public class AccountSetupFinal extends AccountSetupActivity
         final Intent intent = getIntent();
         final String action = intent.getAction();
 
-        if (INTENT_CREATE_ACCOUNT == null) {
-            INTENT_CREATE_ACCOUNT = getString(R.string.intent_create_account);
+        if (INTENT_FORCE_CREATE_ACCOUNT == null) {
+            INTENT_FORCE_CREATE_ACCOUNT = getString(R.string.intent_force_create_email_account);
         }
 
         setContentView(R.layout.account_setup_activity);
@@ -239,12 +239,11 @@ public class AccountSetupFinal extends AccountSetupActivity
             }
 
             // Initialize the SetupDataFragment
-            if (INTENT_CREATE_ACCOUNT.equals(action)) {
+            if (INTENT_FORCE_CREATE_ACCOUNT.equals(action)) {
                 mSetupData.setFlowMode(SetupDataFragment.FLOW_MODE_FORCE_CREATE);
             } else {
                 final int intentFlowMode = intent.getIntExtra(EXTRA_FLOW_MODE,
                         SetupDataFragment.FLOW_MODE_UNSPECIFIED);
-                // TODO: do something with this
                 final String flowAccountType = intent.getStringExtra(EXTRA_FLOW_ACCOUNT_TYPE);
                 mSetupData.setAmProtocol(
                         EmailServiceUtils.getProtocolFromAccountType(this, flowAccountType));

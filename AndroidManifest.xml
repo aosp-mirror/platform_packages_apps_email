@@ -266,10 +266,9 @@
             android:exported="true"
             >
             <intent-filter>
-                <action
-                    android:name="com.android.email.CREATE_ACCOUNT" />
-                <category
-                    android:name="android.intent.category.DEFAULT" />
+                <action android:name="com.android.email.FORCE_CREATE_ACCOUNT" />
+                <action android:name="com.android.email.CREATE_NEW_ACCOUNT" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
