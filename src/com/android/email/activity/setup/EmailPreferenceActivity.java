@@ -220,7 +220,10 @@ public class EmailPreferenceActivity extends MailPreferenceActivity {
     @Override
     public void onBuildExtraHeaders(List<Header> target) {
         super.onBuildExtraHeaders(target);
-        // finally, if debug header is enabled, show it
+
+        loadHeadersFromResource(R.xml.email_extra_preference_headers, target);
+
+        // if debug header is enabled, show it
         if (DEBUG_MENU_ALLOWED) {
             if (mShowDebugMenu) {
                 // setup lightweight header for debugging
@@ -251,6 +254,10 @@ public class EmailPreferenceActivity extends MailPreferenceActivity {
             }
         } else {
             mNumGeneralHeaderClicked = 0;
+        }
+        if (header.id == R.id.add_account_header) {
+            onAddNewAccount();
+            return;
         }
 
         // Process header click normally
