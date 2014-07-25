@@ -796,7 +796,8 @@
     <string name="intent_exchange_cert_action" translatable="false">com.android.email.EXCHANGE_REQUEST_CERT</string>
     <string name="intent_exchange_package" translatable="false">com.android.exchange</string>
     <string name="intent_account_manager_entry" translatable="false">com.android.email.activity.setup.ACCOUNT_MANAGER_ENTRY</string>
-    <string name="intent_create_account" translatable="false">com.android.email.CREATE_ACCOUNT</string>
+    <string name="intent_force_create_email_account" translatable="false">com.android.email.FORCE_CREATE_ACCOUNT</string>
+    <string name="intent_create_email_account" translatable="false">com.android.email.CREATE_NEW_ACCOUNT</string>
     <string name="authority_email_provider" translatable="false">com.android.email.provider</string>
     <string name="authority_conversation_provider" translatable="false">com.android.email.conversation.provider</string>
     <string name="authority_account_cache_provider" translatable="false">com.android.email.accountcache</string>
