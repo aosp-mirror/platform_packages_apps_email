@@ -155,7 +155,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="5029046373980454714">"संपर्कों को इस खाते से समन्ववित करें"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="303441956432308807">"इस खाते से कैलेंडर समन्‍वयित करें"</string>
     <string name="account_setup_options_sync_email_label" msgid="468957966555663131">"इस खाते से ईमेल समन्वयित करें"</string>
-    <string name="account_setup_options_background_attachments_label" msgid="4085327585082867216">"Wi-Fi से कनेक्‍ट होने पर अटैचमेंट को स्‍वचालित रूप से डाउनलोड करें"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="4085327585082867216">"वाई-फ़ाई  से कनेक्‍ट होने पर अटैचमेंट को स्‍वचालित रूप से डाउनलोड करें"</string>
     <string name="account_setup_failed_dlg_title" msgid="7923577224474005464">"पूरा नहीं हो सका"</string>
     <string name="account_setup_options_mail_window_label" msgid="4737241149297585368">"ईमेल यहां से समन्वयित करें:"</string>
     <string name="account_setup_options_mail_window_auto" msgid="7407981634952005775">"स्वचालित"</string>
