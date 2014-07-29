@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2014 The Android Open Source Project
+<!-- Copyright (C) 2009 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,7 +14,13 @@
      limitations under the License.
 -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/account_server_settings_container" />
+<resources>
+    <style name="AccountSetupDialogActivityTheme"
+        parent="@android:style/Theme.Material.Light.Dialog.NoActionBar">
+        <!-- ActionBar color -->
+        <item name="android:colorPrimary">@color/actionbar_color</item>
+        <!-- Used by the StatusBar and NavBar (currently broken?) -->
+        <item name="android:colorPrimaryDark">@color/statusbar_color</item>
+        <item name="android:colorAccent">@color/accent_blue</item>
+    </style>
+</resources>
