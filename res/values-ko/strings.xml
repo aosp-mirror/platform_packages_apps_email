@@ -25,7 +25,6 @@
     <string name="create_action" msgid="6575946089819721958">"새로 만들기"</string>
     <string name="quick_responses_empty_view" msgid="3394094315357455290">"빠른 응답이 없습니다."</string>
     <string name="account_settings_action" msgid="589969653965674604">"계정 설정"</string>
-    <string name="menu_folder_options" msgid="7957375715672655588">"동기화 옵션"</string>
     <string name="status_network_error" msgid="526826323872477973">"연결에 문제가 있습니다."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="3431489066510898753">"메일 이동"</item>

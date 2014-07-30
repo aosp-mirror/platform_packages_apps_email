@@ -25,7 +25,6 @@
     <string name="create_action" msgid="6575946089819721958">"Създаване на нов"</string>
     <string name="quick_responses_empty_view" msgid="3394094315357455290">"Няма бързи отговори."</string>
     <string name="account_settings_action" msgid="589969653965674604">"Настройки на профила"</string>
-    <string name="menu_folder_options" msgid="7957375715672655588">"Опции за синхронизиране"</string>
     <string name="status_network_error" msgid="526826323872477973">"Проблем с връзката."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="3431489066510898753">"Преместване на съобщение"</item>

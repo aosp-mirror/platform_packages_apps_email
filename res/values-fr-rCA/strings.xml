@@ -25,7 +25,6 @@
     <string name="create_action" msgid="6575946089819721958">"Créer une nouvelle étiquette"</string>
     <string name="quick_responses_empty_view" msgid="3394094315357455290">"Aucune réponse rapide"</string>
     <string name="account_settings_action" msgid="589969653965674604">"Paramètres de compte"</string>
-    <string name="menu_folder_options" msgid="7957375715672655588">"Options de synchronisation"</string>
     <string name="status_network_error" msgid="526826323872477973">"Problème de connexion."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="3431489066510898753">"Déplacer le message"</item>

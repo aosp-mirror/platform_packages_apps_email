@@ -25,7 +25,6 @@
     <string name="create_action" msgid="6575946089819721958">"Ustvari novega"</string>
     <string name="quick_responses_empty_view" msgid="3394094315357455290">"Ni hitrih odzivov."</string>
     <string name="account_settings_action" msgid="589969653965674604">"Nastavitve računa"</string>
-    <string name="menu_folder_options" msgid="7957375715672655588">"Možnosti sinhronizacije"</string>
     <string name="status_network_error" msgid="526826323872477973">"Težava s povezavo."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="3431489066510898753">"Premikanje sporočil"</item>
