@@ -517,22 +517,22 @@ public class LegacyConversions {
         if (sServerMailboxNames.size() == 0) {
             // preload the hashmap, one time only
             sServerMailboxNames.put(
-                    context.getString(R.string.mailbox_name_server_inbox).toLowerCase(),
+                    context.getString(R.string.mailbox_name_server_inbox),
                     Mailbox.TYPE_INBOX);
             sServerMailboxNames.put(
-                    context.getString(R.string.mailbox_name_server_outbox).toLowerCase(),
+                    context.getString(R.string.mailbox_name_server_outbox),
                     Mailbox.TYPE_OUTBOX);
             sServerMailboxNames.put(
-                    context.getString(R.string.mailbox_name_server_drafts).toLowerCase(),
+                    context.getString(R.string.mailbox_name_server_drafts),
                     Mailbox.TYPE_DRAFTS);
             sServerMailboxNames.put(
-                    context.getString(R.string.mailbox_name_server_trash).toLowerCase(),
+                    context.getString(R.string.mailbox_name_server_trash),
                     Mailbox.TYPE_TRASH);
             sServerMailboxNames.put(
-                    context.getString(R.string.mailbox_name_server_sent).toLowerCase(),
+                    context.getString(R.string.mailbox_name_server_sent),
                     Mailbox.TYPE_SENT);
             sServerMailboxNames.put(
-                    context.getString(R.string.mailbox_name_server_junk).toLowerCase(),
+                    context.getString(R.string.mailbox_name_server_junk),
                     Mailbox.TYPE_JUNK);
         }
         if (mailboxName == null || mailboxName.length() == 0) {
