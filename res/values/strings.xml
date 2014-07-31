@@ -820,4 +820,6 @@
     <!-- Activity name of the compose activity that should be reconciled -->
     <string name="reconciliation_compose_activity_name" translatable="false">com.android.email.activity.ComposeActivityEmail</string>
 
+    <!-- Gmail name for redirecting during account setup -->
+    <string name="gmail_name">Gmail</string>
 </resources>

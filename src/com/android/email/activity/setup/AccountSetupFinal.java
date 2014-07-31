@@ -564,6 +564,9 @@ public class AccountSetupFinal extends AccountSetupActivity
                             mState = STATE_AB;
                         } else {
                             mState = STATE_CREDENTIALS;
+                            if (possiblyDivertToGmail()) {
+                                return;
+                            }
                         }
                     } else {
                         final String amProtocol = mSetupData.getAmProtocol();
@@ -585,6 +588,9 @@ public class AccountSetupFinal extends AccountSetupActivity
                 updateContentFragment(true /* addToBackstack */);
                 break;
             case STATE_AB:
+                if (possiblyDivertToGmail()) {
+                    return;
+                }
                 mState = STATE_CREDENTIALS;
                 updateContentFragment(true /* addToBackstack */);
                 break;
@@ -675,6 +681,29 @@ public class AccountSetupFinal extends AccountSetupActivity
                 LogUtils.wtf(LogUtils.TAG, "Unknown state %d", mState);
                 break;
         }
+    }
+
+    /**
+     * Check if we should divert to creating a Gmail account instead
+     * @return true if we diverted
+     */
+    private boolean possiblyDivertToGmail() {
+        // TODO: actually divert here
+        final EmailServiceUtils.EmailServiceInfo info =
+                mSetupData.getIncomingServiceInfo(this);
+        if (TextUtils.equals(info.protocol, "gmail")) {
+            final Bundle options = new Bundle(1);
+            options.putBoolean("allowSkip", false);
+            AccountManager.get(this).addAccount("com.google",
+                    "mail" /* authTokenType */,
+                    null,
+                    options,
+                    this, null, null);
+
+            finish();
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -831,9 +860,17 @@ public class AccountSetupFinal extends AccountSetupActivity
             final Account account = mSetupData.getAccount();
             final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
             recvAuth.setHostAuthFromString(mProvider.incomingUri);
-            recvAuth.setUserName(mProvider.incomingUsername);
 
             final EmailServiceUtils.EmailServiceInfo info = mSetupData.getIncomingServiceInfo(this);
+            // If the protocol isn't one we can use, and we're not diverting to gmail, try the alt
+            if (!info.isGmailStub && !EmailServiceUtils.isServiceAvailable(this, info.protocol)) {
+                LogUtils.d(LogUtils.TAG, "Protocol %s not available, using alternate",
+                        info.protocol);
+                mProvider.expandAlternateTemplates(email);
+                recvAuth.setHostAuthFromString(mProvider.incomingUri);
+            }
+
+            recvAuth.setUserName(mProvider.incomingUsername);
             recvAuth.mPort =
                     ((recvAuth.mFlags & HostAuth.FLAG_SSL) != 0) ? info.portSsl : info.port;
 

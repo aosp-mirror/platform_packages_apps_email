@@ -305,6 +305,20 @@ public class AccountSettingsUtils {
                     provider.outgoingUriTemplate = getXmlAttribute(context, xml, "uri");
                     provider.outgoingUsernameTemplate = getXmlAttribute(context, xml, "username");
                 }
+                else if (xmlEventType == XmlResourceParser.START_TAG
+                        && "incoming-fallback".equals(xml.getName())
+                        && provider != null) {
+                    provider.altIncomingUriTemplate = getXmlAttribute(context, xml, "uri");
+                    provider.altIncomingUsernameTemplate =
+                            getXmlAttribute(context, xml, "username");
+                }
+                else if (xmlEventType == XmlResourceParser.START_TAG
+                        && "outgoing-fallback".equals(xml.getName())
+                        && provider != null) {
+                    provider.altOutgoingUriTemplate = getXmlAttribute(context, xml, "uri");
+                    provider.altOutgoingUsernameTemplate =
+                            getXmlAttribute(context, xml, "username");
+                }
                 else if (xmlEventType == XmlResourceParser.END_TAG
                         && "provider".equals(xml.getName())
                         && provider != null) {

@@ -110,5 +110,11 @@
         email:syncContacts="true"
         email:syncCalendar="true"
         email:offerMoveTo="true"
-         />
+        />
+    <emailservice
+        email:protocol="gmail"
+        email:name="@string/gmail_name"
+        email:isGmailStub="true"
+        email:hide="true"
+        />
 </emailservices>

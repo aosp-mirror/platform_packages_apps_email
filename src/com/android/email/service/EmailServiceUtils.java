@@ -211,6 +211,7 @@ public class EmailServiceUtils {
         public boolean offerMoveTo;
         public boolean requiresSetup;
         public boolean hide;
+        public boolean isGmailStub;
 
         @Override
         public String toString() {
@@ -608,6 +609,8 @@ public class EmailServiceUtils {
                                 ta.getBoolean(R.styleable.EmailServiceInfo_offerMoveTo, false);
                         info.requiresSetup =
                                 ta.getBoolean(R.styleable.EmailServiceInfo_requiresSetup, false);
+                        info.isGmailStub =
+                                ta.getBoolean(R.styleable.EmailServiceInfo_isGmailStub, false);
 
                         // Must have either "class" (local) or "intent" (remote)
                         if (klass != null) {
@@ -619,7 +622,9 @@ public class EmailServiceUtils {
                                         "Class not found in service descriptor: " + klass);
                             }
                         }
-                        if (info.klass == null && info.intentAction == null) {
+                        if (info.klass == null &&
+                                info.intentAction == null &&
+                                !info.isGmailStub) {
                             throw new IllegalStateException(
                                     "No class or intent action specified in service descriptor");
                         }
