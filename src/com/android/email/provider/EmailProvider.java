@@ -1625,7 +1625,12 @@ public class EmailProvider extends ContentProvider
         // Try to restore them from saved JSON
         int restoredCount = 0;
         for (final android.accounts.Account amAccount : amAccounts) {
-            final String jsonString = am.getUserData(amAccount, ACCOUNT_MANAGER_JSON_TAG);
+            String jsonString = null;
+            try {
+                jsonString = am.getUserData(amAccount, ACCOUNT_MANAGER_JSON_TAG);
+            } catch (SecurityException e) {
+                LogUtils.e(TAG, e, "catching exception");
+            }
             if (TextUtils.isEmpty(jsonString)) {
                 continue;
             }
