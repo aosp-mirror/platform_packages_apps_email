@@ -55,6 +55,9 @@ LOCAL_STATIC_JAVA_LIBRARIES += owasp-html-sanitizer
 LOCAL_PACKAGE_NAME := Email
 
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags $(unified_email_dir)/proguard.flags
+ifeq (eng,$(TARGET_BUILD_VARIANT))
+  LOCAL_PROGUARD_FLAG_FILES += proguard-test.flags
+endif
 
 LOCAL_SDK_VERSION := current
 
