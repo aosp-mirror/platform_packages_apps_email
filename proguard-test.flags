@@ -74,3 +74,23 @@
   <init>(java.io.InputStream);
 }
 
+-keepclasseswithmembers class com.android.mail.utils.Throttle {
+  *** getTimeoutForTest();
+}
+
+-keepclasseswithmembers class com.android.emailcommon.VendorPolicyLoader {
+  *** clearInstanceForTest();
+  *** injectPolicyForTest(android.content.Context, java.lang.String, java.lang.Class);
+}
+
+-keepclasseswithmembers class com.android.email.mail.store.imap.ImapElement {
+  *** equalsForTest(com.android.email.mail.store.imap.ImapElement);
+}
+
+-keepclasseswithmembers class com.android.email.mail.store.imap.ImapTempFileLiteral {
+  *** tempFileExistsForTest();
+}
+
+-keepclasseswithmembers class com.android.emailcommon.utility.EmailAsyncTask$Tracker {
+  <init>();
+}
