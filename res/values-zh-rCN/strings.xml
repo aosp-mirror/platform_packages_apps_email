@@ -291,4 +291,5 @@
     <string name="sent_folder_selection_title" msgid="9207482909822072856">"选择 <xliff:g id="ACCOUNT">%s</xliff:g> 在服务器上的已发邮件文件夹"</string>
     <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"正在加载文件夹列表…"</string>
     <string name="no_quick_responses" msgid="8716297053803961304">"没有可供选择的快速回复"</string>
+    <string name="gmail_name" msgid="2099786953868369991">"Gmail"</string>
 </resources>

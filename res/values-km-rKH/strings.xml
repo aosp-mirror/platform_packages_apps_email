@@ -291,4 +291,5 @@
     <string name="sent_folder_selection_title" msgid="9207482909822072856">"ជ្រើស​​ថត​ធាតុ​បាន​ផ្ញើ​ដោយ​ម៉ាស៊ីន​​មេ​សម្រាប់ <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"កំពុង​ផ្ទុក​បញ្ជី​ថត ..."</string>
     <string name="no_quick_responses" msgid="8716297053803961304">"មិន​មាន​អាច​ប្រើ​បាន"</string>
+    <string name="gmail_name" msgid="2099786953868369991">"Gmail"</string>
 </resources>
