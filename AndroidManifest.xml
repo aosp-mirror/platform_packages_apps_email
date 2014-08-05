@@ -224,7 +224,7 @@
         <activity
             android:label="@string/app_name"
             android:name="com.android.email2.ui.MailActivityEmail"
-            android:theme="@style/PlainUnifiedEmailTheme"
+            android:theme="@style/MailActivityTheme"
             android:windowSoftInputMode="adjustPan|stateUnspecified" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
