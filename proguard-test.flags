@@ -94,5 +94,5 @@
 -keepclasseswithmembers class com.android.emailcommon.utility.EmailAsyncTask$Tracker {
   <init>();
   *** getTaskCountForTest();
-  *** containsTaskForTest();
+  *** containsTaskForTest(com.android.emailcommon.utility.EmailAsyncTask);
 }
