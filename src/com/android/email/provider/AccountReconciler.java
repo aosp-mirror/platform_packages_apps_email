@@ -31,13 +31,9 @@ import android.text.TextUtils;
 
 import com.android.email.NotificationController;
 import com.android.email.R;
-import com.android.email.activity.ComposeActivityEmail;
-import com.android.email.service.EasAuthenticatorService;
-import com.android.email.service.EasAuthenticatorServiceAlternate;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.mail.utils.LogUtils;
@@ -46,6 +42,7 @@ import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 public class AccountReconciler {
@@ -56,14 +53,19 @@ public class AccountReconciler {
      */
     private static List<android.accounts.Account> getAllAmAccounts(final Context context) {
         final AccountManager am = AccountManager.get(context);
-        final ImmutableList.Builder<android.accounts.Account> builder = ImmutableList.builder();
+
         // TODO: Consider getting the types programmatically, in case we add more types.
-        builder.addAll(Arrays.asList(am.getAccountsByType(
-                context.getString(R.string.account_manager_type_legacy_imap))));
-        builder.addAll(Arrays.asList(am.getAccountsByType(
-                context.getString(R.string.account_manager_type_pop3))));
-        builder.addAll(Arrays.asList(am.getAccountsByType(
-                context.getString(R.string.account_manager_type_exchange))));
+        // Some Accounts types can be identical, the set de-duplicates.
+        final LinkedHashSet<String> accountTypes = new LinkedHashSet<String>();
+        accountTypes.add(context.getString(R.string.account_manager_type_legacy_imap));
+        accountTypes.add(context.getString(R.string.account_manager_type_pop3));
+        accountTypes.add(context.getString(R.string.account_manager_type_exchange));
+
+        final ImmutableList.Builder<android.accounts.Account> builder = ImmutableList.builder();
+        for (final String type : accountTypes) {
+            final android.accounts.Account[] accounts = am.getAccountsByType(type);
+            builder.add(accounts);
+        }
         return builder.build();
     }
 
