@@ -46,6 +46,7 @@ import android.provider.CalendarContract.SyncState;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.RawContacts;
 import android.provider.SyncStateContract;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.android.email.R;
@@ -651,8 +652,11 @@ public class EmailServiceUtils {
      * @param accountType sync adapter service name
      * @return protocol name or null
      */
-    public static String getProtocolFromAccountType(final Context context,
+    public static @Nullable String getProtocolFromAccountType(final Context context,
             final String accountType) {
+        if (TextUtils.isEmpty(accountType)) {
+            return null;
+        }
         final Map <String, EmailServiceInfo> serviceInfoMap = getServiceMap(context);
         String protocol = null;
         for (final EmailServiceInfo info : serviceInfoMap.values()) {
