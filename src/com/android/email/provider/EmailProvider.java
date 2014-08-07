@@ -1614,7 +1614,10 @@ public class EmailProvider extends ContentProvider
         // Find all possible account types
         final Set<String> accountTypes = new HashSet<String>(3);
         for (final EmailServiceInfo info : infos) {
-            accountTypes.add(info.accountType);
+            if (!TextUtils.isEmpty(info.accountType)) {
+                // accountType will be empty for the gmail stub entry
+                accountTypes.add(info.accountType);
+            }
         }
         // Find all accounts we own
         final List<android.accounts.Account> amAccounts = new ArrayList<android.accounts.Account>();
@@ -1626,11 +1629,7 @@ public class EmailProvider extends ContentProvider
         int restoredCount = 0;
         for (final android.accounts.Account amAccount : amAccounts) {
             String jsonString = null;
-            try {
                 jsonString = am.getUserData(amAccount, ACCOUNT_MANAGER_JSON_TAG);
-            } catch (SecurityException e) {
-                LogUtils.e(TAG, e, "catching exception");
-            }
             if (TextUtils.isEmpty(jsonString)) {
                 continue;
             }
