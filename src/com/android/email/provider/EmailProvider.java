@@ -4056,10 +4056,11 @@ public class EmailProvider extends ContentProvider
      * @return array of URIs
      */
     private Uri[] defaultRecentFolders(final String id) {
+        Uri[] recentFolders = new Uri[0];
         final SQLiteDatabase db = getDatabase(getContext());
         if (id.equals(COMBINED_ACCOUNT_ID_STRING)) {
             // We don't have default recents for the combined view.
-            return new Uri[0];
+            return recentFolders;
         }
         // We search for the types we want, and find corresponding IDs.
         final String[] idAndType = { BaseColumns._ID, UIProvider.FolderColumns.TYPE };
@@ -4083,18 +4084,25 @@ public class EmailProvider extends ContentProvider
                 .append(")");
         LogUtils.d(TAG, "defaultRecentFolders: Query is %s", sb);
         final Cursor c = db.rawQuery(sb.toString(), null);
-        if (c == null || c.getCount() <= 0 || !c.moveToFirst()) {
-            return new Uri[0];
+        try {
+            if (c == null || c.getCount() <= 0 || !c.moveToFirst()) {
+                return recentFolders;
+            }
+            // Read all the IDs of the mailboxes, and turn them into URIs.
+            recentFolders = new Uri[c.getCount()];
+            int i = 0;
+            do {
+                final long folderId = c.getLong(0);
+                recentFolders[i] = uiUri("uifolder", folderId);
+                LogUtils.d(TAG, "Default recent folder: %d, with uri %s", folderId,
+                        recentFolders[i]);
+                ++i;
+            } while (c.moveToNext());
+        } finally {
+            if (c != null) {
+                c.close();
+            }
         }
-        // Read all the IDs of the mailboxes, and turn them into URIs.
-        final Uri[] recentFolders = new Uri[c.getCount()];
-        int i = 0;
-        do {
-            final long folderId = c.getLong(0);
-            recentFolders[i] = uiUri("uifolder", folderId);
-            LogUtils.d(TAG, "Default recent folder: %d, with uri %s", folderId, recentFolders[i]);
-            ++i;
-        } while (c.moveToNext());
         return recentFolders;
     }
 
