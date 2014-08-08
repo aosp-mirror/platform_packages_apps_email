@@ -75,9 +75,9 @@
 
     <!-- Account setup checkboxes padding -->
     <!-- see also w600dp -->
-    <dimen name="setup_checkbox_padding_side">0dp</dimen>
-    <dimen name="setup_checkbox_padding_top">8dp</dimen>
-    <dimen name="setup_checkbox_padding_bottom">8dp</dimen>
+    <dimen name="setup_checkbox_margin_side">0dp</dimen>
+    <dimen name="setup_checkbox_margin_top">8dp</dimen>
+    <dimen name="setup_checkbox_margin_bottom">8dp</dimen>
 
     <!-- Account setup basics -->
     <!-- See also w600dp -->

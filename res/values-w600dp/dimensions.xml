@@ -42,9 +42,9 @@
     <dimen name="setup_lower_headline_margin_bottom">10dp</dimen>
 
     <!-- Account setup checkboxes padding -->
-    <dimen name="setup_checkbox_padding_side">8dp</dimen>
-    <dimen name="setup_checkbox_padding_top">16dp</dimen>
-    <dimen name="setup_checkbox_padding_bottom">16dp</dimen>
+    <dimen name="setup_checkbox_margin_side">8dp</dimen>
+    <dimen name="setup_checkbox_margin_top">16dp</dimen>
+    <dimen name="setup_checkbox_margin_bottom">16dp</dimen>
 
     <!-- Account setup basics -->
     <dimen name="setup_basics_logo_margin_top">28dp</dimen>
