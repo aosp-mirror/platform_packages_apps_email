@@ -136,7 +136,7 @@
     <string name="account_setup_outgoing_password_label" msgid="112570779839746136">"Passwort"</string>
     <string name="account_setup_exchange_certificate_title" msgid="8756785660598838350">"Clientzertifikat"</string>
     <string name="account_setup_exchange_select_certificate" msgid="264748505181695915">"Auswählen"</string>
-    <string name="account_setup_exchange_use_certificate" msgid="6513687497912094538">"Client-Zertifikat verwenden"</string>
+    <string name="account_setup_exchange_use_certificate" msgid="6513687497912094538">"Clientzertifikat verwenden"</string>
     <string name="account_setup_exchange_remove_certificate" msgid="1222387802827919583">"Entfernen"</string>
     <string name="account_setup_exchange_no_certificate" msgid="3569712401698909695">"Keine"</string>
     <string name="account_setup_exchange_device_id_label" msgid="2306603503497194905">"Mobilgerät-ID"</string>
@@ -171,7 +171,7 @@
     <string name="account_setup_autodiscover_dlg_authfail_message" msgid="4075075565221436715">"Bestätigen Sie, dass Nutzername, Passwort und Kontoeinstellungen richtig sind."</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="4725950885859654809">"Keine sichere Verbindung zum Server möglich"</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="3451681985727559303">"Keine sichere Verbindung zum Server möglich.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_certificate_required" msgid="4607859382193244795">"Ein Client-Zertifikat ist erforderlich. Möchten Sie mit einem Client-Zertifikat eine Verbindung zum Server herstellen?"</string>
+    <string name="account_setup_failed_certificate_required" msgid="4607859382193244795">"Ein Clientzertifikat ist erforderlich. Möchten Sie mit einem Clientzertifikat eine Verbindung zum Server herstellen?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="4574461885959029072">"Das Zertifikat ist ungültig oder nicht aufrufbar."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="430054384233036305">"Der Server hat einen Fehler zurückgegeben. Bitte überprüfen Sie Ihren Nutzernamen und Ihr Passwort und versuchen Sie es erneut."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="1180197172141077524">"Derzeit kann keine Verbindung zum Server hergestellt werden."</string>
