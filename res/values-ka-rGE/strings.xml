@@ -125,7 +125,7 @@
     <string name="account_setup_incoming_delete_policy_label" msgid="2341742235654301690">"შეტყობინებების წაშლა სერვერიდან"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="5777530843489961009">"არასოდეს"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="8677018382715596606">"შემომავალში წაშლისას"</string>
-    <string name="account_setup_incoming_imap_path_prefix_label" msgid="3531290378620033218">"IMAP გზის პრეფიქსი"</string>
+    <string name="account_setup_incoming_imap_path_prefix_label" msgid="3531290378620033218">"IMAP მდებარეობის პრეფიქსი"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="206747922689229932">"სურვილისამებრ"</string>
     <string name="account_setup_outgoing_title" msgid="2808821899038184783">"ანგარიშის დაყენება"</string>
     <string name="account_setup_outgoing_headline" msgid="6638171491109658047">"გამავალი სერვერის პარამეტრები"</string>
