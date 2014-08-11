@@ -291,4 +291,5 @@
     <string name="sent_folder_selection_title" msgid="9207482909822072856">"<xliff:g id="ACCOUNT">%s</xliff:g> हेतु सर्वर प्रेषित आइटम फ़ोल्डर चुनें"</string>
     <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"फ़ोल्डर सूची लोड कर रहा है…"</string>
     <string name="no_quick_responses" msgid="8716297053803961304">"कोई भी उपलब्ध नहीं"</string>
+    <string name="gmail_name" msgid="2099786953868369991">"Gmail"</string>
 </resources>
