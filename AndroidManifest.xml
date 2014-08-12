@@ -349,8 +349,7 @@
         <activity
             android:name=".activity.setup.MailboxSettings"
             android:label="@string/mailbox_settings_activity_title"
-            >
-        </activity>
+            android:exported="false" />
 
         <activity
             android:name="com.android.mail.photo.MailPhotoViewActivity"
