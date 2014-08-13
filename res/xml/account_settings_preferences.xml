@@ -53,23 +53,23 @@
             android:entryValues="@array/account_settings_check_frequency_values"
             android:dialogTitle="@string/account_settings_mail_check_frequency_label" />
 
-        <!-- Reserve order#2 here for window size (if inserted) -->
+        <!-- Reserve order#2,3 here for window size (if inserted) -->
 
         <CheckBoxPreference
             android:key="account_sync_email"
-            android:order="3"
+            android:order="4"
             android:defaultValue="true"
             android:title="@string/account_settings_sync_email_enable"
             android:summary="@string/account_settings_sync_email_summary" />
         <CheckBoxPreference
             android:key="account_sync_contacts"
-            android:order="4"
+            android:order="5"
             android:defaultValue="true"
             android:title="@string/account_settings_sync_contacts_enable"
             android:summary="@string/account_settings_sync_contacts_summary" />
         <CheckBoxPreference
             android:key="account_sync_calendar"
-            android:order="5"
+            android:order="6"
             android:defaultValue="true"
             android:title="@string/account_settings_sync_calendar_enable"
             android:summary="@string/account_settings_sync_calendar_summary" />
@@ -77,7 +77,7 @@
         <!-- (will hide on POP3 accounts) -->
         <CheckBoxPreference
             android:key="account_background_attachments"
-            android:order="6"
+            android:order="7"
             android:title="@string/account_settings_background_attachments_label"
             android:summary="@string/account_settings_background_attachments_summary" />
 
