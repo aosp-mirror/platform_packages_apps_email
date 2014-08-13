@@ -104,7 +104,6 @@ import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.EmailAsyncTask;
-import com.android.emailcommon.utility.IntentUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.android.ex.photo.provider.PhotoContract;
 import com.android.mail.preferences.MailPrefs;
@@ -378,12 +377,14 @@ public class EmailProvider extends ContentProvider
     private final Set<SyncRequestMessage> mDelayedSyncRequests = new HashSet<SyncRequestMessage>();
 
     private static void reconcileAccountsAsync(final Context context) {
-        EmailAsyncTask.runAsyncParallel(new Runnable() {
-            @Override
-            public void run() {
-                AccountReconciler.reconcileAccounts(context);
-            }
-        });
+        if (context.getResources().getBoolean(R.bool.reconcile_accounts)) {
+            EmailAsyncTask.runAsyncParallel(new Runnable() {
+                @Override
+                public void run() {
+                    AccountReconciler.reconcileAccounts(context);
+                }
+            });
+        }
     }
 
     public static Uri uiUri(String type, long id) {

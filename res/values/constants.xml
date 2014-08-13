@@ -30,4 +30,10 @@
     <!-- Boolean value indicating whether we should show the OAuth option on initial account setup
      (not settings) -->
     <bool name="skip_oauth_on_setup">false</bool>
+
+    <!-- the email application reconciles accounts on startup with the account manager -->
+    <bool name="reconcile_accounts">true</bool>
+
+    <!-- the email application starts services -->
+    <bool name="enable_services">true</bool>
 </resources>
