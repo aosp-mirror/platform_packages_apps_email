@@ -37,9 +37,11 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.preference.PreferenceScreen;
 import android.provider.CalendarContract;
 import android.provider.ContactsContract;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -89,6 +91,7 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
     private static final String PREFERENCE_QUICK_RESPONSES = "account_quick_responses";
     private static final String PREFERENCE_FREQUENCY = "account_check_frequency";
     private static final String PREFERENCE_SYNC_WINDOW = "account_sync_window";
+    private static final String PREFERENCE_SYNC_SETTINGS = "account_sync_settings";
     private static final String PREFERENCE_SYNC_EMAIL = "account_sync_email";
     private static final String PREFERENCE_SYNC_CONTACTS = "account_sync_contacts";
     private static final String PREFERENCE_SYNC_CALENDAR = "account_sync_calendar";
@@ -121,6 +124,7 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
     private EditTextPreference mAccountSignature;
     private ListPreference mCheckFrequency;
     private ListPreference mSyncWindow;
+    private Preference mSyncSettings;
     private CheckBoxPreference mInboxVibrate;
     private Preference mInboxRingtone;
 
@@ -211,7 +215,7 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outstate) {
+    public void onSaveInstanceState(@NonNull Bundle outstate) {
         super.onSaveInstanceState(outstate);
         if (mCheckFrequency != null) {
             outstate.putCharSequenceArray(SAVESTATE_SYNC_INTERVAL_STRINGS,
@@ -267,6 +271,18 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
                 : mContext.getString(R.string.silent_ringtone);
 
         mInboxRingtone.setSummary(summary);
+    }
+
+    @Override
+    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
+            @NonNull Preference preference) {
+        final String key = preference.getKey();
+        if (key.equals(PREFERENCE_SYNC_SETTINGS)) {
+            startActivity(MailboxSettings.getIntent(getActivity(), mUiAccount.allFolderListUri));
+            return true;
+        } else {
+            return super.onPreferenceTreeClick(preferenceScreen, preference);
+        }
     }
 
     /**
@@ -417,7 +433,7 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
 
         @Override
         public Map<String, Object> loadInBackground() {
-            final Map<String, Object> map = new HashMap<String, Object>();
+            final Map<String, Object> map = new HashMap<>();
 
             final Account account;
             if (!TextUtils.isEmpty(mAccountEmail)) {
@@ -571,7 +587,7 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
     @SuppressWarnings("unused") // temporarily unused pending policy UI
     private ArrayList<String> getSystemPoliciesList(Policy policy) {
         Resources res = mContext.getResources();
-        ArrayList<String> policies = new ArrayList<String>();
+        ArrayList<String> policies = new ArrayList<>();
         if (policy.mPasswordMode != Policy.PASSWORD_MODE_NONE) {
             policies.add(res.getString(R.string.policy_require_password));
         }
@@ -718,6 +734,15 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
             // Must correspond to the hole in the XML file that's reserved.
             mSyncWindow.setOrder(2);
             mSyncWindow.setOnPreferenceChangeListener(this);
+
+            if (mSyncSettings == null) {
+                mSyncSettings = new Preference(mContext);
+                mSyncSettings.setKey(PREFERENCE_SYNC_SETTINGS);
+                dataUsageCategory.addPreference(mSyncSettings);
+            }
+
+            mSyncSettings.setTitle(R.string.folder_sync_settings_pref_title);
+            mSyncSettings.setOrder(3);
         }
 
         final PreferenceCategory folderPrefs =
