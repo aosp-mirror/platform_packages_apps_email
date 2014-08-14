@@ -28,6 +28,7 @@ import android.os.Bundle;
 
 import com.android.email.NotificationController;
 import com.android.email.Preferences;
+import com.android.email.R;
 import com.android.email.provider.EmailProvider;
 import com.android.email.service.AttachmentService;
 import com.android.email.service.EmailServiceUtils;
@@ -84,12 +85,14 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
      * UI thread (or lifecycle entry points.)
      */
     public static void setServicesEnabledAsync(final Context context) {
-        EmailAsyncTask.runAsyncParallel(new Runnable() {
-            @Override
-            public void run() {
-                setServicesEnabledSync(context);
-            }
-        });
+        if (context.getResources().getBoolean(R.bool.enable_services)) {
+            EmailAsyncTask.runAsyncParallel(new Runnable() {
+                @Override
+                public void run() {
+                    setServicesEnabledSync(context);
+                }
+            });
+        }
     }
 
     /**
