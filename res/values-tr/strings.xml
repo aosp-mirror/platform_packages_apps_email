@@ -292,4 +292,6 @@
     <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"Klasör listesi yükleniyor…"</string>
     <string name="no_quick_responses" msgid="8716297053803961304">"Hiçbiri kullanılamıyor"</string>
     <string name="gmail_name" msgid="2099786953868369991">"Gmail"</string>
+    <!-- no translation found for folder_sync_settings_pref_title (349478353401667107) -->
+    <skip />
 </resources>

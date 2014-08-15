@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2008 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permission_read_attachment_label" msgid="6641407731311699536">"Электрондук билдирүүнүн тиркемелерин окуу"</string>
+    <string name="permission_read_attachment_desc" msgid="6579059616090100181">"Колдонмого электрондук билдирүүнүн тиркемелерин окуу мүмкүнчүлүгүн берет."</string>
+    <string name="permission_access_provider_label" msgid="977700184037298723">"Электрондук почтанын жабдуучусунун дайындарына кирүү"</string>
+    <string name="permission_access_provider_desc" msgid="5338433949655493713">"Колдонмого алынган билдирүүлөр, жөнөтүлгөн билдирүүлөр, колдонуучу аттары жана сырсөздөр сыяктуу электрондук почтаңыздын дайындар базасына кирүү мүмкүнчүлүгүн берет."</string>
+    <!-- no translation found for app_name (2206468539066258195) -->
+    <skip />
+    <!-- no translation found for debug_title (1337476992195531309) -->
+    <skip />
+    <!-- no translation found for create_action (6575946089819721958) -->
+    <skip />
+    <string name="quick_responses_empty_view" msgid="3394094315357455290">"Тез жооп жок."</string>
+    <!-- no translation found for account_settings_action (589969653965674604) -->
+    <skip />
+    <string name="status_network_error" msgid="526826323872477973">"Туташуу көйгөйү."</string>
+    <!-- no translation found for move_messages:one (3431489066510898753) -->
+    <!-- no translation found for move_messages:other (5083310421670206821) -->
+    <string name="cannot_move_protocol_not_supported_toast" msgid="1687394290312755846">"POP3 каттоо эсептеринде жылдырууга болбойт."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="1032577153519440211">"Тандалган нерседе бир нече каттоо эсеби камтылгандыктан, жылдыруу мүмкүн эмес."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="3758109129023839909">"Сомолордогу, Чыгуучу кутусундагы жана Жөнөтүлгөндөрдөгү билдирүүлөрдү жылдыруу мүмкүн эмес."</string>
+    <!-- no translation found for mailbox_name_display_inbox (5093068725739672126) -->
+    <skip />
+    <!-- no translation found for mailbox_name_display_outbox (8735725798805339414) -->
+    <skip />
+    <!-- no translation found for mailbox_name_display_drafts (3552043116466269581) -->
+    <skip />
+    <!-- no translation found for mailbox_name_display_trash (7020792045007681852) -->
+    <skip />
+    <!-- no translation found for mailbox_name_display_sent (6705058612006729985) -->
+    <skip />
+    <!-- no translation found for mailbox_name_display_junk (1634126984313831675) -->
+    <skip />
+    <string name="mailbox_name_display_starred" msgid="8076384721309828453">"Жылдызчаланган"</string>
+    <!-- no translation found for mailbox_name_display_unread (1453575937919310339) -->
+    <skip />
+    <!-- no translation found for account_folder_list_summary_inbox (6524816019350737506) -->
+    <skip />
+    <!-- no translation found for account_folder_list_summary_starred (1625089431195748236) -->
+    <skip />
+    <!-- no translation found for account_folder_list_summary_drafts (4050225674547841762) -->
+    <skip />
+    <!-- no translation found for account_folder_list_summary_outbox (5594504984407654721) -->
+    <skip />
+    <!-- no translation found for mailbox_list_account_selector_combined_view (4155918930481733669) -->
+    <skip />
+    <!-- no translation found for message_compose_fwd_header_fmt (6193988236722150221) -->
+    <skip />
+    <!-- no translation found for message_compose_insert_quick_response_list_title (5836926808818821309) -->
+    <skip />
+    <string name="message_compose_insert_quick_response_menu_title" msgid="4393288554605333619">"Тез жоопту кыстаруу"</string>
+    <string name="message_view_attachment_background_load" msgid="7571652141281187845">"Багытталган билдирүүңүздөгү бир же бир нече тиркеме жөнөтүлүүдөн мурун жүктөлүп алынат."</string>
+    <string name="attachment_not_found" msgid="5219773045406833000">"Тиркеме жүктөлүп алынган жок."</string>
+    <string name="message_decode_error" msgid="91396461771444300">"Билдирүү дешифрленип жатканда ката кеткен."</string>
+    <string name="forward_download_failed_ticker" msgid="2900585518884851062">"Бир же бир нече тиркеме багытталган жок."</string>
+    <!-- no translation found for forward_download_failed_title (2043036709913723298) -->
+    <skip />
+    <string name="login_failed_ticker" msgid="4620839194581484497">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> кирүү аракети ийгиликсиз аяктады."</string>
+    <string name="login_failed_title" msgid="1737884069957090004">"Кирген жок."</string>
+    <!-- no translation found for message_view_attachment_bytes:one (884086921379532485) -->
+    <!-- no translation found for message_view_attachment_bytes:other (1883360269853654045) -->
+    <!-- no translation found for message_view_attachment_kilobytes:one (7735927556589634941) -->
+    <!-- no translation found for message_view_attachment_kilobytes:other (7476806336055136146) -->
+    <!-- no translation found for message_view_attachment_megabytes:one (7755624135347953938) -->
+    <!-- no translation found for message_view_attachment_megabytes:other (3317120193748830799) -->
+    <!-- no translation found for message_view_attachment_gigabytes:one (5180812866869430241) -->
+    <!-- no translation found for message_view_attachment_gigabytes:other (1607574223219436099) -->
+    <!-- no translation found for account_setup_basics_title (5050895656741229172) -->
+    <skip />
+    <string name="oauth_authentication_title" msgid="3771260531636603518">"Уруксат суроодо"</string>
+    <string name="sign_in_title" msgid="5051852806423550830">"Кирүү"</string>
+    <string name="oauth_error_description" msgid="8466102021844409849">"Аныктыгын текшерүү мүмкүн болбой жатат"</string>
+    <string name="password_warning_label" msgid="1887439537224212124">"Электрондук почта дареги же сырсөз туура эмес"</string>
+    <string name="email_confirmation_label" msgid="64258748053106017">"Электрондук почта дареги:"</string>
+    <!-- no translation found for account_setup_basics_headline (8468280216822264643) -->
+    <skip />
+    <string name="accounts_welcome" msgid="7230367425520242593">"Болгону бир нече кадам жасап, каттоо эсебиңизди түзө аласыз."</string>
+    <!-- no translation found for account_setup_basics_email_label (8701406783555749929) -->
+    <skip />
+    <string name="or_label" msgid="6408695162723653446">"ЖЕ"</string>
+    <string name="sign_in_with_google" msgid="1412668282326928102">"Google менен кирүү"</string>
+    <string name="account_setup_basics_password_label" msgid="784962388753706730">"СЫРСӨЗ"</string>
+    <string name="password_hint" msgid="4226682910292828279">"Сырсөз"</string>
+    <string name="signed_in_with_service_label" msgid="4282359206358453634">"%s менен кирди"</string>
+    <string name="authentication_label" msgid="914463525214987772">"АНЫКТЫГЫН ТЕКШЕРҮҮ"</string>
+    <string name="add_authentication_label" msgid="382998197798081729">"Аныктыгын текшерүүнү кошуу"</string>
+    <string name="clear_authentication_label" msgid="4750930803913225689">"Аныктыгын текшерүүнү тазалоо"</string>
+    <!-- no translation found for account_setup_basics_manual_setup_action (7690861839383362085) -->
+    <skip />
+    <string name="account_setup_username_password_toast" msgid="3659744829670065777">"Жарактуу электрондук почта дарегин жана сырсөздү териңиз."</string>
+    <string name="account_duplicate_dlg_title" msgid="3768813340753269695">"Кош каттоо эсеби"</string>
+    <string name="account_duplicate_dlg_message_fmt" msgid="6747351773934787126">"Бул колдонуучунун аты мурунтан эле \"<xliff:g id="DUPLICATE">%s</xliff:g>\" каттоо эсеби  үчүн колдонулууда."</string>
+    <!-- no translation found for account_password_spaces_error (1035535222734047745) -->
+    <skip />
+    <!-- no translation found for account_setup_check_settings_retr_info_msg (9103280616618316032) -->
+    <skip />
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="9196418179524308411">"Сервер жөндөөлөрү текшерилүүдө…"</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="9062019904409225329">"smtp жөндөөлөрү текшерилүүдө…"</string>
+    <string name="account_setup_creating_account_msg" msgid="2898648422471181490">"Каттоо эсеби түзүлүүдө…"</string>
+    <string name="account_setup_ab_headline" msgid="1434091698882290052">"Каттоо эсебинин түрүн ырастоо"</string>
+    <string name="account_setup_ab_instructions_format" msgid="6223657094843768202">"<xliff:g id="EMAIL">%1$s</xliff:g> <xliff:g id="USERPROTOCOL">%2$s</xliff:g> колдонот деп көрсөткөнсүз, бирок каттоо эсеби <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g> колдонушу мүмкүн"</string>
+    <!-- no translation found for account_setup_names_title (8780121351085082269) -->
+    <skip />
+    <string name="account_setup_names_headline" msgid="2031978210683887370">"Каттоо эсебиңиз түзүлдү, эми электрондук почтаңызга кол сунсаңыз эле жетесиз!"</string>
+    <!-- no translation found for account_setup_names_account_name_label (3487538709712378441) -->
+    <skip />
+    <!-- no translation found for account_setup_names_user_name_label (4298006111315033499) -->
+    <skip />
+    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"Бул талаа бош болбошу керек."</string>
+    <!-- no translation found for account_setup_account_type_title (7081511430549429621) -->
+    <skip />
+    <!-- no translation found for account_setup_account_type_headline (3375795537675351389) -->
+    <skip />
+    <!-- no translation found for account_setup_account_type_instructions (968088954656738617) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_title (7743750350830383718) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_headline (6232828824446177639) -->
+    <skip />
+    <string name="account_setup_incoming_username_label" msgid="2609699829997945895">"КОЛДОНУУЧУНУН ЫСЫМЫ"</string>
+    <string name="account_setup_incoming_password_label" msgid="4806105500058512876">"СЫРСӨЗ"</string>
+    <string name="account_setup_password_subheading" msgid="5930042642982830233">"Сырсөз"</string>
+    <string name="account_setup_incoming_server_label" msgid="5409694850973258387">"СЕРВЕР"</string>
+    <string name="account_setup_incoming_port_label" msgid="402562424498833560">"ПОРТ"</string>
+    <string name="account_setup_incoming_security_label" msgid="8360505617331971663">"КООПСУЗДУК ТҮРҮ"</string>
+    <!-- no translation found for account_setup_incoming_security_none_label (2461510827337484818) -->
+    <skip />
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="2834386066577239560">"SSL/TLS (Бардык тастыктамаларды кабыл алуу)"</string>
+    <string name="account_setup_incoming_security_ssl_label" msgid="5169133414545009342">"SSL/TLS"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2281920902104029077">"SSL/TLS (бардык тастыктамаларды кабыл алуу)"</string>
+    <string name="account_setup_incoming_security_tls_label" msgid="3892291833944170882">"STARTTLS"</string>
+    <!-- no translation found for account_setup_incoming_delete_policy_label (2341742235654301690) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_delete_policy_never_label (5777530843489961009) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_delete_policy_delete_label (8677018382715596606) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_imap_path_prefix_label (3531290378620033218) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_imap_path_prefix_hint (206747922689229932) -->
+    <skip />
+    <!-- no translation found for account_setup_outgoing_title (2808821899038184783) -->
+    <skip />
+    <!-- no translation found for account_setup_outgoing_headline (6638171491109658047) -->
+    <skip />
+    <string name="account_setup_outgoing_smtp_server_label" msgid="3460163861711242681">"SMTP СЕРВЕРИ"</string>
+    <string name="account_setup_outgoing_port_label" msgid="3735952013505812378">"ПОРТ"</string>
+    <string name="account_setup_outgoing_security_label" msgid="6473177134731615282">"КООПСУЗДУК ТҮРҮ"</string>
+    <string name="account_setup_outgoing_require_login_label" msgid="5405196721947884033">"Кирүү талап кылынат"</string>
+    <string name="account_setup_outgoing_username_label" msgid="8844680398828891772">"КОЛДОНУУЧУНУН ЫСЫМЫ"</string>
+    <string name="account_setup_outgoing_password_label" msgid="112570779839746136">"СЫРСӨЗ"</string>
+    <string name="account_setup_exchange_certificate_title" msgid="8756785660598838350">"КАРДАРДЫН ТАСТЫКТАМАСЫ"</string>
+    <string name="account_setup_exchange_select_certificate" msgid="264748505181695915">"Тандоо"</string>
+    <!-- no translation found for account_setup_exchange_use_certificate (6513687497912094538) -->
+    <skip />
+    <!-- no translation found for account_setup_exchange_remove_certificate (1222387802827919583) -->
+    <skip />
+    <string name="account_setup_exchange_no_certificate" msgid="3569712401698909695">"Эч нерсе жок"</string>
+    <string name="account_setup_exchange_device_id_label" msgid="2306603503497194905">"МОБИЛДИК ТҮЗМӨКТҮН ID"</string>
+    <!-- no translation found for account_setup_options_title (3274463434235489134) -->
+    <skip />
+    <!-- no translation found for account_setup_options_headline (4810292194395251968) -->
+    <skip />
+    <string name="account_setup_options_mail_check_frequency_label" msgid="7253305392938373553">"Шайкештештирүү жыштыгы:"</string>
+    <!-- no translation found for account_setup_options_mail_check_frequency_never (2937664246354067829) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_check_frequency_push (5511415696925307797) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_check_frequency_5min (8929785860545198867) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_check_frequency_10min (8787901333816702849) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_check_frequency_15min (7127640170766018765) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_check_frequency_30min (4223562871143897449) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_check_frequency_1hour (107706566853925273) -->
+    <skip />
+    <string name="account_setup_options_notify_label" msgid="3101529443722198112">"Электрондук билдирүү келгенде мага эскертип кой"</string>
+    <string name="account_setup_options_sync_contacts_label" msgid="5029046373980454714">"Байланыштарды бул каттоо эсебинен шайкештештирүү"</string>
+    <string name="account_setup_options_sync_calendar_label" msgid="303441956432308807">"Жылнааманы бул каттоо эсебинен шайкештештирүү"</string>
+    <string name="account_setup_options_sync_email_label" msgid="468957966555663131">"Электрондук почтаны бул каттоо эсебинен шайкештештирүү"</string>
+    <!-- no translation found for account_setup_options_background_attachments_label (4085327585082867216) -->
+    <skip />
+    <string name="account_setup_failed_dlg_title" msgid="7923577224474005464">"Аягына чыгарылган жок"</string>
+    <string name="account_setup_options_mail_window_label" msgid="4737241149297585368">"Электрондук почталарды төмөнкүдөн шайкештештирүү:"</string>
+    <!-- no translation found for account_setup_options_mail_window_auto (7407981634952005775) -->
+    <skip />
+    <string name="account_setup_options_mail_window_1day" msgid="7930883294844418428">"Акыркы күн"</string>
+    <string name="account_setup_options_mail_window_3days" msgid="3435093562391555730">"Акыркы үч күн"</string>
+    <string name="account_setup_options_mail_window_1week" msgid="5230695719358085318">"Өткөн апта"</string>
+    <string name="account_setup_options_mail_window_2weeks" msgid="1144271277694832921">"Акыркы эки апта"</string>
+    <string name="account_setup_options_mail_window_1month" msgid="3228265299330513816">"Өткөн ай"</string>
+    <!-- no translation found for account_setup_options_mail_window_all (4794683936065721438) -->
+    <skip />
+    <string name="account_setup_options_mail_window_default" msgid="5518038139722596598">"Демейки каттоо эсебин колдонуу"</string>
+    <string name="account_setup_failed_dlg_auth_message" msgid="5608549872868036352">"Колдонуучунун аты же сырсөз туура эмес."</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8811464534757505457">"Кирген жоксуз.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_autodiscover_dlg_authfail_title" msgid="7551559109838593189">"Каттоо эсебин орнотуу көйгөйү"</string>
+    <string name="account_setup_autodiscover_dlg_authfail_message" msgid="4075075565221436715">"Колдонуучунун аты, сырсөзү жана каттоо эсебинин жөндөөлөрү туура экендигин ырастаңыз."</string>
+    <string name="account_setup_failed_dlg_certificate_message" msgid="4725950885859654809">"Серверге коопсуз шартта туташуу мүмкүн болбой жатат."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="3451681985727559303">"Серверге коопсуз шартта туташуу мүмкүн болбой жатат.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_certificate_required" msgid="4607859382193244795">"Кардар тастыктамасы талап кылынууда. Серверге кардар тастыктамасы менен туташкыңыз келеби?"</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="4574461885959029072">"Тастыктама жараксыз же жеткиликтүү эмес."</string>
+    <string name="account_setup_failed_check_credentials_message" msgid="430054384233036305">"Сервердин жообунда ката бар. Колдонуучу атыңызды жана сырсөзүңүздү текшерип, дагы бир жолу аракет кылып көрүңүз."</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="1180197172141077524">"Серверге туташуу мүмкүн болбой жатат."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="3889441611138037320">"Серверге туташуу мүмкүн болбой жатат.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <!-- no translation found for account_setup_failed_tls_required (1902309158359287958) -->
+    <skip />
+    <string name="account_setup_failed_auth_required" msgid="2684010997018901707">"Серверде аныктыкты текшерүү ыкмалары колдоого алынбайт."</string>
+    <string name="account_setup_failed_security" msgid="1627240499907011040">"Коопсуздук катасынан улам серверге туташылган жок."</string>
+    <string name="account_setup_failed_ioerror" msgid="3862689923436539909">"Серверге туташылган жок."</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="4973054582044010375">"Сервердин дарегин туура эмес тердиңиз же сервер электрондук почтада колдоого алынбай турган протоколдун версиясын талап кылууда."</string>
+    <string name="account_setup_failed_access_denied" msgid="2051742796367919026">"Бул сервер менен шайкештештирүүгө уруксат жок. Толугураак маалымат алуу үчүн, сервериңиздин администраторуна кайрылыңыз."</string>
+    <!-- no translation found for account_setup_security_required_title (667943309546419435) -->
+    <skip />
+    <!-- no translation found for account_setup_security_policies_required_fmt (9029471168291631932) -->
+    <skip />
+    <string name="account_setup_failed_security_policies_unsupported" msgid="4619685657253094627">"Бул сервер Android түзмөгүңүздө колдоого алынбай турган төмөнкүдөй коопсуздук каражаттарын талап кылууда: <xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_username_uneditable_error" msgid="3607769783124215764">"Каттоо эсебинин колдонуучу атын өзгөртө албайсыз. Колдонуучу аты башкача болгон каттоо эсебин кошуу үчүн, Каттоо эсебин кошуу көрүнүшүнө тийип коюңуз."</string>
+    <string name="disable_admin_warning" msgid="6001542250505146252">"ЭСКЕРТҮҮ: Түзмөгүңүздү башкаруу максатында Электрондук почта колдонмосунун ыйгарым укуктарын өчүргөнүңүздө, электрондук почтанын бардык каттоо эсептери, ошону менен катар алардын электрондук почтасы, байланыштары, жылнаамадагы окуялар жана башка дайындар жок болот."</string>
+    <string name="account_security_dialog_title" msgid="7003032393805438164">"Коопсуздукту жаңыртуу"</string>
+    <string name="account_security_dialog_content_fmt" msgid="4107093049191103780">"<xliff:g id="ACCOUNT">%s</xliff:g> коопсуздук жөндөөлөрүн жаңыртыңыз."</string>
+    <string name="security_unsupported_ticker_fmt" msgid="3249185558872836884">"Коопсуздук талаптарынан улам, \"<xliff:g id="ACCOUNT">%s</xliff:g>\" каттоо эсеби жаңыртылбай жатат."</string>
+    <string name="security_needed_ticker_fmt" msgid="7099561996532829229">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" каттоо эсеби коопсуздук жөндөөлөрүн жаңыртууну талап кылууда."</string>
+    <string name="security_changed_ticker_fmt" msgid="3823930420292838192">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" каттоо эсеби коопсуздук жөндөөлөрүн өзгөрттү; колдонуучудан эч кандай аракет талап кылынбайт."</string>
+    <string name="security_notification_content_update_title" msgid="6321099538307807621">"Коопсуздукту жаңыртуу керек"</string>
+    <string name="security_notification_content_change_title" msgid="615639963487448183">"Коопсуздук саясаттары өзгөрүлдү"</string>
+    <string name="security_notification_content_unsupported_title" msgid="6494791400431198228">"Коопсуздук саясаты сакталбайт"</string>
+    <string name="account_security_title" msgid="6072273231606918870">"Түзмөктүн коопсуздугу"</string>
+    <!-- no translation found for account_security_policy_explanation_fmt (2527501853520160827) -->
+    <skip />
+    <!-- no translation found for account_setup_failed_dlg_edit_details_action (8155332642922842729) -->
+    <skip />
+    <string name="password_expire_warning_ticker_fmt" msgid="5543005790538884060">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" кулпу экраныңыздын PIN кодун же сырсөздү өзгөртүүнү талап кылууда."</string>
+    <!-- no translation found for password_expire_warning_content_title (4360288708739366810) -->
+    <skip />
+    <!-- no translation found for password_expired_ticker (3098703963402347483) -->
+    <skip />
+    <!-- no translation found for password_expired_content_title (7379094218699681984) -->
+    <skip />
+    <!-- no translation found for password_expire_warning_dialog_title (4901499545146045672) -->
+    <skip />
+    <string name="password_expire_warning_dialog_content_fmt" msgid="1093389293050776319">"Тез арада кулпу экранынын PIN кодун же сырсөзүн өзгөртүшүңүз керек, болбосо <xliff:g id="ACCOUNT">%s</xliff:g> дайындары тазаланат. Аны азыр өзгөртөсүзбү?"</string>
+    <!-- no translation found for password_expired_dialog_title (7275534155170185252) -->
+    <skip />
+    <string name="password_expired_dialog_content_fmt" msgid="8322213184626443346">"Түзмөгүңүздөн <xliff:g id="ACCOUNT">%s</xliff:g> дайындары тазаланып жатат. Аны кулпу экраныңыздын PIN кодун же сырсөзүн өзгөртүп калыбына келтире аласыз. Азыр өзгөртөсүзбү?"</string>
+    <!-- no translation found for account_settings_exit_server_settings (4232590695889111419) -->
+    <skip />
+    <string name="account_settings_login_dialog_title" msgid="2250911725501042470">"Кирген жок."</string>
+    <string name="account_settings_login_dialog_content_fmt" msgid="8687412692709766495">"<xliff:g id="ACCOUNT">%s</xliff:g> колдонуучунун аты же сырсөз туура эмес. Аларды азыр жаңыртасызбы?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="2324678262137130809">"<xliff:g id="ACCOUNT">%s</xliff:g> кире алган жоксуз; сервердин айтымында: <xliff:g id="REASON">%s</xliff:g> Колдонуучу атыңызды жана/же сырсөзүңүздү жаңыртасызбы?"</string>
+    <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"Тиркемелерди жүктөп алуу"</string>
+    <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"Тиркемелерди акырк. билдир-гө Wi-Fi менен автоматтык жүктөп алуу"</string>
+    <!-- no translation found for account_settings_notify_label (8621226576645167987) -->
+    <skip />
+    <!-- no translation found for account_settings_summary (4733776978291376161) -->
+    <skip />
+    <string name="account_settings_notify_summary" msgid="88560545461159120">"Электрондук билдирүү алынганда эскертме жөнөтүү"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="4107847714594035131">"Шайкештештирүү жыштыгы"</string>
+    <!-- no translation found for account_settings_incoming_label (3793314460723296874) -->
+    <skip />
+    <!-- no translation found for account_settings_incoming_summary (7521181981008371492) -->
+    <skip />
+    <!-- no translation found for account_settings_outgoing_label (4997504719643828381) -->
+    <skip />
+    <!-- no translation found for account_settings_outgoing_summary (1884202151340479161) -->
+    <skip />
+    <string name="account_settings_enforced_label" msgid="7005050362066086119">"Күчүнө кирген саясаттар"</string>
+    <string name="account_settings_enforced_summary" msgid="1668581504445370253">"Эч нерсе жок"</string>
+    <string name="account_settings_unsupported_label" msgid="7286722617178322465">"Колдоого алынбаган саясаттар"</string>
+    <string name="account_settings_unsupported_summary" msgid="1980825746966562221">"Эч нерсе жок"</string>
+    <string name="account_settings_retry_label" msgid="8605492340808650923">"Шайкештештирүү аракети"</string>
+    <string name="account_settings_retry_summary" msgid="2598065993718592906">"Бул каттоо эсебин шайкештештирүү үчүн бул жерге тийип коюңуз"</string>
+    <!-- no translation found for account_settings_description_label (2073736045984411004) -->
+    <skip />
+    <!-- no translation found for account_settings_name_label (8230436030850457988) -->
+    <skip />
+    <!-- no translation found for account_settings_edit_quick_responses_label (6105791335935883199) -->
+    <skip />
+    <string name="account_settings_edit_quick_responses_summary" msgid="5406599402930290682">"Электрондук билдирүү жазылганда көп кыстарылган текстти түзөтүү"</string>
+    <!-- no translation found for account_settings_notifications (2842952349214972116) -->
+    <skip />
+    <string name="account_settings_data_usage" msgid="6400715160238559711">"Дайындарды колдонуу"</string>
+    <string name="account_settings_policies" msgid="5972183883466873359">"Коопсуздук саясаттары"</string>
+    <string name="system_folders_title" msgid="7161311881709109736">"Тутум папкалары"</string>
+    <string name="system_folders_trash_title" msgid="3190927115504713123">"Таштандылар папкасы"</string>
+    <string name="system_folders_trash_summary" msgid="2583143581531897068">"Сервериңиздеги таштандылар папкасын тандаңыз"</string>
+    <string name="system_folders_trash_dlg" msgid="353701568340939392">"Сервериңиздеги таштандылар папкасын тандаңыз"</string>
+    <string name="system_folders_sent_title" msgid="8792934374188279309">"Жөнөтүлгөн нерселер папкасы"</string>
+    <string name="system_folders_sent_summary" msgid="4252740721870748375">"Сервериңиздеги жөнөтүлгөн нерселер папкасын тандаңыз"</string>
+    <string name="system_folders_sent_dlg" msgid="818944260541160146">"Сервериңиздеги жөнөтүлгөн нерселер папкасын тандаңыз"</string>
+    <string name="edit_quick_response_dialog" msgid="3048014284772648575">"Тез жооп"</string>
+    <!-- no translation found for save_action (5740359453077441466) -->
+    <skip />
+    <!-- no translation found for account_settings_sync_contacts_enable (2642448079273767521) -->
+    <skip />
+    <!-- no translation found for account_settings_sync_contacts_summary (1716022682035150630) -->
+    <skip />
+    <!-- no translation found for account_settings_sync_calendar_enable (3172491863244160828) -->
+    <skip />
+    <string name="account_settings_sync_calendar_summary" msgid="411960248618953311">"Жылнаама окуясын бул каттоо эсебине шайкештештир."</string>
+    <string name="account_settings_sync_email_enable" msgid="7135765408226471860">"Э-почтаны шайкештеш."</string>
+    <!-- no translation found for account_settings_sync_email_summary (71710510041953351) -->
+    <skip />
+    <!-- no translation found for account_settings_vibrate_when_label (361069844540266098) -->
+    <skip />
+    <string name="account_settings_ringtone" msgid="2238523918221865167">"Шыңгыр тандоо"</string>
+    <!-- no translation found for account_settings_servers (3386185135392642067) -->
+    <skip />
+    <string name="mailbox_settings_activity_title" msgid="2196614373847675314">"Шайкештештирүү параметрлери"</string>
+    <string name="mailbox_settings_activity_title_with_mailbox" msgid="5547676392298186906">"Шайкештештирүү параметрлери (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
+    <string name="mailbox_settings_sync_enabled_label" msgid="7723413381707277856">"Бул папканы шайкештештирүү"</string>
+    <string name="mailbox_settings_sync_enabled_summary" msgid="742233465207750578">"Туташканда билдирүүлөр жүктөп алышат"</string>
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="7027516982341382326">"Почтаны шайкештештирүү күндөрү"</string>
+    <string name="prefDialogTitle_conversationListIcon" msgid="1302579259733675896">"Жөнөтүүчүнүн сүрөтү"</string>
+    <string name="provider_note_live" msgid="4289035326060391547">"Бул программага туташуу мүмкүнчүлүгүн берген POP уруксаты айрым гана \"Plus\" каттоо эсептеринде бар. Эгер туура электрондук почта дареги жана сырсөзүңүз менен кире албай жатсаңыз, \"Plus\" каттоо эсебинин акысы төлөнө элек болушу мүмкүн. Ушул электрондук почта каттоо эсептерине кирүү мүмкүнчүлүгүн алуу үчүн желе серепчисин иштетиңиз."</string>
+    <string name="provider_note_t_online" msgid="1596701148051980218">"Бул электрондук почта каттоо эсебин түзүүдөн мурун, T-Online вебсайтына өтүп, POP3 электрондук почтага кирүү мүмкүнчүлүгүн алуу үчүн сырсөз ойлоп табыңыз."</string>
+    <!-- no translation found for exchange_name (3793803477985438102) -->
+    <skip />
+    <!-- no translation found for exchange_name_alternate (293118547772095111) -->
+    <skip />
+    <string name="system_account_create_failed" msgid="2248313263003927725">"Каттоо эсеби түзүлгөн жок. Дагы бир жолу аракет кылып көрүңүз."</string>
+    <!-- no translation found for device_admin_label (3335272972461391415) -->
+    <skip />
+    <!-- no translation found for device_admin_description (4299378570982520839) -->
+    <skip />
+    <string name="settings_activity_title" msgid="4787565736829092053">"Жөндөөлөр"</string>
+    <string name="header_label_general_preferences" msgid="2924944721204930254">"Жалпы жөндөөлөр"</string>
+    <string name="general_preference_confirm_delete_label" msgid="4635169755738754289">"Жок кылуудан мурун ырастоо"</string>
+    <string name="general_preference_confirm_send_label" msgid="2985557291955796568">"Жөнөтүүдөн мурун ырастоо"</string>
+    <!-- no translation found for more_than_999 (4088200269333058889) -->
+    <skip />
+    <!-- no translation found for search_hint (3491349343647799436) -->
+    <skip />
+    <string name="policy_dont_allow_camera" msgid="8821533827628900689">"Түзмөктүн камерасынын колдонулушуна тыюу салуу"</string>
+    <string name="policy_require_password" msgid="3556860917024612396">"Түзмөктүн сырсөзүн талап кылуу"</string>
+    <string name="policy_password_history" msgid="9001177390979112746">"Мурунку сырсөздөрдүн кайрадан колдонулушун чектөө"</string>
+    <string name="policy_password_expiration" msgid="1287225242918742275">"Мөөнөтү аяктай турган сырсөздөр талап кылынат"</string>
+    <string name="policy_screen_timeout" msgid="3499201409239287702">"Иштебеген түзмөктүн экранын кулпулоону талап кылуу"</string>
+    <string name="policy_calendar_age" msgid="6469328498345236120">"Шайкештештирилг. жылнаама окуяларынын санын чектөө"</string>
+    <string name="policy_email_age" msgid="3521941976575225050">"Шайкештештрлгн. электрондук почтанын санын чектөө"</string>
+    <string name="quick_1" msgid="9130521670178673190">"Рахмат!"</string>
+    <string name="quick_2" msgid="8611591278119481491">"Жакшы нерсе окшойт!"</string>
+    <string name="quick_3" msgid="8070999183033184986">"Муну бир аздан кийин окуп, анан сени менен байланышам."</string>
+    <string name="quick_4" msgid="216066940197616025">"Жолугуп ушул нерсени талкуулабайлыбы?"</string>
+    <string name="require_manual_sync_message" msgid="7361932179783481686">"Роуминг учурунда бул каттоо эсебинин фондук шайкештештирүүсү иштебейт."</string>
+    <string name="confirm_response" msgid="6764021931370809514">"Жооп жөнөтүлүүдө…"</string>
+    <string name="no_conversations" msgid="3785854971159919343">"Бир дагы билдирүү жок."</string>
+    <string name="imap_name" msgid="1267915719183915252">"IMAP"</string>
+    <string name="pop3_name" msgid="1235910677527117862">"POP3"</string>
+    <string name="folder_picker_title" msgid="5906275472176731605">"Папка кармагыч"</string>
+    <string name="trash_folder_selection_title" msgid="686039558899469073">"<xliff:g id="ACCOUNT">%s</xliff:g> серврд таштанды папксн тандңз"</string>
+    <string name="sent_folder_selection_title" msgid="9207482909822072856">"<xliff:g id="ACCOUNT">%s</xliff:g> серврд жөнтлгндр папксн тндоо"</string>
+    <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"Папкалар тизмеси жүктөлүүдө…"</string>
+    <string name="no_quick_responses" msgid="8716297053803961304">"Эч нерсе жок"</string>
+    <!-- no translation found for gmail_name (2099786953868369991) -->
+    <skip />
+    <!-- no translation found for folder_sync_settings_pref_title (349478353401667107) -->
+    <skip />
+</resources>
