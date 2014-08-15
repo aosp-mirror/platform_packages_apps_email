@@ -562,6 +562,13 @@ public class HostAuth extends EmailContent implements Parcelable {
         setConnection(protocol, host, port, flags, clientCertAlias);
     }
 
+    public static String getProtocolFromString(String uriString) {
+        final Uri uri = Uri.parse(uriString);
+        final String scheme = uri.getScheme();
+        final String[] schemeParts = scheme.split("\\+");
+        return schemeParts[0];
+    }
+
     @Override
     public String toString() {
         return "[protocol " + mProtocol + "]";
