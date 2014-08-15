@@ -133,6 +133,7 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
     private Account mAccount;
     private com.android.mail.providers.Account mUiAccount;
     private EmailServiceInfo mServiceInfo;
+    private Folder mInboxFolder;
 
     private Ringtone mRingtone;
 
@@ -278,7 +279,8 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
             @NonNull Preference preference) {
         final String key = preference.getKey();
         if (key.equals(PREFERENCE_SYNC_SETTINGS)) {
-            startActivity(MailboxSettings.getIntent(getActivity(), mUiAccount.allFolderListUri));
+            startActivity(MailboxSettings.getIntent(getActivity(), mUiAccount.fullFolderListUri,
+                    mInboxFolder));
             return true;
         } else {
             return super.onPreferenceTreeClick(preferenceScreen, preference);
@@ -550,7 +552,7 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
                 return;
             }
 
-            final Folder inbox = (Folder) data.get(AccountLoader.RESULT_KEY_INBOX);
+            mInboxFolder = (Folder) data.get(AccountLoader.RESULT_KEY_INBOX);
 
             if (mUiAccount == null || mAccount == null) {
                 activity.finish();
@@ -560,11 +562,11 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
             mServiceInfo =
                     EmailServiceUtils.getServiceInfo(mContext, mAccount.getProtocol(mContext));
 
-            if (inbox == null) {
+            if (mInboxFolder == null) {
                 mInboxFolderPreferences = null;
             } else {
-                mInboxFolderPreferences =
-                        new FolderPreferences(mContext, mUiAccount.getEmailAddress(), inbox, true);
+                mInboxFolderPreferences = new FolderPreferences(mContext,
+                        mUiAccount.getEmailAddress(), mInboxFolder, true);
             }
             loadSettings();
         }
