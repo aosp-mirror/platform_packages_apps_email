@@ -16,285 +16,285 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="permission_read_attachment_label" msgid="9208086010625033590">"ईमेल अनुलग्‍नक पढ़ें"</string>
-    <string name="permission_read_attachment_desc" msgid="3394721085306308972">"ऐप्स  को आपके ईमेल अटैचमेंट पढ़ने देता है."</string>
-    <string name="permission_access_provider_label" msgid="378256653525377586">"ईमेल प्रदाता के डेटा तक पहुंचें"</string>
-    <string name="permission_access_provider_desc" msgid="6296566558584670348">"इस ऐप्स को प्राप्‍त संदेशों, भेजे गए संदेशों, उपयोगकर्ता नाम और पासवर्ड सहित आपके ईमेल डेटाबेस में पहुंच देता है."</string>
-    <string name="app_name" msgid="5815426892327290362">"ईमेल"</string>
-    <string name="debug_title" msgid="5175710493691536719">"डीबग करें"</string>
-    <string name="next_action" msgid="3931301986364184415">"अगला"</string>
-    <string name="okay_action" msgid="8365197396795675617">"ठीक"</string>
-    <string name="cancel_action" msgid="6967435583794021865">"रद्द करें"</string>
-    <string name="previous_action" msgid="5181616311579820981">"पिछला"</string>
-    <string name="done_action" msgid="7497990549515580249">"पूर्ण"</string>
-    <string name="create_action" msgid="3062715563215392251">"नया बनाएं"</string>
-    <string name="quick_responses_empty_view" msgid="3960050972306132367">"कोई त्वरित प्रतिसाद नहीं."</string>
-    <string name="account_settings_action" msgid="4494079183315085171">"खाता सेटिंग"</string>
-    <string name="menu_folder_options" msgid="2871906096248843471">"समन्वयन विकल्‍प"</string>
-    <string name="status_network_error" msgid="2611654064403817391">"कनेक्शन समस्या."</string>
+    <string name="permission_read_attachment_label" msgid="6641407731311699536">"ईमेल अनुलग्‍नक पढ़ें"</string>
+    <string name="permission_read_attachment_desc" msgid="6579059616090100181">"ऐप्स  को आपके ईमेल अटैचमेंट पढ़ने देता है."</string>
+    <string name="permission_access_provider_label" msgid="977700184037298723">"ईमेल प्रदाता के डेटा तक पहुंचें"</string>
+    <string name="permission_access_provider_desc" msgid="5338433949655493713">"इस ऐप्स को प्राप्‍त संदेशों, भेजे गए संदेशों, उपयोगकर्ता नाम और पासवर्ड सहित आपके ईमेल डेटाबेस में पहुंच देता है."</string>
+    <string name="app_name" msgid="2206468539066258195">"ईमेल"</string>
+    <string name="debug_title" msgid="1337476992195531309">"डीबग करें"</string>
+    <string name="next_action" msgid="2987116190664352550">"अगला"</string>
+    <string name="okay_action" msgid="187341656436183803">"ठीक"</string>
+    <string name="cancel_action" msgid="4884686730682913114">"रद्द करें"</string>
+    <string name="previous_action" msgid="8096073930070909000">"पिछला"</string>
+    <string name="done_action" msgid="9017393077855788351">"पूर्ण"</string>
+    <string name="create_action" msgid="6575946089819721958">"नया बनाएं"</string>
+    <string name="quick_responses_empty_view" msgid="3394094315357455290">"कोई त्वरित प्रतिसाद नहीं."</string>
+    <string name="account_settings_action" msgid="589969653965674604">"खाता सेटिंग"</string>
+    <string name="menu_folder_options" msgid="7957375715672655588">"समन्वयन विकल्‍प"</string>
+    <string name="status_network_error" msgid="526826323872477973">"कनेक्शन समस्या."</string>
   <plurals name="move_messages">
-    <item quantity="one" msgid="320885379869442589">"संदेश स्‍थानांतरित करें"</item>
-    <item quantity="other" msgid="371256717624461324">"संदेशों को स्‍थानांतरित करें"</item>
+    <item quantity="one" msgid="3431489066510898753">"संदेश स्‍थानांतरित करें"</item>
+    <item quantity="other" msgid="5083310421670206821">"संदेशों को स्‍थानांतरित करें"</item>
   </plurals>
-    <string name="cannot_move_protocol_not_supported_toast" msgid="6558083148128616292">"POP3 खातों पर स्थानांतरण समर्थित नहीं है."</string>
-    <string name="cannot_move_multiple_accounts_toast" msgid="7922594026384944163">"चयन में एकाधिक खाते होने के कारण स्‍थानांतरित नहीं हो सकता."</string>
-    <string name="cannot_move_special_mailboxes_toast" msgid="7093107954841896970">"अधूरा ईमेल, आउट-बॉक्‍स और भेजे गए के संदेशों को स्‍थानांतरित नहीं किया जा सकता."</string>
-    <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"इनबॉक्स"</string>
-    <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"आउट-बॉक्स"</string>
-    <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"अधूरा ईमेल"</string>
-    <string name="mailbox_name_display_trash" msgid="9139069064580630647">"मिटाया हुआ"</string>
-    <string name="mailbox_name_display_sent" msgid="3426058998191869523">"भेजा गया"</string>
-    <string name="mailbox_name_display_junk" msgid="9046762505977999288">"जंक"</string>
-    <string name="mailbox_name_display_starred" msgid="7788694947644186069">"तारांकित"</string>
-    <string name="mailbox_name_display_unread" msgid="1015674989793998695">"अपठित"</string>
-    <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"इनबॉक्स"</string>
-    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"तारांकित"</string>
-    <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"अधूरा ईमेल"</string>
-    <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"आउट-बॉक्स"</string>
-    <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"संयोजित दृश्‍य"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"--------मूल संदेश --------\nविषय: <xliff:g id="SUBJECT">%1$s</xliff:g>\nप्रेषक: <xliff:g id="SENDER">%2$s</xliff:g>\nप्रति: <xliff:g id="TO">%3$s</xliff:g>\nCC: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
-    <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"त्वरित प्रतिसाद सम्मिलित करें"</string>
-    <string name="message_compose_insert_quick_response_menu_title" msgid="5817075097532919955">"त्वरित प्रतिसाद सम्मिलित करें"</string>
-    <string name="message_view_attachment_background_load" msgid="7906875687519445185">"आपके द्वारा अग्रेषित संदेश को भेजने से पहले उसके एक या अधिक अनुलग्‍नक डाउनलोड किए जाएंगे."</string>
-    <string name="attachment_not_found" msgid="7155322700141145123">"अनुलग्‍नक डाउनलोड नहीं किया जा सका."</string>
-    <string name="message_decode_error" msgid="5016042255170947834">"संदेश डीकोड करते समय कोई त्रुटि आई थी."</string>
-    <string name="forward_download_failed_ticker" msgid="6176608320359303255">"एक या अधिक अनुलग्‍नक अग्रेषित नहीं किए जा सके."</string>
-    <string name="forward_download_failed_title" msgid="6139701848515572511">"अनुलग्‍नक अग्रेषित नहीं किया गया"</string>
-    <string name="login_failed_ticker" msgid="2169365211566829350">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> में प्रवेश करना विफल रहा."</string>
-    <string name="login_failed_title" msgid="7624349996212476176">"प्रवेश नहीं हो सका"</string>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="1687394290312755846">"POP3 खातों पर स्थानांतरण समर्थित नहीं है."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="1032577153519440211">"चयन में एकाधिक खाते होने के कारण स्‍थानांतरित नहीं हो सकता."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="3758109129023839909">"अधूरा ईमेल, आउट-बॉक्‍स और भेजे गए के संदेशों को स्‍थानांतरित नहीं किया जा सकता."</string>
+    <string name="mailbox_name_display_inbox" msgid="5093068725739672126">"इनबॉक्स"</string>
+    <string name="mailbox_name_display_outbox" msgid="8735725798805339414">"आउट-बॉक्स"</string>
+    <string name="mailbox_name_display_drafts" msgid="3552043116466269581">"अधूरा ईमेल"</string>
+    <string name="mailbox_name_display_trash" msgid="7020792045007681852">"मिटाया हुआ"</string>
+    <string name="mailbox_name_display_sent" msgid="6705058612006729985">"भेजा गया"</string>
+    <string name="mailbox_name_display_junk" msgid="1634126984313831675">"जंक"</string>
+    <string name="mailbox_name_display_starred" msgid="8076384721309828453">"तारांकित"</string>
+    <string name="mailbox_name_display_unread" msgid="1453575937919310339">"अपठित"</string>
+    <string name="account_folder_list_summary_inbox" msgid="6524816019350737506">"इनबॉक्स"</string>
+    <string name="account_folder_list_summary_starred" msgid="1625089431195748236">"तारांकित"</string>
+    <string name="account_folder_list_summary_drafts" msgid="4050225674547841762">"अधूरा ईमेल"</string>
+    <string name="account_folder_list_summary_outbox" msgid="5594504984407654721">"आउट-बॉक्स"</string>
+    <string name="mailbox_list_account_selector_combined_view" msgid="4155918930481733669">"संयोजित दृश्‍य"</string>
+    <string name="message_compose_fwd_header_fmt" msgid="6193988236722150221">\n\n"--------मूल संदेश --------\nविषय: <xliff:g id="SUBJECT">%1$s</xliff:g>\nप्रेषक: <xliff:g id="SENDER">%2$s</xliff:g>\nप्रति: <xliff:g id="TO">%3$s</xliff:g>\nCC: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_insert_quick_response_list_title" msgid="5836926808818821309">"त्वरित प्रतिसाद सम्मिलित करें"</string>
+    <string name="message_compose_insert_quick_response_menu_title" msgid="4393288554605333619">"त्वरित प्रतिसाद सम्मिलित करें"</string>
+    <string name="message_view_attachment_background_load" msgid="7571652141281187845">"आपके द्वारा अग्रेषित संदेश को भेजने से पहले उसके एक या अधिक अनुलग्‍नक डाउनलोड किए जाएंगे."</string>
+    <string name="attachment_not_found" msgid="5219773045406833000">"अनुलग्‍नक डाउनलोड नहीं किया जा सका."</string>
+    <string name="message_decode_error" msgid="91396461771444300">"संदेश डीकोड करते समय कोई त्रुटि आई थी."</string>
+    <string name="forward_download_failed_ticker" msgid="2900585518884851062">"एक या अधिक अनुलग्‍नक अग्रेषित नहीं किए जा सके."</string>
+    <string name="forward_download_failed_title" msgid="2043036709913723298">"अनुलग्‍नक अग्रेषित नहीं किया गया"</string>
+    <string name="login_failed_ticker" msgid="4620839194581484497">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> में प्रवेश करना विफल रहा."</string>
+    <string name="login_failed_title" msgid="1737884069957090004">"प्रवेश नहीं हो सका"</string>
   <plurals name="message_view_attachment_bytes">
-    <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
-    <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
+    <item quantity="one" msgid="884086921379532485">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
+    <item quantity="other" msgid="1883360269853654045">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
   </plurals>
   <plurals name="message_view_attachment_kilobytes">
-    <item quantity="one" msgid="869981846437074463">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g>KB"</item>
-    <item quantity="other" msgid="8869993299924901593">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g>KB"</item>
+    <item quantity="one" msgid="7735927556589634941">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g>KB"</item>
+    <item quantity="other" msgid="7476806336055136146">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g>KB"</item>
   </plurals>
   <plurals name="message_view_attachment_megabytes">
-    <item quantity="one" msgid="7527095670565758434">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g>MB"</item>
-    <item quantity="other" msgid="4365876866570165282">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g>MB"</item>
+    <item quantity="one" msgid="7755624135347953938">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g>MB"</item>
+    <item quantity="other" msgid="3317120193748830799">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g>MB"</item>
   </plurals>
   <plurals name="message_view_attachment_gigabytes">
-    <item quantity="one" msgid="6261986598249539093">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
-    <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
+    <item quantity="one" msgid="5180812866869430241">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
+    <item quantity="other" msgid="1607574223219436099">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
   </plurals>
-    <string name="account_setup_basics_title" msgid="3578333196594678422">"खाता सेटअप"</string>
-    <string name="account_setup_basics_headline" msgid="6726590205905464015">"ईमेल खाता"</string>
-    <string name="accounts_welcome" msgid="8337750045270269649">"आप बस कुछ ही चरणों में अपना खाता सेट कर सकते हैं."</string>
-    <string name="account_setup_basics_email_label" msgid="3454164053624112047">"ईमेल पता"</string>
-    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"पासवर्ड"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"मैन्‍युअल सेटअप"</string>
-    <string name="account_setup_username_password_toast" msgid="3968270274727947460">"कोई मान्‍य ईमेल पता और पासवर्ड लिखें."</string>
-    <string name="account_duplicate_dlg_title" msgid="8089732986912704425">"डुप्‍लिकेट खाता"</string>
-    <string name="account_duplicate_dlg_message_fmt" msgid="6447629283679935840">"आप पहले से ही \"<xliff:g id="DUPLICATE">%s</xliff:g>\" खाते के लिए इस उपयोगकर्ता नाम का उपयोग कर रहे हैं."</string>
-    <string name="account_password_spaces_error" msgid="8928309156658903257">"यह पासवर्ड एक या अधिक स्पेस वर्णों के साथ प्रारंभ या समाप्त होता है. कई सर्वर स्पेस वाले पासवर्ड का समर्थन नहीं करते हैं."</string>
-    <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"खाता जानकारी पुनर्प्राप्त कर रहा है…"</string>
-    <string name="account_setup_check_settings_check_incoming_msg" msgid="2869198335297585862">"सर्वर सेटिंग सत्यापित की जा रही हैं…"</string>
-    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4566131393776891419">"smtp सेटिंग सत्यापित की जा रही हैं…"</string>
-    <string name="account_setup_creating_account_msg" msgid="6235569720466839946">"खाता बना रहा है..."</string>
-    <string name="account_setup_names_title" msgid="8483517350241119291">"खाता सेटअप"</string>
-    <string name="account_setup_names_headline" msgid="914858472109729140">"आपका खाता सेट हो गया है और शीघ्र ही ईमेल मिलने वाला है!"</string>
-    <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"इस खाते को कोई नाम दें (वैकल्पिक)"</string>
-    <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"आपका नाम (आउटगोइंग संदेशों में प्रदर्शित)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="6791427018325367364">"यह फ़ील्ड खाली मत छोड़िए."</string>
-    <string name="account_setup_account_type_title" msgid="7156551693961182124">"खाता सेटअप"</string>
-    <string name="account_setup_account_type_headline" msgid="3574102329184831086">"खाता प्रकार"</string>
-    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"यह किस प्रकार का खाता है?"</string>
-    <string name="account_setup_incoming_title" msgid="6796626791039136005">"खाता सेटअप"</string>
-    <string name="account_setup_incoming_headline" msgid="6183711037633407184">"इनकमिंग सर्वर सेटिंग"</string>
-    <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"उपयोगकर्ता नाम"</string>
-    <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"पासवर्ड"</string>
-    <string name="account_setup_incoming_server_label" msgid="1480342966630002638">"सर्वर"</string>
-    <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"पोर्ट"</string>
-    <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"सुरक्षा प्रकार"</string>
-    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"कोई नहीं"</string>
-    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="6151855090123117538">"SSL/TLS (सभी प्रमाणपत्र स्‍वीकार करें)"</string>
-    <string name="account_setup_incoming_security_ssl_label" msgid="2798501138420163861">"SSL/TLS"</string>
-    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="6149084428423662620">"STARTTLS (सभी प्रमाणपत्र स्‍वीकार करें)"</string>
-    <string name="account_setup_incoming_security_tls_label" msgid="6573498431821879660">"STARTTLS"</string>
-    <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"ईमेल को सर्वर से हटाएं"</string>
-    <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"कभी नहीं"</string>
-    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"जब मैं इनबॉक्‍स से हटाऊं"</string>
-    <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"IMAP पथ का पहला भाग"</string>
-    <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"वैकल्पिक"</string>
-    <string name="account_setup_outgoing_title" msgid="7208495965665711539">"खाता सेटअप"</string>
-    <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"आउटगोइंग सर्वर सेटिंग"</string>
-    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"SMTP सर्वर"</string>
-    <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"पोर्ट"</string>
-    <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"सुरक्षा प्रकार"</string>
-    <string name="account_setup_outgoing_require_login_label" msgid="7779484127897397562">"प्रवेश आवश्यक"</string>
-    <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"उपयोगकर्ता नाम"</string>
-    <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"पासवर्ड"</string>
-    <string name="account_setup_exchange_certificate_title" msgid="8473793588405277962">"क्लाइंट प्रमाणपत्र"</string>
-    <string name="account_setup_exchange_select_certificate" msgid="1536103662037268683">"चुनें"</string>
-    <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"क्लाइंट प्रमाणपत्र का उपयोग करें"</string>
-    <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"निकालें"</string>
-    <string name="account_setup_exchange_no_certificate" msgid="1119542961954780872">"कोई नहीं"</string>
-    <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"मोबाइल उपकरण ID"</string>
-    <string name="account_setup_options_title" msgid="9016600767888846051">"खाता सेटिंग"</string>
-    <string name="account_setup_options_headline" msgid="4181274232835368085">"खाता विकल्प"</string>
-    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"इनबॉक्‍स देखने की आवृति"</string>
-    <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"कभी नहीं"</string>
-    <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"स्‍वत: (पुश)"</string>
-    <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"प्रत्‍येक 5 मिनट"</string>
-    <string name="account_setup_options_mail_check_frequency_10min" msgid="5344463157247877480">"प्रत्‍येक 10 मिनट"</string>
-    <string name="account_setup_options_mail_check_frequency_15min" msgid="5052776740089741793">"प्रत्‍येक 15 मिनट"</string>
-    <string name="account_setup_options_mail_check_frequency_30min" msgid="1097088928685931864">"प्रत्‍येक 30 मिनट"</string>
-    <string name="account_setup_options_mail_check_frequency_1hour" msgid="3767715356039692899">"प्रत्‍येक घंटा"</string>
-    <string name="account_setup_options_notify_label" msgid="7046146571560728829">"ईमेल आने पर मुझे सूचित करें"</string>
-    <string name="account_setup_options_sync_contacts_label" msgid="276492345599531778">"संपर्कों को इस खाते से समन्ववित करें"</string>
-    <string name="account_setup_options_sync_calendar_label" msgid="3222151135467189411">"इस खाते से कैलेंडर समन्‍वयित करें"</string>
-    <string name="account_setup_options_sync_email_label" msgid="8585177128405004068">"इस खाते से ईमेल समन्वयित करें"</string>
-    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Wi-Fi से कनेक्‍ट होने पर अटैचमेंट को स्‍वचालित रूप से डाउनलोड करें"</string>
-    <string name="account_setup_failed_dlg_title" msgid="9083263347962940552">"पूरा नहीं हो सका"</string>
-    <string name="account_setup_options_mail_window_label" msgid="7582247646138987328">"समन्वयन के लिए दिन:"</string>
-    <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"स्वचालित"</string>
-    <string name="account_setup_options_mail_window_1day" msgid="7727436096227637646">"अंतिम दिन"</string>
-    <string name="account_setup_options_mail_window_3days" msgid="1841106793912850270">"पिछले तीन दिन"</string>
-    <string name="account_setup_options_mail_window_1week" msgid="5804121771990249346">"पिछले सप्ताह"</string>
-    <string name="account_setup_options_mail_window_2weeks" msgid="3583478100026382495">"पिछले दो सप्ताह"</string>
-    <string name="account_setup_options_mail_window_1month" msgid="4289585173153789717">"पिछले माह"</string>
-    <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"सभी"</string>
-    <string name="account_setup_options_mail_window_default" msgid="2540360826995543134">"उपयोगकर्ता खाता डिफ़ॉल्ट"</string>
-    <string name="account_setup_failed_dlg_auth_message" msgid="426627755590431364">"उपयोगकर्ता नाम या पासवर्ड गलत है."</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="2081384892947238930">"प्रवेश विफल रहा.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_autodiscover_dlg_authfail_title" msgid="7365992662150541370">"खाता सेटअप के साथ समस्या"</string>
-    <string name="account_setup_autodiscover_dlg_authfail_message" msgid="8354874879956702097">"पुष्टि करें कि उपयोगकर्तानाम, पासवर्ड, और खाता सेटिंग सही हैं."</string>
-    <string name="account_setup_failed_dlg_certificate_message" msgid="3836152264696108805">"सर्वर से सुरक्षित रूप से कनेक्‍ट नहीं हो सकता."</string>
-    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2121921642915593041">"सर्वर से सुरक्षित रूप से कनेक्‍ट नहीं हो सकता.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_certificate_required" msgid="2689944595775206006">"एक क्लाइंट प्रमाणपत्र की आवश्यकता है. क्या आप क्लाइंट प्रमाणपत्र के साथ सर्वर से कनेक्ट होना चाहते हैं?"</string>
-    <string name="account_setup_failed_certificate_inaccessible" msgid="3563840279690749547">"प्रमाणपत्र अमान्‍य है या उस पर पहुंचा नहीं जा सकता."</string>
-    <string name="account_setup_failed_check_credentials_message" msgid="6531658092540248067">"सर्वर ने एक त्रुटि के साथ प्रतिसाद दिया. अपना उपयोगकर्ता नाम और पासवर्ड जांचें फिर पुन: प्रयास करें."</string>
-    <string name="account_setup_failed_dlg_server_message" msgid="4942810054116129684">"सर्वर से कनेक्‍ट नहीं हो सकता."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="2525425638303883232">"सर्वर से कनेक्‍ट नहीं कर सकता.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS आवश्‍यक है लेकिन सर्वर द्वारा समर्थित नहीं है."</string>
-    <string name="account_setup_failed_auth_required" msgid="6799839150250217566">"प्रमाणीकरण की विधियां सर्वर द्वारा समर्थित नहीं हैं."</string>
-    <string name="account_setup_failed_security" msgid="925820957665764964">"सुरक्षा त्रुटि के कारण सर्वर से कनेक्‍शन नहीं खोल सका."</string>
-    <string name="account_setup_failed_ioerror" msgid="7802604687451830378">"सर्वर से कनेक्शन खोला नहीं जा सका."</string>
-    <string name="account_setup_failed_protocol_unsupported" msgid="4607759927226943569">"आपने गलत सर्वर पता लिखा है या सर्वर को उस प्रोटोकॉल संस्‍करण की आवश्‍यकता है जिसका समर्थन ईमेल नहीं करता."</string>
-    <string name="account_setup_failed_access_denied" msgid="6835358740050287051">"आपको इस सर्वर के साथ समन्वयित करने की अनुमति नहीं है. अधिक जानकारी के लिए अपने सर्वर के व्यवस्थापक से संपर्क करें."</string>
-    <string name="account_setup_security_required_title" msgid="1850321535870447468">"दूरस्‍थ सुरक्षा व्यवस्थापन"</string>
-    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"सर्वर <xliff:g id="SERVER">%s</xliff:g> के लिए आवश्‍यक है कि आप अपने Android उपकरण की कुछ सुरक्षा सुविधाओं को दूरस्थ रूप से नियंत्रित करने दें. क्‍या आप यह खाता सेट करना पूर्ण करना चाहते हैं?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="3210264746877120355">"इस सर्वर को ऐसी सुरक्षा सुविधाओं की आवश्यकता है जिनका समर्थन आपका Android उपकरण नहीं करता, जिनमें शामिल हैं: <xliff:g id="ERROR">%s</xliff:g>"</string>
-    <string name="account_setup_username_uneditable_error" msgid="1618869759801584109">"आप किसी खाते का उपयोगकर्ता नाम नहीं बदल सकते. किसी दूसरे उपयोगकर्ता नाम से खाता जोड़ने के लिए, खाता जोड़ें को स्‍पर्श करें."</string>
-    <string name="disable_admin_warning" msgid="6196985268695592382">"चेतावनी: आपके उपकरण को प्रबंधित करने के लिए ईमेल ऐप्स का प्राधिकार प्रयोग में नहीं कर देने से उसके लिए आवश्यक सभी ईमेल खाते, उनके ईमेल, संपर्क, कैलेंडर ईवेंट, और अन्‍य डेटा सहित, हटा दिए जाएंगे."</string>
-    <string name="account_security_dialog_title" msgid="430041952584831904">"सुरक्षा अपडेट"</string>
-    <string name="account_security_dialog_content_fmt" msgid="8843806143923278214">"आपको <xliff:g id="ACCOUNT">%s</xliff:g> के लिए अपनी सुरक्षा सेटिंग अपडेट करने की आवश्यकता है."</string>
-    <string name="security_unsupported_ticker_fmt" msgid="5166579214529283975">"सुरक्षा आवश्‍यकताओं के कारण खाता \"<xliff:g id="ACCOUNT">%s</xliff:g>\" समन्‍वयित नहीं किया जा सकता."</string>
-    <string name="security_needed_ticker_fmt" msgid="2120499087897133665">"खाते \"<xliff:g id="ACCOUNT">%s</xliff:g>\" को सुरक्षा सेटिंग अपडेट की आवश्‍यकता है."</string>
-    <string name="security_changed_ticker_fmt" msgid="2609435447352755285">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" खाते ने अपनी सुरक्षा सेटिंग बदल दी है; किसी उपयोगकर्ता कार्यवाही की आवश्‍यकता नहीं."</string>
-    <string name="security_notification_content_update_title" msgid="2429762903228690154">"सुरक्षा अपडेट आवश्यक"</string>
-    <string name="security_notification_content_change_title" msgid="443490921895642130">"सुरक्षा नीतियां बदल दी गई हैं"</string>
-    <string name="security_notification_content_unsupported_title" msgid="7315219208043169233">"सुरक्षा नीतियां पूरी नहीं हो सकतीं"</string>
-    <string name="account_security_title" msgid="3511543138560418587">"उपकरण सुरक्षा"</string>
-    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"सर्वर <xliff:g id="SERVER">%s</xliff:g> के लिए यह आवश्‍यक है कि आप उसे अपने Android उपकरण की कुछ सुरक्षा सुविधाओं को दूरस्थ रूप से नियंत्रित करने दें."</string>
-    <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"विवरण संपादित करें"</string>
-    <string name="password_expire_warning_ticker_fmt" msgid="2459977229180023773">"आपको \"<xliff:g id="ACCOUNT">%s</xliff:g>\" के लिए अपना लॉक स्‍क्रीन पिन या पासवर्ड बदलने की आवश्यकता है."</string>
-    <string name="password_expire_warning_content_title" msgid="7174669014074849304">"स्‍क्रीन लॉक करें पासवर्ड समाप्त होने वाला है"</string>
-    <string name="password_expired_ticker" msgid="4230570412974108968">"आपकी स्‍क्रीन लॉक करें पिन या पासवर्ड की समय-सीमा समाप्त हो गई है."</string>
-    <string name="password_expired_content_title" msgid="4349518706602252979">"स्‍क्रीन लॉक करें पासवर्ड की समय-सीमा समाप्त"</string>
-    <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"स्‍क्रीन लॉक करें पासवर्ड समाप्त होने वाला है"</string>
-    <string name="password_expire_warning_dialog_content_fmt" msgid="4293446611405084436">"आपको शीघ्र ही अपना लॉक स्क्रीन पिन या पासवर्ड को बदलना होगा, अन्यथा <xliff:g id="ACCOUNT">%s</xliff:g> का डेटा मिट जाएगा. क्या आप इसे अभी बदलना चाहते हैं?"</string>
-    <string name="password_expired_dialog_title" msgid="2186547998125938084">"स्‍क्रीन लॉक करें पासवर्ड की समय-सीमा समाप्त हो गई है"</string>
-    <string name="password_expired_dialog_content_fmt" msgid="6538210092073931079">"<xliff:g id="ACCOUNT">%s</xliff:g> का डेटा आपके उपकरण से मिटाया जा रहा है. आप इसे अपने लॉक स्क्रीन पिन या पासवर्ड बदलकर पुनर्स्थापित कर सकते हैं. क्या आप इसे अभी बदलना चाहते हैं?"</string>
-    <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"न सहेजे गए परिवर्तनों को छोड़ें?"</string>
-    <string name="account_settings_login_dialog_title" msgid="4024422579146302775">"प्रवेश नहीं हो सका"</string>
-    <string name="account_settings_login_dialog_content_fmt" msgid="8849649646111167377">"<xliff:g id="ACCOUNT">%s</xliff:g> का उपयोगकर्ता नाम या पासवर्ड गलत है. क्या आप उन्हें अभी अपडेट करना चाहते हैं?"</string>
-    <string name="account_settings_login_dialog_reason_fmt" msgid="4266359321648406752">"<xliff:g id="ACCOUNT">%s</xliff:g> पर आपका प्रवेश विफल हो गया; सर्वर ने बताया: <xliff:g id="REASON">%s</xliff:g> क्या आप अपना उपयोगकर्ता नाम और/या पासवर्ड अपडेट करना चाहते हैं?"</string>
-    <string name="account_settings_background_attachments_label" msgid="2980317599840958688">"अनुलग्नकों को डाउनलोड करें"</string>
-    <string name="account_settings_background_attachments_summary" msgid="5954218549226189376">"WiFi के माध्यम से हाल के संदेशों के अटैचमेंट स्वत: डाउनलोड करें"</string>
-    <string name="account_settings_notify_label" msgid="1630001017303007974">"ईमेल सूचनाएं"</string>
-    <string name="account_settings_summary" msgid="8403582255413830007">"आवृत्ति, सूचनाएं आदि समन्वयन करें."</string>
-    <string name="account_settings_notify_summary" msgid="8134339460923068254">"ईमेल आने पर सूचना भेजें"</string>
-    <string name="account_settings_mail_check_frequency_label" msgid="4322235101687302250">"समन्वयन आवृत्ति"</string>
-    <string name="account_settings_incoming_label" msgid="7858928031806297542">"इनकमिंग सेटिंग"</string>
-    <string name="account_settings_incoming_summary" msgid="2923044634831881068">"उपयोगकर्ता नाम, पासवर्ड, और अन्‍य इनकमिंग सर्वर सेटिंग"</string>
-    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"आउटगोइंग सेटिंग"</string>
-    <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"उपयोगकर्ता नाम, पासवर्ड, और अन्‍य आउटगोइंग सर्वर सेटिंग"</string>
-    <string name="account_settings_enforced_label" msgid="7429582254433588882">"नीतियां लागू की गईं"</string>
-    <string name="account_settings_enforced_summary" msgid="8140860420440447771">"कोई नहीं"</string>
-    <string name="account_settings_unsupported_label" msgid="1954091071454235577">"असमर्थित नीतियां"</string>
-    <string name="account_settings_unsupported_summary" msgid="2107633813351863608">"कोई नहीं"</string>
-    <string name="account_settings_retry_label" msgid="1104680719299842829">"समन्‍वयन का प्रयास करें"</string>
-    <string name="account_settings_retry_summary" msgid="2703599639846201913">"इस खाते को समन्वयित करने के लिए यहां स्पर्श करें"</string>
-    <string name="account_settings_description_label" msgid="8894815221204511715">"खाता नाम"</string>
-    <string name="account_settings_name_label" msgid="8186406122590008449">"आपका नाम"</string>
-    <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"त्वरित प्रतिसाद"</string>
-    <string name="account_settings_edit_quick_responses_summary" msgid="8056686122888722591">"वह पाठ संपादित करें जिसे आप अक्सर ईमेल लिखते समय शामिल करते हैं"</string>
-    <string name="account_settings_notifications" msgid="1042620094281375043">"सूचना सेटिंग"</string>
-    <string name="account_settings_data_usage" msgid="6669107430575866736">"डेटा उपयोग"</string>
-    <string name="account_settings_policies" msgid="6292833636418641840">"सुरक्षा नीतियां"</string>
-    <string name="system_folders_title" msgid="2934406494244347991">"सिस्टम फ़ोल्डर"</string>
-    <string name="system_folders_trash_title" msgid="8470058000681188327">"मिटाया हुआ फ़ोल्डर"</string>
-    <string name="system_folders_trash_summary" msgid="1258919809198485244">"अपने सर्वर का मिटाया हुआ फ़ोल्डर चुनें"</string>
-    <string name="system_folders_trash_dlg" msgid="4461220303400833402">"अपने सर्वर का मिटाया हुआ फ़ोल्डर चुनें"</string>
-    <string name="system_folders_sent_title" msgid="4265722817877075367">"भेजे गए आइटम फ़ोल्डर"</string>
-    <string name="system_folders_sent_summary" msgid="5529250353569545181">"अपने सर्वर का भेजे गए आइटम फ़ोल्डर चुनें"</string>
-    <string name="system_folders_sent_dlg" msgid="7071006714702094762">"अपने सर्वर का भेजे गए आइटम फ़ोल्डर चुनें"</string>
-    <string name="edit_quick_response_dialog" msgid="6479106007607928450">"त्वरित प्रतिसाद"</string>
-    <string name="save_action" msgid="1988862706623227093">"सहेजें"</string>
-    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"संपर्कों को समन्वयन करें"</string>
-    <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"इस खाते के लिए संपर्क समन्वयन करें"</string>
-    <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"कैलेंडर समन्वयन करें"</string>
-    <string name="account_settings_sync_calendar_summary" msgid="7606340353079301703">"इस खाता हेतु कैलें. इवेंट समन्व. करें"</string>
-    <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"ईमेल समन्‍वयित करें"</string>
-    <string name="account_settings_sync_email_summary" msgid="262964076412310990">"इस खाते के लिए ईमेल समन्वयन करें"</string>
-    <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"कंपन"</string>
-    <string name="account_settings_ringtone" msgid="8229878374785575207">"रिंगटोन चुनें"</string>
-    <string name="account_settings_servers" msgid="4925493817981624242">"सर्वर सेटिंग"</string>
-    <string name="mailbox_settings_activity_title" msgid="4705845931573373274">"समन्वयन विकल्‍प"</string>
-    <string name="mailbox_settings_activity_title_with_mailbox" msgid="6485481250424219240">"समन्वयन विकल्प (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
-    <string name="mailbox_settings_sync_enabled_label" msgid="1180866791599296994">"यह फ़ोल्डर समन्वयित करें"</string>
-    <string name="mailbox_settings_sync_enabled_summary" msgid="345878979425044320">"कनेक्ट होने पर संदेश डाउनलोड हो जाएंगे"</string>
-    <string name="mailbox_settings_mailbox_sync_window_label" msgid="851180833264474141">"इतने दिनों के मेल समन्वयित करें"</string>
-    <string name="prefDialogTitle_conversationListIcon" msgid="4601797400885989153">"प्रेषक का चित्र"</string>
-    <string name="provider_note_live" msgid="2995297671709325333">"केवल कुछ \"प्लस\" खातों को POP पहुंच प्राप्त होती है जो इस प्रोग्राम को कनेक्‍ट करने देती है. यदि आप अपने सही ईमेल पते और पासवर्ड द्वारा प्रवेश नहीं कर पा रहे हैं, तो हो सकता है कि आपके पास सशुल्‍क \"प्लस\" खाता न हो. इन ईमेल खातों में पहुंच प्राप्‍त करने के लिए वेब ब्राउज़र लॉन्च करें."</string>
-    <string name="provider_note_t_online" msgid="1630642061431427894">"यह ईमेल खाता सेट करने से पहले, T-Online वेबसाइट पर जाएं और POP3 ईमेल पहुंच के लिए पासवर्ड बनाएं."</string>
-    <string name="exchange_name" msgid="1190783774800310346">"कोर्पोरेट"</string>
-    <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
-    <string name="system_account_create_failed" msgid="3673792980526246177">"खाता नहीं बनाया जा सका. पुन: प्रयास करें."</string>
-    <string name="device_admin_label" msgid="8680224994637869414">"ईमेल"</string>
-    <string name="device_admin_description" msgid="426727923791430306">"सर्वर-विशिष्ट सुरक्षा नीतियों को सक्षम करता है"</string>
-    <string name="settings_activity_title" msgid="5185915603716333904">"सेटिंग"</string>
-    <string name="header_label_general_preferences" msgid="8243724566056800991">"सामान्य सेटिंग"</string>
-    <string name="general_preference_confirm_delete_label" msgid="1863245465244241907">"हटाने से पहले पुष्‍टि करें"</string>
-    <string name="general_preference_confirm_delete_summary" msgid="6710240861010766643">"संदेश"</string>
-    <string name="general_preference_confirm_send_label" msgid="4548277349553989930">"भेजने से पहले पुष्‍टि करें"</string>
-    <string name="general_preference_confirm_send_summary" msgid="2695471027185506093">"संदेश"</string>
-    <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"संदेश पाठ का आकार"</string>
+    <string name="account_setup_basics_title" msgid="5050895656741229172">"खाता सेटअप"</string>
+    <string name="account_setup_basics_headline" msgid="8468280216822264643">"ईमेल खाता"</string>
+    <string name="accounts_welcome" msgid="7230367425520242593">"आप बस कुछ ही चरणों में अपना खाता सेट कर सकते हैं."</string>
+    <string name="account_setup_basics_email_label" msgid="8701406783555749929">"ईमेल पता"</string>
+    <string name="account_setup_basics_password_label" msgid="6515749756447077880">"पासवर्ड"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="7690861839383362085">"मैन्‍युअल सेटअप"</string>
+    <string name="account_setup_username_password_toast" msgid="3659744829670065777">"कोई मान्‍य ईमेल पता और पासवर्ड लिखें."</string>
+    <string name="account_duplicate_dlg_title" msgid="3768813340753269695">"डुप्‍लिकेट खाता"</string>
+    <string name="account_duplicate_dlg_message_fmt" msgid="6747351773934787126">"आप पहले से ही \"<xliff:g id="DUPLICATE">%s</xliff:g>\" खाते के लिए इस उपयोगकर्ता नाम का उपयोग कर रहे हैं."</string>
+    <string name="account_password_spaces_error" msgid="1035535222734047745">"यह पासवर्ड एक या अधिक स्पेस वर्णों के साथ प्रारंभ या समाप्त होता है. कई सर्वर स्पेस वाले पासवर्ड का समर्थन नहीं करते हैं."</string>
+    <string name="account_setup_check_settings_retr_info_msg" msgid="9103280616618316032">"खाता जानकारी पुनर्प्राप्त कर रहा है…"</string>
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="9196418179524308411">"सर्वर सेटिंग सत्यापित की जा रही हैं…"</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="9062019904409225329">"smtp सेटिंग सत्यापित की जा रही हैं…"</string>
+    <string name="account_setup_creating_account_msg" msgid="2898648422471181490">"खाता बना रहा है..."</string>
+    <string name="account_setup_names_title" msgid="8780121351085082269">"खाता सेटअप"</string>
+    <string name="account_setup_names_headline" msgid="2031978210683887370">"आपका खाता सेट हो गया है और शीघ्र ही ईमेल मिलने वाला है!"</string>
+    <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"इस खाते को कोई नाम दें (वैकल्पिक)"</string>
+    <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"आपका नाम (आउटगोइंग संदेशों में प्रदर्शित)"</string>
+    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"यह फ़ील्ड खाली मत छोड़िए."</string>
+    <string name="account_setup_account_type_title" msgid="7081511430549429621">"खाता सेटअप"</string>
+    <string name="account_setup_account_type_headline" msgid="3375795537675351389">"खाता प्रकार"</string>
+    <string name="account_setup_account_type_instructions" msgid="968088954656738617">"यह किस प्रकार का खाता है?"</string>
+    <string name="account_setup_incoming_title" msgid="7743750350830383718">"खाता सेटअप"</string>
+    <string name="account_setup_incoming_headline" msgid="6232828824446177639">"इनकमिंग सर्वर सेटिंग"</string>
+    <string name="account_setup_incoming_username_label" msgid="7903341232468792843">"उपयोगकर्ता नाम"</string>
+    <string name="account_setup_incoming_password_label" msgid="1313520830897108218">"पासवर्ड"</string>
+    <string name="account_setup_incoming_server_label" msgid="3361479329602622605">"सर्वर"</string>
+    <string name="account_setup_incoming_port_label" msgid="3305649070199094652">"पोर्ट"</string>
+    <string name="account_setup_incoming_security_label" msgid="71683379092609588">"सुरक्षा प्रकार"</string>
+    <string name="account_setup_incoming_security_none_label" msgid="2461510827337484818">"कोई नहीं"</string>
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="2834386066577239560">"SSL/TLS (सभी प्रमाणपत्र स्‍वीकार करें)"</string>
+    <string name="account_setup_incoming_security_ssl_label" msgid="5169133414545009342">"SSL/TLS"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2281920902104029077">"STARTTLS (सभी प्रमाणपत्र स्‍वीकार करें)"</string>
+    <string name="account_setup_incoming_security_tls_label" msgid="3892291833944170882">"STARTTLS"</string>
+    <string name="account_setup_incoming_delete_policy_label" msgid="2341742235654301690">"ईमेल को सर्वर से हटाएं"</string>
+    <string name="account_setup_incoming_delete_policy_never_label" msgid="5777530843489961009">"कभी नहीं"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label" msgid="8677018382715596606">"जब मैं इनबॉक्‍स से हटाऊं"</string>
+    <string name="account_setup_incoming_imap_path_prefix_label" msgid="3531290378620033218">"IMAP पथ का पहला भाग"</string>
+    <string name="account_setup_incoming_imap_path_prefix_hint" msgid="206747922689229932">"वैकल्पिक"</string>
+    <string name="account_setup_outgoing_title" msgid="2808821899038184783">"खाता सेटअप"</string>
+    <string name="account_setup_outgoing_headline" msgid="6638171491109658047">"आउटगोइंग सर्वर सेटिंग"</string>
+    <string name="account_setup_outgoing_smtp_server_label" msgid="8331296348331896385">"SMTP सर्वर"</string>
+    <string name="account_setup_outgoing_port_label" msgid="6639038659206073470">"पोर्ट"</string>
+    <string name="account_setup_outgoing_security_label" msgid="7407726933347029015">"सुरक्षा प्रकार"</string>
+    <string name="account_setup_outgoing_require_login_label" msgid="5405196721947884033">"प्रवेश आवश्यक"</string>
+    <string name="account_setup_outgoing_username_label" msgid="4914949764444962912">"उपयोगकर्ता नाम"</string>
+    <string name="account_setup_outgoing_password_label" msgid="5843358147533117286">"पासवर्ड"</string>
+    <string name="account_setup_exchange_certificate_title" msgid="6372066908150286502">"क्लाइंट प्रमाणपत्र"</string>
+    <string name="account_setup_exchange_select_certificate" msgid="264748505181695915">"चुनें"</string>
+    <string name="account_setup_exchange_use_certificate" msgid="6513687497912094538">"क्लाइंट प्रमाणपत्र का उपयोग करें"</string>
+    <string name="account_setup_exchange_remove_certificate" msgid="1222387802827919583">"निकालें"</string>
+    <string name="account_setup_exchange_no_certificate" msgid="3569712401698909695">"कोई नहीं"</string>
+    <string name="account_setup_exchange_device_id_label" msgid="8070904029571668714">"मोबाइल उपकरण ID"</string>
+    <string name="account_setup_options_title" msgid="3274463434235489134">"खाता सेटिंग"</string>
+    <string name="account_setup_options_headline" msgid="4810292194395251968">"खाता विकल्प"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="3756612564974849252">"इनबॉक्‍स देखने की आवृति"</string>
+    <string name="account_setup_options_mail_check_frequency_never" msgid="2937664246354067829">"कभी नहीं"</string>
+    <string name="account_setup_options_mail_check_frequency_push" msgid="5511415696925307797">"स्‍वत: (पुश)"</string>
+    <string name="account_setup_options_mail_check_frequency_5min" msgid="8929785860545198867">"प्रत्‍येक 5 मिनट"</string>
+    <string name="account_setup_options_mail_check_frequency_10min" msgid="8787901333816702849">"प्रत्‍येक 10 मिनट"</string>
+    <string name="account_setup_options_mail_check_frequency_15min" msgid="7127640170766018765">"प्रत्‍येक 15 मिनट"</string>
+    <string name="account_setup_options_mail_check_frequency_30min" msgid="4223562871143897449">"प्रत्‍येक 30 मिनट"</string>
+    <string name="account_setup_options_mail_check_frequency_1hour" msgid="107706566853925273">"प्रत्‍येक घंटा"</string>
+    <string name="account_setup_options_notify_label" msgid="3101529443722198112">"ईमेल आने पर मुझे सूचित करें"</string>
+    <string name="account_setup_options_sync_contacts_label" msgid="5029046373980454714">"संपर्कों को इस खाते से समन्ववित करें"</string>
+    <string name="account_setup_options_sync_calendar_label" msgid="303441956432308807">"इस खाते से कैलेंडर समन्‍वयित करें"</string>
+    <string name="account_setup_options_sync_email_label" msgid="468957966555663131">"इस खाते से ईमेल समन्वयित करें"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="4085327585082867216">"वाई-फ़ाई  से कनेक्‍ट होने पर अटैचमेंट को स्‍वचालित रूप से डाउनलोड करें"</string>
+    <string name="account_setup_failed_dlg_title" msgid="7923577224474005464">"पूरा नहीं हो सका"</string>
+    <string name="account_setup_options_mail_window_label" msgid="4715619104936047102">"समन्वयन के लिए दिन:"</string>
+    <string name="account_setup_options_mail_window_auto" msgid="7407981634952005775">"स्वचालित"</string>
+    <string name="account_setup_options_mail_window_1day" msgid="7930883294844418428">"अंतिम दिन"</string>
+    <string name="account_setup_options_mail_window_3days" msgid="3435093562391555730">"पिछले तीन दिन"</string>
+    <string name="account_setup_options_mail_window_1week" msgid="5230695719358085318">"पिछले सप्ताह"</string>
+    <string name="account_setup_options_mail_window_2weeks" msgid="1144271277694832921">"पिछले दो सप्ताह"</string>
+    <string name="account_setup_options_mail_window_1month" msgid="3228265299330513816">"पिछले माह"</string>
+    <string name="account_setup_options_mail_window_all" msgid="4794683936065721438">"सभी"</string>
+    <string name="account_setup_options_mail_window_default" msgid="5518038139722596598">"उपयोगकर्ता खाता डिफ़ॉल्ट"</string>
+    <string name="account_setup_failed_dlg_auth_message" msgid="5608549872868036352">"उपयोगकर्ता नाम या पासवर्ड गलत है."</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8811464534757505457">"प्रवेश विफल रहा.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_autodiscover_dlg_authfail_title" msgid="7551559109838593189">"खाता सेटअप के साथ समस्या"</string>
+    <string name="account_setup_autodiscover_dlg_authfail_message" msgid="4075075565221436715">"पुष्टि करें कि उपयोगकर्तानाम, पासवर्ड, और खाता सेटिंग सही हैं."</string>
+    <string name="account_setup_failed_dlg_certificate_message" msgid="4725950885859654809">"सर्वर से सुरक्षित रूप से कनेक्‍ट नहीं हो सकता."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="3451681985727559303">"सर्वर से सुरक्षित रूप से कनेक्‍ट नहीं हो सकता.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_certificate_required" msgid="4607859382193244795">"एक क्लाइंट प्रमाणपत्र की आवश्यकता है. क्या आप क्लाइंट प्रमाणपत्र के साथ सर्वर से कनेक्ट होना चाहते हैं?"</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="4574461885959029072">"प्रमाणपत्र अमान्‍य है या उस पर पहुंचा नहीं जा सकता."</string>
+    <string name="account_setup_failed_check_credentials_message" msgid="430054384233036305">"सर्वर ने एक त्रुटि के साथ प्रतिसाद दिया. अपना उपयोगकर्ता नाम और पासवर्ड जांचें फिर पुन: प्रयास करें."</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="1180197172141077524">"सर्वर से कनेक्‍ट नहीं हो सकता."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="3889441611138037320">"सर्वर से कनेक्‍ट नहीं कर सकता.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_tls_required" msgid="1902309158359287958">"TLS आवश्‍यक है लेकिन सर्वर द्वारा समर्थित नहीं है."</string>
+    <string name="account_setup_failed_auth_required" msgid="2684010997018901707">"प्रमाणीकरण की विधियां सर्वर द्वारा समर्थित नहीं हैं."</string>
+    <string name="account_setup_failed_security" msgid="1627240499907011040">"सुरक्षा त्रुटि के कारण सर्वर से कनेक्‍शन नहीं खोल सका."</string>
+    <string name="account_setup_failed_ioerror" msgid="3862689923436539909">"सर्वर से कनेक्शन खोला नहीं जा सका."</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="4973054582044010375">"आपने गलत सर्वर पता लिखा है या सर्वर को उस प्रोटोकॉल संस्‍करण की आवश्‍यकता है जिसका समर्थन ईमेल नहीं करता."</string>
+    <string name="account_setup_failed_access_denied" msgid="2051742796367919026">"आपको इस सर्वर के साथ समन्वयित करने की अनुमति नहीं है. अधिक जानकारी के लिए अपने सर्वर के व्यवस्थापक से संपर्क करें."</string>
+    <string name="account_setup_security_required_title" msgid="667943309546419435">"दूरस्‍थ सुरक्षा व्यवस्थापन"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="9029471168291631932">"सर्वर <xliff:g id="SERVER">%s</xliff:g> के लिए आवश्‍यक है कि आप अपने Android उपकरण की कुछ सुरक्षा सुविधाओं को दूरस्थ रूप से नियंत्रित करने दें. क्‍या आप यह खाता सेट करना पूर्ण करना चाहते हैं?"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="4619685657253094627">"इस सर्वर को ऐसी सुरक्षा सुविधाओं की आवश्यकता है जिनका समर्थन आपका Android उपकरण नहीं करता, जिनमें शामिल हैं: <xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_username_uneditable_error" msgid="3607769783124215764">"आप किसी खाते का उपयोगकर्ता नाम नहीं बदल सकते. किसी दूसरे उपयोगकर्ता नाम से खाता जोड़ने के लिए, खाता जोड़ें स्‍पर्श करें."</string>
+    <string name="disable_admin_warning" msgid="6001542250505146252">"चेतावनी: आपके उपकरण को प्रबंधित करने के लिए ईमेल ऐप्स का प्राधिकार प्रयोग में नहीं कर देने से उसके लिए आवश्यक सभी ईमेल खाते, उनके ईमेल, संपर्क, कैलेंडर ईवेंट, और अन्‍य डेटा सहित, हटा दिए जाएंगे."</string>
+    <string name="account_security_dialog_title" msgid="7003032393805438164">"सुरक्षा अपडेट"</string>
+    <string name="account_security_dialog_content_fmt" msgid="4107093049191103780">"आपको <xliff:g id="ACCOUNT">%s</xliff:g> के लिए अपनी सुरक्षा सेटिंग अपडेट करने की आवश्यकता है."</string>
+    <string name="security_unsupported_ticker_fmt" msgid="3249185558872836884">"सुरक्षा आवश्‍यकताओं के कारण खाता \"<xliff:g id="ACCOUNT">%s</xliff:g>\" समन्‍वयित नहीं किया जा सकता."</string>
+    <string name="security_needed_ticker_fmt" msgid="7099561996532829229">"खाते \"<xliff:g id="ACCOUNT">%s</xliff:g>\" को सुरक्षा सेटिंग अपडेट की आवश्‍यकता है."</string>
+    <string name="security_changed_ticker_fmt" msgid="3823930420292838192">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" खाते ने अपनी सुरक्षा सेटिंग बदल दी है; किसी उपयोगकर्ता कार्यवाही की आवश्‍यकता नहीं."</string>
+    <string name="security_notification_content_update_title" msgid="6321099538307807621">"सुरक्षा अपडेट आवश्यक"</string>
+    <string name="security_notification_content_change_title" msgid="615639963487448183">"सुरक्षा नीतियां बदल दी गई हैं"</string>
+    <string name="security_notification_content_unsupported_title" msgid="6494791400431198228">"सुरक्षा नीतियां पूरी नहीं हो सकतीं"</string>
+    <string name="account_security_title" msgid="6072273231606918870">"उपकरण सुरक्षा"</string>
+    <string name="account_security_policy_explanation_fmt" msgid="2527501853520160827">"सर्वर <xliff:g id="SERVER">%s</xliff:g> के लिए यह आवश्‍यक है कि आप उसे अपने Android उपकरण की कुछ सुरक्षा सुविधाओं को दूरस्थ रूप से नियंत्रित करने दें."</string>
+    <string name="account_setup_failed_dlg_edit_details_action" msgid="8155332642922842729">"विवरण संपादित करें"</string>
+    <string name="password_expire_warning_ticker_fmt" msgid="5543005790538884060">"आपको \"<xliff:g id="ACCOUNT">%s</xliff:g>\" के लिए अपना लॉक स्‍क्रीन पिन या पासवर्ड बदलने की आवश्यकता है."</string>
+    <string name="password_expire_warning_content_title" msgid="4360288708739366810">"स्‍क्रीन लॉक करें पासवर्ड समाप्त होने वाला है"</string>
+    <string name="password_expired_ticker" msgid="3098703963402347483">"आपकी स्‍क्रीन लॉक करें पिन या पासवर्ड की समय-सीमा समाप्त हो गई है."</string>
+    <string name="password_expired_content_title" msgid="7379094218699681984">"स्‍क्रीन लॉक करें पासवर्ड की समय-सीमा समाप्त"</string>
+    <string name="password_expire_warning_dialog_title" msgid="4901499545146045672">"स्‍क्रीन लॉक करें पासवर्ड समाप्त होने वाला है"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="1093389293050776319">"आपको शीघ्र ही अपना लॉक स्क्रीन पिन या पासवर्ड को बदलना होगा, अन्यथा <xliff:g id="ACCOUNT">%s</xliff:g> का डेटा मिट जाएगा. क्या आप इसे अभी बदलना चाहते हैं?"</string>
+    <string name="password_expired_dialog_title" msgid="7275534155170185252">"स्‍क्रीन लॉक करें पासवर्ड की समय-सीमा समाप्त हो गई है"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="8322213184626443346">"<xliff:g id="ACCOUNT">%s</xliff:g> का डेटा आपके उपकरण से मिटाया जा रहा है. आप इसे अपने लॉक स्क्रीन पिन या पासवर्ड बदलकर पुनर्स्थापित कर सकते हैं. क्या आप इसे अभी बदलना चाहते हैं?"</string>
+    <string name="account_settings_exit_server_settings" msgid="4232590695889111419">"न सहेजे गए परिवर्तनों को छोड़ें?"</string>
+    <string name="account_settings_login_dialog_title" msgid="2250911725501042470">"प्रवेश नहीं हो सका"</string>
+    <string name="account_settings_login_dialog_content_fmt" msgid="8687412692709766495">"<xliff:g id="ACCOUNT">%s</xliff:g> का उपयोगकर्ता नाम या पासवर्ड गलत है. क्या आप उन्हें अभी अपडेट करना चाहते हैं?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="2324678262137130809">"<xliff:g id="ACCOUNT">%s</xliff:g> पर आपका प्रवेश विफल हो गया; सर्वर ने बताया: <xliff:g id="REASON">%s</xliff:g> क्या आप अपना उपयोगकर्ता नाम और/या पासवर्ड अपडेट करना चाहते हैं?"</string>
+    <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"अनुलग्नकों को डाउनलोड करें"</string>
+    <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"WiFi के माध्यम से हाल के संदेशों के अटैचमेंट स्वत: डाउनलोड करें"</string>
+    <string name="account_settings_notify_label" msgid="8621226576645167987">"ईमेल सूचनाएं"</string>
+    <string name="account_settings_summary" msgid="4733776978291376161">"आवृत्ति, सूचनाएं आदि समन्वयन करें."</string>
+    <string name="account_settings_notify_summary" msgid="88560545461159120">"ईमेल आने पर सूचना भेजें"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="4107847714594035131">"समन्वयन आवृत्ति"</string>
+    <string name="account_settings_incoming_label" msgid="3793314460723296874">"इनकमिंग सेटिंग"</string>
+    <string name="account_settings_incoming_summary" msgid="7521181981008371492">"उपयोगकर्ता नाम, पासवर्ड, और अन्‍य इनकमिंग सर्वर सेटिंग"</string>
+    <string name="account_settings_outgoing_label" msgid="4997504719643828381">"आउटगोइंग सेटिंग"</string>
+    <string name="account_settings_outgoing_summary" msgid="1884202151340479161">"उपयोगकर्ता नाम, पासवर्ड, और अन्‍य आउटगोइंग सर्वर सेटिंग"</string>
+    <string name="account_settings_enforced_label" msgid="7005050362066086119">"नीतियां लागू की गईं"</string>
+    <string name="account_settings_enforced_summary" msgid="1668581504445370253">"कोई नहीं"</string>
+    <string name="account_settings_unsupported_label" msgid="7286722617178322465">"असमर्थित नीतियां"</string>
+    <string name="account_settings_unsupported_summary" msgid="1980825746966562221">"कोई नहीं"</string>
+    <string name="account_settings_retry_label" msgid="8605492340808650923">"समन्‍वयन का प्रयास करें"</string>
+    <string name="account_settings_retry_summary" msgid="2598065993718592906">"इस खाते को समन्वयित करने के लिए यहां स्पर्श करें"</string>
+    <string name="account_settings_description_label" msgid="2073736045984411004">"खाता नाम"</string>
+    <string name="account_settings_name_label" msgid="8230436030850457988">"आपका नाम"</string>
+    <string name="account_settings_edit_quick_responses_label" msgid="6105791335935883199">"त्वरित प्रतिसाद"</string>
+    <string name="account_settings_edit_quick_responses_summary" msgid="5406599402930290682">"वह पाठ संपादित करें जिसे आप अक्सर ईमेल लिखते समय शामिल करते हैं"</string>
+    <string name="account_settings_notifications" msgid="2842952349214972116">"सूचना सेटिंग"</string>
+    <string name="account_settings_data_usage" msgid="6400715160238559711">"डेटा उपयोग"</string>
+    <string name="account_settings_policies" msgid="5972183883466873359">"सुरक्षा नीतियां"</string>
+    <string name="system_folders_title" msgid="7161311881709109736">"सिस्टम फ़ोल्डर"</string>
+    <string name="system_folders_trash_title" msgid="3190927115504713123">"मिटाया हुआ फ़ोल्डर"</string>
+    <string name="system_folders_trash_summary" msgid="2583143581531897068">"अपने सर्वर का मिटाया हुआ फ़ोल्डर चुनें"</string>
+    <string name="system_folders_trash_dlg" msgid="353701568340939392">"अपने सर्वर का मिटाया हुआ फ़ोल्डर चुनें"</string>
+    <string name="system_folders_sent_title" msgid="8792934374188279309">"भेजे गए आइटम फ़ोल्डर"</string>
+    <string name="system_folders_sent_summary" msgid="4252740721870748375">"अपने सर्वर का भेजे गए आइटम फ़ोल्डर चुनें"</string>
+    <string name="system_folders_sent_dlg" msgid="818944260541160146">"अपने सर्वर का भेजे गए आइटम फ़ोल्डर चुनें"</string>
+    <string name="edit_quick_response_dialog" msgid="3048014284772648575">"त्वरित प्रतिसाद"</string>
+    <string name="save_action" msgid="5740359453077441466">"सहेजें"</string>
+    <string name="account_settings_sync_contacts_enable" msgid="2642448079273767521">"संपर्कों को समन्वयन करें"</string>
+    <string name="account_settings_sync_contacts_summary" msgid="1716022682035150630">"इस खाते के लिए संपर्क समन्वयन करें"</string>
+    <string name="account_settings_sync_calendar_enable" msgid="3172491863244160828">"कैलेंडर समन्वयन करें"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="411960248618953311">"इस खाता हेतु कैलें. इवेंट समन्व. करें"</string>
+    <string name="account_settings_sync_email_enable" msgid="7135765408226471860">"ईमेल समन्‍वयित करें"</string>
+    <string name="account_settings_sync_email_summary" msgid="71710510041953351">"इस खाते के लिए ईमेल समन्वयन करें"</string>
+    <string name="account_settings_vibrate_when_label" msgid="361069844540266098">"कंपन"</string>
+    <string name="account_settings_ringtone" msgid="2238523918221865167">"रिंगटोन चुनें"</string>
+    <string name="account_settings_servers" msgid="3386185135392642067">"सर्वर सेटिंग"</string>
+    <string name="mailbox_settings_activity_title" msgid="2196614373847675314">"समन्वयन विकल्‍प"</string>
+    <string name="mailbox_settings_activity_title_with_mailbox" msgid="5547676392298186906">"समन्वयन विकल्प (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
+    <string name="mailbox_settings_sync_enabled_label" msgid="7723413381707277856">"यह फ़ोल्डर समन्वयित करें"</string>
+    <string name="mailbox_settings_sync_enabled_summary" msgid="742233465207750578">"कनेक्ट होने पर संदेश डाउनलोड हो जाएंगे"</string>
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="7027516982341382326">"इतने दिनों के मेल समन्वयित करें"</string>
+    <string name="prefDialogTitle_conversationListIcon" msgid="1302579259733675896">"प्रेषक का चित्र"</string>
+    <string name="provider_note_live" msgid="4289035326060391547">"केवल कुछ \"प्लस\" खातों को POP पहुंच प्राप्त होती है जो इस प्रोग्राम को कनेक्‍ट करने देती है. यदि आप अपने सही ईमेल पते और पासवर्ड द्वारा प्रवेश नहीं कर पा रहे हैं, तो हो सकता है कि आपके पास सशुल्‍क \"प्लस\" खाता न हो. इन ईमेल खातों में पहुंच प्राप्‍त करने के लिए वेब ब्राउज़र लॉन्च करें."</string>
+    <string name="provider_note_t_online" msgid="1596701148051980218">"यह ईमेल खाता सेट करने से पहले, T-Online वेबसाइट पर जाएं और POP3 ईमेल पहुंच के लिए पासवर्ड बनाएं."</string>
+    <string name="exchange_name" msgid="3793803477985438102">"कोर्पोरेट"</string>
+    <string name="exchange_name_alternate" msgid="293118547772095111">"Microsoft Exchange ActiveSync"</string>
+    <string name="system_account_create_failed" msgid="2248313263003927725">"खाता नहीं बनाया जा सका. पुन: प्रयास करें."</string>
+    <string name="device_admin_label" msgid="3335272972461391415">"ईमेल"</string>
+    <string name="device_admin_description" msgid="4299378570982520839">"सर्वर-विशिष्ट सुरक्षा नीतियों को सक्षम करता है"</string>
+    <string name="settings_activity_title" msgid="4787565736829092053">"सेटिंग"</string>
+    <string name="header_label_general_preferences" msgid="2924944721204930254">"सामान्य सेटिंग"</string>
+    <string name="general_preference_confirm_delete_label" msgid="4635169755738754289">"हटाने से पहले पुष्‍टि करें"</string>
+    <string name="general_preference_confirm_delete_summary" msgid="8870961480717498101">"संदेश"</string>
+    <string name="general_preference_confirm_send_label" msgid="2985557291955796568">"भेजने से पहले पुष्‍टि करें"</string>
+    <string name="general_preference_confirm_send_summary" msgid="6180183817270985607">"संदेश"</string>
+    <string name="general_preference_text_zoom_label" msgid="2237959835468858237">"संदेश पाठ का आकार"</string>
   <string-array name="general_preference_text_zoom_summary_array">
-    <item msgid="4693576184223089069">"छोटा पाठ"</item>
-    <item msgid="4415205108584620118">"छोटा पाठ"</item>
-    <item msgid="4550219696381691112">"सामान्य आकार का पाठ"</item>
-    <item msgid="6227813549949219991">"बड़ा पाठ"</item>
-    <item msgid="1197917420815786571">"बड़ा पाठ"</item>
+    <item msgid="2957426388431171644">"छोटा पाठ"</item>
+    <item msgid="9065780631791478752">"छोटा पाठ"</item>
+    <item msgid="5493891920376401220">"सामान्य आकार का पाठ"</item>
+    <item msgid="5957728463730225525">"बड़ा पाठ"</item>
+    <item msgid="8280280945572141543">"बड़ा पाठ"</item>
   </string-array>
-    <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"संदेश पाठ का आकार"</string>
-    <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"बहुत छोटा"</string>
-    <string name="general_preference_text_zoom_small" msgid="6618520238223144876">"छोटा"</string>
-    <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"सामान्य"</string>
-    <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"बड़ा"</string>
-    <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"बहुत बड़ा"</string>
-    <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
-    <string name="search_hint" msgid="2200412192574686497">"ईमेल खोजें"</string>
-    <string name="policy_dont_allow_camera" msgid="5744573062306937302">"उपकरण के कैमरे के उपयोग की अनुमति न दें"</string>
-    <string name="policy_require_password" msgid="7177274900480984702">"उपकरण पासवर्ड आवश्‍यक"</string>
-    <string name="policy_password_history" msgid="5743544498302303181">"हाल के पासवर्ड का पुन: उपयोग प्रतिबं. करें"</string>
-    <string name="policy_password_expiration" msgid="1248123255253649199">"पासवर्ड के लिए समय सीमा समाप्ति आवश्यक"</string>
-    <string name="policy_screen_timeout" msgid="414869965358468080">"स्क्रीन लॉक के लिए प्रयोग में नहीं उपकरण चाहिए"</string>
-    <string name="policy_calendar_age" msgid="627405158087482302">"समन्‍वयित कैलेंडर ईवेंट की संख्‍या सीमित करें"</string>
-    <string name="policy_email_age" msgid="7144148367145424963">"समन्‍वयित ईमेल की संख्‍या सीमित करें"</string>
-    <string name="quick_1" msgid="3426057697353380951">"धन्यवाद!"</string>
-    <string name="quick_2" msgid="4188036352885736617">"मुझे अच्छा लगता है!"</string>
-    <string name="quick_3" msgid="8061819976353395585">"मैं इसे बाद में पढ़ूंगा/पढ़ूगी और आपसे संपर्क करूंगा/करूंगी."</string>
-    <string name="quick_4" msgid="3988974084396883051">"आइए इस पर चर्चा करने के लिए कोई मीटिंग सेट करें."</string>
-    <string name="require_manual_sync_message" msgid="7777357288642785955">"रोमिंग के दौरान इस खाते के लिए पृष्ठभूमि समन्‍वयन अक्षम है."</string>
-    <string name="confirm_response" msgid="9151965975158906286">"प्रतिक्रिया भेज रहा है..."</string>
-    <string name="no_conversations" msgid="5559527390337162819">"कोई संदेश नहीं."</string>
-    <string name="imap_name" msgid="5030473997603483793">"IMAP"</string>
-    <string name="pop3_name" msgid="4037602724794932807">"POP3"</string>
-    <string name="folder_picker_title" msgid="860241987640527156">"फ़ोल्डर पिकर"</string>
-    <string name="trash_folder_selection_title" msgid="8052880079616386185">"<xliff:g id="ACCOUNT">%s</xliff:g> का सर्वर मिटाया हुआ फ़ोल्डर चुनें"</string>
-    <string name="sent_folder_selection_title" msgid="2668629667423320684">"<xliff:g id="ACCOUNT">%s</xliff:g> हेतु सर्वर प्रेषित आइटम फ़ोल्डर चुनें"</string>
-    <string name="account_waiting_for_folders_msg" msgid="6504836014579036923">"फ़ोल्डर सूची लोड कर रहा है…"</string>
+    <string name="general_preference_text_zoom_dialog_title" msgid="2945670488178731960">"संदेश पाठ का आकार"</string>
+    <string name="general_preference_text_zoom_tiny" msgid="2638270296385150534">"बहुत छोटा"</string>
+    <string name="general_preference_text_zoom_small" msgid="5878451808657194677">"छोटा"</string>
+    <string name="general_preference_text_zoom_normal" msgid="3336285518736032230">"सामान्य"</string>
+    <string name="general_preference_text_zoom_large" msgid="8552201810636001546">"बड़ा"</string>
+    <string name="general_preference_text_zoom_huge" msgid="697872823018628182">"बहुत बड़ा"</string>
+    <string name="more_than_999" msgid="4088200269333058889">"999+"</string>
+    <string name="search_hint" msgid="3491349343647799436">"ईमेल खोजें"</string>
+    <string name="policy_dont_allow_camera" msgid="8821533827628900689">"उपकरण के कैमरे के उपयोग की अनुमति न दें"</string>
+    <string name="policy_require_password" msgid="3556860917024612396">"उपकरण पासवर्ड आवश्‍यक"</string>
+    <string name="policy_password_history" msgid="9001177390979112746">"हाल के पासवर्ड का पुन: उपयोग प्रतिबं. करें"</string>
+    <string name="policy_password_expiration" msgid="1287225242918742275">"पासवर्ड के लिए समय सीमा समाप्ति आवश्यक"</string>
+    <string name="policy_screen_timeout" msgid="3499201409239287702">"स्क्रीन लॉक के लिए प्रयोग में नहीं उपकरण चाहिए"</string>
+    <string name="policy_calendar_age" msgid="6469328498345236120">"समन्‍वयित कैलेंडर ईवेंट की संख्‍या सीमित करें"</string>
+    <string name="policy_email_age" msgid="3521941976575225050">"समन्‍वयित ईमेल की संख्‍या सीमित करें"</string>
+    <string name="quick_1" msgid="9130521670178673190">"धन्यवाद!"</string>
+    <string name="quick_2" msgid="8611591278119481491">"मुझे अच्छा लगता है!"</string>
+    <string name="quick_3" msgid="8070999183033184986">"मैं इसे बाद में पढ़ूंगा/पढ़ूगी और आपसे संपर्क करूंगा/करूंगी."</string>
+    <string name="quick_4" msgid="216066940197616025">"आइए इस पर चर्चा करने के लिए कोई मीटिंग सेट करें."</string>
+    <string name="require_manual_sync_message" msgid="7361932179783481686">"रोमिंग के दौरान इस खाते के लिए पृष्ठभूमि समन्‍वयन अक्षम है."</string>
+    <string name="confirm_response" msgid="6764021931370809514">"प्रतिक्रिया भेज रहा है..."</string>
+    <string name="no_conversations" msgid="3785854971159919343">"कोई संदेश नहीं."</string>
+    <string name="imap_name" msgid="1267915719183915252">"IMAP"</string>
+    <string name="pop3_name" msgid="1235910677527117862">"POP3"</string>
+    <string name="folder_picker_title" msgid="5906275472176731605">"फ़ोल्डर पिकर"</string>
+    <string name="trash_folder_selection_title" msgid="686039558899469073">"<xliff:g id="ACCOUNT">%s</xliff:g> का सर्वर मिटाया हुआ फ़ोल्डर चुनें"</string>
+    <string name="sent_folder_selection_title" msgid="9207482909822072856">"<xliff:g id="ACCOUNT">%s</xliff:g> हेतु सर्वर प्रेषित आइटम फ़ोल्डर चुनें"</string>
+    <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"फ़ोल्डर सूची लोड कर रहा है…"</string>
 </resources>
