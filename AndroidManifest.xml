@@ -189,7 +189,8 @@
         </activity>
 
         <activity android:name="com.android.mail.ui.FolderSelectionActivity"
-            android:label="@string/activity_folder_selection" />
+            android:label="@string/activity_folder_selection"
+            android:theme="@style/ShortcutWidgetTheme" />
 
         <activity android:name="com.android.email2.ui.MailboxSelectionActivityEmail"
             android:theme="@style/ShortcutWidgetTheme"
