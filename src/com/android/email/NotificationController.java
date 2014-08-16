@@ -146,7 +146,7 @@ public class NotificationController {
                 .setContentIntent(pending)
                 .setLargeIcon(largeIcon)
                 .setNumber(number == null ? 0 : number)
-                .setSmallIcon(R.drawable.ic_notification_mail_16dp)
+                .setSmallIcon(R.drawable.ic_notification_mail_24dp)
                 .setWhen(mClock.getTime())
                 .setTicker(ticker)
                 .setOngoing(ongoing);
