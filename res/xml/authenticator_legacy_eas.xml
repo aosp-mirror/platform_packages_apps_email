@@ -23,7 +23,7 @@
 <account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
     android:accountType="com.android.exchange"
     android:icon="@mipmap/ic_launcher_mail"
-    android:smallIcon="@drawable/ic_notification_mail_16dp"
+    android:smallIcon="@drawable/ic_notification_mail_24dp"
     android:label="@string/exchange_name"
     android:accountPreferences="@xml/account_preferences"
 />
