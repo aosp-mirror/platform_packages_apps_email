@@ -71,34 +71,40 @@ import java.util.Map;
  */
 public class MailboxSettings extends PreferenceActivity {
     private static final String EXTRA_FOLDERS_URI = "FOLDERS_URI";
+    private static final String EXTRA_INBOX_ID = "INBOX_ID";
 
     private static final int FOLDERS_LOADER_ID = 0;
     private Uri mFoldersUri;
+    private int mInboxId;
     private final List<Folder> mFolders = new ArrayList<>();
 
     /**
      * Starts the activity
      */
-    public static Intent getIntent(Context context, Uri foldersUri) {
+    public static Intent getIntent(Context context, Uri foldersUri, Folder inbox) {
         final Intent i = new Intent(context, MailboxSettings.class);
         i.putExtra(EXTRA_FOLDERS_URI, foldersUri);
+        i.putExtra(EXTRA_INBOX_ID, inbox.id);
         return i;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // Always show "app up" as we expect our parent to be an Email activity.
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
-        }
-
+        // This needs to happen before super.onCreate() since that calls onBuildHeaders()
+        mInboxId = getIntent().getIntExtra(EXTRA_INBOX_ID, -1);
         mFoldersUri = getIntent().getParcelableExtra(EXTRA_FOLDERS_URI);
 
         if (mFoldersUri != null) {
             getLoaderManager().initLoader(FOLDERS_LOADER_ID, null,
                     new MailboxSettingsFolderLoaderCallbacks());
+        }
+
+        super.onCreate(savedInstanceState);
+
+        // Always show "app up" as we expect our parent to be an Email activity.
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
         }
     }
 
@@ -107,6 +113,8 @@ public class MailboxSettings extends PreferenceActivity {
         if (mFolders.isEmpty()) {
             final Header dummy = new Header();
             dummy.titleRes = R.string.mailbox_name_display_inbox;
+            dummy.fragment = MailboxSettingsFragment.class.getName();
+            dummy.fragmentArguments = MailboxSettingsFragment.getArguments(mInboxId);
             target.add(dummy);
         } else {
             for (final Folder f : mFolders) {
@@ -118,15 +126,19 @@ public class MailboxSettings extends PreferenceActivity {
                 }
                 h.fragment = MailboxSettingsFragment.class.getName();
                 h.fragmentArguments = MailboxSettingsFragment.getArguments(f.id);
-                target.add(h);
+                if (f.id == mInboxId) {
+                    target.add(0, h);
+                } else {
+                    target.add(h);
+                }
             }
         }
     }
 
     @Override
     protected boolean isValidFragment(String fragmentName) {
-        return TextUtils.equals(MailboxSettingsFragment.class.getName(), fragmentName)
-                || super.isValidFragment(fragmentName);
+        // Activity is not exported
+        return true;
     }
 
     @Override
