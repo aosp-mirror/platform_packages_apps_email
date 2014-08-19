@@ -123,14 +123,13 @@ public class NotificationController {
      * @param title The first line of text. May NOT be {@code null}.
      * @param contentText The second line of text. May NOT be {@code null}.
      * @param intent The intent to start if the user clicks on the notification.
-     * @param largeIcon A large icon. May be {@code null}
      * @param number A number to display using {@link Builder#setNumber(int)}. May be {@code null}.
      * @param enableAudio If {@code false}, do not play any sound. Otherwise, play sound according
      *        to the settings for the given account.
      * @return A {@link Notification} that can be sent to the notification service.
      */
     private NotificationCompat.Builder createBaseAccountNotificationBuilder(long accountId,
-            String ticker, CharSequence title, String contentText, Intent intent, Bitmap largeIcon,
+            String ticker, CharSequence title, String contentText, Intent intent,
             Integer number, boolean enableAudio, boolean ongoing) {
         // Pending Intent
         PendingIntent pending = null;
@@ -144,7 +143,6 @@ public class NotificationController {
                 .setContentTitle(title)
                 .setContentText(contentText)
                 .setContentIntent(pending)
-                .setLargeIcon(largeIcon)
                 .setNumber(number == null ? 0 : number)
                 .setSmallIcon(R.drawable.ic_notification_mail_24dp)
                 .setWhen(mClock.getTime())
@@ -172,7 +170,7 @@ public class NotificationController {
     private void showNotification(long accountId, String ticker, String title,
             String contentText, Intent intent, int notificationId) {
         final NotificationCompat.Builder builder = createBaseAccountNotificationBuilder(accountId,
-                ticker, title, contentText, intent, null, null, true,
+                ticker, title, contentText, intent, null, true,
                 needsOngoingNotification(notificationId));
         mNotificationManager.notify(notificationId, builder.build());
     }
