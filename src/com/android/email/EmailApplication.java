@@ -29,6 +29,7 @@ import com.android.mail.browse.InlineAttachmentViewIntentBuilderCreatorHolder;
 import com.android.mail.preferences.BasePreferenceMigrator;
 import com.android.mail.preferences.PreferenceMigratorHolder;
 import com.android.mail.preferences.PreferenceMigratorHolder.PreferenceMigratorCreator;
+import com.android.mail.providers.Account;
 import com.android.mail.ui.settings.PublicPreferenceActivity;
 import com.android.mail.utils.LogTag;
 
@@ -49,7 +50,7 @@ public class EmailApplication extends Application {
                 new InlineAttachmentViewIntentBuilderCreator() {
                     @Override
                     public InlineAttachmentViewIntentBuilder
-                    createInlineAttachmentViewIntentBuilder(String account, long conversationId) {
+                    createInlineAttachmentViewIntentBuilder(Account account, long conversationId) {
                         return new InlineAttachmentViewIntentBuilder() {
                             @Override
                             public Intent createInlineAttachmentViewIntent(Context context,
