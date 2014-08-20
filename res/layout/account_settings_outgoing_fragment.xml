@@ -15,38 +15,31 @@
 -->
 
 <!-- Outgoing server settings.  This is a wrapper around the "outgoing setup" fragment
-     that adds scrollview & buttons and makes it more compatible with a 2-pane PreferenceActivity
-     such as AccountSettingsXL. -->
-<ScrollView  xmlns:android="http://schemas.android.com/apk/res/android"
+     that adds scrollview & buttons -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fillViewport="true"
-    >
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingTop="@dimen/settings_fragment_padding_top"
-        android:paddingLeft="@dimen/settings_fragment_padding_side"
-        android:paddingRight="@dimen/settings_fragment_padding_side"
-        >
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:divider="?android:attr/dividerHorizontal"
+    android:showDividers="middle" >
 
-        <!-- Fields entry -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingTop="@dimen/settings_fragment_padding_top" >
+
         <FrameLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            >
-            <include
-                layout="@layout/account_setup_outgoing_fragment"
-                />
+            android:paddingLeft="@dimen/settings_fragment_padding_side"
+            android:paddingRight="@dimen/settings_fragment_padding_side" >
+
+            <include layout="@layout/account_setup_outgoing_fragment" />
+
         </FrameLayout>
 
-        <!-- This spacer fills the viewport and moves the buttons to the bottom -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0dip"
-            android:layout_weight="1" />
+    </ScrollView>
 
-        <include layout="@layout/account_settings_buttons" />
-    </LinearLayout>
-</ScrollView>
+    <include layout="@layout/account_settings_buttons"/>
+</LinearLayout>

@@ -15,6 +15,8 @@
 -->
 
 <resources>
+    <style name="AccountSetupDialogActivityTheme"
+        parent="@android:style/Theme.Holo.Light.Dialog.NoActionBar" />
     <!-- Account Setup Activity -->
     <style name="account_setup_content">
         <item name="android:background">@drawable/account_setup_background</item>

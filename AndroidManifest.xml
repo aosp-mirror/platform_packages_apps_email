@@ -165,7 +165,10 @@
 
         <activity
             android:name=".activity.setup.AccountCredentials"
-            android:label="@string/sign_in_title">
+            android:label="@string/sign_in_title"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:theme="@style/AccountSetupDialogActivityTheme">
         </activity>
 
         <activity
@@ -301,10 +304,12 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.setup.AccountServerSettingsActivity"
-                  android:label="@string/mailbox_settings_activity_title"
-                  android:exported="false">
-        </activity>
+        <activity
+            android:name=".activity.setup.AccountServerSettingsActivity"
+            android:label="@string/mailbox_settings_activity_title"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:theme="@style/AccountSetupDialogActivityTheme" />
         <!-- a Headless Activity to load the account from the account id before navigating to the
         Incoming Account Settings fragment -->
         <activity

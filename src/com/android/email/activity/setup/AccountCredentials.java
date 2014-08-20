@@ -32,6 +32,8 @@ public class AccountCredentials extends Activity
         final String emailAddress = getIntent().getStringExtra(EXTRA_EMAIL);
         final String protocol = getIntent().getStringExtra(EXTRA_PROTOCOL);
 
+        setFinishOnTouchOutside(false);
+
         if (savedInstanceState == null) {
             final AccountSetupCredentialsFragment f =
                     AccountSetupCredentialsFragment.newInstance(emailAddress, protocol,

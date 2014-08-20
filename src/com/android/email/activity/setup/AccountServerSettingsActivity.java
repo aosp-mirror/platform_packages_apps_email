@@ -67,8 +67,8 @@ public class AccountServerSettingsActivity extends AccountSetupActivity implemen
 
         mSetupData.setFlowMode(SetupDataFragment.FLOW_MODE_EDIT);
 
-        // TODO: this activity is ugly as sin
         setContentView(R.layout.account_server_settings);
+        setFinishOnTouchOutside(false);
 
         if (savedInstanceState == null) {
             final Account account = getIntent().getParcelableExtra(EXTRA_ACCOUNT);
