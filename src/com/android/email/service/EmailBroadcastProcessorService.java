@@ -315,12 +315,7 @@ public class EmailBroadcastProcessorService extends IntentService {
         if (progress < 1) {
             LogUtils.i(Logging.LOG_TAG, "Onetime initialization: 1");
             progress = 1;
-            if (VendorPolicyLoader.getInstance(this).useAlternateExchangeStrings()) {
-                EmailServiceUtils.setComponentEnabled(this,
-                        EasAuthenticatorServiceAlternate.class, true);
-                EmailServiceUtils.setComponentEnabled(this,
-                        EasAuthenticatorService.class, false);
-            }
+            EmailServiceUtils.enableExchangeComponent(this);
         }
 
         if (progress < 2) {

@@ -37,6 +37,7 @@ import com.android.email.service.EasAuthenticatorServiceAlternate;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.emailcommon.Logging;
+import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.mail.utils.LogUtils;
@@ -160,15 +161,9 @@ public class AccountReconciler {
 
         if (!EmailServiceUtils.isServiceAvailable(context,
                 context.getString(R.string.protocol_eas))) {
-            LogUtils.d(Logging.LOG_TAG, "disabling eas authenticator");
-            EmailServiceUtils.setComponentEnabled(context, EasAuthenticatorServiceAlternate.class,
-                    false);
-            EmailServiceUtils.setComponentEnabled(context, EasAuthenticatorService.class, false);
+            EmailServiceUtils.disableExchangeComponents(context);
         } else {
-            LogUtils.d(Logging.LOG_TAG, "enabling eas authenticator");
-            EmailServiceUtils.setComponentEnabled(context, EasAuthenticatorServiceAlternate.class,
-                    true);
-            EmailServiceUtils.setComponentEnabled(context, EasAuthenticatorService.class, true);
+            EmailServiceUtils.enableExchangeComponent(context);
         }
         // First, look through our EmailProvider accounts to make sure there's a corresponding
         // AccountManager account

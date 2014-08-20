@@ -49,6 +49,7 @@ import android.provider.SyncStateContract;
 import android.text.TextUtils;
 
 import com.android.email.R;
+import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
@@ -730,12 +731,35 @@ public class EmailServiceUtils {
         }
     }
 
-    public static void setComponentEnabled(final Context context, Class<?> clazz, boolean enabled) {
+    public static void setComponentStatus(final Context context, Class<?> clazz, boolean enabled) {
         final ComponentName c = new ComponentName(context, clazz.getName());
         context.getPackageManager().setComponentEnabledSetting(c,
                 enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
                         : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP);
+    }
+
+    /**
+     * This is a helper function that enables the proper Exchange component and disables
+     * the other Exchange component ensuring that only one is enabled at a time.
+     */
+    public static void enableExchangeComponent(final Context context) {
+        if (VendorPolicyLoader.getInstance(context).useAlternateExchangeStrings()) {
+            LogUtils.d(LogUtils.TAG, "Enabling alternate EAS authenticator");
+            setComponentStatus(context, EasAuthenticatorServiceAlternate.class, true);
+            setComponentStatus(context, EasAuthenticatorService.class, false);
+        } else {
+            LogUtils.d(LogUtils.TAG, "Enabling EAS authenticator");
+            setComponentStatus(context, EasAuthenticatorService.class, true);
+            setComponentStatus(context,
+                    EasAuthenticatorServiceAlternate.class, false);
+        }
+    }
+
+    public static void disableExchangeComponents(final Context context) {
+        LogUtils.d(LogUtils.TAG, "Disabling EAS authenticators");
+        setComponentStatus(context, EasAuthenticatorServiceAlternate.class, false);
+        setComponentStatus(context, EasAuthenticatorService.class, false);
     }
 
 }
