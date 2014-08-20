@@ -316,8 +316,10 @@ public class EmailBroadcastProcessorService extends IntentService {
             LogUtils.i(Logging.LOG_TAG, "Onetime initialization: 1");
             progress = 1;
             if (VendorPolicyLoader.getInstance(this).useAlternateExchangeStrings()) {
-                setComponentEnabled(EasAuthenticatorServiceAlternate.class, true);
-                setComponentEnabled(EasAuthenticatorService.class, false);
+                EmailServiceUtils.setComponentEnabled(this,
+                        EasAuthenticatorServiceAlternate.class, true);
+                EmailServiceUtils.setComponentEnabled(this,
+                        EasAuthenticatorService.class, false);
             }
         }
 
@@ -365,14 +367,6 @@ public class EmailBroadcastProcessorService extends IntentService {
         } finally {
             c.close();
         }
-    }
-
-    private void setComponentEnabled(Class<?> clazz, boolean enabled) {
-        final ComponentName c = new ComponentName(this, clazz.getName());
-        getPackageManager().setComponentEnabledSetting(c,
-                enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                        : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                PackageManager.DONT_KILL_APP);
     }
 
     private void onSystemAccountChanged() {
