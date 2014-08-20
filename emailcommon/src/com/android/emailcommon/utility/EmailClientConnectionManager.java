@@ -133,7 +133,7 @@ public class EmailClientConnectionManager extends ThreadSafeClientConnManager {
      */
     public static String makeScheme(
             boolean useSsl, boolean trustAllServerCerts, String clientCertAlias) {
-        if (clientCertAlias != null) {
+        if (!TextUtils.isEmpty(clientCertAlias)) {
             return makeSchemeForClientCert(clientCertAlias, trustAllServerCerts);
         } else {
             return useSsl ? (trustAllServerCerts ? "httpts" : "https") : "http";

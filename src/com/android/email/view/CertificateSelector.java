@@ -22,6 +22,7 @@ import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.security.KeyChain;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -84,11 +85,11 @@ public class CertificateSelector extends RelativeLayout implements OnClickListen
         Resources res = getResources();
         mValue = alias;
         mAliasText.setText(
-                (alias == null)
+                TextUtils.isEmpty(alias)
                 ? res.getString(R.string.account_setup_exchange_no_certificate)
                 : alias);
         mSelectButton.setText(res.getString(
-                (alias == null)
+                TextUtils.isEmpty(alias)
                 ? R.string.account_setup_exchange_select_certificate
                 : R.string.account_setup_exchange_remove_certificate));
     }
