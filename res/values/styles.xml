@@ -101,10 +101,10 @@
 
     <!-- Account setup checkboxes -->
     <style name="account_setup_checkbox">
-        <item name="android:paddingTop">@dimen/setup_checkbox_padding_top</item>
-        <item name="android:paddingBottom">@dimen/setup_checkbox_padding_bottom</item>
-        <item name="android:paddingLeft">@dimen/setup_checkbox_padding_side</item>
-        <item name="android:paddingRight">@dimen/setup_checkbox_padding_side</item>
+        <item name="android:layout_marginTop">@dimen/setup_checkbox_margin_top</item>
+        <item name="android:layout_marginBottom">@dimen/setup_checkbox_margin_bottom</item>
+        <item name="android:layout_marginLeft">@dimen/setup_checkbox_margin_side</item>
+        <item name="android:layout_marginRight">@dimen/setup_checkbox_margin_side</item>
     </style>
 
     <!-- Client certificate UI. See also values in styles-ldrtl.xml -->
