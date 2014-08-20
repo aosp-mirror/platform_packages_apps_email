@@ -83,6 +83,7 @@
         android:requiredAccountType="com.android.exchange,com.android.email"
         android:theme="@style/UnifiedEmailTheme"
         android:hardwareAccelerated="true"
+        android:allowBackup="false"
         android:supportsRtl="true" >
         <!-- Enable search in all activities -->
         <meta-data android:name="android.app.default_searchable"
