@@ -179,62 +179,65 @@
     </provider>
 
     <!-- Hotmail and variants.  NOTE: These are handled by exchange if available, else POP3. -->
-    <!-- EXCHANGE-REMOVE-SECTION-START -->
     <provider id="live1" label="Windows Live Hotmail Plus" domain="live.*">
         <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
         <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
+        <incoming-fallback uri="imap+ssl+://imap-mail.outlook.com" username="$email" />
+        <outgoing-fallback uri="smtp+tls+://smtp-mail.outlook.com" username="$email" />
     </provider>
     <provider id="live2" label="Windows Live Hotmail Plus" domain="live.*.*">
         <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
         <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
+        <incoming-fallback uri="imap+ssl+://imap-mail.outlook.com" username="$email" />
+        <outgoing-fallback uri="smtp+tls+://smtp-mail.outlook.com" username="$email" />
     </provider>
     <provider id="live3" label="Windows Live Hotmail Plus" domain="*.live.*">
         <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
         <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
+        <incoming-fallback uri="imap+ssl+://imap-mail.outlook.com" username="$email" />
+        <outgoing-fallback uri="smtp+tls+://smtp-mail.outlook.com" username="$email" />
     </provider>
     <provider id="hotmail1" label="Windows Live Hotmail Plus" domain="hotmail.*">
         <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
         <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
+        <incoming-fallback uri="imap+ssl+://imap-mail.outlook.com" username="$email" />
+        <outgoing-fallback uri="smtp+tls+://smtp-mail.outlook.com" username="$email" />
     </provider>
     <provider id="hotmail2" label="Windows Live Hotmail Plus" domain="hotmail.*.*">
         <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
         <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
+        <incoming-fallback uri="imap+ssl+://imap-mail.outlook.com" username="$email" />
+        <outgoing-fallback uri="smtp+tls+://smtp-mail.outlook.com" username="$email" />
     </provider>
     <provider id="hotmail3" label="Windows Live Hotmail Plus" domain="livemail.*">
         <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
         <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
+        <incoming-fallback uri="imap+ssl+://imap-mail.outlook.com" username="$email" />
+        <outgoing-fallback uri="smtp+tls+://smtp-mail.outlook.com" username="$email" />
     </provider>
     <provider id="hotmail4" label="Windows Live Hotmail Plus" domain="livemail.*.*">
         <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
         <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
+        <incoming-fallback uri="imap+ssl+://imap-mail.outlook.com" username="$email" />
+        <outgoing-fallback uri="smtp+tls+://smtp-mail.outlook.com" username="$email" />
     </provider>
     <provider id="msn" label="Windows Live Hotmail Plus" domain="msn.*">
         <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
         <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
+        <incoming-fallback uri="imap+ssl+://imap-mail.outlook.com" username="$email" />
+        <outgoing-fallback uri="smtp+tls+://smtp-mail.outlook.com" username="$email" />
     </provider>
     <provider id="msnhotmail" label="Windows Live Hotmail Plus" domain="msnhotmail.com">
         <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
         <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
+        <incoming-fallback uri="imap+ssl+://imap-mail.outlook.com" username="$email" />
+        <outgoing-fallback uri="smtp+tls+://smtp-mail.outlook.com" username="$email" />
     </provider>
         <provider id="outlook" label="Outlook" domain="outlook.com">
         <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
         <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
-    </provider>
-    <!-- EXCHANGE-REMOVE-SECTION-END -->
-    <provider id="live" label="Windows Live Hotmail Plus" domain="live.com"
-            note="@string/provider_note_live">
-        <incoming uri="pop3+ssl+://pop3.live.com"  username="$email" />
-        <outgoing uri="smtp+tls+://smtp.live.com" username="$email" />
-    </provider>
-    <provider id="hotmail" label="Windows Live Hotmail Plus" domain="hotmail.com"
-            note="@string/provider_note_live">
-        <incoming uri="pop3+ssl+://pop3.live.com"  username="$email" />
-        <outgoing uri="smtp+tls+://smtp.live.com" username="$email" />
-    </provider>
-    <provider id="msn" label="Windows Live Hotmail Plus" domain="msn.com"
-            note="@string/provider_note_live">
-        <incoming uri="pop3+ssl+://pop3.live.com"  username="$email" />
-        <outgoing uri="smtp+tls+://smtp.live.com" username="$email" />
+            <incoming-fallback uri="imap+ssl+://imap-mail.outlook.com" username="$email" />
+            <outgoing-fallback uri="smtp+tls+://smtp-mail.outlook.com" username="$email" />
     </provider>
 
     <!-- Yahoo! Mail variants -->
