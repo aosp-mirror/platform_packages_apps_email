@@ -857,18 +857,21 @@ public class AccountSetupFinal extends AccountSetupActivity
         try {
             mProvider.expandTemplates(email);
 
-            final Account account = mSetupData.getAccount();
-            final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
-            recvAuth.setHostAuthFromString(mProvider.incomingUri);
-
-            final EmailServiceUtils.EmailServiceInfo info = mSetupData.getIncomingServiceInfo(this);
+            final String primaryProtocol = HostAuth.getProtocolFromString(mProvider.incomingUri);
+            EmailServiceUtils.EmailServiceInfo info =
+                    EmailServiceUtils.getServiceInfo(this, primaryProtocol);
             // If the protocol isn't one we can use, and we're not diverting to gmail, try the alt
             if (!info.isGmailStub && !EmailServiceUtils.isServiceAvailable(this, info.protocol)) {
                 LogUtils.d(LogUtils.TAG, "Protocol %s not available, using alternate",
                         info.protocol);
                 mProvider.expandAlternateTemplates(email);
-                recvAuth.setHostAuthFromString(mProvider.incomingUri);
+                final String alternateProtocol = HostAuth.getProtocolFromString(
+                        mProvider.incomingUri);
+                info = EmailServiceUtils.getServiceInfo(this, alternateProtocol);
             }
+            final Account account = mSetupData.getAccount();
+            final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
+            recvAuth.setHostAuthFromString(mProvider.incomingUri);
 
             recvAuth.setUserName(mProvider.incomingUsername);
             recvAuth.mPort =
