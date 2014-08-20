@@ -21,13 +21,13 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.android.email.R;
 import com.android.emailcommon.utility.IntentUtilities;
-import com.android.mail.providers.Folder;
 import com.android.mail.providers.UIProvider.EditSettingsExtras;
 import com.android.mail.ui.settings.MailPreferenceActivity;
 import com.android.mail.utils.Utils;
@@ -110,8 +110,7 @@ public class EmailPreferenceActivity extends MailPreferenceActivity {
                 // main screen.
                 // android.accounts.Account acct = i.getParcelableExtra("account");
             } else if (i.hasExtra(EditSettingsExtras.EXTRA_FOLDER)) {
-                launchMailboxSettings(i);
-                return;
+                throw new IllegalArgumentException("EXTRA_FOLDER is no longer supported");
             } else {
                 // Otherwise, we're called from within the Email app and look for our extras
                 final long accountId = IntentUtilities.getAccountIdFromIntent(i);
@@ -124,8 +123,11 @@ public class EmailPreferenceActivity extends MailPreferenceActivity {
         }
         mShowDebugMenu = i.getBooleanExtra(EXTRA_ENABLE_DEBUG, false);
 
-        getActionBar().setDisplayOptions(
-                ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
+        final ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayOptions(
+                    ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
+        }
 
         mFeedbackUri = Utils.getValidUri(getString(R.string.email_feedback_uri));
     }
@@ -134,7 +136,7 @@ public class EmailPreferenceActivity extends MailPreferenceActivity {
      * Listen for secret sequence and, if heard, enable debug menu
      */
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
         if (event.getKeyCode() == SECRET_KEY_CODES[mSecretKeyCodeIndex]) {
             mSecretKeyCodeIndex++;
             if (mSecretKeyCodeIndex == SECRET_KEY_CODES.length) {
@@ -193,20 +195,6 @@ public class EmailPreferenceActivity extends MailPreferenceActivity {
         return true;
     }
 
-    private void launchMailboxSettings(Intent intent) {
-        final Folder folder = intent.getParcelableExtra(EditSettingsExtras.EXTRA_FOLDER);
-
-        // TODO: determine from the account if we should navigate to the mailbox settings.
-        // See bug 6242668
-
-        // Get the mailbox id from the folder
-        final long mailboxId =
-                Long.parseLong(folder.folderUri.fullUri.getPathSegments().get(1));
-
-        MailboxSettings.start(this, mailboxId);
-        finish();
-    }
-
     private void enableDebugMenu() {
         mShowDebugMenu = true;
         invalidateHeaders();
@@ -245,7 +233,7 @@ public class EmailPreferenceActivity extends MailPreferenceActivity {
      * @param position The header's position in the list.
      */
     @Override
-    public void onHeaderClick(Header header, int position) {
+    public void onHeaderClick(@NonNull Header header, int position) {
         // Secret keys:  Click 10x to enable debug settings
         if (position == 0) {
             mNumGeneralHeaderClicked++;

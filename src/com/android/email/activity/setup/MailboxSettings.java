@@ -17,14 +17,15 @@
 package com.android.email.activity.setup;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -33,6 +34,7 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
@@ -45,12 +47,16 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
+import com.android.mail.providers.Folder;
+import com.android.mail.providers.UIProvider;
 import com.android.mail.ui.MailAsyncTaskLoader;
 import com.android.mail.utils.LogUtils;
 import com.google.common.base.Preconditions;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,18 +70,19 @@ import java.util.Map;
  * #onDestroy()}, unless it's called for configuration changes.
  */
 public class MailboxSettings extends PreferenceActivity {
-    private static final String EXTRA_MAILBOX_ID = "MAILBOX_ID";
+    private static final String EXTRA_FOLDERS_URI = "FOLDERS_URI";
+
+    private static final int FOLDERS_LOADER_ID = 0;
+    private Uri mFoldersUri;
+    private final List<Folder> mFolders = new ArrayList<>();
 
     /**
-     * Starts the activity for a mailbox.
+     * Starts the activity
      */
-    public static void start(Activity parent, long mailboxId) {
-        Intent i = new Intent(parent, MailboxSettings.class);
-        i.putExtra(EXTRA_SHOW_FRAGMENT, MailboxSettingsFragment.class.getName());
-        final Bundle b = new Bundle(1);
-        b.putLong(EXTRA_MAILBOX_ID, mailboxId);
-        i.putExtra(EXTRA_SHOW_FRAGMENT_ARGUMENTS, b);
-        parent.startActivity(i);
+    public static Intent getIntent(Context context, Uri foldersUri) {
+        final Intent i = new Intent(context, MailboxSettings.class);
+        i.putExtra(EXTRA_FOLDERS_URI, foldersUri);
+        return i;
     }
 
     @Override
@@ -86,11 +93,34 @@ public class MailboxSettings extends PreferenceActivity {
         if (actionBar != null) {
             actionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
         }
+
+        mFoldersUri = getIntent().getParcelableExtra(EXTRA_FOLDERS_URI);
+
+        if (mFoldersUri != null) {
+            getLoaderManager().initLoader(FOLDERS_LOADER_ID, null,
+                    new MailboxSettingsFolderLoaderCallbacks());
+        }
     }
 
     @Override
-    public boolean onIsMultiPane() {
-        return false;
+    public void onBuildHeaders(List<Header> target) {
+        if (mFolders.isEmpty()) {
+            final Header dummy = new Header();
+            dummy.titleRes = R.string.mailbox_name_display_inbox;
+            target.add(dummy);
+        } else {
+            for (final Folder f : mFolders) {
+                final Header h = new Header();
+                if (!TextUtils.isEmpty(f.hierarchicalDesc)) {
+                    h.title = f.hierarchicalDesc;
+                } else {
+                    h.title = f.name;
+                }
+                h.fragment = MailboxSettingsFragment.class.getName();
+                h.fragmentArguments = MailboxSettingsFragment.getArguments(f.id);
+                target.add(h);
+            }
+        }
     }
 
     @Override
@@ -145,7 +175,42 @@ public class MailboxSettings extends PreferenceActivity {
         pref.setSummary(pref.getEntry());
     }
 
+    private class MailboxSettingsFolderLoaderCallbacks
+            implements LoaderManager.LoaderCallbacks<Cursor> {
+
+        @Override
+        public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+            return new CursorLoader(MailboxSettings.this, mFoldersUri,
+                    UIProvider.FOLDERS_PROJECTION, null, null, null);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+            if (cursor == null) {
+                return;
+            }
+            mFolders.clear();
+
+            while(cursor.moveToNext()) {
+                final Folder folder = new Folder(cursor);
+                if (!folder.supportsCapability(UIProvider.FolderCapabilities.IS_VIRTUAL) &&
+                        !folder.isTrash() && !folder.isDraft() && !folder.isOutbox()) {
+                    mFolders.add(folder);
+                }
+            }
+
+            invalidateHeaders();
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Cursor> cursorLoader) {
+            mFolders.clear();
+        }
+    }
+
     public static class MailboxSettingsFragment extends PreferenceFragment {
+        private static final String EXTRA_MAILBOX_ID = "MailboxId";
+
         private static final String BUNDLE_MAILBOX = "MailboxSettings.mailbox";
         private static final String BUNDLE_MAX_LOOKBACK = "MailboxSettings.maxLookback";
         private static final String BUNDLE_SYNC_ENABLED_VALUE = "MailboxSettings.syncEnabled";
@@ -160,6 +225,12 @@ public class MailboxSettings extends PreferenceActivity {
 
         private CheckBoxPreference mSyncEnabledPref;
         private ListPreference mSyncLookbackPref;
+
+        private static Bundle getArguments(long mailboxId) {
+            final Bundle b = new Bundle(1);
+            b.putLong(EXTRA_MAILBOX_ID, mailboxId);
+            return b;
+        }
 
         public MailboxSettingsFragment() {}
 
@@ -198,7 +269,7 @@ public class MailboxSettings extends PreferenceActivity {
         }
 
         @Override
-        public void onSaveInstanceState(Bundle outState) {
+        public void onSaveInstanceState(@NonNull Bundle outState) {
             super.onSaveInstanceState(outState);
             outState.putParcelable(BUNDLE_MAILBOX, mMailbox);
             outState.putInt(BUNDLE_MAX_LOOKBACK, mMaxLookback);
@@ -240,7 +311,7 @@ public class MailboxSettings extends PreferenceActivity {
 
             @Override
             public Map<String, Object> loadInBackground() {
-                final Map<String, Object> result = new HashMap<String, Object>();
+                final Map<String, Object> result = new HashMap<>();
 
                 final Mailbox mailbox = Mailbox.restoreMailboxWithId(getContext(), mMailboxId);
                 result.put(RESULT_KEY_MAILBOX, mailbox);
