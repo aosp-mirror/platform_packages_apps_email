@@ -186,6 +186,12 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
                 mOfferOAuth = true;
             }
         }
+        // We may want to disable OAuth during the new account setup flow, but allow it elsewhere
+        final boolean standalone = getArguments().getBoolean(EXTRA_STANDALONE);
+        final boolean skipOAuth = !standalone &&
+                getActivity().getResources().getBoolean(R.bool.skip_oauth_on_setup);
+        mOfferOAuth = mOfferOAuth && !skipOAuth;
+
         mOAuthGroup.setVisibility(mOfferOAuth ? View.VISIBLE : View.GONE);
         mRegularPasswordText.setVisibility(mOfferOAuth ? View.GONE : View.VISIBLE);
 

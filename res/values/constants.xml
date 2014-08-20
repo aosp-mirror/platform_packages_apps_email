@@ -26,4 +26,8 @@
 
     <!-- Boolean value indicating if quick responses are supported -->
     <bool name="quickresponse_supported">true</bool>
+
+    <!-- Boolean value indicating whether we should show the OAuth option on initial account setup
+     (not settings) -->
+    <bool name="skip_oauth_on_setup">false</bool>
 </resources>
