@@ -47,8 +47,6 @@
     <string name="quick_responses_empty_view">No quick responses.</string>
     <!-- Menu item -->
     <string name="account_settings_action">Account settings</string>
-    <!-- Menu item: options for this mailbox. [CHAR LIMIT = 32] -->
-    <string name="menu_folder_options">Sync options</string>
     <!-- Appears in message list view when there's a network error. -->
     <!-- Also appears in a toast, in the message viewer, when there's a network error. -->
     <string name="status_network_error">Connection problem.</string>
