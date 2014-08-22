@@ -23,7 +23,7 @@
     <string name="app_name" msgid="2206468539066258195">"អ៊ីមែល"</string>
     <string name="debug_title" msgid="1337476992195531309">"កែ​កំហុស"</string>
     <string name="next_action" msgid="2987116190664352550">"បន្ទាប់"</string>
-    <string name="okay_action" msgid="187341656436183803">"យល់​ព្រម"</string>
+    <string name="okay_action" msgid="187341656436183803">"យល់​ព្រម​"</string>
     <string name="cancel_action" msgid="4884686730682913114">"បោះបង់"</string>
     <string name="previous_action" msgid="8096073930070909000">"មុន"</string>
     <string name="done_action" msgid="9017393077855788351">"រួចរាល់"</string>
@@ -39,7 +39,7 @@
     <string name="cannot_move_protocol_not_supported_toast" msgid="1687394290312755846">"ការ​ផ្លាស់​ទី​មិន​ត្រូវ​បាន​គាំ​ទ្រ​នៅ​លើ​គណនី​ POP3 ។"</string>
     <string name="cannot_move_multiple_accounts_toast" msgid="1032577153519440211">"មិន​អាច​ផ្លាស់ទី​ដោយ​សារ​តែ​ការ​ជ្រើស​​​មាន​គណនី​ជា​ច្រើន​​។"</string>
     <string name="cannot_move_special_mailboxes_toast" msgid="3758109129023839909">"សារ​នៅ​ក្នុង​សេចក្ដី​ព្រាង​ ប្រអប់​ចេញ​ និង​បាន​ផ្ញើ​​​​មិន​អាច​ត្រូវ​បាន​ផ្លាស់ទី​ឡើយ។"</string>
-    <string name="mailbox_name_display_inbox" msgid="5093068725739672126">"ប្រអប់​ទទួល"</string>
+    <string name="mailbox_name_display_inbox" msgid="5093068725739672126">"ប្រអប់​ទទួល​"</string>
     <string name="mailbox_name_display_outbox" msgid="8735725798805339414">"ប្រអប់​ចេញ"</string>
     <string name="mailbox_name_display_drafts" msgid="3552043116466269581">"សេចក្ដី​ព្រាង"</string>
     <string name="mailbox_name_display_trash" msgid="7020792045007681852">"ធុងសំរាម"</string>
@@ -47,7 +47,7 @@
     <string name="mailbox_name_display_junk" msgid="1634126984313831675">"ឥត​បាន​ការ"</string>
     <string name="mailbox_name_display_starred" msgid="8076384721309828453">"បាន​ដាក់​ផ្កាយ"</string>
     <string name="mailbox_name_display_unread" msgid="1453575937919310339">"មិន​ទាន់​​អាន"</string>
-    <string name="account_folder_list_summary_inbox" msgid="6524816019350737506">"ប្រអប់​ទទួល"</string>
+    <string name="account_folder_list_summary_inbox" msgid="6524816019350737506">"ប្រអប់​ទទួល​"</string>
     <string name="account_folder_list_summary_starred" msgid="1625089431195748236">"បាន​ដាក់​ផ្កាយ"</string>
     <string name="account_folder_list_summary_drafts" msgid="4050225674547841762">"សេចក្ដី​ព្រាង"</string>
     <string name="account_folder_list_summary_outbox" msgid="5594504984407654721">"ប្រអប់​ចេញ"</string>
@@ -123,7 +123,7 @@
     <string name="account_setup_outgoing_port_label" msgid="6639038659206073470">"ច្រក"</string>
     <string name="account_setup_outgoing_security_label" msgid="7407726933347029015">"ប្រភេទ​​សុវត្ថិភាព"</string>
     <string name="account_setup_outgoing_require_login_label" msgid="5405196721947884033">"ទាមទារ​ឲ្យ​​ចូល"</string>
-    <string name="account_setup_outgoing_username_label" msgid="4914949764444962912">"ឈ្មោះ​អ្នក​ប្រើ"</string>
+    <string name="account_setup_outgoing_username_label" msgid="4914949764444962912">"ឈ្មោះ​អ្នក​ប្រើ​"</string>
     <string name="account_setup_outgoing_password_label" msgid="5843358147533117286">"ពាក្យសម្ងាត់"</string>
     <string name="account_setup_exchange_certificate_title" msgid="6372066908150286502">"វិញ្ញាបនបត្រ​ម៉ាស៊ីន​កូន"</string>
     <string name="account_setup_exchange_select_certificate" msgid="264748505181695915">"ជ្រើសរើស"</string>
@@ -154,7 +154,7 @@
     <string name="account_setup_options_mail_window_1week" msgid="5230695719358085318">"សប្ដាហ៍​​មុន"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="1144271277694832921">"ពីរ​​សប្ដាហ៍​​មុន"</string>
     <string name="account_setup_options_mail_window_1month" msgid="3228265299330513816">"ខែ​មុន"</string>
-    <string name="account_setup_options_mail_window_all" msgid="4794683936065721438">"ទាំង​អស់"</string>
+    <string name="account_setup_options_mail_window_all" msgid="4794683936065721438">"ទាំង​អស់​"</string>
     <string name="account_setup_options_mail_window_default" msgid="5518038139722596598">"ប្រើ​លំនាំដើម​គណនី"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="5608549872868036352">"ឈ្មោះ​អ្នក​ប្រើ ​ឬ​ពាក្យ​សម្ងាត់​​មិន​ត្រឹមត្រូវ​។"</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8811464534757505457">"ការ​ចូល​បាន​បរាជ័យ​។\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
@@ -210,7 +210,7 @@
     <string name="account_settings_incoming_label" msgid="3793314460723296874">"ការ​កំណត់​ចូល"</string>
     <string name="account_settings_incoming_summary" msgid="7521181981008371492">"ឈ្មោះ​អ្នក​ប្រើ​ ពាក្យ​សម្ងាត់ ​និង​ការ​កំណត់​ម៉ាស៊ីន​មេ​ចូល​​ផ្សេង​ទៀត"</string>
     <string name="account_settings_outgoing_label" msgid="4997504719643828381">"​កំណត់​ការ​ចេញ"</string>
-    <string name="account_settings_outgoing_summary" msgid="1884202151340479161">"ឈ្មោះ​អ្នក​ប្រើ​ ពាក្យ​សម្ងាត់ ​និង​ការ​កំណត់​ម៉ាស៊ីន​មេ​​ចេញ​ផ្សេង​ទៀត"</string>
+    <string name="account_settings_outgoing_summary" msgid="1884202151340479161">"ឈ្មោះ​អ្នក​ប្រើ​ ពាក្យ​សម្ងាត់ ​និង​ការ​កំណត់​ម៉ាស៊ីន​មេ​​ចេញ​ផ្សេង​ទៀត​"</string>
     <string name="account_settings_enforced_label" msgid="7005050362066086119">"បាន​អនុវត្ត​គោល​ន​យោ​បាយ"</string>
     <string name="account_settings_enforced_summary" msgid="1668581504445370253">"គ្មាន"</string>
     <string name="account_settings_unsupported_label" msgid="7286722617178322465">"គោល​ន​យោ​បាយ​មិន​បាន​គាំទ្រ"</string>
@@ -233,7 +233,7 @@
     <string name="system_folders_sent_dlg" msgid="818944260541160146">"ជ្រើស​ថត​ធាតុ​ដែល​បាន​ផ្ញើ​​​​នៃ​ម៉ាស៊ីន​មេ​របស់​អ្នក"</string>
     <string name="edit_quick_response_dialog" msgid="3048014284772648575">"ឆ្លើយតប​រហ័ស"</string>
     <string name="save_action" msgid="5740359453077441466">"រក្សាទុក"</string>
-    <string name="account_settings_sync_contacts_enable" msgid="2642448079273767521">"ធ្វើ​សមកាលកម្ម​ទំនាក់ទំនង"</string>
+    <string name="account_settings_sync_contacts_enable" msgid="2642448079273767521">"ធ្វើ​សមកាលកម្ម​ទំនាក់ទំនង​"</string>
     <string name="account_settings_sync_contacts_summary" msgid="1716022682035150630">"ធ្វើ​សមកាលកម្ម​ទំនាក់​ទំនង​សម្រាប់​គណនី​នេះ"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3172491863244160828">"ធ្វើ​សម​កាល​កម្ម​ប្រតិទិន"</string>
     <string name="account_settings_sync_calendar_summary" msgid="411960248618953311">"ធ្វើ​សមកាលកម្ម​ព្រឹត្តិការណ៍​ប្រតិទិន​សម្រាប់​​គណនី​នេះ"</string>
@@ -254,7 +254,7 @@
     <string name="exchange_name_alternate" msgid="293118547772095111">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="2248313263003927725">"មិន​អាច​បង្កើត​គណនី​។ សូម​ព្យាយាម​ម្ដងទៀត។"</string>
     <string name="device_admin_label" msgid="3335272972461391415">"អ៊ីមែល"</string>
-    <string name="device_admin_description" msgid="4299378570982520839">"បើក​​គោល​ន​យោ​បាយ​សុវត្ថិភាព​ម៉ាស៊ីន​មេ​​ដែល​បាន​បញ្ជាក់"</string>
+    <string name="device_admin_description" msgid="4299378570982520839">"បើក​​គោល​ន​យោ​បាយ​សុវត្ថិភាព​ម៉ាស៊ីន​មេ​​ដែល​បាន​បញ្ជាក់​"</string>
     <string name="settings_activity_title" msgid="4787565736829092053">"កំណត់"</string>
     <string name="header_label_general_preferences" msgid="2924944721204930254">"ការ​កំណត់​ទូទៅ"</string>
     <string name="general_preference_confirm_delete_label" msgid="4635169755738754289">"បញ្ជាក់​មុន​ពេល​លុប"</string>
@@ -291,7 +291,7 @@
     <string name="require_manual_sync_message" msgid="7361932179783481686">"បាន​បិទ​ការ​ធ្វើ​សម​កាល​កម្ម​ផ្ទៃ​ខាង​ក្រោយ​សម្រាប់​គណនី​នេះ​​​ខណៈ​ពេល​នៅ​ក្រៅ​ប្រទេស។"</string>
     <string name="confirm_response" msgid="6764021931370809514">"កំពុង​ផ្ញើ​​ការ​ឆ្លើយ​តប..."</string>
     <string name="no_conversations" msgid="3785854971159919343">"គ្មាន​សារ។"</string>
-    <string name="imap_name" msgid="1267915719183915252">"IMAP"</string>
+    <string name="imap_name" msgid="1267915719183915252">"IMAP​"</string>
     <string name="pop3_name" msgid="1235910677527117862">"POP3"</string>
     <string name="folder_picker_title" msgid="5906275472176731605">"កម្មវិធី​ជ្រើស​ថត"</string>
     <string name="trash_folder_selection_title" msgid="686039558899469073">"ជ្រើស​ថត​ធុង​សំរាម​ម៉ាស៊ីន​​មេ​​សម្រាប់ <xliff:g id="ACCOUNT">%s</xliff:g>"</string>

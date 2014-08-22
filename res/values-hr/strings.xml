@@ -84,7 +84,7 @@
     <string name="account_setup_basics_email_label" msgid="8701406783555749929">"Adresa e-pošte"</string>
     <string name="account_setup_basics_password_label" msgid="6515749756447077880">"Zaporka"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="7690861839383362085">"Ručno postavljanje"</string>
-    <string name="account_setup_username_password_toast" msgid="3659744829670065777">"Upišite važeću adresu e-pošte i zaporku."</string>
+    <string name="account_setup_username_password_toast" msgid="3659744829670065777">"Upišite važeću e-adresu i zaporku."</string>
     <string name="account_duplicate_dlg_title" msgid="3768813340753269695">"Dvostruki račun"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6747351773934787126">"To korisničko ime već upotrebljavate za račun \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
     <string name="account_password_spaces_error" msgid="1035535222734047745">"Ova zaporka počinje ili završava jednim ili više znakova razmaka. Mnogi poslužitelji ne podržavaju zaporke s razmacima."</string>
