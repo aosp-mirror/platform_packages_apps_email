@@ -31,6 +31,7 @@ import android.text.TextUtils;
 
 import com.android.email.NotificationController;
 import com.android.email.R;
+import com.android.email.SecurityPolicy;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.emailcommon.Logging;
@@ -40,7 +41,6 @@ import com.android.mail.utils.LogUtils;
 import com.google.common.collect.ImmutableList;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -212,6 +212,7 @@ public class AccountReconciler {
         }
         // Now, look through AccountManager accounts to make sure we have a corresponding cached EAS
         // account from EmailProvider
+        boolean needsPolicyUpdate = false;
         for (final android.accounts.Account accountManagerAccount : accountManagerAccounts) {
             final String accountManagerAccountName = accountManagerAccount.name;
             if (!hasEpAccount(emailProviderAccounts, accountManagerAccountName)) {
@@ -236,6 +237,9 @@ public class AccountReconciler {
                     } catch (IOException e) {
                         LogUtils.w(Logging.LOG_TAG, e.toString());
                     }
+                    // Just set a flag that our policies need to be updated with device
+                    // So we can do the update, one time, at a later point in time.
+                    needsPolicyUpdate = true;
                 }
             } else {
                 // Fix up the Calendar and Contacts syncing. It used to be possible for IMAP and
@@ -254,6 +258,12 @@ public class AccountReconciler {
                             ContactsContract.AUTHORITY, 0);
                 }
             }
+        }
+
+        if (needsPolicyUpdate) {
+            // We have removed accounts from the AccountManager, let's make sure that
+            // our policies are up to date.
+            SecurityPolicy.getInstance(context).policiesUpdated();
         }
 
         final String composeActivityName =
