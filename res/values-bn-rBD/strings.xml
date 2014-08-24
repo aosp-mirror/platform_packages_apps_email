@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2008 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permission_read_attachment_label" msgid="6641407731311699536">"ইমেল সংযুক্তিগুলি পড়ুন"</string>
+    <string name="permission_read_attachment_desc" msgid="6579059616090100181">"অ্যাপ্লিকেশানটিকে আপনার ইমেল সংযুক্তিগুলি পড়ার অনুমতি দেয়।"</string>
+    <string name="permission_access_provider_label" msgid="977700184037298723">"ইমেল প্রদানকারীর ডেটা অ্যাক্সেস করুন"</string>
+    <string name="permission_access_provider_desc" msgid="5338433949655493713">"অ্যাপ্লিকেশানটিকে প্রাপ্ত বার্তা, পাঠানো বার্তা, ব্যবহারকারীর নাম, এবং পাসওয়ার্ডগুলি সহ আপনার ইমেল ডেটাবেস অ্যাক্সেস করার অনুমতি দেয়।"</string>
+    <string name="app_name" msgid="2206468539066258195">"ইমেল"</string>
+    <string name="debug_title" msgid="1337476992195531309">"ডিবাগ"</string>
+    <string name="create_action" msgid="6575946089819721958">"নতুন তৈরি করুন"</string>
+    <string name="quick_responses_empty_view" msgid="3394094315357455290">"কোনো দ্রুত প্রতিক্রিয়া নেই।"</string>
+    <string name="account_settings_action" msgid="589969653965674604">"অ্যাকাউন্ট সেটিংস"</string>
+    <string name="status_network_error" msgid="526826323872477973">"সংযোগ সমস্যা৷"</string>
+  <plurals name="move_messages">
+    <item quantity="one" msgid="3431489066510898753">"বার্তা সরান"</item>
+    <item quantity="other" msgid="5083310421670206821">"বার্তাগুলি সরান"</item>
+  </plurals>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="1687394290312755846">"POP3 অ্যাকাউন্টগুলিতে সরানো সমর্থিত নয়।"</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="1032577153519440211">"নির্বাচনে একাধিক অ্যাকাউন্ট থাকার কারণে সরানো যাবে না।"</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="3758109129023839909">"খসড়াগুলিতে, আউটবক্সে, এবং প্রেরিততে থাকা বার্তাগুলি সরানো যাবে না।"</string>
+    <string name="mailbox_name_display_inbox" msgid="5093068725739672126">"ইনবক্স"</string>
+    <string name="mailbox_name_display_outbox" msgid="8735725798805339414">"আউটবক্স"</string>
+    <string name="mailbox_name_display_drafts" msgid="3552043116466269581">"খসড়াগুলি"</string>
+    <string name="mailbox_name_display_trash" msgid="7020792045007681852">"ট্র্যাশ"</string>
+    <string name="mailbox_name_display_sent" msgid="6705058612006729985">"প্রেরিত"</string>
+    <string name="mailbox_name_display_junk" msgid="1634126984313831675">"জাঙ্ক"</string>
+    <string name="mailbox_name_display_starred" msgid="8076384721309828453">"তারকা চিহ্নিত"</string>
+    <string name="mailbox_name_display_unread" msgid="1453575937919310339">"অপঠিত"</string>
+    <string name="account_folder_list_summary_inbox" msgid="6524816019350737506">"ইনবক্স"</string>
+    <string name="account_folder_list_summary_starred" msgid="1625089431195748236">"তারকা চিহ্নিত"</string>
+    <string name="account_folder_list_summary_drafts" msgid="4050225674547841762">"খসড়াগুলি"</string>
+    <string name="account_folder_list_summary_outbox" msgid="5594504984407654721">"আউটবক্স"</string>
+    <string name="mailbox_list_account_selector_combined_view" msgid="4155918930481733669">"সম্মিলিত দৃশ্য"</string>
+    <string name="message_compose_fwd_header_fmt" msgid="6193988236722150221">\n\n"-------- মূল বার্তা --------\nবিষয়: <xliff:g id="SUBJECT">%1$s</xliff:g>\nথেকে: <xliff:g id="SENDER">%2$s</xliff:g>\nপ্রতি: <xliff:g id="TO">%3$s</xliff:g>\nCC: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_insert_quick_response_list_title" msgid="5836926808818821309">"দ্রুত প্রতিক্রিয়া ঢোকান"</string>
+    <string name="message_compose_insert_quick_response_menu_title" msgid="4393288554605333619">"দ্রুত প্রতিক্রিয়া ঢোকান"</string>
+    <string name="message_view_attachment_background_load" msgid="7571652141281187845">"আপনার ফরোয়ার্ড করা বার্তাতে থাকা এক বা একাধিক সংযুক্তি পাঠানোর আগে ডাউনলোড হবে।"</string>
+    <string name="attachment_not_found" msgid="5219773045406833000">"সংযুক্তিটি ডাউনলোড করা যায়নি।"</string>
+    <string name="message_decode_error" msgid="91396461771444300">"বার্তাটি ডিকোড করার সময় একটি ত্রুটি হয়েছে।"</string>
+    <string name="forward_download_failed_ticker" msgid="2900585518884851062">"এক বা একাধিক সংযুক্তি ফরোয়ার্ড করা যায়নি।"</string>
+    <string name="forward_download_failed_title" msgid="2043036709913723298">"সংযুক্তি ফরোয়ার্ড করা হয়নি"</string>
+    <string name="login_failed_ticker" msgid="4620839194581484497">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> সাইন ইন অসফল।"</string>
+    <string name="login_failed_title" msgid="1737884069957090004">"সাইন ইন করা যায়নি"</string>
+  <plurals name="message_view_attachment_bytes">
+    <item quantity="one" msgid="884086921379532485">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
+    <item quantity="other" msgid="1883360269853654045">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
+  </plurals>
+  <plurals name="message_view_attachment_kilobytes">
+    <item quantity="one" msgid="7735927556589634941">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g>KB"</item>
+    <item quantity="other" msgid="7476806336055136146">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g>KB"</item>
+  </plurals>
+  <plurals name="message_view_attachment_megabytes">
+    <item quantity="one" msgid="7755624135347953938">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g>MB"</item>
+    <item quantity="other" msgid="3317120193748830799">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g>MB"</item>
+  </plurals>
+  <plurals name="message_view_attachment_gigabytes">
+    <item quantity="one" msgid="5180812866869430241">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
+    <item quantity="other" msgid="1607574223219436099">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
+  </plurals>
+    <string name="account_setup_basics_title" msgid="5050895656741229172">"অ্যাকাউন্ট সেটআপ"</string>
+    <string name="oauth_authentication_title" msgid="3771260531636603518">"অনুমোদনের অনুরোধ জানানো হচ্ছে"</string>
+    <string name="sign_in_title" msgid="5051852806423550830">"সাইন ইন করুন"</string>
+    <string name="oauth_error_description" msgid="8466102021844409849">"প্রমাণীকরণ করা যাবে না"</string>
+    <string name="password_warning_label" msgid="1887439537224212124">"ইমেল ঠিকানা বা পাসওয়ার্ড ভুল"</string>
+    <string name="email_confirmation_label" msgid="64258748053106017">"ইমেল ঠিকানা:"</string>
+    <string name="account_setup_basics_headline" msgid="8468280216822264643">"ইমেল অ্যাকাউন্ট"</string>
+    <string name="accounts_welcome" msgid="7230367425520242593">"আপনি মাত্র কয়েকটি ধাপে আপনার অ্যাকাউন্ট সেট আপ করতে পারবেন।"</string>
+    <string name="account_setup_basics_email_label" msgid="8701406783555749929">"ইমেল ঠিকানা"</string>
+    <string name="or_label" msgid="6408695162723653446">"অথবা"</string>
+    <string name="sign_in_with_google" msgid="1412668282326928102">"Google এর মাধ্যমে সাইন ইন করুন"</string>
+    <string name="account_setup_basics_password_label" msgid="784962388753706730">"পাসওয়ার্ড"</string>
+    <string name="password_hint" msgid="4226682910292828279">"পাসওয়ার্ড"</string>
+    <string name="signed_in_with_service_label" msgid="4282359206358453634">"%s দিয়ে সাইন ইন করা হয়েছে"</string>
+    <string name="authentication_label" msgid="914463525214987772">"প্রমাণীকরণ"</string>
+    <string name="add_authentication_label" msgid="382998197798081729">"প্রমাণীকরণ জুড়ুন"</string>
+    <string name="clear_authentication_label" msgid="4750930803913225689">"প্রমাণীকরণ সাফ করুন"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="7690861839383362085">"ম্যানুয়াল সেটআপ"</string>
+    <string name="account_setup_username_password_toast" msgid="3659744829670065777">"একটি বৈধ ইমেল ঠিকানা ও পাসওয়ার্ড লিখুন।"</string>
+    <string name="account_duplicate_dlg_title" msgid="3768813340753269695">"অনুরূপ অ্যাকাউন্ট"</string>
+    <string name="account_duplicate_dlg_message_fmt" msgid="6747351773934787126">"আপনি \"<xliff:g id="DUPLICATE">%s</xliff:g>\" অ্যাকাউন্টের জন্য এই ব্যবহারকারী নামটি ইতিমধ্যেই ব্যবহার করছেন।"</string>
+    <string name="account_password_spaces_error" msgid="1035535222734047745">"এই পাসওয়ার্ডটির শুরুতে বা শেষে এক বা একাধিক স্পেস রয়েছে। অনেক সার্ভার পাসওয়ার্ড স্পেস থাকলে তা সমর্থন করে না।"</string>
+    <string name="account_setup_check_settings_retr_info_msg" msgid="9103280616618316032">"অ্যাকাউন্ট তথ্য পুনরুদ্ধার হচ্ছে…"</string>
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="9196418179524308411">"সার্ভার সেটিংস যাচাই হচ্ছে…"</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="9062019904409225329">"smtp সেটিংস যাচাই করা হচ্ছে..."</string>
+    <string name="account_setup_creating_account_msg" msgid="2898648422471181490">"অ্যাকাউন্ট তৈরি হচ্ছে..."</string>
+    <string name="account_setup_ab_headline" msgid="1434091698882290052">"অ্যাকাউন্টের ধরন নিশ্চিত করুন"</string>
+    <string name="account_setup_ab_instructions_format" msgid="6223657094843768202">"আপনি ইঙ্গিত করেছেন যে <xliff:g id="EMAIL">%1$s</xliff:g> <xliff:g id="USERPROTOCOL">%2$s</xliff:g> ব্যবহার করে, কিন্তু হয়তো অ্যাকাউন্টটি <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g> ব্যবহার করছে"</string>
+    <string name="account_setup_names_title" msgid="8780121351085082269">"অ্যাকাউন্ট সেটআপ"</string>
+    <string name="account_setup_names_headline" msgid="2031978210683887370">"আপনার অ্যাকাউন্ট সেট আপ হয়েছে এবং ইমেল আসছে!"</string>
+    <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"এই অ্যাকাউন্টটির একটি নাম দিন (ঐচ্ছিক)"</string>
+    <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"আপনার নাম (আউটগোয়িং বার্তাগুলিতে প্রদর্শিত হয়)"</string>
+    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"এই ক্ষেত্রটি ফাঁকা রাখা যাবে না।"</string>
+    <string name="account_setup_account_type_title" msgid="7081511430549429621">"অ্যাকাউন্ট সেটআপ"</string>
+    <string name="account_setup_account_type_headline" msgid="3375795537675351389">"অ্যাকাউন্টের প্রকার"</string>
+    <string name="account_setup_account_type_instructions" msgid="968088954656738617">"এটি কেমন ধরণের অ্যাকাউন্ট?"</string>
+    <string name="account_setup_incoming_title" msgid="7743750350830383718">"অ্যাকাউন্ট সেটআপ"</string>
+    <string name="account_setup_incoming_headline" msgid="6232828824446177639">"ইনকামিং সার্ভার সেটিংস"</string>
+    <string name="account_setup_incoming_username_label" msgid="2609699829997945895">"ব্যবহারকারীর নাম"</string>
+    <string name="account_setup_incoming_password_label" msgid="4806105500058512876">"পাসওয়ার্ড"</string>
+    <string name="account_setup_password_subheading" msgid="5930042642982830233">"পাসওয়ার্ড"</string>
+    <string name="account_setup_incoming_server_label" msgid="5409694850973258387">"সার্ভার"</string>
+    <string name="account_setup_incoming_port_label" msgid="402562424498833560">"পোর্ট"</string>
+    <string name="account_setup_incoming_security_label" msgid="8360505617331971663">"নিরাপত্তার ধরন"</string>
+    <string name="account_setup_incoming_security_none_label" msgid="2461510827337484818">"কোনো কিছুই নয়"</string>
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="2834386066577239560">"SSL/TLS (সবকটি শংসাপত্র স্বীকৃত)"</string>
+    <string name="account_setup_incoming_security_ssl_label" msgid="5169133414545009342">"SSL/TLS"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2281920902104029077">"STARTTLS (সবকটি শংসাপত্র স্বীকার করুন)"</string>
+    <string name="account_setup_incoming_security_tls_label" msgid="3892291833944170882">"STARTTLS"</string>
+    <string name="account_setup_incoming_delete_policy_label" msgid="2341742235654301690">"সার্ভার থেকে ইমেল মুছুন"</string>
+    <string name="account_setup_incoming_delete_policy_never_label" msgid="5777530843489961009">"কখনই নয়"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label" msgid="8677018382715596606">"আমি যখন ইনবক্স থেকে মুছি"</string>
+    <string name="account_setup_incoming_imap_path_prefix_label" msgid="3531290378620033218">"IMAP পথ পূর্ব অংশ"</string>
+    <string name="account_setup_incoming_imap_path_prefix_hint" msgid="206747922689229932">"ঐচ্ছিক"</string>
+    <string name="account_setup_outgoing_title" msgid="2808821899038184783">"অ্যাকাউন্ট সেটআপ"</string>
+    <string name="account_setup_outgoing_headline" msgid="6638171491109658047">"আউটগোয়িং সার্ভার সেটিংস"</string>
+    <string name="account_setup_outgoing_smtp_server_label" msgid="3460163861711242681">"SMTP সার্ভার"</string>
+    <string name="account_setup_outgoing_port_label" msgid="3735952013505812378">"পোর্ট"</string>
+    <string name="account_setup_outgoing_security_label" msgid="6473177134731615282">"নিরাপত্তার ধরন"</string>
+    <string name="account_setup_outgoing_require_login_label" msgid="5405196721947884033">"সাইন ইন করতে হবে"</string>
+    <string name="account_setup_outgoing_username_label" msgid="8844680398828891772">"ব্যবহারকারীর নাম"</string>
+    <string name="account_setup_outgoing_password_label" msgid="112570779839746136">"পাসওয়ার্ড"</string>
+    <string name="account_setup_exchange_certificate_title" msgid="8756785660598838350">"ক্লায়েন্ট শংসাপত্র"</string>
+    <string name="account_setup_exchange_select_certificate" msgid="264748505181695915">"নির্বাচন করুন"</string>
+    <string name="account_setup_exchange_use_certificate" msgid="6513687497912094538">"ক্লায়েন্ট শংসাপত্র ব্যবহার করুন"</string>
+    <string name="account_setup_exchange_remove_certificate" msgid="1222387802827919583">"সরান"</string>
+    <string name="account_setup_exchange_no_certificate" msgid="3569712401698909695">"কোনো কিছুই নয়"</string>
+    <string name="account_setup_exchange_device_id_label" msgid="2306603503497194905">"মোবাইল ডিভাইস আইডি"</string>
+    <string name="account_setup_options_title" msgid="3274463434235489134">"অ্যাকাউন্ট সেটিংস"</string>
+    <string name="account_setup_options_headline" msgid="4810292194395251968">"অ্যাকাউন্ট বিকল্পগুলি"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="7253305392938373553">"সিঙ্ক ফ্রিকোয়েন্সি:"</string>
+    <string name="account_setup_options_mail_check_frequency_never" msgid="2937664246354067829">"কখনও নয়"</string>
+    <string name="account_setup_options_mail_check_frequency_push" msgid="5511415696925307797">"স্বয়ংক্রিয় (পুশ)"</string>
+    <string name="account_setup_options_mail_check_frequency_5min" msgid="8929785860545198867">"প্রতি ৫ মিনিটে"</string>
+    <string name="account_setup_options_mail_check_frequency_10min" msgid="8787901333816702849">"প্রতি ১০ মিনিটে"</string>
+    <string name="account_setup_options_mail_check_frequency_15min" msgid="7127640170766018765">"প্রতি ১৫ মিনিটে"</string>
+    <string name="account_setup_options_mail_check_frequency_30min" msgid="4223562871143897449">"প্রতি ৩০ মিনিটে"</string>
+    <string name="account_setup_options_mail_check_frequency_1hour" msgid="107706566853925273">"প্রত্যেক ঘন্টায়"</string>
+    <string name="account_setup_options_notify_label" msgid="3101529443722198112">"ইমেল এলে আমাকে বিজ্ঞপ্তি পাঠান"</string>
+    <string name="account_setup_options_sync_contacts_label" msgid="5029046373980454714">"এই অ্যাকাউন্ট থেকে পরিচিতিগুলি সিঙ্ক করুন"</string>
+    <string name="account_setup_options_sync_calendar_label" msgid="303441956432308807">"এই অ্যাকাউন্ট থেকে ক্যালেন্ডার সিঙ্ক করুন"</string>
+    <string name="account_setup_options_sync_email_label" msgid="468957966555663131">"এই অ্যাকাউন্ট থেকে ইমেল সিঙ্ক করুন"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="4085327585082867216">"যখন Wi-Fi এ সংযুক্ত থাকে তখন সংযুক্তিগুলি স্বয়ংক্রিয়ভাবে ডাউনলোড করুন"</string>
+    <string name="account_setup_failed_dlg_title" msgid="7923577224474005464">"সম্পন্ন করা যায়নি"</string>
+    <string name="account_setup_options_mail_window_label" msgid="4737241149297585368">"এখান থেকে ইমেলগুলি সিঙ্ক করুন:"</string>
+    <string name="account_setup_options_mail_window_auto" msgid="7407981634952005775">"স্বয়ংক্রিয়"</string>
+    <string name="account_setup_options_mail_window_1day" msgid="7930883294844418428">"গত দিন"</string>
+    <string name="account_setup_options_mail_window_3days" msgid="3435093562391555730">"গত তিন দিনের"</string>
+    <string name="account_setup_options_mail_window_1week" msgid="5230695719358085318">"গত সপ্তাহের"</string>
+    <string name="account_setup_options_mail_window_2weeks" msgid="1144271277694832921">"গত দুই সপ্তাহের"</string>
+    <string name="account_setup_options_mail_window_1month" msgid="3228265299330513816">"গত মাসের"</string>
+    <string name="account_setup_options_mail_window_all" msgid="4794683936065721438">"সমস্ত"</string>
+    <string name="account_setup_options_mail_window_default" msgid="5518038139722596598">"অ্যাকাউন্ট ডিফল্ট ব্যবহার করুন"</string>
+    <string name="account_setup_failed_dlg_auth_message" msgid="5608549872868036352">"ব্যবহারকারী নাম বা পাসওয়ার্ডটি ভুল।"</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8811464534757505457">"লগইন ব্যর্থ হয়েছে।\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_autodiscover_dlg_authfail_title" msgid="7551559109838593189">"অ্যাকাউন্ট সেটআপে সমস্যা"</string>
+    <string name="account_setup_autodiscover_dlg_authfail_message" msgid="4075075565221436715">"ব্যবহারকারী নাম, পাসওয়ার্ড, এবং অ্যাকাউন্ট সেটিংস সঠিক কিনা নিশ্চিত করুন।"</string>
+    <string name="account_setup_failed_dlg_certificate_message" msgid="4725950885859654809">"সার্ভারে নিরাপদে সংযোগ করা যাচ্ছে না।"</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="3451681985727559303">"সার্ভারে নিরাপদে সংযোগ করা যাচ্ছে না।\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_certificate_required" msgid="4607859382193244795">"একটি ক্লায়েন্ট শংসাপত্রের প্রয়োজন। আপনি কি একটি ক্লায়েন্ট শংসাপত্র দিয়ে সার্ভারে সংযোগ করতে চান?"</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="4574461885959029072">"শংসাপত্রটি অবৈধ অথবা অ্যাক্সেসযোগ্য নয়।"</string>
+    <string name="account_setup_failed_check_credentials_message" msgid="430054384233036305">"সার্ভারটি প্রতিক্রিয়ায় একটি ত্রুটির কথা জানিয়েছে। আপনার ব্যবহারকারী নাম ও পাসওয়ার্ড পরীক্ষা করে নিয়ে আবার চেষ্টা করুন।"</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="1180197172141077524">"সার্ভারে সংযোগ করা যাচ্ছে না।"</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="3889441611138037320">"সার্ভারে সংযোগ করা যায়নি।\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_tls_required" msgid="1902309158359287958">"TLS প্রয়োজন কিন্তু সার্ভার তা সমর্থন করে না।"</string>
+    <string name="account_setup_failed_auth_required" msgid="2684010997018901707">"সার্ভার প্রমাণীকরণ পদ্ধতিগুলিকে সমর্থন করে না।"</string>
+    <string name="account_setup_failed_security" msgid="1627240499907011040">"নিরাপত্তাগত ত্রুটির কারণে সার্ভারে সংযোগ করা যায়নি।"</string>
+    <string name="account_setup_failed_ioerror" msgid="3862689923436539909">"সার্ভারে সংযোগ করা যায়নি।"</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="4973054582044010375">"আপনি সার্ভার ঠিকানাটি ভুল লিখেছেন অথবা সার্ভারটির একটি এমন প্রোটোকল সংস্করণ প্রয়োজন যা ইমেল সমর্থন করে না।"</string>
+    <string name="account_setup_failed_access_denied" msgid="2051742796367919026">"আপনার কাছে এই সার্ভারের সাথে সিঙ্ক করার অনুমতি নেই। আরো তথ্যের জন্য আপনার সার্ভারের প্রশাসকের সাথে যোগাযোগ করুন।"</string>
+    <string name="account_setup_security_required_title" msgid="667943309546419435">"দূরবর্তী নিরাপত্তা প্রশাসন"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="9029471168291631932">"আপনাকে <xliff:g id="SERVER">%s</xliff:g> সার্ভারটিকে আপনার Android ডিভাইসের কিছু নিরাপত্তা বৈশিষ্ট্যকে দূরবর্তীভাবে নিয়ন্ত্রণ করার অনুমতি দিতে হবে। আপনি কি এই অ্যাকাউন্টের সেট আপ প্রক্রিয়া সমাপ্ত করতে চান?"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="4619685657253094627">"এই সার্ভারের এমন নিরাপত্তা বৈশিষ্টবলী প্রয়োজন যা আপনার Android ডিভাইস সমর্থন করে না, তৎসহ: <xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_username_uneditable_error" msgid="3607769783124215764">"আপনি কোনো অ্যাকাউন্টের ব্যবহারকারী নাম পরিবর্তন করতে পারবেন না। একটি ভিন্ন ব্যবহারকারী নামের কোনো অ্যাকাউন্ট জোড়ার জন্য, অ্যাকাউন্ট জুড়ুন স্পর্শ করুন।"</string>
+    <string name="disable_admin_warning" msgid="6001542250505146252">"সতর্কতা: আপনার ডিভাইস পরিচালনার জন্য ইমেল অ্যাপ্লিকেশনের কর্তৃত্ব নিষ্ক্রিয় করা হলে যেসব ইমেল অ্যাকাউন্টের এটি প্রয়োজন সেগুলি, এবং তার পাশাপাশি সেগুলির ইমেল, পরিচিতি, ক্যালেন্ডার ইভেন্ট, এবং অন্যান্য ডেটা মুছে যাবে।"</string>
+    <string name="account_security_dialog_title" msgid="7003032393805438164">"নিরাপত্তা আপডেট"</string>
+    <string name="account_security_dialog_content_fmt" msgid="4107093049191103780">"<xliff:g id="ACCOUNT">%s</xliff:g> এর জন্য আপনার নিরাপত্তা সেটিংস আপডেট করা প্রয়োজন।"</string>
+    <string name="security_unsupported_ticker_fmt" msgid="3249185558872836884">"নিরাপত্তাগত প্রয়োজনীয়তার কারণে \"<xliff:g id="ACCOUNT">%s</xliff:g>\" অ্যাকাউন্ট সিঙ্ক করা যাবে না।"</string>
+    <string name="security_needed_ticker_fmt" msgid="7099561996532829229">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" অ্যাকাউন্টের নিরাপত্তা সেটিংস আপডেট করা প্রয়োজন।"</string>
+    <string name="security_changed_ticker_fmt" msgid="3823930420292838192">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" অ্যাকাউন্টের নিরাপত্তা সেটিংস পরিবর্তন হয়েছে; কোনো ব্যবহারকারী পদক্ষেপের প্রয়োজন নেই।"</string>
+    <string name="security_notification_content_update_title" msgid="6321099538307807621">"নিরাপত্তা আপডেট প্রয়োজন"</string>
+    <string name="security_notification_content_change_title" msgid="615639963487448183">"নিরাপত্তা নীতিগুলি পরিবর্তিত হয়েছে"</string>
+    <string name="security_notification_content_unsupported_title" msgid="6494791400431198228">"নিরাপত্তা নীতিগুলি পূরণ করা যাবে না"</string>
+    <string name="account_security_title" msgid="6072273231606918870">"ডিভাইস নিরাপত্তা"</string>
+    <string name="account_security_policy_explanation_fmt" msgid="2527501853520160827">"আপনাকে <xliff:g id="SERVER">%s</xliff:g> সার্ভারটিকে আপনার Android ডিভাইসের কিছু নিরাপত্তা বৈশিষ্ট্যকে দূরবর্তীভাবে নিয়ন্ত্রণ করার অনুমতি দিতে হবে।"</string>
+    <string name="account_setup_failed_dlg_edit_details_action" msgid="8155332642922842729">"বিশদ বিবরণ সম্পাদন করুন"</string>
+    <string name="password_expire_warning_ticker_fmt" msgid="5543005790538884060">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" এর জন্য আপনার লক স্ক্রিনের PIN বা পাসওয়ার্ড পরিবর্তন করা প্রয়োজন।"</string>
+    <string name="password_expire_warning_content_title" msgid="4360288708739366810">"লক স্ক্রিন পাসওয়ার্ডের মেয়াদ শেষ হচ্ছে"</string>
+    <string name="password_expired_ticker" msgid="3098703963402347483">"আপনার লক স্ক্রিন PIN অথবা পাসওয়ার্ডের মেয়াদ শেষ হয়েছে।"</string>
+    <string name="password_expired_content_title" msgid="7379094218699681984">"লকস্ক্রিন পাসওয়ার্ড মেয়াদশেষ"</string>
+    <string name="password_expire_warning_dialog_title" msgid="4901499545146045672">"লক স্ক্রিন পাসওয়ার্ডের মেয়াদ শেষ হচ্ছে"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="1093389293050776319">"খুব শীঘ্রই আপনার লক স্ক্রিনের PIN বা পাসওয়ার্ড পরিবর্তন করা আবশ্যক, অথবা <xliff:g id="ACCOUNT">%s</xliff:g> এর ডেটা মুছে যাবে। আপনি কি এখনই এটি পরিবর্তন করতে চান?"</string>
+    <string name="password_expired_dialog_title" msgid="7275534155170185252">"লক স্ক্রিন পাসওয়ার্ডের মেয়াদ শেষ হয়েছে"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="8322213184626443346">"আপনার ডিভাইস থেকে <xliff:g id="ACCOUNT">%s</xliff:g> এর ডেটা মুছে ফেলা হচ্ছে। আপনি আপনার লক স্ক্রিন PIN অথবা পাসওয়ার্ড পরিবর্তন করে এটিকে পুনরুদ্ধার করতে পারেন। এটি এখনই পরিবর্তন করবেন?"</string>
+    <string name="account_settings_exit_server_settings" msgid="4232590695889111419">"অসংরক্ষিত পরিবর্তনগুলি পরিত্যাগ করবেন?"</string>
+    <string name="account_settings_login_dialog_title" msgid="2250911725501042470">"সাইন ইন করা যায়নি"</string>
+    <string name="account_settings_login_dialog_content_fmt" msgid="8687412692709766495">"<xliff:g id="ACCOUNT">%s</xliff:g> এর জন্য ব্যবহারকারী নাম বা পাসওয়ার্ডটি ভুল। আপনি কি এখন সেগুলিকে আপডেট করতে চান?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="2324678262137130809">"<xliff:g id="ACCOUNT">%s</xliff:g> এ আপনার লগইন ব্যর্থ হয়েছে; সার্ভার জানিয়েছে: <xliff:g id="REASON">%s</xliff:g> আপনি কি আপনার ব্যবহারকারী নাম এবং/অথবা পাসওয়ার্ড আপডেট করতে চান?"</string>
+    <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"সংযুক্তিগুলি ডাউনলোড করুন"</string>
+    <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"Wi-Fi দ্বারা সাম্প্রতিক বার্তাগুলির সংযুক্তিগুলি স্বয়ং-ডাউনলোড করুন"</string>
+    <string name="account_settings_notify_label" msgid="8621226576645167987">"ইমেল বিজ্ঞপ্তিগুলি"</string>
+    <string name="account_settings_summary" msgid="4733776978291376161">"সিঙ্ক হওয়ার হার, বিজ্ঞপ্তিগুলি, ইত্যাদি।"</string>
+    <string name="account_settings_notify_summary" msgid="88560545461159120">"ইমেল এলে বিজ্ঞপ্তি পাঠান"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="4107847714594035131">"সিঙ্ক করার হার"</string>
+    <string name="account_settings_incoming_label" msgid="3793314460723296874">"ইনকামিং সেটিংস"</string>
+    <string name="account_settings_incoming_summary" msgid="7521181981008371492">"ব্যবহারকারী নাম, পাসওয়ার্ড, ও অন্যান্য ইনকামিং সার্ভার সেটিংস"</string>
+    <string name="account_settings_outgoing_label" msgid="4997504719643828381">"আউটগোয়িং সেটিংস"</string>
+    <string name="account_settings_outgoing_summary" msgid="1884202151340479161">"ব্যবহারকারী নাম, পাসওয়ার্ড, ও অন্যান্য আউটগোয়িং সার্ভার সেটিংস"</string>
+    <string name="account_settings_enforced_label" msgid="7005050362066086119">"প্রয়োগ করা নীতিগুলি"</string>
+    <string name="account_settings_enforced_summary" msgid="1668581504445370253">"কোনো কিছুই নয়"</string>
+    <string name="account_settings_unsupported_label" msgid="7286722617178322465">"অসমর্থিত নীতিগুলি"</string>
+    <string name="account_settings_unsupported_summary" msgid="1980825746966562221">"কোনো কিছুই নয়"</string>
+    <string name="account_settings_retry_label" msgid="8605492340808650923">"সিঙ্কের প্রয়াস করুন"</string>
+    <string name="account_settings_retry_summary" msgid="2598065993718592906">"এই অ্যাকাউন্টটি সিঙ্ক করতে এখানে স্পর্শ করুন"</string>
+    <string name="account_settings_description_label" msgid="2073736045984411004">"অ্যাকাউন্টের নাম"</string>
+    <string name="account_settings_name_label" msgid="8230436030850457988">"আপনার নাম"</string>
+    <string name="account_settings_edit_quick_responses_label" msgid="6105791335935883199">"দ্রুত প্রতিক্রিয়াগুলি"</string>
+    <string name="account_settings_edit_quick_responses_summary" msgid="5406599402930290682">"ইমেল লেখার সময় আপনি ঘন ঘন যে পাঠ্য সন্নিবেশ করেন সেটিকে সম্পাদনা করুন"</string>
+    <string name="account_settings_notifications" msgid="2842952349214972116">"বিজ্ঞপ্তি সেটিংস"</string>
+    <string name="account_settings_data_usage" msgid="6400715160238559711">"ডেটার ব্যবহার"</string>
+    <string name="account_settings_policies" msgid="5972183883466873359">"নিরাপত্তা নীতিগুলি"</string>
+    <string name="system_folders_title" msgid="7161311881709109736">"সিস্টেম ফোল্ডারগুলি"</string>
+    <string name="system_folders_trash_title" msgid="3190927115504713123">"ট্র্যাশ ফোল্ডার"</string>
+    <string name="system_folders_trash_summary" msgid="2583143581531897068">"আপনার সার্ভারের ট্র্যাশ ফোল্ডার নির্বাচন করুন"</string>
+    <string name="system_folders_trash_dlg" msgid="353701568340939392">"আপনার সার্ভারের ট্র্যাশ ফোল্ডার নির্বাচন করুন"</string>
+    <string name="system_folders_sent_title" msgid="8792934374188279309">"পাঠানো আইটেমগুলির ফোল্ডার"</string>
+    <string name="system_folders_sent_summary" msgid="4252740721870748375">"আপনার সার্ভারের প্রেরিত আইটেম ফোল্ডার নির্বাচন করুন"</string>
+    <string name="system_folders_sent_dlg" msgid="818944260541160146">"আপনার সার্ভারের পাঠানো আইটেমগুলির ফোল্ডার নির্বাচন করুন"</string>
+    <string name="edit_quick_response_dialog" msgid="3048014284772648575">"দ্রুত প্রতিক্রিয়া"</string>
+    <string name="save_action" msgid="5740359453077441466">"সংরক্ষণ করুন"</string>
+    <string name="account_settings_sync_contacts_enable" msgid="2642448079273767521">"পরিচিতিগুলি সিঙ্ক"</string>
+    <string name="account_settings_sync_contacts_summary" msgid="1716022682035150630">"এই অ্যাকাউন্টের জন্য পরিচিতি সিঙ্ক"</string>
+    <string name="account_settings_sync_calendar_enable" msgid="3172491863244160828">"ক্যালেন্ডার সিঙ্ক"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="411960248618953311">"এই অ্যাকাউন্টের জন্য ক্যালেন্ডার ইভেন্ট সিঙ্ক"</string>
+    <string name="account_settings_sync_email_enable" msgid="7135765408226471860">"ইমেল সিঙ্ক করুন"</string>
+    <string name="account_settings_sync_email_summary" msgid="71710510041953351">"এই অ্যাকাউন্টের জন্য ইমেল সিঙ্ক"</string>
+    <string name="account_settings_vibrate_when_label" msgid="361069844540266098">"কম্পন"</string>
+    <string name="account_settings_ringtone" msgid="2238523918221865167">"রিংটোন চয়ন করুন"</string>
+    <string name="account_settings_servers" msgid="3386185135392642067">"সার্ভার সেটিংস"</string>
+    <string name="mailbox_settings_activity_title" msgid="2196614373847675314">"সিঙ্কের বিকল্পগুলি"</string>
+    <string name="mailbox_settings_activity_title_with_mailbox" msgid="5547676392298186906">"সিঙ্কের বিকল্পগুলি (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
+    <string name="mailbox_settings_sync_enabled_label" msgid="7723413381707277856">"এই ফোল্ডারটি সিঙ্ক করুন"</string>
+    <string name="mailbox_settings_sync_enabled_summary" msgid="742233465207750578">"সংযুক্ত হলে বার্তাগুলি ডাউনলোড হবে"</string>
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="7027516982341382326">"এত দিনের মেল সিঙ্ক করা হবে"</string>
+    <string name="prefDialogTitle_conversationListIcon" msgid="1302579259733675896">"প্রেরকের চিত্র"</string>
+    <string name="provider_note_live" msgid="4289035326060391547">"শুধুমাত্র POP অ্যাক্সেস সহ কিছু \"Plus\" অ্যাকাউন্ট এই প্রোগ্রামের সাথে সংযোগ করার অনুমতি দিচ্ছে। আপনি যদি আপনার সঠিক ইমেল ঠিকানা এবং পাসওয়ার্ড দিয়ে সাইন ইন করতে সক্ষম না হন তাহলে আপনার কাছে সম্ভবত কোনো অর্থ প্রদান করে পাওয়া \"Plus\" অ্যাকাউন্ট নেই। এই ইমেল অ্যাকাউন্টগুলিতে অ্যাক্সেস পেতে ওয়েব ব্রাউজার চালু করুন।"</string>
+    <string name="provider_note_t_online" msgid="1596701148051980218">"এই ইমেল অ্যাকাউন্টটি সেট আপ করার আগে, T-Online ওয়েবসাইটে যান এবং POP3 ইমেল অ্যাক্সেসের জন্য একটি পাসওয়ার্ড তৈরি করুন।"</string>
+    <string name="exchange_name" msgid="3793803477985438102">"কর্পোরেট"</string>
+    <string name="exchange_name_alternate" msgid="293118547772095111">"Microsoft Exchange ActiveSync"</string>
+    <string name="system_account_create_failed" msgid="2248313263003927725">"অ্যাকাউন্ট তৈরি করা যায়নি। আবার চেষ্টা করুন।"</string>
+    <string name="device_admin_label" msgid="3335272972461391415">"ইমেল"</string>
+    <string name="device_admin_description" msgid="4299378570982520839">"সার্ভার-নির্দিষ্ট নিরাপত্তা নীতিগুলি সক্ষম করে"</string>
+    <string name="settings_activity_title" msgid="4787565736829092053">"সেটিংস"</string>
+    <string name="header_label_general_preferences" msgid="2924944721204930254">"সাধারণ সেটিংস"</string>
+    <string name="general_preference_confirm_delete_label" msgid="4635169755738754289">"মোছার আগে নিশ্চিত করুন"</string>
+    <string name="general_preference_confirm_send_label" msgid="2985557291955796568">"পাঠানোর আগে নিশ্চিত করুন"</string>
+    <string name="more_than_999" msgid="4088200269333058889">"999+"</string>
+    <string name="search_hint" msgid="3491349343647799436">"ইমেল অনুসন্ধান করুন"</string>
+    <string name="policy_dont_allow_camera" msgid="8821533827628900689">"ডিভাইসের ক্যামেরা ব্যবহারের অনুমতি দেবেন না"</string>
+    <string name="policy_require_password" msgid="3556860917024612396">"ডিভাইস পাসওয়ার্ড প্রয়োজন"</string>
+    <string name="policy_password_history" msgid="9001177390979112746">"সাম্প্রতিক পাসওয়ার্ডগুলির পুনঃব্যবহার সীমাবদ্ধ করুন"</string>
+    <string name="policy_password_expiration" msgid="1287225242918742275">"পাসওয়ার্ডের মেয়াদ ফুরানো প্রয়োজন"</string>
+    <string name="policy_screen_timeout" msgid="3499201409239287702">"স্ক্রিন লক হওয়ার পূর্বে ডিভাইস নিষ্ক্রিয় হতে হবে"</string>
+    <string name="policy_calendar_age" msgid="6469328498345236120">"সিঙ্ক হওয়া ক্যালেন্ডার ইভেন্টগুলির সংখ্যা সীমিত করুন"</string>
+    <string name="policy_email_age" msgid="3521941976575225050">"ইমেল সিঙ্ক হওয়ার সংখ্যা সীমিত করুন"</string>
+    <string name="quick_1" msgid="9130521670178673190">"ধন্যবাদ!"</string>
+    <string name="quick_2" msgid="8611591278119481491">"আমার কাছে অর্থপূর্ণ বলেই মনে হচ্ছে!"</string>
+    <string name="quick_3" msgid="8070999183033184986">"আমি এটি পরে পড়ব এবং আপনার সাথে যোগাযোগ করব।"</string>
+    <string name="quick_4" msgid="216066940197616025">"এটি নিয়ে আলোচনা করার জন্য একটি মিটিঙের আয়োজন করা যাক।"</string>
+    <string name="require_manual_sync_message" msgid="7361932179783481686">"রোমিংয়ে থাকার সময় এই অ্যাকাউন্টের জন্য পটভূমি সিঙ্ক অক্ষম করা থাকে।"</string>
+    <string name="confirm_response" msgid="6764021931370809514">"প্রতিক্রিয়া পাঠানো হচ্ছে..."</string>
+    <string name="no_conversations" msgid="3785854971159919343">"কোনো বার্তা নেই৷"</string>
+    <string name="imap_name" msgid="1267915719183915252">"IMAP"</string>
+    <string name="pop3_name" msgid="1235910677527117862">"POP3"</string>
+    <string name="folder_picker_title" msgid="5906275472176731605">"ফোল্ডার চয়নকারী"</string>
+    <string name="trash_folder_selection_title" msgid="686039558899469073">"<xliff:g id="ACCOUNT">%s</xliff:g> এর সার্ভারের ট্র্যাশ ফোল্ডার নির্বাচন করুন"</string>
+    <string name="sent_folder_selection_title" msgid="9207482909822072856">"<xliff:g id="ACCOUNT">%s</xliff:g> এর জন্য সার্ভারের প্রেরিত আইটেম ফোল্ডার নির্বাচন করুন"</string>
+    <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"ফোল্ডার তালিকা লোড হচ্ছে..."</string>
+    <string name="no_quick_responses" msgid="8716297053803961304">"কিছুই উপলব্ধ নয়"</string>
+    <string name="gmail_name" msgid="2099786953868369991">"Gmail"</string>
+    <string name="folder_sync_settings_pref_title" msgid="349478353401667107">"ফোল্ডার সিঙ্ক সেটিংস"</string>
+</resources>

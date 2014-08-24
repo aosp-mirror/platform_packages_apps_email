@@ -258,7 +258,7 @@
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="7027516982341382326">"Sawazisha barua pepe za kipindi hiki"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="1302579259733675896">"Picha ya mtumaji"</string>
     <string name="provider_note_live" msgid="4289035326060391547">"Akaunti zingine za \"Plus\" tu ndizo zinazojumuisha ufikivu wa POP na kwa hivyo kuruhusu programu hii kuunganisha. Kama hauwezi kuingia kwa kutumia anwani yako ya barua pepe na nenosiri lako sahihi, huenda usiwe na akaunti iliyolipiwa ya \"Plus\". Tafadhali zindua Kivinjari cha Wavuti ili uweze kufikia akaunti hizi za barua pepe."</string>
-    <string name="provider_note_t_online" msgid="1596701148051980218">"Kabla ya kusanidi akaunti ya barua pepe hii, tembelea wavuti ya T-Online na unda nenosiri ya ufikivu wa barua pepe ya POP3."</string>
+    <string name="provider_note_t_online" msgid="1596701148051980218">"Kabla ya kufungua akaunti hii ya barua pepe, tembelea wavuti ya T-Online na utunge nenosiri ili uweze kufikia barua pepe za POP3."</string>
     <string name="exchange_name" msgid="3793803477985438102">"Shirika"</string>
     <string name="exchange_name_alternate" msgid="293118547772095111">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="2248313263003927725">"Haikuweza kufungua akaunti. Jaribu tena."</string>
@@ -292,4 +292,5 @@
     <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"Inapakia orodha ya folda…"</string>
     <string name="no_quick_responses" msgid="8716297053803961304">"Hakuna yanayopatikana"</string>
     <string name="gmail_name" msgid="2099786953868369991">"Gmail"</string>
+    <string name="folder_sync_settings_pref_title" msgid="349478353401667107">"Mipangilio ya kusawazisha folda"</string>
 </resources>

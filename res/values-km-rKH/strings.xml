@@ -292,4 +292,5 @@
     <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"កំពុង​ផ្ទុក​បញ្ជី​ថត ..."</string>
     <string name="no_quick_responses" msgid="8716297053803961304">"មិន​មាន​អាច​ប្រើ​បាន"</string>
     <string name="gmail_name" msgid="2099786953868369991">"Gmail"</string>
+    <string name="folder_sync_settings_pref_title" msgid="349478353401667107">"ការ​កំណត់​ការ​ធ្វើ​សម​កាល​កម្ម​ថត"</string>
 </resources>
