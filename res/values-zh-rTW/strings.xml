@@ -292,4 +292,5 @@
     <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"正在載入資料夾清單…"</string>
     <string name="no_quick_responses" msgid="8716297053803961304">"沒有可用的回應"</string>
     <string name="gmail_name" msgid="2099786953868369991">"Gmail"</string>
+    <string name="folder_sync_settings_pref_title" msgid="349478353401667107">"資料夾同步處理設定"</string>
 </resources>

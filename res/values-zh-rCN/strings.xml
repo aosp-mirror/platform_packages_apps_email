@@ -292,4 +292,5 @@
     <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"正在加载文件夹列表…"</string>
     <string name="no_quick_responses" msgid="8716297053803961304">"没有可供选择的快速回复"</string>
     <string name="gmail_name" msgid="2099786953868369991">"Gmail"</string>
+    <string name="folder_sync_settings_pref_title" msgid="349478353401667107">"文件夹同步设置"</string>
 </resources>
