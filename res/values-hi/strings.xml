@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="permission_read_attachment_label" msgid="6641407731311699536">"ईमेल अनुलग्‍नक पढ़ें"</string>
+    <string name="permission_read_attachment_label" msgid="6641407731311699536">"ईमेल अटैचमेंट पढ़ें"</string>
     <string name="permission_read_attachment_desc" msgid="6579059616090100181">"ऐप्स  को आपके ईमेल अटैचमेंट पढ़ने देता है."</string>
     <string name="permission_access_provider_label" msgid="977700184037298723">"ईमेल प्रदाता के डेटा तक पहुंचें"</string>
     <string name="permission_access_provider_desc" msgid="5338433949655493713">"इस ऐप्स को प्राप्‍त संदेशों, भेजे गए संदेशों, उपयोगकर्ता नाम और पासवर्ड सहित आपके ईमेल डेटाबेस में पहुंच देता है."</string>
@@ -49,11 +49,11 @@
     <string name="message_compose_fwd_header_fmt" msgid="6193988236722150221">\n\n"--------मूल संदेश --------\nविषय: <xliff:g id="SUBJECT">%1$s</xliff:g>\nप्रेषक: <xliff:g id="SENDER">%2$s</xliff:g>\nप्रति: <xliff:g id="TO">%3$s</xliff:g>\nCC: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5836926808818821309">"त्वरित प्रतिसाद सम्मिलित करें"</string>
     <string name="message_compose_insert_quick_response_menu_title" msgid="4393288554605333619">"त्वरित प्रतिसाद सम्मिलित करें"</string>
-    <string name="message_view_attachment_background_load" msgid="7571652141281187845">"आपके द्वारा अग्रेषित संदेश को भेजने से पहले उसके एक या अधिक अनुलग्‍नक डाउनलोड किए जाएंगे."</string>
-    <string name="attachment_not_found" msgid="5219773045406833000">"अनुलग्‍नक डाउनलोड नहीं किया जा सका."</string>
+    <string name="message_view_attachment_background_load" msgid="7571652141281187845">"आपके द्वारा अग्रेषित संदेश को भेजने से पहले उसके एक या अधिक अटैचमेंट डाउनलोड किए जाएंगे."</string>
+    <string name="attachment_not_found" msgid="5219773045406833000">"अटैचमेंट डाउनलोड नहीं किया जा सका."</string>
     <string name="message_decode_error" msgid="91396461771444300">"संदेश डीकोड करते समय कोई त्रुटि आई थी."</string>
-    <string name="forward_download_failed_ticker" msgid="2900585518884851062">"एक या अधिक अनुलग्‍नक अग्रेषित नहीं किए जा सके."</string>
-    <string name="forward_download_failed_title" msgid="2043036709913723298">"अनुलग्‍नक अग्रेषित नहीं किया गया"</string>
+    <string name="forward_download_failed_ticker" msgid="2900585518884851062">"एक या अधिक अटैचमेंट अग्रेषित नहीं किए जा सके."</string>
+    <string name="forward_download_failed_title" msgid="2043036709913723298">"अटैचमेंट अग्रेषित नहीं किया गया"</string>
     <string name="login_failed_ticker" msgid="4620839194581484497">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> में प्रवेश करना विफल रहा."</string>
     <string name="login_failed_title" msgid="1737884069957090004">"प्रवेश नहीं हो सका"</string>
   <plurals name="message_view_attachment_bytes">
@@ -210,7 +210,7 @@
     <string name="account_settings_login_dialog_title" msgid="2250911725501042470">"प्रवेश नहीं हो सका"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8687412692709766495">"<xliff:g id="ACCOUNT">%s</xliff:g> का उपयोगकर्ता नाम या पासवर्ड गलत है. क्या आप उन्हें अभी अपडेट करना चाहते हैं?"</string>
     <string name="account_settings_login_dialog_reason_fmt" msgid="2324678262137130809">"<xliff:g id="ACCOUNT">%s</xliff:g> पर आपका प्रवेश विफल हो गया; सर्वर ने बताया: <xliff:g id="REASON">%s</xliff:g> क्या आप अपना उपयोगकर्ता नाम और/या पासवर्ड अपडेट करना चाहते हैं?"</string>
-    <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"अनुलग्नकों को डाउनलोड करें"</string>
+    <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"अटैचमेंट को डाउनलोड करें"</string>
     <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"WiFi के माध्यम से हाल के संदेशों के अटैचमेंट स्वत: डाउनलोड करें"</string>
     <string name="account_settings_notify_label" msgid="8621226576645167987">"ईमेल सूचनाएं"</string>
     <string name="account_settings_summary" msgid="4733776978291376161">"आवृत्ति, सूचनाएं आदि समन्वयन करें."</string>
