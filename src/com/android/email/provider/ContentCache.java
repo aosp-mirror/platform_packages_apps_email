@@ -25,7 +25,7 @@ import android.database.MatrixCursor;
 import android.net.Uri;
 import android.util.LruCache;
 
-import com.android.email2.ui.MailActivityEmail;
+import com.android.email.DebugUtils;
 import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.MatrixCursorWithCachedColumns;
 import com.google.common.annotations.VisibleForTesting;
@@ -185,7 +185,7 @@ public final class ContentCache {
         }
 
         /*package*/ int invalidateTokens(String id) {
-            if (MailActivityEmail.DEBUG && DEBUG_TOKENS) {
+            if (DebugUtils.DEBUG && DEBUG_TOKENS) {
                 LogUtils.d(mLogTag, "============ Invalidate tokens for: " + id);
             }
             ArrayList<CacheToken> removeList = new ArrayList<CacheToken>();
@@ -204,7 +204,7 @@ public final class ContentCache {
         }
 
         /*package*/ void invalidate() {
-            if (MailActivityEmail.DEBUG && DEBUG_TOKENS) {
+            if (DebugUtils.DEBUG && DEBUG_TOKENS) {
                 LogUtils.d(mLogTag, "============ List invalidated");
             }
             for (CacheToken token: this) {
@@ -215,7 +215,7 @@ public final class ContentCache {
 
         /*package*/ boolean remove(CacheToken token) {
             boolean result = super.remove(token);
-            if (MailActivityEmail.DEBUG && DEBUG_TOKENS) {
+            if (DebugUtils.DEBUG && DEBUG_TOKENS) {
                 if (result) {
                     LogUtils.d(mLogTag, "============ Removing token for: " + token.mId);
                 } else {
@@ -228,7 +228,7 @@ public final class ContentCache {
         public CacheToken add(String id) {
             CacheToken token = new CacheToken(id);
             super.add(token);
-            if (MailActivityEmail.DEBUG && DEBUG_TOKENS) {
+            if (DebugUtils.DEBUG && DEBUG_TOKENS) {
                 LogUtils.d(mLogTag, "============ Taking token for: " + token.mId);
             }
             return token;
@@ -483,14 +483,14 @@ public final class ContentCache {
             CacheToken token) {
         try {
             if (!token.isValid()) {
-                if (MailActivityEmail.DEBUG && DEBUG_CACHE) {
+                if (DebugUtils.DEBUG && DEBUG_CACHE) {
                     LogUtils.d(mLogTag, "============ Stale token for " + id);
                 }
                 mStats.mStaleCount++;
                 return c;
             }
             if (c != null && Arrays.equals(projection, mBaseProjection) && !sLockCache) {
-                if (MailActivityEmail.DEBUG && DEBUG_CACHE) {
+                if (DebugUtils.DEBUG && DEBUG_CACHE) {
                     LogUtils.d(mLogTag, "============ Caching cursor for: " + id);
                 }
                 // If we've already cached this cursor, invalidate the older one
@@ -514,7 +514,7 @@ public final class ContentCache {
      * @return a cursor based on cached values, or null if the row is not cached
      */
     public synchronized Cursor getCachedCursor(String id, String[] projection) {
-        if (MailActivityEmail.DEBUG && DEBUG_STATISTICS) {
+        if (DebugUtils.DEBUG && DEBUG_STATISTICS) {
             // Every 200 calls to getCursor, report cache statistics
             dumpOnCount(200);
         }
@@ -595,7 +595,7 @@ public final class ContentCache {
         mLockMap.add(id);
         // Invalidate current tokens
         int count = mTokenList.invalidateTokens(id);
-        if (MailActivityEmail.DEBUG && DEBUG_TOKENS) {
+        if (DebugUtils.DEBUG && DEBUG_TOKENS) {
             LogUtils.d(mTokenList.mLogTag, "============ Lock invalidated " + count +
                     " tokens for: " + id);
         }
@@ -632,13 +632,13 @@ public final class ContentCache {
     private void unlockImpl(String id, ContentValues values, boolean wasLocked) {
         Cursor c = get(id);
         if (c != null) {
-            if (MailActivityEmail.DEBUG && DEBUG_CACHE) {
+            if (DebugUtils.DEBUG && DEBUG_CACHE) {
                 LogUtils.d(mLogTag, "=========== Unlocking cache for: " + id);
             }
             if (values != null && !sLockCache) {
                 MatrixCursor cursor = getMatrixCursor(id, mBaseProjection, values);
                 if (cursor != null) {
-                    if (MailActivityEmail.DEBUG && DEBUG_CACHE) {
+                    if (DebugUtils.DEBUG && DEBUG_CACHE) {
                         LogUtils.d(mLogTag, "=========== Recaching with new values: " + id);
                     }
                     cursor.moveToFirst();

@@ -32,9 +32,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 
+import com.android.email.DebugUtils;
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
-import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Policy;
@@ -292,7 +292,7 @@ public class AccountSecurity extends Activity {
                 PasswordExpirationDialog dialog =
                     PasswordExpirationDialog.newInstance(mAccount.getDisplayName(),
                             passwordExpired);
-                if (MailActivityEmail.DEBUG || DEBUG) {
+                if (DebugUtils.DEBUG || DEBUG) {
                     LogUtils.d(TAG, "Showing password expiration dialog");
                 }
                 dialog.show(fm, "password_expiration");
@@ -308,7 +308,7 @@ public class AccountSecurity extends Activity {
                 if (fm.findFragmentByTag("security_needed") == null) {
                     SecurityNeededDialog dialog =
                         SecurityNeededDialog.newInstance(mAccount.getDisplayName());
-                    if (MailActivityEmail.DEBUG || DEBUG) {
+                    if (DebugUtils.DEBUG || DEBUG) {
                         LogUtils.d(TAG, "Showing security needed dialog");
                     }
                     dialog.show(fm, "security_needed");
@@ -349,7 +349,7 @@ public class AccountSecurity extends Activity {
         // Step 1.  Check if we are an active device administrator, and stop here to activate
         if (!security.isActiveAdmin()) {
             if (mTriedAddAdministrator) {
-                if (MailActivityEmail.DEBUG || DEBUG) {
+                if (DebugUtils.DEBUG || DEBUG) {
                     LogUtils.d(TAG, "Not active admin: repost notification");
                 }
                 repostNotification(account, security);
@@ -359,13 +359,13 @@ public class AccountSecurity extends Activity {
                 // retrieve name of server for the format string
                 final HostAuth hostAuth = account.mHostAuthRecv;
                 if (hostAuth == null) {
-                    if (MailActivityEmail.DEBUG || DEBUG) {
+                    if (DebugUtils.DEBUG || DEBUG) {
                         LogUtils.d(TAG, "No HostAuth: repost notification");
                     }
                     repostNotification(account, security);
                     finish();
                 } else {
-                    if (MailActivityEmail.DEBUG || DEBUG) {
+                    if (DebugUtils.DEBUG || DEBUG) {
                         LogUtils.d(TAG, "Not active admin: post initial notification");
                     }
                     // try to become active - must happen here in activity, to get result
@@ -384,7 +384,7 @@ public class AccountSecurity extends Activity {
         // Step 2.  Check if the current aggregate security policy is being satisfied by the
         // DevicePolicyManager (the current system security level).
         if (security.isActive(null)) {
-            if (MailActivityEmail.DEBUG || DEBUG) {
+            if (DebugUtils.DEBUG || DEBUG) {
                 LogUtils.d(TAG, "Security active; clear holds");
             }
             Account.clearSecurityHoldOnAllAccounts(this);
@@ -404,13 +404,13 @@ public class AccountSecurity extends Activity {
         // Step 5.  If password is needed, try to have the user set it
         if ((inactiveReasons & SecurityPolicy.INACTIVE_NEED_PASSWORD) != 0) {
             if (mTriedSetPassword) {
-                if (MailActivityEmail.DEBUG || DEBUG) {
+                if (DebugUtils.DEBUG || DEBUG) {
                     LogUtils.d(TAG, "Password needed; repost notification");
                 }
                 repostNotification(account, security);
                 finish();
             } else {
-                if (MailActivityEmail.DEBUG || DEBUG) {
+                if (DebugUtils.DEBUG || DEBUG) {
                     LogUtils.d(TAG, "Password needed; request it via DPM");
                 }
                 mTriedSetPassword = true;
@@ -424,13 +424,13 @@ public class AccountSecurity extends Activity {
         // Step 6.  If encryption is needed, try to have the user set it
         if ((inactiveReasons & SecurityPolicy.INACTIVE_NEED_ENCRYPTION) != 0) {
             if (mTriedSetEncryption) {
-                if (MailActivityEmail.DEBUG || DEBUG) {
+                if (DebugUtils.DEBUG || DEBUG) {
                     LogUtils.d(TAG, "Encryption needed; repost notification");
                 }
                 repostNotification(account, security);
                 finish();
             } else {
-                if (MailActivityEmail.DEBUG || DEBUG) {
+                if (DebugUtils.DEBUG || DEBUG) {
                     LogUtils.d(TAG, "Encryption needed; request it via DPM");
                 }
                 mTriedSetEncryption = true;
@@ -442,7 +442,7 @@ public class AccountSecurity extends Activity {
         }
 
         // Step 7.  No problems were found, so clear holds and exit
-        if (MailActivityEmail.DEBUG || DEBUG) {
+        if (DebugUtils.DEBUG || DEBUG) {
             LogUtils.d(TAG, "Policies enforced; clear holds");
         }
         Account.clearSecurityHoldOnAllAccounts(this);
@@ -501,7 +501,7 @@ public class AccountSecurity extends Activity {
             b.setMessage(res.getString(R.string.account_security_dialog_content_fmt, accountName));
             b.setPositiveButton(android.R.string.ok, this);
             b.setNegativeButton(android.R.string.cancel, this);
-            if (MailActivityEmail.DEBUG || DEBUG) {
+            if (DebugUtils.DEBUG || DEBUG) {
                 LogUtils.d(TAG, "Posting security needed dialog");
             }
             return b.create();
@@ -518,13 +518,13 @@ public class AccountSecurity extends Activity {
             }
             switch (which) {
                 case DialogInterface.BUTTON_POSITIVE:
-                    if (MailActivityEmail.DEBUG || DEBUG) {
+                    if (DebugUtils.DEBUG || DEBUG) {
                         LogUtils.d(TAG, "User accepts; advance to next step");
                     }
                     activity.tryAdvanceSecurity(activity.mAccount);
                     break;
                 case DialogInterface.BUTTON_NEGATIVE:
-                    if (MailActivityEmail.DEBUG || DEBUG) {
+                    if (DebugUtils.DEBUG || DEBUG) {
                         LogUtils.d(TAG, "User declines; repost notification");
                     }
                     AccountSecurity.repostNotification(

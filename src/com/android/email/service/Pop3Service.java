@@ -28,13 +28,13 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.android.email.DebugUtils;
 import com.android.email.NotificationController;
 import com.android.email.mail.Store;
 import com.android.email.mail.store.Pop3Store;
 import com.android.email.mail.store.Pop3Store.Pop3Folder;
 import com.android.email.mail.store.Pop3Store.Pop3Message;
 import com.android.email.provider.Utilities;
-import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.TrafficFlags;
 import com.android.emailcommon.mail.AuthenticationFailedException;
@@ -166,7 +166,7 @@ public class Pop3Service extends Service {
             Pop3Folder remoteFolder, ArrayList<Pop3Message> unsyncedMessages,
             final Mailbox toMailbox) throws MessagingException {
 
-        if (MailActivityEmail.DEBUG) {
+        if (DebugUtils.DEBUG) {
             LogUtils.d(TAG, "Loading " + unsyncedMessages.size() + " unsynced messages");
         }
 
@@ -186,7 +186,7 @@ public class Pop3Service extends Service {
                     //    user requests it.
                      flag = EmailContent.Message.FLAG_LOADED_PARTIAL;
                 }
-                if (MailActivityEmail.DEBUG) {
+                if (DebugUtils.DEBUG) {
                     LogUtils.d(TAG, "Message is " + (message.isComplete() ? "" : "NOT ")
                             + "complete");
                 }
@@ -378,7 +378,7 @@ public class Pop3Service extends Service {
                 }
             }
         } else {
-            if (MailActivityEmail.DEBUG) {
+            if (DebugUtils.DEBUG) {
                 LogUtils.d(TAG, "*** Message count is zero??");
             }
             remoteFolder.close(false);

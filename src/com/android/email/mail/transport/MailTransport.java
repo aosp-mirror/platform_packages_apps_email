@@ -18,7 +18,7 @@ package com.android.email.mail.transport;
 
 import android.content.Context;
 
-import com.android.email2.ui.MailActivityEmail;
+import com.android.email.DebugUtils;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.CertificateValidationException;
 import com.android.emailcommon.mail.MessagingException;
@@ -103,7 +103,7 @@ public class MailTransport {
      * an SSL connection if indicated.
      */
     public void open() throws MessagingException, CertificateValidationException {
-        if (MailActivityEmail.DEBUG) {
+        if (DebugUtils.DEBUG) {
             LogUtils.d(Logging.LOG_TAG, "*** " + mDebugLabel + " open " +
                     getHost() + ":" + String.valueOf(getPort()));
         }
@@ -125,17 +125,17 @@ public class MailTransport {
             mOut = new BufferedOutputStream(mSocket.getOutputStream(), 512);
             mSocket.setSoTimeout(SOCKET_READ_TIMEOUT);
         } catch (SSLException e) {
-            if (MailActivityEmail.DEBUG) {
+            if (DebugUtils.DEBUG) {
                 LogUtils.d(Logging.LOG_TAG, e.toString());
             }
             throw new CertificateValidationException(e.getMessage(), e);
         } catch (IOException ioe) {
-            if (MailActivityEmail.DEBUG) {
+            if (DebugUtils.DEBUG) {
                 LogUtils.d(Logging.LOG_TAG, ioe.toString());
             }
             throw new MessagingException(MessagingException.IOERROR, ioe.toString());
         } catch (IllegalArgumentException iae) {
-            if (MailActivityEmail.DEBUG) {
+            if (DebugUtils.DEBUG) {
                 LogUtils.d(Logging.LOG_TAG, iae.toString());
             }
             throw new MessagingException(MessagingException.UNSPECIFIED_EXCEPTION, iae.toString());
@@ -159,12 +159,12 @@ public class MailTransport {
             mOut = new BufferedOutputStream(mSocket.getOutputStream(), 512);
 
         } catch (SSLException e) {
-            if (MailActivityEmail.DEBUG) {
+            if (DebugUtils.DEBUG) {
                 LogUtils.d(Logging.LOG_TAG, e.toString());
             }
             throw new CertificateValidationException(e.getMessage(), e);
         } catch (IOException ioe) {
-            if (MailActivityEmail.DEBUG) {
+            if (DebugUtils.DEBUG) {
                 LogUtils.d(Logging.LOG_TAG, ioe.toString());
             }
             throw new MessagingException(MessagingException.IOERROR, ioe.toString());
@@ -268,7 +268,7 @@ public class MailTransport {
      * Writes a single line to the server using \r\n termination.
      */
     public void writeLine(String s, String sensitiveReplacement) throws IOException {
-        if (MailActivityEmail.DEBUG) {
+        if (DebugUtils.DEBUG) {
             if (sensitiveReplacement != null && !Logging.DEBUG_SENSITIVE) {
                 LogUtils.d(Logging.LOG_TAG, ">>> " + sensitiveReplacement);
             } else {
@@ -300,11 +300,11 @@ public class MailTransport {
                 sb.append((char)d);
             }
         }
-        if (d == -1 && MailActivityEmail.DEBUG) {
+        if (d == -1 && DebugUtils.DEBUG) {
             LogUtils.d(Logging.LOG_TAG, "End of stream reached while trying to read line.");
         }
         String ret = sb.toString();
-        if (loggable && MailActivityEmail.DEBUG) {
+        if (loggable && DebugUtils.DEBUG) {
             LogUtils.d(Logging.LOG_TAG, "<<< " + ret);
         }
         return ret;

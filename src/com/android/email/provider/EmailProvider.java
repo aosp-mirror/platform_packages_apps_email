@@ -63,6 +63,7 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import com.android.common.content.ProjectionMap;
+import com.android.email.DebugUtils;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
@@ -514,7 +515,7 @@ public class EmailProvider extends ContentProvider
      * Restore user Account and HostAuth data from our backup database
      */
     private static void restoreIfNeeded(Context context, SQLiteDatabase mainDatabase) {
-        if (MailActivityEmail.DEBUG) {
+        if (DebugUtils.DEBUG) {
             LogUtils.w(TAG, "restoreIfNeeded...");
         }
         // Check for legacy backup
@@ -543,7 +544,7 @@ public class EmailProvider extends ContentProvider
         if (DatabaseUtils.longForQuery(mainDatabase,
                                       "SELECT EXISTS (SELECT ? FROM " + Account.TABLE_NAME + " )",
                                       EmailContent.ID_PROJECTION) > 0) {
-            if (MailActivityEmail.DEBUG) {
+            if (DebugUtils.DEBUG) {
                 LogUtils.w(TAG, "restoreIfNeeded: Account exists.");
             }
             return;
@@ -1011,6 +1012,7 @@ public class EmailProvider extends ContentProvider
         Context context = getContext();
         EmailContent.init(context);
         init(context);
+        DebugUtils.init(context);
         // Do this last, so that EmailContent/EmailProvider are initialized
         MailActivityEmail.setServicesEnabledAsync(context);
         reconcileAccountsAsync(context);
