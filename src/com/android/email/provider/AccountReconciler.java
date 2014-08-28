@@ -37,6 +37,7 @@ import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.utility.MigrationUtils;
 import com.android.mail.utils.LogUtils;
 import com.google.common.collect.ImmutableList;
 
@@ -159,8 +160,13 @@ public class AccountReconciler {
         boolean exchangeAccountDeleted = false;
 
         LogUtils.d(Logging.LOG_TAG, "reconcileAccountsInternal");
-        // See if we should have the Eas authenticators enabled.
 
+        if (MigrationUtils.migrationInProgress()) {
+            LogUtils.d(Logging.LOG_TAG, "deferring reconciliation, migration in progress");
+            return false;
+        }
+
+        // See if we should have the Eas authenticators enabled.
         if (!EmailServiceUtils.isServiceAvailable(context,
                 context.getString(R.string.protocol_eas))) {
             EmailServiceUtils.disableExchangeComponents(context);
