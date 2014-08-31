@@ -21,7 +21,6 @@
     <string name="permission_access_provider_label" msgid="977700184037298723">"மின்னஞ்சல் வழங்குநர் தரவை அணுகு"</string>
     <string name="permission_access_provider_desc" msgid="5338433949655493713">"பெறப்பட்ட மற்றும் அனுப்பிய செய்திகள், பயனர்பெயர்கள், கடவுச்சொற்கள் ஆகியவை உள்ளடங்கிய உங்கள் மின்னஞ்சல் தரவுத்தளத்தை அணுக பயன்பாட்டை அனுமதிக்கிறது."</string>
     <string name="app_name" msgid="2206468539066258195">"மின்னஞ்சல்"</string>
-    <string name="debug_title" msgid="1337476992195531309">"பிழைத்திருத்துக"</string>
     <string name="create_action" msgid="6575946089819721958">"புதியதை உருவாக்கு"</string>
     <string name="quick_responses_empty_view" msgid="3394094315357455290">"விரைவு பதில்கள் இல்லை."</string>
     <string name="account_settings_action" msgid="589969653965674604">"கணக்கு அமைப்புகள்"</string>
@@ -41,6 +40,7 @@
     <string name="mailbox_name_display_junk" msgid="1634126984313831675">"தேவையற்றவை"</string>
     <string name="mailbox_name_display_starred" msgid="8076384721309828453">"நட்சத்திரமிட்டது"</string>
     <string name="mailbox_name_display_unread" msgid="1453575937919310339">"படிக்காதவை"</string>
+    <string name="debug_title" msgid="1337476992195531309">"பிழைத்திருத்துக"</string>
     <string name="account_folder_list_summary_inbox" msgid="6524816019350737506">"இன்பாக்ஸ்"</string>
     <string name="account_folder_list_summary_starred" msgid="1625089431195748236">"நட்சத்திரமிட்டது"</string>
     <string name="account_folder_list_summary_drafts" msgid="4050225674547841762">"வரைவுகள்"</string>

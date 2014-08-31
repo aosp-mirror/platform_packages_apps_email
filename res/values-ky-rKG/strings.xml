@@ -22,8 +22,6 @@
     <string name="permission_access_provider_desc" msgid="5338433949655493713">"Колдонмого алынган билдирүүлөр, жөнөтүлгөн билдирүүлөр, колдонуучу аттары жана сырсөздөр сыяктуу электрондук почтаңыздын дайындар базасына кирүү мүмкүнчүлүгүн берет."</string>
     <!-- no translation found for app_name (2206468539066258195) -->
     <skip />
-    <!-- no translation found for debug_title (1337476992195531309) -->
-    <skip />
     <!-- no translation found for create_action (6575946089819721958) -->
     <skip />
     <string name="quick_responses_empty_view" msgid="3394094315357455290">"Тез жооп жок."</string>
@@ -49,6 +47,8 @@
     <skip />
     <string name="mailbox_name_display_starred" msgid="8076384721309828453">"Жылдызчаланган"</string>
     <!-- no translation found for mailbox_name_display_unread (1453575937919310339) -->
+    <skip />
+    <!-- no translation found for debug_title (1337476992195531309) -->
     <skip />
     <!-- no translation found for account_folder_list_summary_inbox (6524816019350737506) -->
     <skip />

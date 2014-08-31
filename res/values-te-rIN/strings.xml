@@ -21,7 +21,6 @@
     <string name="permission_access_provider_label" msgid="977700184037298723">"ఇమెయిల్ ప్రదాత డేటాను ప్రాప్యత చేయడం"</string>
     <string name="permission_access_provider_desc" msgid="5338433949655493713">"స్వీకరించిన సందేశాలు, పంపిన సందేశాలు, వినియోగదారు పేర్లు మరియు పాస్‌వర్డ్‌లతో సహా మీ ఇమెయిల్ డేటాబేస్‌ను ప్రాప్యత చేయడానికి అనువర్తనాన్ని అనుమతిస్తుంది."</string>
     <string name="app_name" msgid="2206468539066258195">"ఇమెయిల్"</string>
-    <string name="debug_title" msgid="1337476992195531309">"డీబగ్"</string>
     <string name="create_action" msgid="6575946089819721958">"కొత్తదాన్ని సృష్టించు"</string>
     <string name="quick_responses_empty_view" msgid="3394094315357455290">"శీఘ్ర ప్రతిస్పందనలు ఏవీ లేవు."</string>
     <string name="account_settings_action" msgid="589969653965674604">"ఖాతా సెట్టింగ్‌లు"</string>
@@ -41,6 +40,7 @@
     <string name="mailbox_name_display_junk" msgid="1634126984313831675">"వ్యర్థం"</string>
     <string name="mailbox_name_display_starred" msgid="8076384721309828453">"నక్షత్రం గుర్తు ఉన్నవి"</string>
     <string name="mailbox_name_display_unread" msgid="1453575937919310339">"చదవనివి"</string>
+    <string name="debug_title" msgid="1337476992195531309">"డీబగ్"</string>
     <string name="account_folder_list_summary_inbox" msgid="6524816019350737506">"ఇన్‌బాక్స్"</string>
     <string name="account_folder_list_summary_starred" msgid="1625089431195748236">"నక్షత్రం గుర్తు ఉంచినవి"</string>
     <string name="account_folder_list_summary_drafts" msgid="4050225674547841762">"చిత్తుప్రతులు"</string>

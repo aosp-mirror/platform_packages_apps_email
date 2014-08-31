@@ -21,7 +21,6 @@
     <string name="permission_access_provider_label" msgid="977700184037298723">"ईमेल प्रदाता के डेटा तक पहुंचें"</string>
     <string name="permission_access_provider_desc" msgid="5338433949655493713">"इस ऐप्स को प्राप्‍त संदेशों, भेजे गए संदेशों, उपयोगकर्ता नाम और पासवर्ड सहित आपके ईमेल डेटाबेस में पहुंच देता है."</string>
     <string name="app_name" msgid="2206468539066258195">"ईमेल"</string>
-    <string name="debug_title" msgid="1337476992195531309">"डीबग करें"</string>
     <string name="create_action" msgid="6575946089819721958">"नया बनाएं"</string>
     <string name="quick_responses_empty_view" msgid="3394094315357455290">"कोई त्वरित प्रतिसाद नहीं."</string>
     <string name="account_settings_action" msgid="589969653965674604">"खाता सेटिंग"</string>
@@ -41,6 +40,7 @@
     <string name="mailbox_name_display_junk" msgid="1634126984313831675">"जंक"</string>
     <string name="mailbox_name_display_starred" msgid="8076384721309828453">"तारांकित"</string>
     <string name="mailbox_name_display_unread" msgid="1453575937919310339">"अपठित"</string>
+    <string name="debug_title" msgid="1337476992195531309">"डीबग करें"</string>
     <string name="account_folder_list_summary_inbox" msgid="6524816019350737506">"इनबॉक्स"</string>
     <string name="account_folder_list_summary_starred" msgid="1625089431195748236">"तारांकित"</string>
     <string name="account_folder_list_summary_drafts" msgid="4050225674547841762">"अधूरा ईमेल"</string>

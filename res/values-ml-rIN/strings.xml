@@ -21,7 +21,6 @@
     <string name="permission_access_provider_label" msgid="977700184037298723">"ഇമെയിൽ ദാതാവിന്റെ ഡാറ്റ ആക്‌സസ്സുചെയ്യുക"</string>
     <string name="permission_access_provider_desc" msgid="5338433949655493713">"ലഭിച്ച സന്ദേശങ്ങളും അയച്ച സന്ദേശങ്ങളും ഉപയോക്തൃനാമങ്ങളും പാസ്‌വേഡുകളും ഉൾപ്പെടെ നിങ്ങളുടെ ഇമെയിൽ ഡാറ്റാബേസ് ആക്സസ്സുചെയ്യാൻ അപ്ലിക്കേഷനെ അനുവദിക്കുന്നു."</string>
     <string name="app_name" msgid="2206468539066258195">"ഇമെയിൽ"</string>
-    <string name="debug_title" msgid="1337476992195531309">"ഡീബഗ്"</string>
     <string name="create_action" msgid="6575946089819721958">"പുതിയത് സൃഷ്‌ടിക്കുക"</string>
     <string name="quick_responses_empty_view" msgid="3394094315357455290">"ദ്രുത പ്രതികരണങ്ങളൊന്നുമില്ല."</string>
     <string name="account_settings_action" msgid="589969653965674604">"അക്കൗണ്ട് ക്രമീകരണങ്ങൾ"</string>
@@ -41,6 +40,7 @@
     <string name="mailbox_name_display_junk" msgid="1634126984313831675">"ജങ്ക്"</string>
     <string name="mailbox_name_display_starred" msgid="8076384721309828453">"നക്ഷത്രമിട്ടവ"</string>
     <string name="mailbox_name_display_unread" msgid="1453575937919310339">"വായിക്കാത്തവ"</string>
+    <string name="debug_title" msgid="1337476992195531309">"ഡീബഗ്"</string>
     <string name="account_folder_list_summary_inbox" msgid="6524816019350737506">"ഇന്‍ബോക്‌സ്"</string>
     <string name="account_folder_list_summary_starred" msgid="1625089431195748236">"നക്ഷത്രമിട്ടവ"</string>
     <string name="account_folder_list_summary_drafts" msgid="4050225674547841762">"ഡ്രാഫ്‌റ്റുകൾ"</string>

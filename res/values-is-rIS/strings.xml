@@ -21,7 +21,6 @@
     <string name="permission_access_provider_label" msgid="977700184037298723">"Aðgangur að gögnum tölvupóstveitu"</string>
     <string name="permission_access_provider_desc" msgid="5338433949655493713">"Veitir forritinu aðgang að tölvupóstsgagnagrunninum þínum, þ. á m. mótteknum og sendum skeytum, notandanöfnum og aðgangsorðum."</string>
     <string name="app_name" msgid="2206468539066258195">"Tölvupóstur"</string>
-    <string name="debug_title" msgid="1337476992195531309">"Villuleit"</string>
     <string name="create_action" msgid="6575946089819721958">"Búa til nýtt"</string>
     <string name="quick_responses_empty_view" msgid="3394094315357455290">"Engin snarsvör."</string>
     <string name="account_settings_action" msgid="589969653965674604">"Reikningsstillingar"</string>
@@ -41,6 +40,7 @@
     <string name="mailbox_name_display_junk" msgid="1634126984313831675">"Ruslpóstur"</string>
     <string name="mailbox_name_display_starred" msgid="8076384721309828453">"Stjörnumerkt"</string>
     <string name="mailbox_name_display_unread" msgid="1453575937919310339">"Ólesin"</string>
+    <string name="debug_title" msgid="1337476992195531309">"Villuleit"</string>
     <string name="account_folder_list_summary_inbox" msgid="6524816019350737506">"Pósthólf"</string>
     <string name="account_folder_list_summary_starred" msgid="1625089431195748236">"Stjörnumerkt"</string>
     <string name="account_folder_list_summary_drafts" msgid="4050225674547841762">"Drög"</string>

@@ -21,7 +21,6 @@
     <string name="permission_access_provider_label" msgid="977700184037298723">"ඊ-තැපැල් සැපයුම් දත්ත වෙත පිවිසෙන්න"</string>
     <string name="permission_access_provider_desc" msgid="5338433949655493713">"ලැබුණු පණිවිඩ, යැවූ පණිවිඩ, පරිශීලක නාම, සහ මුරපද ඇතුළත් ඔබගේ ඊ-තැපැල් දත්ත සමුදාය වෙත පිවිසීමට යෙදුමට ඉඩ දෙන්න."</string>
     <string name="app_name" msgid="2206468539066258195">"ඊ-තැපෑල"</string>
-    <string name="debug_title" msgid="1337476992195531309">"නිදොස්කරණය"</string>
     <string name="create_action" msgid="6575946089819721958">"අලුතින් නිර්මාණය කරන්න"</string>
     <string name="quick_responses_empty_view" msgid="3394094315357455290">"ක්ෂණික ප්‍රතිචාර නොමැත."</string>
     <string name="account_settings_action" msgid="589969653965674604">"ගිණුම් සැකසීම්"</string>
@@ -41,6 +40,7 @@
     <string name="mailbox_name_display_junk" msgid="1634126984313831675">"නිසරු"</string>
     <string name="mailbox_name_display_starred" msgid="8076384721309828453">"තරුව සලකුණු කළ"</string>
     <string name="mailbox_name_display_unread" msgid="1453575937919310339">"නොකියැවූ"</string>
+    <string name="debug_title" msgid="1337476992195531309">"නිදොස්කරණය"</string>
     <string name="account_folder_list_summary_inbox" msgid="6524816019350737506">"එන ලිපි"</string>
     <string name="account_folder_list_summary_starred" msgid="1625089431195748236">"තරුව සලකුණු කළ"</string>
     <string name="account_folder_list_summary_drafts" msgid="4050225674547841762">"කටු සටහන්"</string>

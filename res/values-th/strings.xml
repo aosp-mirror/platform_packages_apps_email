@@ -21,7 +21,6 @@
     <string name="permission_access_provider_label" msgid="977700184037298723">"เข้าถึงข้อมูลผู้ให้บริการอีเมล"</string>
     <string name="permission_access_provider_desc" msgid="5338433949655493713">"อนุญาตให้แอปพลิเคชันนี้เข้าถึงฐานข้อมูลอีเมลของคุณ ซึ่งรวมถึงข้อความที่ได้รับ ข้อความที่ส่ง ชื่อผู้ใช้ และรหัสผ่าน"</string>
     <string name="app_name" msgid="2206468539066258195">"อีเมล"</string>
-    <string name="debug_title" msgid="1337476992195531309">"ดีบัก"</string>
     <string name="create_action" msgid="6575946089819721958">"สร้างใหม่"</string>
     <string name="quick_responses_empty_view" msgid="3394094315357455290">"ไม่มีคำตอบด่วน"</string>
     <string name="account_settings_action" msgid="589969653965674604">"การตั้งค่าบัญชี"</string>
@@ -41,6 +40,7 @@
     <string name="mailbox_name_display_junk" msgid="1634126984313831675">"ขยะ"</string>
     <string name="mailbox_name_display_starred" msgid="8076384721309828453">"ติดดาว"</string>
     <string name="mailbox_name_display_unread" msgid="1453575937919310339">"ยังไม่อ่าน"</string>
+    <string name="debug_title" msgid="1337476992195531309">"ดีบัก"</string>
     <string name="account_folder_list_summary_inbox" msgid="6524816019350737506">"กล่องจดหมาย"</string>
     <string name="account_folder_list_summary_starred" msgid="1625089431195748236">"ที่ติดดาว"</string>
     <string name="account_folder_list_summary_drafts" msgid="4050225674547841762">"ร่างจดหมาย"</string>

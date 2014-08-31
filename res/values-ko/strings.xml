@@ -21,7 +21,6 @@
     <string name="permission_access_provider_label" msgid="977700184037298723">"이메일 제공업체 데이터 액세스"</string>
     <string name="permission_access_provider_desc" msgid="5338433949655493713">"앱이 받은 메일, 보낸 메일, 사용자 이름 및 비밀번호를 포함하는 이메일 데이터베이스에 액세스하도록 허용합니다."</string>
     <string name="app_name" msgid="2206468539066258195">"이메일"</string>
-    <string name="debug_title" msgid="1337476992195531309">"디버그"</string>
     <string name="create_action" msgid="6575946089819721958">"새로 만들기"</string>
     <string name="quick_responses_empty_view" msgid="3394094315357455290">"빠른 응답이 없습니다."</string>
     <string name="account_settings_action" msgid="589969653965674604">"계정 설정"</string>
@@ -41,6 +40,7 @@
     <string name="mailbox_name_display_junk" msgid="1634126984313831675">"스팸"</string>
     <string name="mailbox_name_display_starred" msgid="8076384721309828453">"별표편지함"</string>
     <string name="mailbox_name_display_unread" msgid="1453575937919310339">"읽지않음"</string>
+    <string name="debug_title" msgid="1337476992195531309">"디버그"</string>
     <string name="account_folder_list_summary_inbox" msgid="6524816019350737506">"받은편지함"</string>
     <string name="account_folder_list_summary_starred" msgid="1625089431195748236">"별표편지함"</string>
     <string name="account_folder_list_summary_drafts" msgid="4050225674547841762">"임시보관함"</string>
