@@ -23,9 +23,7 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.text.method.TextKeyListener;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,7 +39,6 @@ public class AccountSetupNamesFragment extends AccountSetupFragment {
     private EditText mDescription;
     private EditText mName;
     private View mAccountNameLabel;
-    private boolean mRequiresName = true;
 
     public interface Callback extends AccountSetupFragment.Callback {
 
@@ -64,22 +61,6 @@ public class AccountSetupNamesFragment extends AccountSetupFragment {
         mDescription = UiUtilities.getView(view, R.id.account_description);
         mName = UiUtilities.getView(view, R.id.account_name);
         mAccountNameLabel = UiUtilities.getView(view, R.id.account_name_label);
-
-        final TextWatcher validationTextWatcher = new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-                validateFields();
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-        };
-        mName.addTextChangedListener(validationTextWatcher);
         mName.setKeyListener(TextKeyListener.getInstance(false, TextKeyListener.Capitalize.WORDS));
 
         setPreviousButtonVisibility(View.INVISIBLE);
@@ -113,7 +94,6 @@ public class AccountSetupNamesFragment extends AccountSetupFragment {
         final EmailServiceUtils.EmailServiceInfo info =
                 setupData.getIncomingServiceInfo(getActivity());
         if (!info.usesSmtp) {
-            mRequiresName = false;
             mName.setVisibility(View.GONE);
             mAccountNameLabel.setVisibility(View.GONE);
         } else {
@@ -151,27 +131,6 @@ public class AccountSetupNamesFragment extends AccountSetupFragment {
                 });
             }
         }
-
-        // Make sure the "done" button is in the proper state
-        validateFields();
-    }
-
-    /**
-     * Check input fields for legal values and enable/disable next button
-     */
-    private void validateFields() {
-        boolean enableNextButton = true;
-        // Validation is based only on the "user name" field, not shown for EAS accounts
-        if (mRequiresName) {
-            final String userName = mName.getText().toString().trim();
-            if (TextUtils.isEmpty(userName)) {
-                enableNextButton = false;
-                mName.setError(getString(R.string.account_setup_names_user_name_empty_error));
-            } else {
-                mName.setError(null);
-            }
-        }
-        setNextButtonEnabled(enableNextButton);
     }
 
     public String getDescription() {
