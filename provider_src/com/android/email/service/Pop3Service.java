@@ -30,6 +30,7 @@ import android.os.RemoteException;
 
 import com.android.email.DebugUtils;
 import com.android.email.NotificationController;
+import com.android.email.NotificationControllerCreatorHolder;
 import com.android.email.mail.Store;
 import com.android.email.mail.store.Pop3Store;
 import com.android.email.mail.store.Pop3Store.Pop3Folder;
@@ -107,16 +108,19 @@ public class Pop3Service extends Service {
     public static int synchronizeMailboxSynchronous(Context context, final Account account,
             final Mailbox folder, final int deltaMessageCount) throws MessagingException {
         TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(context, account));
-        NotificationController nc = NotificationController.getInstance(context);
+        final NotificationController nc =
+                NotificationControllerCreatorHolder.getInstance(context);
         try {
             synchronizePop3Mailbox(context, account, folder, deltaMessageCount);
             // Clear authentication notification for this account
-            nc.cancelLoginFailedNotification(account.mId);
+            if (nc != null) {
+                nc.cancelLoginFailedNotification(account.mId);
+            }
         } catch (MessagingException e) {
             if (Logging.LOGD) {
                 LogUtils.v(Logging.LOG_TAG, "synchronizeMailbox", e);
             }
-            if (e instanceof AuthenticationFailedException) {
+            if (e instanceof AuthenticationFailedException && nc != null) {
                 // Generate authentication notification
                 nc.showLoginFailedNotificationSynchronous(account.mId, true /* incoming */);
             }

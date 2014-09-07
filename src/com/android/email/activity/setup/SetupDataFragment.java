@@ -7,6 +7,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.android.email.service.EmailServiceUtils;
+import com.android.email.setup.AuthenticatorSetupIntentHelper;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Policy;
@@ -18,20 +19,12 @@ public class SetupDataFragment extends Fragment implements Parcelable {
     // The "extra" name for the Bundle saved with SetupData
     public static final String EXTRA_SETUP_DATA = "com.android.email.setupdata";
 
-    // NORMAL is the standard entry from the Email app; EAS and POP_IMAP are used when entering via
-    // Settings -> Accounts
-    public static final int FLOW_MODE_UNSPECIFIED = -1;
-    public static final int FLOW_MODE_NORMAL = 0;
-    public static final int FLOW_MODE_ACCOUNT_MANAGER = 1;
-    public static final int FLOW_MODE_EDIT = 3;
-    public static final int FLOW_MODE_FORCE_CREATE = 4;
     // The following two modes are used to "pop the stack" and return from the setup flow.  We
     // either return to the caller (if we're in an account type flow) or go to the message list
     // TODO: figure out if we still care about these
     public static final int FLOW_MODE_RETURN_TO_CALLER = 5;
     public static final int FLOW_MODE_RETURN_TO_MESSAGE_LIST = 6;
     public static final int FLOW_MODE_RETURN_NO_ACCOUNTS_RESULT = 7;
-    public static final int FLOW_MODE_NO_ACCOUNTS = 8;
 
     // Mode bits for AccountSetupCheckSettings, indicating the type of check requested
     public static final int CHECK_INCOMING = 1;
@@ -49,7 +42,7 @@ public class SetupDataFragment extends Fragment implements Parcelable {
     private static final String SAVESTATE_AM_PROTOCOL = "SetupDataFragment.amProtocol";
 
     // All access will be through getters/setters
-    private int mFlowMode = FLOW_MODE_NORMAL;
+    private int mFlowMode = AuthenticatorSetupIntentHelper.FLOW_MODE_NORMAL;
     private Account mAccount;
     private String mEmail;
     private Bundle mCredentialResults;

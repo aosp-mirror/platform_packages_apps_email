@@ -3,3 +3,5 @@
 -keepclasseswithmembers class * {
   public *** newInstance(com.android.emailcommon.provider.Account, android.content.Context);
 }
+
+-keepclasses class com.android.email.activity.setup.AccountSetupFinal
