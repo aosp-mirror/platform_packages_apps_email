@@ -106,7 +106,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"Ձեր հաշիվը ստեղծված է, և էլփոստը իր ճանապարհին է:"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Տվեք այս հաշվին անուն (ըստ ցանկության)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"Ձեր անունը (ցուցադրվում է ելքային հաղորդագրություններում)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"Այս դաշտը չի կարող դատարկ լինել:"</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"Հաշվի կարգավորում"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"Հաշվի տեսակը"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"Ի՞նչ տեսակի հաշիվ է սա"</string>

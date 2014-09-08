@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"आपका खाता सेट हो गया है और शीघ्र ही ईमेल मिलने वाला है!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"इस खाते को कोई नाम दें (वैकल्पिक)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"आपका नाम (आउटगोइंग संदेशों में प्रदर्शित)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"यह फ़ील्ड खाली मत छोड़िए."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"खाता सेटअप"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"खाता प्रकार"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"यह किस प्रकार का खाता है?"</string>

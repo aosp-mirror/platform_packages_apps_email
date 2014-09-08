@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"Din konto er konfigureret, og der er e-mail på vej."</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Giv kontoen et navn (valgfrit)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"Dit navn (vises på udgående meddelelser)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"Dette felt må ikke være tomt."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"Konfiguration af konto"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"Kontotype"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"Hvilken slags konto er dette?"</string>

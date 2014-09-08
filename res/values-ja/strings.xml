@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"アカウントの設定が完了しました。"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"このアカウントに名前を付ける (省略可):"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"あなたの名前（送信メールに表示されます）"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"このフィールドは必須です。"</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"アカウント設定"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"アカウントの種類"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"このアカウントの種類を選択します"</string>

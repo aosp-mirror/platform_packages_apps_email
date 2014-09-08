@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"Teie konto on seadistatud ja meilid on tulekul."</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Anna sellele kontole nimi (valikuline)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"Teie nimi (kuvatakse väljuvates sõnumites)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"See väli ei tohi tühi olla."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"Konto seadistamine"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"Konto tüüp"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"Mis tüüpi see konto on?"</string>

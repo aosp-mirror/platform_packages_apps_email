@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"آپ کا اکاؤنٹ سیٹ اپ ہوگیا ہے اور ای میل جلد ہی پہنچے گا!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"اس اکاؤنٹ کو ایک نام دیں (اختیاری)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"آپ کا نام (آؤٹ گوئنگ پیغامات پر ڈسپلے شدہ)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"یہ فیلڈ خالی نہیں رہ سکتی۔"</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"اکاؤنٹ سیٹ اپ"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"اکاؤنٹ کی قسم"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"یہ کس قسم کا اکاؤنٹ ہے؟"</string>

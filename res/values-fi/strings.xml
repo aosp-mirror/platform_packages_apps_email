@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"Tili on määritetty ja sähköposteja noudetaan."</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Anna tilille nimi (valinnainen)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"Oma nimi (näytetään lähtevissä viesteissä)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"Kenttä ei voi olla tyhjä."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"Tilin asetukset"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"Tilin tyyppi"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"Millainen tili tämä on?"</string>

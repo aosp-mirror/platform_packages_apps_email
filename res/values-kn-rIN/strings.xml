@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"ನಿಮ್ಮ ಖಾತೆಯನ್ನು ಹೊಂದಿಸಲಾಗಿದೆ ಮತ್ತು ಇಮೇಲ್ ತನ್ನ ಮಾರ್ಗದಲ್ಲಿದೆ!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"ಈ ಖಾತೆಗೆ ಹೆಸರೊಂದನ್ನು ನೀಡಿ (ಐಚ್ಛಿಕ)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"ನಿಮ್ಮ ಹೆಸರು (ಹೊರಹೋಗುವ ಸಂದೇಶಗಳಲ್ಲಿ ಪ್ರದರ್ಶಿಸಲ್ಪಡುತ್ತದೆ)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"ಈ ಕ್ಷೇತ್ರವನ್ನು ಖಾಲಿ ಬಿಡಬಾರದು."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"ಖಾತೆ ಹೊಂದಿಸುವಿಕೆ"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"ಖಾತೆ ವಿಧಾನ"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"ಇದು ಯಾವ ವಿಧದ ಖಾತೆಯಾಗಿದೆ?"</string>

@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"Kontoen din er konfigurert, og innkommende e-poster er på vei."</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Gi kontoen navn (valgfritt)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"Navnet ditt (vises på utgående e-poster)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"Dette feltet må fylles ut."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"Konfigurering av konto"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"Kontotype"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"Hvilken type konto er dette?"</string>

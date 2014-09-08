@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"您的帳戶已設定完畢，可以收發電子郵件了！"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"設定帳戶名稱 (非必填)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"您的姓名 (顯示於外寄郵件)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"這個欄位不能留空。"</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"帳戶設定"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"帳戶類型"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"這是什麼類型的帳戶？"</string>

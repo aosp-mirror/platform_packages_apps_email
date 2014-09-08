@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"계정이 설정되었으며 이메일을 사용할 수 있습니다."</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"계정 이름 지정(선택사항)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"이름(메일에 표시)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"이 입력란은 비워 둘 수 없습니다."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"계정 설정"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"계정 유형"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"계정 유형이 무엇입니까?"</string>

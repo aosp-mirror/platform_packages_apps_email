@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"Akun Anda sudah siap dan email akan segera tiba!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Beri nama akun ini (opsional)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"Nama (yang ditampilkan pada pesan keluar)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"Bidang ini tidak boleh kosong."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"Penyiapan akun"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"Jenis akun"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"Jenis akun apakah ini?"</string>

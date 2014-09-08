@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"ඔබගේ ගිණුම සකසා ඇති අතර ඊ-තැපෑල අතරමගය!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"මෙම ගිණුමට නමක් දෙන්න (විකල්ප)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"ඔබගේ නම (පිටතට යන පණිවීඩවල දර්ශනය කර ඇත)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"මෙම ක්ෂේත්‍රය හිස්විය නොහැක."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"ගිණුම සැකසීම"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"ගිණුම් වර්ගය"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"මෙය කුමන වර්ගයේ ගිණුමක්ද?"</string>

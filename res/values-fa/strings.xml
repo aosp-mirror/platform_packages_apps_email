@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"حساب شما تنظیم شد و ایمیل در راه است!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"نامی به این حساب اختصاص دهید (اختیاری)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"نام شما (در پیام‌های خروجی نمایش داده می‌شود)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"این قسمت نمی‌تواند خالی باشد."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"تنظیم حساب"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"نوع حساب"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"این چه نوع حسابی است؟"</string>

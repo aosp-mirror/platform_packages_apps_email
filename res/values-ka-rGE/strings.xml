@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"თქვენი ანგარიში დაყენებულია და მალე ელფოსტაც გექნებათ!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"ანგარიშისთვის სახელის დარქმევა (არასავალდებულო)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"თქვენი სახელი (ჩანს გამავალ წერილებში)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"ეს ველი არ შეიძლება ცარიელი იყოს."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"ანგარიშის დაყენება"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"ანგარიშის ტიპი"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"ეს რა ტიპის ანგარიშია?"</string>
