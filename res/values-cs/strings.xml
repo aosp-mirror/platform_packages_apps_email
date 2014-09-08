@@ -46,7 +46,7 @@
     <string name="account_folder_list_summary_drafts" msgid="4050225674547841762">"Koncepty"</string>
     <string name="account_folder_list_summary_outbox" msgid="5594504984407654721">"Pošta k odeslání"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="4155918930481733669">"Kombinované zobrazení"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="6193988236722150221">\n\n"-------- Původní zpráva --------\nPředmět: <xliff:g id="SUBJECT">%1$s</xliff:g>\nOdesílatel: <xliff:g id="SENDER">%2$s</xliff:g>\nKomu: <xliff:g id="TO">%3$s</xliff:g>\nKopie: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_fwd_header_fmt" msgid="6193988236722150221">\n\n"-------- Původní zpráva --------\nPředmět: <xliff:g id="SUBJECT">%1$s</xliff:g>\nOd: <xliff:g id="SENDER">%2$s</xliff:g>\nKomu: <xliff:g id="TO">%3$s</xliff:g>\nKopie: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5836926808818821309">"Vložit rychlou odpověď"</string>
     <string name="message_compose_insert_quick_response_menu_title" msgid="4393288554605333619">"Vložit rychlou odpověď"</string>
     <string name="message_view_attachment_background_load" msgid="7571652141281187845">"Jedna či více příloh v přeposílané zprávě bude před odesláním stažena."</string>
