@@ -28,23 +28,18 @@
         android:id="@+id/account_check_frequency"
         android:layout_height="wrap_content"
         android:layout_width="match_parent" />
-    <LinearLayout
-        android:id="@+id/account_sync_window_row"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/account_sync_window_label"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone" >
-        <TextView
-            android:id="@+id/account_sync_window_label"
-            android:text="@string/account_setup_options_mail_window_label"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            style="@style/account_setup_label_text" />
-        <Spinner
-            android:id="@+id/account_sync_window"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent" />
-    </LinearLayout>
+        android:layout_width="match_parent"
+        android:text="@string/account_setup_options_mail_window_label"
+        android:visibility="gone"
+        style="@style/account_setup_label_text" />
+    <Spinner
+        android:id="@+id/account_sync_window"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:visibility="gone" />
     <CheckBox
         android:id="@+id/account_notify"
         style="@style/account_setup_checkbox"
