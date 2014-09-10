@@ -28,16 +28,20 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 
 import com.android.email.DebugUtils;
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Policy;
+import com.android.emailcommon.utility.IntentUtilities;
 import com.android.mail.ui.MailAsyncTaskLoader;
 import com.android.mail.utils.LogUtils;
 
@@ -87,6 +91,14 @@ public class AccountSecurity extends Activity {
     private AccountAndPolicyLoaderCallbacks mAPLoaderCallbacks;
     private Bundle mAPLoaderArgs;
 
+    public static Uri getUpdateSecurityUri(final long accountId, final boolean showDialog) {
+        final Uri.Builder baseUri = Uri.parse("auth://" + EmailContent.EMAIL_PACKAGE_NAME +
+                ".ACCOUNT_SECURITY/").buildUpon();
+        IntentUtilities.setAccountId(baseUri, accountId);
+        baseUri.appendQueryParameter(EXTRA_SHOW_DIALOG, Boolean.toString(showDialog));
+        return baseUri.build();
+    }
+
     /**
      * Used for generating intent for this activity (which is intended to be launched
      * from a notification.)
@@ -126,7 +138,25 @@ public class AccountSecurity extends Activity {
         mHandler = new Handler();
 
         final Intent i = getIntent();
-        final long accountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
+        final long accountId;
+        Bundle extras = i.getExtras();
+        if (extras == null) {
+            // We have been invoked via a uri. We need to get our parameters from the URI instead
+            // of looking in the intent extras.
+            extras = new Bundle();
+            accountId = IntentUtilities.getAccountIdFromIntent(i);
+            extras.putLong(EXTRA_ACCOUNT_ID, accountId);
+            boolean showDialog = false;
+            final String value = i.getData().getQueryParameter(EXTRA_SHOW_DIALOG);
+            if (!TextUtils.isEmpty(value)) {
+                showDialog = Boolean.getBoolean(value);
+            }
+            extras.putBoolean(EXTRA_SHOW_DIALOG, showDialog);
+        } else {
+            accountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
+            extras = i.getExtras();
+        }
+
         final SecurityPolicy security = SecurityPolicy.getInstance(this);
         security.clearNotification();
         if (accountId == -1) {
@@ -148,7 +178,7 @@ public class AccountSecurity extends Activity {
         }
 
         if (!mInitialized) {
-            startAccountAndPolicyLoader(i.getExtras());
+            startAccountAndPolicyLoader(extras);
         }
     }
 
