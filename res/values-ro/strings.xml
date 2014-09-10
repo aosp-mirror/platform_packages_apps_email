@@ -248,7 +248,7 @@
     <string name="account_settings_sync_calendar_summary" msgid="411960248618953311">"Sincron. evenim. calendar pt. cont"</string>
     <string name="account_settings_sync_email_enable" msgid="7135765408226471860">"Sincroniz. e-mailul"</string>
     <string name="account_settings_sync_email_summary" msgid="71710510041953351">"Sincron. e-mail pt. acest cont"</string>
-    <string name="account_settings_vibrate_when_label" msgid="361069844540266098">"Vibrare"</string>
+    <string name="label_notification_vibrate_title" msgid="361069844540266098">"Vibrare"</string>
     <string name="account_settings_ringtone" msgid="2238523918221865167">"Alegeţi un ton de sonerie"</string>
     <string name="account_settings_servers" msgid="3386185135392642067">"Setări server"</string>
     <string name="mailbox_settings_activity_title" msgid="2196614373847675314">"Opţiuni de sincronizare"</string>
