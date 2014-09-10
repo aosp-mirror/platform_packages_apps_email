@@ -248,7 +248,7 @@
     <string name="account_settings_sync_calendar_summary" msgid="411960248618953311">"Sinhr. dogodek iz kol. za ta račun"</string>
     <string name="account_settings_sync_email_enable" msgid="7135765408226471860">"Sinhroniz. e-pošte"</string>
     <string name="account_settings_sync_email_summary" msgid="71710510041953351">"Sinhroniziraj e-pošto za ta račun"</string>
-    <string name="account_settings_vibrate_when_label" msgid="361069844540266098">"Vibriranje"</string>
+    <string name="label_notification_vibrate_title" msgid="361069844540266098">"Vibriranje"</string>
     <string name="account_settings_ringtone" msgid="2238523918221865167">"Izberite melodijo zvonjenja"</string>
     <string name="account_settings_servers" msgid="3386185135392642067">"Nastavitve strežnika"</string>
     <string name="mailbox_settings_activity_title" msgid="2196614373847675314">"Možnosti sinhronizacije"</string>

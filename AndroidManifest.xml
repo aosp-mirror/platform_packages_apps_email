@@ -276,7 +276,7 @@
         </activity>
         <activity
             android:name=".activity.setup.EmailPreferenceActivity"
-            android:label="@string/settings_activity_title"
+            android:label="@string/activity_preferences"
             android:exported="false" >
             <intent-filter>
                 <action android:name="android.intent.action.EDIT" />
@@ -291,7 +291,7 @@
         </activity>
         <activity
                 android:name="com.android.mail.ui.settings.PublicPreferenceActivity"
-                android:label="@string/settings_activity_title"
+                android:label="@string/activity_preferences"
                 android:exported="true"
                 android:theme="@android:style/Theme.NoDisplay" >
             <!-- Must be exported in order for the AccountManager to launch it -->
@@ -326,7 +326,7 @@
         </activity>
         <activity
             android:name=".provider.FolderPickerActivity"
-            android:label="@string/folder_picker_title"
+            android:label="@string/app_name"
             >
             <intent-filter>
                 <action android:name="android.intent.action.EDIT" />
