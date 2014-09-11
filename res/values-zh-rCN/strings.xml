@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"您的帐户已设置完毕，可以收发电子邮件了！"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"为此帐户起个名称（可选）"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"您的姓名（显示在外发邮件中）"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"此字段不能为空。"</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"帐户设置"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"帐户类型"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"这是什么类型的帐户？"</string>

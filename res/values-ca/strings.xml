@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"El compte ja s\'ha configurat i aviat rebràs el correu."</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Assigna un nom a aquest compte (opcional)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"El teu nom (als missatges enviats)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"Aquest camp no pot estar en blanc."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"Configuració del compte"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"Tipus de compte"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"Quin tipus de compte és?"</string>

@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"Your account is set up and emails are on their way!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Give this account a name (optional)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"Your name (displayed on outgoing messages)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"This field can\'t be blank."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"Account setup"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"Account type"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"What type of account is this?"</string>

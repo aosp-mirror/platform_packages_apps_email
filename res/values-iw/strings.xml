@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"החשבון שלך הוגדר והדוא\"ל בדרך!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"תן שם לחשבון זה (אופציונלי)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"שמך (מוצג בהודעות יוצאות)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"שדה זה לא יכול להיות ריק."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"הגדרת חשבון"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"סוג חשבון"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"איזה סוג חשבון זה?"</string>

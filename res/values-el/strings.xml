@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"Ο λογαριασμός σας ρυθμίστηκε και γίνεται λήψη μηνυμάτων ηλεκτρονικού ταχυδρομείου!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Δώστε σε αυτόν τον λογαριασμό ένα όνομα (προαιρετικό)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"Το όνομά σας (προβάλλεται στα εξερχόμενα μηνύματα)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"Αυτό το πεδίο δεν μπορεί να είναι κενό."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"Ρύθμιση λογαριασμού"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"Τύπος λογαριασμού"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"Τι τύπος λογαριασμού είναι αυτός;"</string>

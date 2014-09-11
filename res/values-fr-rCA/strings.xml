@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"Votre compte est configuré et votre messagerie est activée!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Donner un nom à ce compte (facultatif)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"Votre nom (affiché sur les messages sortants)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"Ce champ est obligatoire."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"Configuration du compte"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"Type de compte"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"De quel type de compte s\'agit-il?"</string>

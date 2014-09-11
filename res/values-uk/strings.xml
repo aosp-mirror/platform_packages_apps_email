@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"Ваш обліковий запис налаштовано. Скоро надійдуть листи!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Назвіть цей обл. запис. (додатково)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"Ваше ім\'я (відображено у вихідних повідомл.)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"Це поле не може бути порожнім."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"Налаштування облікового запису"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"Тип облікового запису"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"Тип облікового запису?"</string>

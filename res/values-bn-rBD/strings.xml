@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"আপনার অ্যাকাউন্ট সেট আপ হয়েছে এবং ইমেল আসছে!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"এই অ্যাকাউন্টটির একটি নাম দিন (ঐচ্ছিক)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"আপনার নাম (আউটগোয়িং বার্তাগুলিতে প্রদর্শিত হয়)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"এই ক্ষেত্রটি ফাঁকা রাখা যাবে না।"</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"অ্যাকাউন্ট সেটআপ"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"অ্যাকাউন্টের প্রকার"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"এটি কেমন ধরণের অ্যাকাউন্ট?"</string>

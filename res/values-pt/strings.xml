@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"Sua conta está configurada e o e-mail está a caminho!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Dar nome a esta conta (opcional)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"Seu nome (exibido nas mensagens enviadas)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"Este campo não pode ficar em branco."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"Configuração da conta"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"Tipo de conta"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"Que tipo de conta é esta?"</string>

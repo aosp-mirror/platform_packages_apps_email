@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"ບັນຊີຂອງທ່ານແມ່ນ​ຕິດຕັ້ງ​ຮຽບຮ້ອຍແລ້ວ ແລະ​ອີເມວກຳລັງຈະມາໄວໆນີ້!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"ໃສ່ຊື່ໃຫ້ບັນຊີນີ້ (ທາງເລືອກ)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"ຊື່ຂອງທ່ານ (ສະແດງ​ໃນ​ຂໍ້ຄວາມ​ຂາອອກ)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"ຊ່ອງນີ້ບໍ່ສາມາດ​ປ່ອຍໃຫ້ຫວ່າງໄດ້."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"ຕັ້ງຄ່າບັນຊີ"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"ປະເພດບັນຊີ"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"ປະ​ເພດ​ບັນ​ຊີ​ຂອງ​ທ່ານ​ນີ້​ແມ່ນ​ປະ​ເພດ​ໃດ?"</string>

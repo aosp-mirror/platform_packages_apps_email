@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"तपाईँको खाता सेट अप भयो र इमेल यसको मार्गमा छ!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"यस खातालाई एउटा नाम दिनुहोस् (वैकल्पिक)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"तपाइँको नाम (बहिर्गमन सन्देशहरूमा प्रदर्शित)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"यस क्षेत्र खाली हुन सक्दैन"</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"खाता सेटअप"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"खाता प्रकार"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"यस खाता कुन प्रकारको हो?"</string>

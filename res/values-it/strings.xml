@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"Il tuo account è stato impostato e l\'email sarà presto disponibile."</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Assegna un nome all\'account (facoltativo)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"Il tuo nome (nei messaggi in uscita)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"Questo campo non può essere vuoto."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"Impostazione account"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"Tipo di account"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"Di quale tipo di account si tratta?"</string>

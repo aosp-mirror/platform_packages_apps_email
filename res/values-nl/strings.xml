@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"Uw account is ingesteld."</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Geef dit account een naam (optioneel)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"Uw naam (wordt weergegeven in uitgaande berichten)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"Dit veld moet ingevuld worden"</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"Accountinstellingen"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"Accounttype"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"Welk type account is dit?"</string>

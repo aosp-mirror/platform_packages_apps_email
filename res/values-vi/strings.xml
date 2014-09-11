@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"Tài khoản của bạn đã được thiết lập và email đang được gửi!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Đặt tên cho tài khoản này (tùy chọn)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"Tên bạn (được hiển thị trong tin nhắn đi)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"Không được để trống trường này."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"Thiết lập tài khoản"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"Loại tài khoản"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"Đây loại tài khoản gì?"</string>

@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"உங்கள் கணக்கு அமைக்கப்பட்டது, மின்னஞ்சலை விரைவில் பெறுவீர்கள்!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"இந்தக் கணக்குற்குப் பெயரிடவும் (விருப்பத் தேர்வுக்குரியது)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"உங்கள் பெயர் (வெளிசெல்லும் செய்திகளில் காண்பிக்கப்படும்)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"இந்தப் புலம் வெறுமையாக இருக்கக் கூடாது."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"கணக்கு அமைவு"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"கணக்கின் வகை"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"இது எவ்வகையான கணக்கு?"</string>

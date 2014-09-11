@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"നിങ്ങളുടെ അക്കൗണ്ട് സജ്ജീകരിച്ചു, ഇമെയിൽ ഉടൻ ലഭിച്ചുതുടങ്ങും!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"ഈ അക്കൗണ്ടിന് ഒരു പേര് നൽകുക (ഓപ്‌ഷണൽ)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"നിങ്ങളുടെ പേര് (ഔട്ട്ഗോയിംഗ് സന്ദേശങ്ങളിൽ പ്രദർശിപ്പിച്ചിരിക്കുന്നു)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"ഈ ഫീൽഡ് ശൂന്യമായിടരുത്."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"അക്കൗണ്ട് സജ്ജീകരണം"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"അക്കൗണ്ട് തരം"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"ഇത് എന്തുതരം അക്കൗണ്ടാണ്?"</string>

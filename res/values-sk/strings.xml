@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"Váš účet je nastavený a&amp;nbsp;pošta je na ceste!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Pomenujte tento účet (nepovinné)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"Vaše meno (zobrazované na odchádzajúcich správach)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"Toto pole nesmie byť prázdne."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"Nastavenie účtu"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"Typ účtu"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"O aký typ účtu ide?"</string>

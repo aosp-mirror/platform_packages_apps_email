@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"Das Konto ist jetzt eingerichtet und die E-Mail ist unterwegs."</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Konto benennen (optional)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"Ihr Name (wird bei ausgehenden E-Mails angezeigt)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"Dieses Feld darf nicht leer sein."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"Kontoeinrichtung"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"Kontotyp"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"Um welchen Kontotyp handelt es sich?"</string>

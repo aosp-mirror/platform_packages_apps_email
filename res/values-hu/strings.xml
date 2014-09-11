@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"A fiók beállítása befejeződött, az e-mailek úton vannak."</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Fiók elnevezése (opcionális)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"Az Ön neve (a kimenő üzenetekben való megjelenítéshez)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"Ez a mező nem lehet üres."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"Fiók beállítása"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"Fiók típusa"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"Milyen típusú ez a fiók?"</string>

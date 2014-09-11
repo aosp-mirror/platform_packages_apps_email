@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"Vaš račun je pripravljen in e-pošta je poslana."</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Poimenujte račun (neobvezno)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"Vaše ime (prikazano v odhodnih sporočilih)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"To polje ne sme biti prazno."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"Nastavitev računa"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"Vrsta računa"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"Katera vrsta računa je to?"</string>

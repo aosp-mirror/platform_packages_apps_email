@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"បាន​រៀបចំ​គណនី​របស់​អ្នក ​ហើយ​​អ៊ីមែល​​កំពុង​ដំណើរការ!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"ដាក់​ដល់​គណនី​នេះ (ជា​ជម្រើស​)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"ឈ្មោះ​របស់​អ្នក (បាន​បង្ហាញ​នៅ​លើ​សារ​ចេញ​)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"វាល​នេះ​មិន​អាច​ទទេ​ឡើយ។"</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"រៀបចំ​គណនី"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"ប្រភេទ​គណនី"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"តើ​​គណនី​នេះ​ជា​ប្រភេទ​អ្វី?"</string>

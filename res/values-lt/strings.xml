@@ -104,7 +104,6 @@
     <string name="account_setup_names_headline" msgid="2031978210683887370">"Paskyra nustatyta, el. laiškas išsiųstas!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Suteikti šiai paskyrai pavadinimą (pasirenkama)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"Jūsų vardas ir pavardė (pateikiami siunčiamuose pranešimuose)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"Šis laukas negali būti tuščias."</string>
     <string name="account_setup_account_type_title" msgid="7081511430549429621">"Paskyros sąranka"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"Paskyros tipas"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"Kokio tipo tai paskyra?"</string>
