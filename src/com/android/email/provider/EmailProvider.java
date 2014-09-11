@@ -1631,14 +1631,18 @@ public class EmailProvider extends ContentProvider
         // Try to restore them from saved JSON
         int restoredCount = 0;
         for (final android.accounts.Account amAccount : amAccounts) {
-            String jsonString = null;
-                jsonString = am.getUserData(amAccount, ACCOUNT_MANAGER_JSON_TAG);
+            final String jsonString = am.getUserData(amAccount, ACCOUNT_MANAGER_JSON_TAG);
             if (TextUtils.isEmpty(jsonString)) {
                 continue;
             }
             final Account account = Account.fromJsonString(jsonString);
             if (account != null) {
                 AccountSettingsUtils.commitSettings(context, account);
+                final Bundle extras = new Bundle(3);
+                extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+                extras.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, true);
+                extras.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+                ContentResolver.requestSync(amAccount, EmailContent.AUTHORITY, extras);
                 restoredCount++;
             }
         }
