@@ -410,8 +410,10 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     @Override
     public void onRequestSignIn() {
         // Launch the credential activity.
+        // Use HostAuthRecv here because we want to know if this is account is IMAP (offer OAuth) or
+        // if it's POP (password only)
         final String protocol =
-                mSetupData.getAccount().getOrCreateHostAuthSend(mAppContext).mProtocol;
+                mSetupData.getAccount().getOrCreateHostAuthRecv(mAppContext).mProtocol;
         final Intent intent = AccountCredentials.getAccountCredentialsIntent(getActivity(),
                 mUsernameView.getText().toString(), protocol);
         startActivityForResult(intent, SIGN_IN_REQUEST);
