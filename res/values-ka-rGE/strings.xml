@@ -128,7 +128,7 @@
     <string name="account_setup_incoming_delete_policy_label" msgid="2341742235654301690">"შეტყობინებების წაშლა სერვერიდან"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="5777530843489961009">"არასოდეს"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="8677018382715596606">"შემომავალში წაშლისას"</string>
-    <string name="account_setup_incoming_imap_path_prefix_label" msgid="3531290378620033218">"IMAP გზის პრეფიქსი"</string>
+    <string name="account_setup_incoming_imap_path_prefix_label" msgid="3531290378620033218">"IMAP მდებარეობის პრეფიქსი"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="206747922689229932">"სურვილისამებრ"</string>
     <string name="account_setup_outgoing_title" msgid="2808821899038184783">"ანგარიშის დაყენება"</string>
     <string name="account_setup_outgoing_headline" msgid="6638171491109658047">"გამავალი სერვერის პარამეტრები"</string>
@@ -280,14 +280,14 @@
     <item msgid="9065780631791478752">"პატარა შრიფტი"</item>
     <item msgid="5493891920376401220">"ნორმალური ზომის შრიფტი"</item>
     <item msgid="5957728463730225525">"დიდი შრიფტი"</item>
-    <item msgid="8280280945572141543">"უზარმაზარი ტექსტი"</item>
+    <item msgid="8280280945572141543">"ვეება ტექსტი"</item>
   </string-array>
     <string name="general_preference_text_zoom_dialog_title" msgid="2945670488178731960">"შეტყობინების ტექსტის ზომა"</string>
     <string name="general_preference_text_zoom_tiny" msgid="2638270296385150534">"პაწაწინა"</string>
     <string name="general_preference_text_zoom_small" msgid="5878451808657194677">"პატარა"</string>
     <string name="general_preference_text_zoom_normal" msgid="3336285518736032230">"ჩვეულებრივი"</string>
     <string name="general_preference_text_zoom_large" msgid="8552201810636001546">"დიდი"</string>
-    <string name="general_preference_text_zoom_huge" msgid="697872823018628182">"უზარმაზარი"</string>
+    <string name="general_preference_text_zoom_huge" msgid="697872823018628182">"ვეება"</string>
     <string name="more_than_999" msgid="4088200269333058889">"999+"</string>
     <string name="search_hint" msgid="3491349343647799436">"ელფოსტის ძიება"</string>
     <string name="policy_dont_allow_camera" msgid="8821533827628900689">"აიკრძალოს მოწყობკობის კამერის გამოყენება"</string>

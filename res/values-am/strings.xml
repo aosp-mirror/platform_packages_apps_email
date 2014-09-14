@@ -267,7 +267,7 @@
     <string name="exchange_name_alternate" msgid="293118547772095111">"የማይክሮሶፍት Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="2248313263003927725">"መለያውን መፍጠር አልቻለም:: እባክህ እንደገና ሞክር።"</string>
     <string name="device_admin_label" msgid="3335272972461391415">"ኢሜይል"</string>
-    <string name="device_admin_description" msgid="4299378570982520839">"በአገልጋይ-የተገለፁ የደህንነት ፖሊሲዎች አንቃ"</string>
+    <string name="device_admin_description" msgid="4299378570982520839">"በአገልጋይ-የተገለፁ የደህንነት መምሪያዎች አንቃ"</string>
     <string name="settings_activity_title" msgid="4787565736829092053">"ቅንብሮች"</string>
     <string name="header_label_general_preferences" msgid="2924944721204930254">"ጠቅላላ ቅንብሮች"</string>
     <string name="general_preference_confirm_delete_label" msgid="4635169755738754289">"ከመሰረዝዎ በፊት ያረጋግጡ"</string>

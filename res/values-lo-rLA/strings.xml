@@ -259,7 +259,7 @@
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="5547676392298186906">"ຕົວເລືອກການຊິ້ງຂໍ້ມູນ (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
     <string name="mailbox_settings_sync_enabled_label" msgid="7723413381707277856">"ຊິ້ງຂໍ້ມູນໂຟນເດີນີ້"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="742233465207750578">"ຂໍ້ຄວາມທັງໝົດ​ຈະຖືກດາວໂຫລດ​ເມື່ອມີການເຊື່ອມຕໍ່​ອິນເຕີເນັດ"</string>
-    <string name="mailbox_settings_mailbox_sync_window_label" msgid="7027516982341382326">"ຈຳ​ນວນມື້ຂອງເມວທີ່ຕ້ອງຊິ້ງຂໍ້ມູນ"</string>
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="7027516982341382326">"ຈຳນວນ​ມື້​ຂອງ​ອີເມວ​ທີ່​ຕ້ອງການ​ຊິ້ງ​ຂໍ້ມູນ"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="1302579259733675896">"ຮູບຜູ່ສົ່ງ"</string>
     <string name="provider_note_live" msgid="4289035326060391547">"ມີແຕ່​ບາງບັນ​ຊີ \"Plus\" ທີ່​ມີ​ການ​ເຂົ້າ​ເຖິງ POP ທີ່ອະນຸຍາດ​ໃຫ້​ໂປຣແກຣມ​ນີ້​ເຊື່ອມຕໍ່. ຫາກ​ທ່ານ​ບໍ່​ສາມາດ​ເຂົ້າສູ່​ລະບົບ​ດ້ວຍ​ທີ່​ຢູ່​ອີເມວ ແລະ​ລະຫັດ​ຜ່ານທີ່​ຖືກຕ້ອງໄດ້, ໝາຍ​ຄວາມ​ວ່າ​ທ່ານອາດບໍ່ມີບັນຊີ \"Plus\" ແບບ​ເສຍ​ເງິນ. ໃຫ້ເປີດ​ໂປຣແກຣມ​ທ່ອງເວັບ​ເພື່ອ​ເຂົ້າເຖິງ​ບັນຊີ​ອີເມວ​ເຫຼົ່ານີ້."</string>
     <string name="provider_note_t_online" msgid="1596701148051980218">"ກ່ອນ​ທີ່​ຈະ​ຕິດຕັ້ງ​ບັນ​ຊີ​ອີເມວ, ໃຫ້​ເຂົ້າ​ຊົມເວັບໄຊ T-Online ແລະ ສ້າງ​ລະຫັດ​ຜ່ານ​ສຳລັບ​ການ​ເຂົ້າເຖິງ​ອີເມວ POP3 ກ່ອນ."</string>
