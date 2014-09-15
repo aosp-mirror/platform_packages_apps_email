@@ -25,4 +25,5 @@ interface IPolicyService {
     // New version
     void setAccountPolicy2(long accountId, in Policy policy, String securityKey, boolean notify);
     oneway void remoteWipe();
+    boolean canDisableCamera();
 }
