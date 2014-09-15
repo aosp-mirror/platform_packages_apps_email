@@ -291,7 +291,6 @@
     <string name="sent_folder_selection_title" msgid="9207482909822072856">"Изаберите директоријум на серверу за послато за <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"Учитавање листе директоријума..."</string>
     <string name="no_quick_responses" msgid="8716297053803961304">"Нема доступних"</string>
-    <!-- no translation found for gmail_name (2099786953868369991) -->
-    <skip />
+    <string name="gmail_name" msgid="2099786953868369991">"Gmail"</string>
     <string name="folder_sync_settings_pref_title" msgid="349478353401667107">"Подешавања синхронизације директоријума"</string>
 </resources>
