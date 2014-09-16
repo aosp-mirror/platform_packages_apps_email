@@ -232,10 +232,8 @@
     <string name="quick_3" msgid="8070999183033184986">"میں بعد میں اسے پڑھوں گا اور آپ کو جواب دوں گا۔"</string>
     <string name="quick_4" msgid="216066940197616025">"اس پر گفتگو کرنے کیلئے آئیے ہم ایک میٹنگ طے کریں۔"</string>
     <string name="confirm_response" msgid="6764021931370809514">"جواب بھیج رہا ہے…"</string>
-    <!-- no translation found for imap_name (8285222985908214985) -->
-    <skip />
-    <!-- no translation found for pop3_name (6653484706414263493) -->
-    <skip />
+    <string name="imap_name" msgid="8285222985908214985">"‏ذاتی (IMAP)"</string>
+    <string name="pop3_name" msgid="6653484706414263493">"‏ذاتی (POP3)"</string>
     <string name="trash_folder_selection_title" msgid="686039558899469073">"<xliff:g id="ACCOUNT">%s</xliff:g> کیلئے سرور کے کوڑے دان کا فولڈر منتخب کریں"</string>
     <string name="sent_folder_selection_title" msgid="9207482909822072856">"<xliff:g id="ACCOUNT">%s</xliff:g> کیلئے سرور کے مرسلہ آئٹمز کا فولڈر منتخب کریں"</string>
     <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"فولڈر کی فہرست لوڈ ہو رہی ہے…"</string>
