@@ -139,7 +139,7 @@
     <string name="account_setup_exchange_use_certificate" msgid="6513687497912094538">"क्लाइंट प्रमाणपत्र का उपयोग करें"</string>
     <string name="account_setup_exchange_remove_certificate" msgid="1222387802827919583">"निकालें"</string>
     <string name="account_setup_exchange_no_certificate" msgid="3569712401698909695">"कोई नहीं"</string>
-    <string name="account_setup_exchange_device_id_label" msgid="2306603503497194905">"मोबाइल उपकरण आईडी"</string>
+    <string name="account_setup_exchange_device_id_label" msgid="2306603503497194905">"मोबाइल डिवाइस आईडी"</string>
     <string name="account_setup_options_title" msgid="3274463434235489134">"खाता सेटिंग"</string>
     <string name="account_setup_options_headline" msgid="4810292194395251968">"खाता विकल्प"</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="7253305392938373553">"समन्वयन आवृत्ति."</string>
@@ -183,10 +183,10 @@
     <string name="account_setup_failed_protocol_unsupported" msgid="4973054582044010375">"आपने गलत सर्वर पता लिखा है या सर्वर को उस प्रोटोकॉल संस्‍करण की आवश्‍यकता है जिसका समर्थन ईमेल नहीं करता."</string>
     <string name="account_setup_failed_access_denied" msgid="2051742796367919026">"आपको इस सर्वर के साथ समन्वयित करने की अनुमति नहीं है. अधिक जानकारी के लिए अपने सर्वर के व्यवस्थापक से संपर्क करें."</string>
     <string name="account_setup_security_required_title" msgid="667943309546419435">"दूरस्‍थ सुरक्षा व्यवस्थापन"</string>
-    <string name="account_setup_security_policies_required_fmt" msgid="9029471168291631932">"सर्वर <xliff:g id="SERVER">%s</xliff:g> के लिए आवश्‍यक है कि आप अपने Android उपकरण की कुछ सुरक्षा सुविधाओं को दूरस्थ रूप से नियंत्रित करने दें. क्‍या आप यह खाता सेट करना पूर्ण करना चाहते हैं?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="4619685657253094627">"इस सर्वर को ऐसी सुरक्षा सुविधाओं की आवश्यकता है जिनका समर्थन आपका Android उपकरण नहीं करता, जिनमें शामिल हैं: <xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="9029471168291631932">"सर्वर <xliff:g id="SERVER">%s</xliff:g> के लिए आवश्‍यक है कि आप अपने Android डिवाइस की कुछ सुरक्षा सुविधाओं को दूरस्थ रूप से नियंत्रित करने दें. क्‍या आप यह खाता सेट करना पूर्ण करना चाहते हैं?"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="4619685657253094627">"इस सर्वर को ऐसी सुरक्षा सुविधाओं की आवश्यकता है जिनका समर्थन आपका Android डिवाइस नहीं करता, जिनमें शामिल हैं: <xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_username_uneditable_error" msgid="3607769783124215764">"आप किसी खाते का उपयोगकर्ता नाम नहीं बदल सकते. किसी दूसरे उपयोगकर्ता नाम से खाता जोड़ने के लिए, खाता जोड़ें स्‍पर्श करें."</string>
-    <string name="disable_admin_warning" msgid="6001542250505146252">"चेतावनी: आपके उपकरण को प्रबंधित करने के लिए ईमेल ऐप्स का प्राधिकार प्रयोग में नहीं कर देने से उसके लिए आवश्यक सभी ईमेल खाते, उनके ईमेल, संपर्क, कैलेंडर ईवेंट, और अन्‍य डेटा सहित, हटा दिए जाएंगे."</string>
+    <string name="disable_admin_warning" msgid="6001542250505146252">"चेतावनी: आपके डिवाइस को प्रबंधित करने के लिए ईमेल ऐप्स का प्राधिकार प्रयोग में नहीं कर देने से उसके लिए आवश्यक सभी ईमेल खाते, उनके ईमेल, संपर्क, कैलेंडर ईवेंट, और अन्‍य डेटा सहित, हटा दिए जाएंगे."</string>
     <string name="account_security_dialog_title" msgid="7003032393805438164">"सुरक्षा अपडेट"</string>
     <string name="account_security_dialog_content_fmt" msgid="4107093049191103780">"आपको <xliff:g id="ACCOUNT">%s</xliff:g> के लिए अपनी सुरक्षा सेटिंग अपडेट करने की आवश्यकता है."</string>
     <string name="security_unsupported_ticker_fmt" msgid="3249185558872836884">"सुरक्षा आवश्‍यकताओं के कारण खाता \"<xliff:g id="ACCOUNT">%s</xliff:g>\" समन्‍वयित नहीं किया जा सकता."</string>
@@ -195,8 +195,8 @@
     <string name="security_notification_content_update_title" msgid="6321099538307807621">"सुरक्षा अपडेट आवश्यक"</string>
     <string name="security_notification_content_change_title" msgid="615639963487448183">"सुरक्षा नीतियां बदल दी गई हैं"</string>
     <string name="security_notification_content_unsupported_title" msgid="6494791400431198228">"सुरक्षा नीतियां पूरी नहीं हो सकतीं"</string>
-    <string name="account_security_title" msgid="6072273231606918870">"उपकरण सुरक्षा"</string>
-    <string name="account_security_policy_explanation_fmt" msgid="2527501853520160827">"सर्वर <xliff:g id="SERVER">%s</xliff:g> के लिए यह आवश्‍यक है कि आप उसे अपने Android उपकरण की कुछ सुरक्षा सुविधाओं को दूरस्थ रूप से नियंत्रित करने दें."</string>
+    <string name="account_security_title" msgid="6072273231606918870">"डिवाइस सुरक्षा"</string>
+    <string name="account_security_policy_explanation_fmt" msgid="2527501853520160827">"सर्वर <xliff:g id="SERVER">%s</xliff:g> के लिए यह आवश्‍यक है कि आप उसे अपने Android डिवाइस की कुछ सुरक्षा सुविधाओं को दूरस्थ रूप से नियंत्रित करने दें."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="8155332642922842729">"विवरण संपादित करें"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="5543005790538884060">"आपको \"<xliff:g id="ACCOUNT">%s</xliff:g>\" के लिए अपना लॉक स्‍क्रीन पिन या पासवर्ड बदलने की आवश्यकता है."</string>
     <string name="password_expire_warning_content_title" msgid="4360288708739366810">"स्‍क्रीन लॉक करें पासवर्ड समाप्त होने वाला है"</string>
@@ -205,7 +205,7 @@
     <string name="password_expire_warning_dialog_title" msgid="4901499545146045672">"स्‍क्रीन लॉक करें पासवर्ड समाप्त होने वाला है"</string>
     <string name="password_expire_warning_dialog_content_fmt" msgid="1093389293050776319">"आपको शीघ्र ही अपना लॉक स्क्रीन पिन या पासवर्ड को बदलना होगा, अन्यथा <xliff:g id="ACCOUNT">%s</xliff:g> का डेटा मिट जाएगा. क्या आप इसे अभी बदलना चाहते हैं?"</string>
     <string name="password_expired_dialog_title" msgid="7275534155170185252">"स्‍क्रीन लॉक करें पासवर्ड की समय-सीमा समाप्त हो गई है"</string>
-    <string name="password_expired_dialog_content_fmt" msgid="8322213184626443346">"<xliff:g id="ACCOUNT">%s</xliff:g> का डेटा आपके उपकरण से मिटाया जा रहा है. आप इसे अपने लॉक स्क्रीन पिन या पासवर्ड बदलकर पुनर्स्थापित कर सकते हैं. क्या आप इसे अभी बदलना चाहते हैं?"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="8322213184626443346">"<xliff:g id="ACCOUNT">%s</xliff:g> का डेटा आपके डिवाइस से मिटाया जा रहा है. आप इसे अपने लॉक स्क्रीन पिन या पासवर्ड बदलकर पुनर्स्थापित कर सकते हैं. क्या आप इसे अभी बदलना चाहते हैं?"</string>
     <string name="account_settings_exit_server_settings" msgid="4232590695889111419">"न सहेजे गए परिवर्तनों को छोड़ें?"</string>
     <string name="account_settings_login_dialog_title" msgid="2250911725501042470">"प्रवेश नहीं हो सका"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8687412692709766495">"<xliff:g id="ACCOUNT">%s</xliff:g> का उपयोगकर्ता नाम या पासवर्ड गलत है. क्या आप उन्हें अभी अपडेट करना चाहते हैं?"</string>
@@ -229,7 +229,7 @@
     <string name="account_settings_description_label" msgid="2073736045984411004">"खाता नाम"</string>
     <string name="account_settings_name_label" msgid="8230436030850457988">"आपका नाम"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="6105791335935883199">"त्वरित प्रतिसाद"</string>
-    <string name="account_settings_edit_quick_responses_summary" msgid="5406599402930290682">"वह पाठ संपादित करें जिसे आप अक्सर ईमेल लिखते समय शामिल करते हैं"</string>
+    <string name="account_settings_edit_quick_responses_summary" msgid="5406599402930290682">"वह लेख संपादित करें जिसे आप अक्सर ईमेल लिखते समय शामिल करते हैं"</string>
     <string name="account_settings_notifications" msgid="2842952349214972116">"सूचना सेटिंग"</string>
     <string name="account_settings_data_usage" msgid="6400715160238559711">"डेटा उपयोग"</string>
     <string name="account_settings_policies" msgid="5972183883466873359">"सुरक्षा नीतियां"</string>
@@ -270,11 +270,11 @@
     <string name="general_preference_confirm_send_label" msgid="2985557291955796568">"भेजने से पहले पुष्‍टि करें"</string>
     <string name="more_than_999" msgid="4088200269333058889">"999+"</string>
     <string name="search_hint" msgid="3491349343647799436">"ईमेल खोजें"</string>
-    <string name="policy_dont_allow_camera" msgid="8821533827628900689">"उपकरण के कैमरे के उपयोग की अनुमति न दें"</string>
-    <string name="policy_require_password" msgid="3556860917024612396">"उपकरण पासवर्ड आवश्‍यक"</string>
+    <string name="policy_dont_allow_camera" msgid="8821533827628900689">"डिवाइस के कैमरे के उपयोग की अनुमति न दें"</string>
+    <string name="policy_require_password" msgid="3556860917024612396">"डिवाइस पासवर्ड आवश्‍यक"</string>
     <string name="policy_password_history" msgid="9001177390979112746">"हाल के पासवर्ड का पुन: उपयोग प्रतिबं. करें"</string>
     <string name="policy_password_expiration" msgid="1287225242918742275">"पासवर्ड के लिए समय सीमा समाप्ति आवश्यक"</string>
-    <string name="policy_screen_timeout" msgid="3499201409239287702">"स्क्रीन लॉक के लिए प्रयोग में नहीं उपकरण चाहिए"</string>
+    <string name="policy_screen_timeout" msgid="3499201409239287702">"स्क्रीन लॉक के लिए प्रयोग में नहीं डिवाइस चाहिए"</string>
     <string name="policy_calendar_age" msgid="6469328498345236120">"समन्‍वयित कैलेंडर ईवेंट की संख्‍या सीमित करें"</string>
     <string name="policy_email_age" msgid="3521941976575225050">"समन्‍वयित ईमेल की संख्‍या सीमित करें"</string>
     <string name="quick_1" msgid="9130521670178673190">"धन्यवाद!"</string>
