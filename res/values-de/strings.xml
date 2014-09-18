@@ -206,7 +206,7 @@
     <string name="account_settings_sync_calendar_summary" msgid="411960248618953311">"Termin für dieses Kontos synchronisieren"</string>
     <string name="account_settings_sync_email_enable" msgid="7135765408226471860">"E-Mails synchronisieren"</string>
     <string name="account_settings_sync_email_summary" msgid="71710510041953351">"E-Mails dieses Kontos synchronisieren"</string>
-    <string name="label_notification_vibrate_title" msgid="140881511322826320">"Vibrieren"</string>
+    <string name="label_notification_vibrate_title" msgid="140881511322826320">"Vibration"</string>
     <string name="account_settings_ringtone" msgid="2238523918221865167">"Klingelton auswählen"</string>
     <string name="account_settings_servers" msgid="3386185135392642067">"Servereinstellungen"</string>
     <string name="mailbox_settings_activity_title" msgid="2196614373847675314">"Synchronisierungsoptionen"</string>

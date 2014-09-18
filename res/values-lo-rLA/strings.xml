@@ -232,8 +232,8 @@
     <string name="quick_3" msgid="8070999183033184986">"ຂ້ອຍ​ຈະ​ອ່ານ​ໃນພາຍຫຼັງ​ແລະຈະ​ຕິດຕໍ່​ກັບ​ໄປ."</string>
     <string name="quick_4" msgid="216066940197616025">"ພວກ​ເຮົາ​​ປະ​ຊຸມ​ເພື່ອ​ສົນ​ທະ​ນາ​ເລື່ອງ​ນີ້​ດີກວ່າ."</string>
     <string name="confirm_response" msgid="6764021931370809514">"ກຳລັງສົ່ງຄໍາຕອບ..."</string>
-    <string name="imap_name" msgid="8285222985908214985">"ສ່ວນ​ບຸກ​ຄົນ (IMAP​)"</string>
-    <string name="pop3_name" msgid="6653484706414263493">"ສ່ວນ​ບຸກ​ຄົນ (POP3​)"</string>
+    <string name="imap_name" msgid="8285222985908214985">"ສ່ວນ​ໂຕ (IMAP​)"</string>
+    <string name="pop3_name" msgid="6653484706414263493">"ສ່ວນ​ໂຕ (POP3​)"</string>
     <string name="trash_folder_selection_title" msgid="686039558899469073">"ເລືອກໂຟນເດີ​ຖັງຂີ້ເຫຍື້ອ​ຂອງເຊີບເວີສຳລັບ <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="sent_folder_selection_title" msgid="9207482909822072856">"ເລືອກໂຟນເດີ​ສົ່ງລາຍການ​ຂອງເຊີບເວີ​ສຳລັບ <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"ກໍາລັງໂຫລດລາຍຊື່ໂຟນເດີ..."</string>
