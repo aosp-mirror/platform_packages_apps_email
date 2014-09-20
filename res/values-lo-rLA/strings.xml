@@ -167,7 +167,7 @@
     <string name="password_expire_warning_dialog_content_fmt" msgid="1093389293050776319">"ທ່ານຕ້ອງປ່ຽນລະຫັດ ຫຼື PIN ລັອກໜ້າຈໍໄວໆນີ້, ບໍ່ດັ່ງນັ້ນຂໍ້ມູນຂອງ <xliff:g id="ACCOUNT">%s</xliff:g> ຈະຖືກລຶບ. ທ່ານຕ້ອງການປ່ຽນມັນດຽວນີ້ບໍ່?"</string>
     <string name="password_expired_dialog_title" msgid="7275534155170185252">"ລະຫັດ​ລັອກໜ້າ​ຈໍ​ໝົດ​ອາຍຸ​ແລ້ວ"</string>
     <string name="password_expired_dialog_content_fmt" msgid="8322213184626443346">"ຂໍ້ມູນສຳລັບ <xliff:g id="ACCOUNT">%s</xliff:g> ກຳລັງ​ຖືກລຶບ​ອອກ​ຈາກ​ອຸປະກອນ​ຂອງ​ທ່ານ. ທ່ານ​ສາມາດ​ກູ້ມັນຄືນ​ໄດ້ ໂດຍ​ການ​ປ່ຽນ​ລະຫັດ ຫຼື PIN ລັອກ​ໜ້າ​ຈໍຂອງ​ທ່ານ. ທ່ານ​ຕ້ອງ​ການ​ປ່ຽນ​ມັນ​ດຽວ​ນີ້ບໍ່?"</string>
-    <string name="account_settings_exit_server_settings" msgid="4232590695889111419">"ຍົກ​ເລີກ​ການ​ປ່ຽນ​ແປງ​ທີ່​ຍັງ​ບໍ່ໄດ້​ບັນ​ທຶກບໍ່?"</string>
+    <string name="account_settings_exit_server_settings" msgid="4232590695889111419">"ຖິ້ມ​ການ​ປ່ຽນ​ແປງ​ທີ່​ຍັງ​ບໍ່ໄດ້​ບັນ​ທຶກບໍ່?"</string>
     <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"ດາວໂຫຼດໄຟລ໌ແນບ"</string>
     <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"ດາວ​ໂຫລດ​ໄຟລ໌​ແນບ​ຈາກ​ອີ​ເມວຫຼ້າ​ສຸດ​ຜ່ານ​ທາງ Wi-Fi ໂດຍ​ອັດ​ຕະ​ໂນ​ມັດ"</string>
     <string name="account_settings_notify_label" msgid="8621226576645167987">"ການແຈ້ງເຕືອນອີເມວ"</string>

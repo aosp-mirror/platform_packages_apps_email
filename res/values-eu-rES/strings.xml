@@ -188,7 +188,7 @@
     <string name="account_settings_name_label" msgid="8230436030850457988">"Zure izena"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="6105791335935883199">"Erantzun bizkorrak"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="5406599402930290682">"Editatu mezu elektronikoak idaztean maiz idatzi ohi duzun testua"</string>
-    <string name="account_settings_notifications" msgid="2842952349214972116">"Jakinarazpenen ezarpenak"</string>
+    <string name="account_settings_notifications" msgid="2842952349214972116">"Jakinarazpen-ezarpenak"</string>
     <string name="account_settings_data_usage" msgid="6400715160238559711">"Datu-erabilera"</string>
     <string name="account_settings_policies" msgid="5972183883466873359">"Segurtasun-gidalerroak"</string>
     <string name="system_folders_title" msgid="7161311881709109736">"Sistemaren karpetak"</string>

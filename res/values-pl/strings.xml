@@ -25,7 +25,7 @@
     <string name="quick_responses_empty_view" msgid="3394094315357455290">"Brak szybkich odpowiedzi"</string>
     <string name="account_settings_action" msgid="589969653965674604">"Ustawienia konta"</string>
     <string name="mailbox_name_display_inbox" msgid="5093068725739672126">"Odebrane"</string>
-    <string name="mailbox_name_display_outbox" msgid="8735725798805339414">"Do wysłania"</string>
+    <string name="mailbox_name_display_outbox" msgid="8735725798805339414">"Skrzynka nadawcza"</string>
     <string name="mailbox_name_display_drafts" msgid="3552043116466269581">"Kopie robocze"</string>
     <string name="mailbox_name_display_trash" msgid="7020792045007681852">"Kosz"</string>
     <string name="mailbox_name_display_sent" msgid="6705058612006729985">"Wysłane"</string>
