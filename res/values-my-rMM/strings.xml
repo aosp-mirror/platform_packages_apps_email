@@ -116,7 +116,7 @@
     <string name="account_setup_incoming_server_label" msgid="5409694850973258387">"ဆာဗာ"</string>
     <string name="account_setup_incoming_port_label" msgid="402562424498833560">"ပို့တ်"</string>
     <string name="account_setup_incoming_security_label" msgid="8360505617331971663">"လုံခြုံမှု ပုံစံ"</string>
-    <string name="account_setup_incoming_security_none_label" msgid="2461510827337484818">"မရှိ"</string>
+    <string name="account_setup_incoming_security_none_label" msgid="2461510827337484818">"နတ္တိ"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="2834386066577239560">"SSL/TLS (လက်မှတ်များ အားလုံး လက်ခံ)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="5169133414545009342">"SSL/TLS"</string>
     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2281920902104029077">"STARTTLS (လက်မှတ်များ အားလုံး လက်ခံ)"</string>
@@ -139,7 +139,7 @@
     <string name="account_setup_exchange_select_certificate" msgid="264748505181695915">"ရွေးရန်"</string>
     <string name="account_setup_exchange_use_certificate" msgid="6513687497912094538">"သုံးစွဲသူ လက်မှတ်ကို အသုံးပြုပါ"</string>
     <string name="account_setup_exchange_remove_certificate" msgid="1222387802827919583">"ဖယ်ရှားရန်"</string>
-    <string name="account_setup_exchange_no_certificate" msgid="3569712401698909695">"မရှိ"</string>
+    <string name="account_setup_exchange_no_certificate" msgid="3569712401698909695">"နတ္တိ"</string>
     <string name="account_setup_exchange_device_id_label" msgid="2306603503497194905">"မိုဘိုင်း ကိရိယာ ID"</string>
     <string name="account_setup_options_title" msgid="3274463434235489134">"အကောင့် ဆက်တင်များ"</string>
     <string name="account_setup_options_headline" msgid="4810292194395251968">"အကောင့်ဆိုင်ရာ ရွေးစရာများ"</string>
@@ -222,9 +222,9 @@
     <string name="account_settings_outgoing_label" msgid="4997504719643828381">"ထွက်စာ ဆက်တင်များ"</string>
     <string name="account_settings_outgoing_summary" msgid="1884202151340479161">"သုံးစွဲသူအမည်၊ စကားဝှက်၊ နှင့် အခြား ထွက်စာ ဆာဗာ ဆက်တင်များ"</string>
     <string name="account_settings_enforced_label" msgid="7005050362066086119">"မူဝါဒများ ပြဌာန်းထား"</string>
-    <string name="account_settings_enforced_summary" msgid="1668581504445370253">"မရှိ"</string>
+    <string name="account_settings_enforced_summary" msgid="1668581504445370253">"နတ္တိ"</string>
     <string name="account_settings_unsupported_label" msgid="7286722617178322465">"ပံ့ပိုးမပေးသည့် မူဝါဒများ"</string>
-    <string name="account_settings_unsupported_summary" msgid="1980825746966562221">"မရှိ"</string>
+    <string name="account_settings_unsupported_summary" msgid="1980825746966562221">"နတ္တိ"</string>
     <string name="account_settings_retry_label" msgid="8605492340808650923">"စင့်က် လုပ်ရန် ကြိုးပမ်းမှု"</string>
     <string name="account_settings_retry_summary" msgid="2598065993718592906">"ဤ အကောင့်ကို စင့်က်လုပ်ရန် ဒီမှာ ထိပါ"</string>
     <string name="account_settings_description_label" msgid="2073736045984411004">"အကောင့် အမည်"</string>
