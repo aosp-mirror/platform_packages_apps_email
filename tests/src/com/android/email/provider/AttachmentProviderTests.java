@@ -659,7 +659,7 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
     private String createAttachmentFile(Account forAccount, long id) throws IOException {
         File outFile = getAttachmentFile(forAccount, id);
         Bitmap bitmap = BitmapFactory.decodeResource(getContext().getResources(),
-                R.drawable.ic_attach_file_20dp);
+                R.drawable.ic_attach_file_18dp);
         FileOutputStream out = new FileOutputStream(outFile);
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
         out.close();
