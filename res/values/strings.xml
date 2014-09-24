@@ -75,6 +75,8 @@
     <!-- Do Not Translate.  Button label, shown only on debug screen -->
     <string name="debug_clear_webview_cache" translatable="false">
         Clear WebView cache</string>
+    <!-- Do Not Translate. Button label. Shown only on debug screen -->
+    <string name="debug_clear_migration_state" translatable="false">Clear migration state</string>
     <!-- Do Not Translate.  Checkbox label, shown on debug screen. -->
     <string name="debug_force_one_minute_refresh_label" translatable="false">
         Force 1-minute refresh for POP/IMAP</string>
