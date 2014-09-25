@@ -164,7 +164,7 @@
     <string name="account_setup_options_mail_window_2weeks" msgid="1144271277694832921">"過去2週間"</string>
     <string name="account_setup_options_mail_window_1month" msgid="3228265299330513816">"過去1か月"</string>
     <string name="account_setup_options_mail_window_all" msgid="4794683936065721438">"すべて"</string>
-    <string name="account_setup_options_mail_window_default" msgid="5518038139722596598">"アカウントのデフォルトを使用"</string>
+    <string name="account_setup_options_mail_window_default" msgid="5518038139722596598">"アカウントの既定値を使用"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="5608549872868036352">"ユーザー名またはパスワードが正しくありません。"</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8811464534757505457">"ログインに失敗しました。\n（<xliff:g id="ERROR">%s</xliff:g>）"</string>
     <string name="account_setup_autodiscover_dlg_authfail_title" msgid="7551559109838593189">"アカウントセットアップに関する問題"</string>

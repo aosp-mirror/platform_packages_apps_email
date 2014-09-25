@@ -212,8 +212,8 @@
     <string name="account_settings_login_dialog_reason_fmt" msgid="2324678262137130809">"<xliff:g id="ACCOUNT">%s</xliff:g> पर आपका प्रवेश विफल हो गया; सर्वर ने बताया: <xliff:g id="REASON">%s</xliff:g> क्या आप अपना उपयोगकर्ता नाम और/या पासवर्ड अपडेट करना चाहते हैं?"</string>
     <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"अटैचमेंट को डाउनलोड करें"</string>
     <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"WiFi के माध्यम से हाल के संदेशों के अटैचमेंट स्वत: डाउनलोड करें"</string>
-    <string name="account_settings_notify_label" msgid="8621226576645167987">"ईमेल सूचनाएं"</string>
-    <string name="account_settings_summary" msgid="4733776978291376161">"आवृत्ति, सूचनाएं आदि समन्वयन करें."</string>
+    <string name="account_settings_notify_label" msgid="8621226576645167987">"ईमेल नोटिफिकेशन"</string>
+    <string name="account_settings_summary" msgid="4733776978291376161">"आवृत्ति, नोटिफिकेशन आदि समन्वयन करें."</string>
     <string name="account_settings_notify_summary" msgid="88560545461159120">"ईमेल आने पर सूचना भेजें"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="4107847714594035131">"समन्वयन आवृत्ति"</string>
     <string name="account_settings_incoming_label" msgid="3793314460723296874">"इनकमिंग सेटिंग"</string>
