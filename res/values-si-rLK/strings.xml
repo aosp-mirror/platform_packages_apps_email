@@ -37,7 +37,7 @@
     <string name="mailbox_name_display_outbox" msgid="8735725798805339414">"යන ලිපි"</string>
     <string name="mailbox_name_display_drafts" msgid="3552043116466269581">"කටු සටහන්"</string>
     <string name="mailbox_name_display_trash" msgid="7020792045007681852">"අපද්‍රව්‍ය"</string>
-    <string name="mailbox_name_display_sent" msgid="6705058612006729985">"යවන ලදී"</string>
+    <string name="mailbox_name_display_sent" msgid="6705058612006729985">"යවන ලද"</string>
     <string name="mailbox_name_display_junk" msgid="1634126984313831675">"නිසරු"</string>
     <string name="mailbox_name_display_starred" msgid="8076384721309828453">"තරුව සලකුණු කළ"</string>
     <string name="mailbox_name_display_unread" msgid="1453575937919310339">"නොකියැවූ"</string>

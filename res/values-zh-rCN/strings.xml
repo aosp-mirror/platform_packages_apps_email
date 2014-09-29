@@ -211,7 +211,7 @@
     <string name="account_settings_login_dialog_content_fmt" msgid="8687412692709766495">"<xliff:g id="ACCOUNT">%s</xliff:g> 的用户名或密码不正确。要立即更新吗？"</string>
     <string name="account_settings_login_dialog_reason_fmt" msgid="2324678262137130809">"无法登录 <xliff:g id="ACCOUNT">%s</xliff:g>；服务器提示：<xliff:g id="REASON">%s</xliff:g>。您要更新自己的用户名和/或密码吗？"</string>
     <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"下载附件"</string>
-    <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"通过WLAN自动下载最新邮件的附件"</string>
+    <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"通过WLAN自动下载近期邮件的附件"</string>
     <string name="account_settings_notify_label" msgid="8621226576645167987">"电子邮件通知"</string>
     <string name="account_settings_summary" msgid="4733776978291376161">"同步频率、通知等。"</string>
     <string name="account_settings_notify_summary" msgid="88560545461159120">"收到电子邮件时发送通知"</string>
@@ -231,7 +231,7 @@
     <string name="account_settings_edit_quick_responses_label" msgid="6105791335935883199">"快速回复"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="5406599402930290682">"编辑您在写电子邮件时经常插入的文本"</string>
     <string name="account_settings_notifications" msgid="2842952349214972116">"通知设置"</string>
-    <string name="account_settings_data_usage" msgid="6400715160238559711">"数据使用"</string>
+    <string name="account_settings_data_usage" msgid="6400715160238559711">"流量使用"</string>
     <string name="account_settings_policies" msgid="5972183883466873359">"安全策略"</string>
     <string name="system_folders_title" msgid="7161311881709109736">"系统文件夹"</string>
     <string name="system_folders_trash_title" msgid="3190927115504713123">"已删除邮件文件夹"</string>

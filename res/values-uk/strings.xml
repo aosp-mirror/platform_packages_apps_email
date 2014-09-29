@@ -210,7 +210,7 @@
     <string name="account_settings_login_dialog_title" msgid="2250911725501042470">"Не вдалося ввійти"</string>
     <string name="account_settings_login_dialog_content_fmt" msgid="8687412692709766495">"Ім’я користувача чи пароль для облікового запису <xliff:g id="ACCOUNT">%s</xliff:g> неправильні. Оновити зараз?"</string>
     <string name="account_settings_login_dialog_reason_fmt" msgid="2324678262137130809">"Не вдалося ввійти в обліковий запис <xliff:g id="ACCOUNT">%s</xliff:g>; відповідь сервера: <xliff:g id="REASON">%s</xliff:g> Оновити ім’я користувача та/чи пароль?"</string>
-    <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"Завантажити вкладені файли"</string>
+    <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"Завантажувати вкладені файли"</string>
     <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"Автом. завантажувати вклад. файли з останніх повідом. через Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="8621226576645167987">"Сповіщення ел. пошти"</string>
     <string name="account_settings_summary" msgid="4733776978291376161">"Синхронізуйте частоту, сповіщення тощо"</string>
