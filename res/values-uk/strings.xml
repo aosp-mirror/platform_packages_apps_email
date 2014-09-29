@@ -168,7 +168,7 @@
     <string name="password_expired_dialog_title" msgid="7275534155170185252">"Терм. дії пароля блок. екрана закінчився"</string>
     <string name="password_expired_dialog_content_fmt" msgid="8322213184626443346">"Дані для облікового запису <xliff:g id="ACCOUNT">%s</xliff:g> стираються з вашого пристрою. Їх можна відновити, змінивши PIN-код або пароль блокування екрана. Змінити зараз?"</string>
     <string name="account_settings_exit_server_settings" msgid="4232590695889111419">"Відхилити незбережені зміни?"</string>
-    <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"Завантажити вкладені файли"</string>
+    <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"Завантажувати вкладені файли"</string>
     <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"Автом. завантажувати вклад. файли з останніх повідом. через Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="8621226576645167987">"Сповіщення ел. пошти"</string>
     <string name="account_settings_summary" msgid="4733776978291376161">"Синхронізуйте частоту, сповіщення тощо"</string>

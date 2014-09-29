@@ -87,7 +87,7 @@
     <string name="account_setup_incoming_security_ssl_label" msgid="5169133414545009342">"SSL/TLS"</string>
     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2281920902104029077">"‏STARTTLS (קבל את כל האישורים)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="3892291833944170882">"STARTTLS"</string>
-    <string name="account_setup_incoming_delete_policy_label" msgid="2341742235654301690">"מחק דוא\"ל מהשרת"</string>
+    <string name="account_setup_incoming_delete_policy_label" msgid="2341742235654301690">"מחק אימיילים מהשרת"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="5777530843489961009">"אף פעם"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="8677018382715596606">"בעת מחיקה מתיבת דואר נכנס"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="3531290378620033218">"‏קידומת נתיב IMAP"</string>
@@ -113,13 +113,13 @@
     <string name="account_setup_options_mail_check_frequency_15min" msgid="7127640170766018765">"כל 15 דקות"</string>
     <string name="account_setup_options_mail_check_frequency_30min" msgid="4223562871143897449">"כל 30 דקות"</string>
     <string name="account_setup_options_mail_check_frequency_1hour" msgid="107706566853925273">"כל שעה"</string>
-    <string name="account_setup_options_notify_label" msgid="3101529443722198112">"הודע לי כשמגיע דוא\"ל"</string>
+    <string name="account_setup_options_notify_label" msgid="3101529443722198112">"הודע לי כשמגיע אימייל"</string>
     <string name="account_setup_options_sync_contacts_label" msgid="5029046373980454714">"סנכרן אנשי קשר מחשבון זה"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="303441956432308807">"סנכרן את לוח השנה מחשבון זה"</string>
-    <string name="account_setup_options_sync_email_label" msgid="468957966555663131">"סנכרן דוא\"ל מחשבון זה"</string>
+    <string name="account_setup_options_sync_email_label" msgid="468957966555663131">"סנכרן אימיילים מחשבון זה"</string>
     <string name="account_setup_options_background_attachments_label" msgid="4085327585082867216">"‏הורד קבצים מצורפים באופן אוטומטי כאשר יש חיבור ל-Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7923577224474005464">"לא ניתן להשלים את הפעולה"</string>
-    <string name="account_setup_options_mail_window_label" msgid="4737241149297585368">"סנכרן הודעות דוא\"ל מ:"</string>
+    <string name="account_setup_options_mail_window_label" msgid="4737241149297585368">"סנכרן אימיילים מ:"</string>
     <string name="account_setup_options_mail_window_auto" msgid="7407981634952005775">"אוטומטי"</string>
     <string name="account_setup_options_mail_window_1day" msgid="7930883294844418428">"היום האחרון"</string>
     <string name="account_setup_options_mail_window_3days" msgid="3435093562391555730">"שלושת השבועות האחרונים"</string>
@@ -171,8 +171,8 @@
     <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"הורד קבצים מצורפים"</string>
     <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"‏הורד באופן אוטומטי קבצים מצורפים להודעות שהתקבלו לאחרונה באמצעות Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="8621226576645167987">"התראות דוא\"ל"</string>
-    <string name="account_settings_summary" msgid="4733776978291376161">"תדירות סינכרון, התראות וכדומה"</string>
-    <string name="account_settings_notify_summary" msgid="88560545461159120">"שלח הודעה כשמגיע דוא\"ל"</string>
+    <string name="account_settings_summary" msgid="4733776978291376161">"תדירות סנכרון, התראות וכדומה"</string>
+    <string name="account_settings_notify_summary" msgid="88560545461159120">"שלח הודעה כשמגיע אימייל"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="4107847714594035131">"תדירות סנכרון"</string>
     <string name="account_settings_incoming_label" msgid="3793314460723296874">"הגדרות דואר נכנס"</string>
     <string name="account_settings_incoming_summary" msgid="7521181981008371492">"שם משתמש, סיסמה והגדרות אחרות של שרת דואר נכנס"</string>
@@ -187,7 +187,7 @@
     <string name="account_settings_description_label" msgid="2073736045984411004">"שם חשבון"</string>
     <string name="account_settings_name_label" msgid="8230436030850457988">"השם שלך"</string>
     <string name="account_settings_edit_quick_responses_label" msgid="6105791335935883199">"תגובות מהירות"</string>
-    <string name="account_settings_edit_quick_responses_summary" msgid="5406599402930290682">"ערוך טקסט שאתה מוסיף לעתים קרובות בזמן כתיבת דוא\"ל"</string>
+    <string name="account_settings_edit_quick_responses_summary" msgid="5406599402930290682">"ערוך טקסט שאתה מוסיף לעתים קרובות בזמן כתיבת אימייל"</string>
     <string name="account_settings_notifications" msgid="2842952349214972116">"הגדרות התראות"</string>
     <string name="account_settings_data_usage" msgid="6400715160238559711">"שימוש בנתונים"</string>
     <string name="account_settings_policies" msgid="5972183883466873359">"מדיניות אבטחה"</string>
@@ -203,13 +203,13 @@
     <string name="account_settings_sync_contacts_enable" msgid="2642448079273767521">"סנכרן אנשי קשר"</string>
     <string name="account_settings_sync_contacts_summary" msgid="1716022682035150630">"סנכרן אנשי קשר בחשבון זה"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3172491863244160828">"סנכרן יומן"</string>
-    <string name="account_settings_sync_calendar_summary" msgid="411960248618953311">"סינכרון אירוע לוח שנה עבור חשבון זה"</string>
-    <string name="account_settings_sync_email_enable" msgid="7135765408226471860">"סנכרן דוא\"ל"</string>
-    <string name="account_settings_sync_email_summary" msgid="71710510041953351">"סנכרן דוא\"ל בחשבון זה"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="411960248618953311">"סנכרון אירוע לוח שנה עבור חשבון זה"</string>
+    <string name="account_settings_sync_email_enable" msgid="7135765408226471860">"סנכרן אימיילים"</string>
+    <string name="account_settings_sync_email_summary" msgid="71710510041953351">"סנכרן אימיילים בחשבון זה"</string>
     <string name="label_notification_vibrate_title" msgid="140881511322826320">"רטט"</string>
     <string name="account_settings_ringtone" msgid="2238523918221865167">"בחר רינגטון"</string>
     <string name="account_settings_servers" msgid="3386185135392642067">"הגדרות שרת"</string>
-    <string name="mailbox_settings_activity_title" msgid="2196614373847675314">"אפשרויות סינכרון"</string>
+    <string name="mailbox_settings_activity_title" msgid="2196614373847675314">"אפשרויות סנכרון"</string>
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="5547676392298186906">"אפשרויות סנכרון (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
     <string name="mailbox_settings_sync_enabled_label" msgid="7723413381707277856">"סנכרן את התיקיה הזו"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="742233465207750578">"לאחר שתחחבר תתבצע הורדה של ההודעות"</string>
