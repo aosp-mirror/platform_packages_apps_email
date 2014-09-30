@@ -65,10 +65,10 @@ import android.util.SparseArray;
 
 import com.android.common.content.ProjectionMap;
 import com.android.email.DebugUtils;
+import com.android.email.NotificationController;
+import com.android.email.NotificationControllerCreatorHolder;
 import com.android.email.Preferences;
 import com.android.email.R;
-import com.android.email.NotificationControllerCreatorHolder;
-import com.android.email.NotificationController;
 import com.android.email.SecurityPolicy;
 import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettingsUtils;
@@ -3654,7 +3654,9 @@ public class EmailProvider extends ContentProvider
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.CAPABILITIES)) {
             values[colPosMap.get(UIProvider.AccountColumns.CAPABILITIES)] =
-                    AccountCapabilities.UNDO | AccountCapabilities.VIRTUAL_ACCOUNT;
+                    AccountCapabilities.UNDO |
+                    AccountCapabilities.VIRTUAL_ACCOUNT |
+                    AccountCapabilities.CLIENT_SANITIZED_HTML;
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.FOLDER_LIST_URI)) {
             values[colPosMap.get(UIProvider.AccountColumns.FOLDER_LIST_URI)] =
