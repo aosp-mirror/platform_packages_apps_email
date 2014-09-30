@@ -180,7 +180,7 @@
     <string name="account_setup_failed_auth_required" msgid="2684010997018901707">"प्रमाणीकरण की विधियां सर्वर द्वारा समर्थित नहीं हैं."</string>
     <string name="account_setup_failed_security" msgid="1627240499907011040">"सुरक्षा त्रुटि के कारण सर्वर से कनेक्‍शन नहीं खोल सका."</string>
     <string name="account_setup_failed_ioerror" msgid="3862689923436539909">"सर्वर से कनेक्शन खोला नहीं जा सका."</string>
-    <string name="account_setup_failed_protocol_unsupported" msgid="4973054582044010375">"आपने गलत सर्वर पता लिखा है या सर्वर को उस प्रोटोकॉल संस्‍करण की आवश्‍यकता है जिसका समर्थन ईमेल नहीं करता."</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="4973054582044010375">"आपने गलत सर्वर पता लिखा है या सर्वर को उस प्रोटोकॉल वर्शन की आवश्‍यकता है जिसका समर्थन ईमेल नहीं करता."</string>
     <string name="account_setup_failed_access_denied" msgid="2051742796367919026">"आपको इस सर्वर के साथ समन्वयित करने की अनुमति नहीं है. अधिक जानकारी के लिए अपने सर्वर के व्यवस्थापक से संपर्क करें."</string>
     <string name="account_setup_security_required_title" msgid="667943309546419435">"दूरस्‍थ सुरक्षा व्यवस्थापन"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="9029471168291631932">"सर्वर <xliff:g id="SERVER">%s</xliff:g> के लिए आवश्‍यक है कि आप अपने Android डिवाइस की कुछ सुरक्षा सुविधाओं को दूरस्थ रूप से नियंत्रित करने दें. क्‍या आप यह खाता सेट करना पूर्ण करना चाहते हैं?"</string>
