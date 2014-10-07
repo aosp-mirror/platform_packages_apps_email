@@ -59,7 +59,15 @@
 
     <!-- Navigation buttons on the account setup screens -->
     <style name="account_setup_nav_button">
-        <item name="android:background">@android:color/transparent</item>
+        <item name="android:layout_margin">@dimen/setup_nav_button_margin</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:paddingTop">@dimen/setup_nav_button_padding_top</item>
+        <item name="android:paddingLeft">@dimen/setup_nav_button_padding_side</item>
+        <item name="android:paddingRight">@dimen/setup_nav_button_padding_side</item>
+        <item name="android:paddingBottom">@dimen/setup_nav_button_padding_bottom</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+        <item name="android:textColor">@color/buttontext</item>
     </style>
 
     <!-- Cancel/Done buttons on the account settings (server settings) fragments -->
@@ -76,12 +84,6 @@
         <item name="android:textColor">@color/account_setup_info_text_color</item>
         <item name="android:fontFamily">sans-serif-thin</item>
         <item name="android:layout_marginBottom">@dimen/setup_info_text_margin_bottom</item>
-    </style>
-
-    <style name="account_setup_manual_button">
-        <item name="android:textSize">16sp</item>
-        <item name="android:textColor">@color/account_setup_manual_button_color</item>
-        <item name="android:alpha">0.4</item>
     </style>
 
     <!-- Account setup row label text -->

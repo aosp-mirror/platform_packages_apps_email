@@ -122,15 +122,6 @@ public class AccountSetupBasicsFragment extends AccountSetupFragment {
     public void setNextButtonEnabled(boolean enabled) {
         super.setNextButtonEnabled(enabled);
         mManualSetupView.setEnabled(enabled);
-        final float manualButtonAlpha;
-        if (enabled) {
-            manualButtonAlpha =
-                    getResources().getFraction(R.fraction.manual_setup_enabled_alpha, 1, 1);
-        } else {
-            manualButtonAlpha =
-                    getResources().getFraction(R.fraction.manual_setup_disabled_alpha, 1, 1);
-        }
-        mManualSetupView.setAlpha(manualButtonAlpha);
     }
 
     public void setEmail(final String email) {
