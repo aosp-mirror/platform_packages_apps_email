@@ -5882,16 +5882,26 @@ public class EmailProvider extends ContentProvider
             // TODO: This conditional is unnecessary, just two lines earlier we created
             // mSearchParams using a constructor that never sets mOffset.
             LogUtils.d(TAG, "deleting existing search results.");
-
-            // Delete existing contents of search mailbox
-            ContentResolver resolver = context.getContentResolver();
-            resolver.delete(Message.CONTENT_URI, MessageColumns.MAILBOX_KEY + "=" + searchMailboxId,
-                    null);
-            final ContentValues cv = new ContentValues(1);
+            final ContentResolver resolver = context.getContentResolver();
+            final ContentValues cv = new ContentValues(3);
             // For now, use the actual query as the name of the mailbox
             cv.put(Mailbox.DISPLAY_NAME, mSearchParams.mFilter);
+            // We are about to do a sync on this folder, but if the UI is refreshed before the
+            // service can start its query, we need it to see that there is a sync in progress.
+            // Otherwise it could show the empty state, until the service gets around to setting
+            // the syncState.
+            cv.put(Mailbox.SYNC_STATUS, EmailContent.SYNC_STATUS_LIVE);
+            // We don't know how many result we'll have yet, but we assume zero until we get
+            // a response back from the server. Otherwise, we'll whatever count there was on the
+            // previous search, and we'll display the "Load More" footer prior to having
+            // any results.
+            cv.put(Mailbox.TOTAL_COUNT, 0);
             resolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, searchMailboxId),
                     cv, null, null);
+
+            // Delete existing contents of search mailbox
+            resolver.delete(Message.CONTENT_URI, MessageColumns.MAILBOX_KEY + "=" + searchMailboxId,
+                    null);
         }
 
         // Start the search running in the background
