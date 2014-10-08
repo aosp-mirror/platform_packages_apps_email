@@ -73,7 +73,6 @@ public class AuthenticationView extends LinearLayout implements OnClickListener 
         super.onFinishInflate();
         mPasswordWrapper = UiUtilities.getView(this, R.id.password_wrapper);
         mOAuthWrapper = UiUtilities.getView(this, R.id.oauth_wrapper);
-        mNoAuthWrapper = UiUtilities.getView(this, R.id.no_auth_wrapper);
         mPasswordEdit = UiUtilities.getView(this, R.id.password_edit);
         mOAuthLabel =  UiUtilities.getView(this, R.id.oauth_label);
         mClearPasswordView = UiUtilities.getView(this, R.id.clear_password);
@@ -178,7 +177,7 @@ public class AuthenticationView extends LinearLayout implements OnClickListener 
                 // We're authenticated with OAuth.
                 mOAuthWrapper.setVisibility(View.VISIBLE);
                 mPasswordWrapper.setVisibility(View.GONE);
-                mNoAuthWrapper.setVisibility(View.GONE);
+                mAddAuthenticationView.setVisibility(View.GONE);
                 if (mPasswordLabel != null) {
                     mPasswordLabel.setVisibility(View.VISIBLE);
                 }
@@ -186,7 +185,7 @@ public class AuthenticationView extends LinearLayout implements OnClickListener 
                 // We're authenticated with a password.
                 mOAuthWrapper.setVisibility(View.GONE);
                 mPasswordWrapper.setVisibility(View.VISIBLE);
-                mNoAuthWrapper.setVisibility(View.GONE);
+                mAddAuthenticationView.setVisibility(View.GONE);
                 if (TextUtils.isEmpty(mPasswordEdit.getText())) {
                     mPasswordEdit.requestFocus();
                 }
@@ -195,7 +194,7 @@ public class AuthenticationView extends LinearLayout implements OnClickListener 
                 // We have no authentication, we need to allow either password or oauth.
                 mOAuthWrapper.setVisibility(View.GONE);
                 mPasswordWrapper.setVisibility(View.GONE);
-                mNoAuthWrapper.setVisibility(View.VISIBLE);
+                mAddAuthenticationView.setVisibility(View.VISIBLE);
             }
         } else {
             // We're using a POP or Exchange account, which does not offer oAuth.
@@ -205,7 +204,7 @@ public class AuthenticationView extends LinearLayout implements OnClickListener 
             }
             mOAuthWrapper.setVisibility(View.GONE);
             mPasswordWrapper.setVisibility(View.VISIBLE);
-            mNoAuthWrapper.setVisibility(View.GONE);
+            mAddAuthenticationView.setVisibility(View.GONE);
             mClearPasswordView.setVisibility(View.GONE);
             if (TextUtils.isEmpty(mPasswordEdit.getText())) {
                 mPasswordEdit.requestFocus();
