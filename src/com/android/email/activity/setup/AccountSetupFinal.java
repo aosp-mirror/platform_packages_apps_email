@@ -49,6 +49,7 @@ import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.SyncWindow;
+import com.android.mail.analytics.Analytics;
 import com.android.mail.providers.MailAppProvider;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.utils.LogUtils;
@@ -426,6 +427,13 @@ public class AccountSetupFinal extends AccountSetupActivity
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+
+        Analytics.getInstance().activityStart(this);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         if (mForceCreate) {
@@ -449,6 +457,13 @@ public class AccountSetupFinal extends AccountSetupActivity
                 mReportAccountAuthenticatorError);
         outState.putBoolean(SAVESTATE_KEY_IS_PRE_CONFIGURED, mIsPreConfiguredProvider);
         outState.putBoolean(SAVESTATE_KEY_PASSWORD_FAILED, mPasswordFailed);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        Analytics.getInstance().activityStop(this);
     }
 
     /**
