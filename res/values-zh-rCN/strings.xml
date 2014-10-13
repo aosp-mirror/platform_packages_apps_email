@@ -215,7 +215,6 @@
     <string name="mailbox_settings_sync_enabled_summary" msgid="742233465207750578">"连接到网络后下载邮件"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="7027516982341382326">"同步最近多少天的邮件"</string>
     <string name="provider_note_t_online" msgid="1596701148051980218">"在设置该电子邮件帐户之前，请访问T-Online网站创建密码，以便使用POP3电子邮件功能。"</string>
-    <string name="exchange_name" msgid="3793803477985438102">"公司"</string>
     <string name="exchange_name_alternate" msgid="293118547772095111">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="2248313263003927725">"无法创建帐户，请重试。"</string>
     <string name="device_admin_label" msgid="3335272972461391415">"电子邮件"</string>

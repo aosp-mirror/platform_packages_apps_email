@@ -215,7 +215,6 @@
     <string name="mailbox_settings_sync_enabled_summary" msgid="742233465207750578">"കണക്റ്റുചെയ്‌തിരിക്കുമ്പോൾ സന്ദേശങ്ങൾ ഡൗൺലോഡുചെയ്യും"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="7027516982341382326">"സമന്വയിപ്പിക്കേണ്ട മെയിൽ ദിവസം"</string>
     <string name="provider_note_t_online" msgid="1596701148051980218">"ഈ ഇമെയിൽ അക്കൗണ്ട് സജ്ജീകരിക്കുന്നതിന് മുമ്പാായി, ടി-ഓൺലൈൻ വെബ്‌സൈറ്റ് സന്ദർശിച്ച്  POP3 ഇമെയിൽ ആക്‌സസ്സിനായി ഒരു പാസ്‌വേഡ് സൃഷ്ടിക്കുക."</string>
-    <string name="exchange_name" msgid="3793803477985438102">"കോർപ്പറേറ്റ്"</string>
     <string name="exchange_name_alternate" msgid="293118547772095111">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="2248313263003927725">"അക്കൗണ്ട് സൃഷ്‌ടിക്കാനായില്ല. വീണ്ടും ശ്രമിക്കുക."</string>
     <string name="device_admin_label" msgid="3335272972461391415">"ഇമെയിൽ"</string>
