@@ -215,7 +215,6 @@
     <string name="mailbox_settings_sync_enabled_summary" msgid="742233465207750578">"Imilayezo izolanda uma kuxhunyiwe"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="7027516982341382326">"Izinsuku ze-imeyili ukuya ekuvumelaniseni"</string>
     <string name="provider_note_t_online" msgid="1596701148051980218">"Ngaphambi kokuhlela le-akhawunti ye-imeyili, sicela uvakashele Iwebhusayithi ye-T-Online bese wenza iphasiwedi ukufinyelela kwi-imeyili ye-POP3."</string>
-    <string name="exchange_name" msgid="3793803477985438102">"Inhlangano"</string>
     <string name="exchange_name_alternate" msgid="293118547772095111">"Ukuvumelanisa Okusebenzayo Kokushintshanisa kwe-Microsoft"</string>
     <string name="system_account_create_failed" msgid="2248313263003927725">"Ayikwazanga ukwenza i-akhawunti. Zama futhi."</string>
     <string name="device_admin_label" msgid="3335272972461391415">"I-imeyli"</string>

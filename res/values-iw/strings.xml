@@ -215,7 +215,6 @@
     <string name="mailbox_settings_sync_enabled_summary" msgid="742233465207750578">"לאחר שתחחבר תתבצע הורדה של ההודעות"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="7027516982341382326">"כמה ימי דואר לסנכרן"</string>
     <string name="provider_note_t_online" msgid="1596701148051980218">"‏לפני הגדרת חשבון אימייל זה, בקר באתר T-Online וצור סיסמה לגישה לאימייל מסוג POP3."</string>
-    <string name="exchange_name" msgid="3793803477985438102">"תאגידי"</string>
     <string name="exchange_name_alternate" msgid="293118547772095111">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="2248313263003927725">"לא ניתן ליצור את החשבון. נסה שוב."</string>
     <string name="device_admin_label" msgid="3335272972461391415">"אימייל"</string>

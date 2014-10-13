@@ -215,7 +215,6 @@
     <string name="mailbox_settings_sync_enabled_summary" msgid="742233465207750578">"जडान हुँदा सन्देशहरू डाउनलोड हुने छन्"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="7027516982341382326">"सिङ्क गर्नुपर्ने मेलका दिनहरू"</string>
     <string name="provider_note_t_online" msgid="1596701148051980218">"यो इमेल खाता सेट अप गर्नु अघि, टि-अनलाइन वेबसाइटको भ्रमण गर्नुहोस् र POP3 इमेल पहुँचको लागि एउटा पासवर्डको सिर्जना गर्नुहोस्।"</string>
-    <string name="exchange_name" msgid="3793803477985438102">"कर्पोरेट"</string>
     <string name="exchange_name_alternate" msgid="293118547772095111">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="2248313263003927725">"खाता सिर्जना गर्न सकिँदैन। पुन:प्रयास गर्नुहोस्।"</string>
     <string name="device_admin_label" msgid="3335272972461391415">"इमेल"</string>

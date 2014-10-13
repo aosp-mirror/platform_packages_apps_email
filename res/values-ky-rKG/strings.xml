@@ -288,8 +288,6 @@
     <string name="mailbox_settings_sync_enabled_summary" msgid="742233465207750578">"Туташканда билдирүүлөр жүктөп алышат"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="7027516982341382326">"Почтаны шайкештештирүү күндөрү"</string>
     <string name="provider_note_t_online" msgid="1596701148051980218">"Бул электрондук почта каттоо эсебин түзүүдөн мурун, T-Online вебсайтына өтүп, POP3 электрондук почтага кирүү мүмкүнчүлүгүн алуу үчүн сырсөз ойлоп табыңыз."</string>
-    <!-- no translation found for exchange_name (3793803477985438102) -->
-    <skip />
     <!-- no translation found for exchange_name_alternate (293118547772095111) -->
     <skip />
     <string name="system_account_create_failed" msgid="2248313263003927725">"Каттоо эсеби түзүлгөн жок. Дагы бир жолу аракет кылып көрүңүз."</string>

@@ -215,7 +215,6 @@
     <string name="mailbox_settings_sync_enabled_summary" msgid="742233465207750578">"សារ​នឹង​ទាញ​យក​នៅ​ពេល​​តភ្ជាប់"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="7027516982341382326">"ថ្ងៃ​ដែល​សំបុត្រ​​ត្រូវ​ធ្វើ​សម​កាល​កម្ម"</string>
     <string name="provider_note_t_online" msgid="1596701148051980218">"មុន​ពេល​រៀបចំ​គណនី​អ៊ីមែល​​នេះ សូម​​មើល​តំបន់​បណ្ដាញ T-Online ហើយ​​បង្កើត​ពាក្យ​សម្ងាត់​សម្រាប់​ចូល​ដំណើរ​ការ​អ៊ីមែល POP3 ។"</string>
-    <string name="exchange_name" msgid="3793803477985438102">"សហការ"</string>
     <string name="exchange_name_alternate" msgid="293118547772095111">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="2248313263003927725">"មិន​អាច​បង្កើត​គណនី​។ សូម​ព្យាយាម​ម្ដងទៀត។"</string>
     <string name="device_admin_label" msgid="3335272972461391415">"អ៊ីមែល"</string>

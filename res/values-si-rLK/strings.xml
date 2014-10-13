@@ -215,7 +215,6 @@
     <string name="mailbox_settings_sync_enabled_summary" msgid="742233465207750578">"සම්බන්ධ වූ විටදී පණිවිඩ බාගත වෙයි"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="7027516982341382326">"සමමුහුර්ත කළ යුතු තැපැල් සඳහා දින"</string>
     <string name="provider_note_t_online" msgid="1596701148051980218">"මෙම ඊ-තැපැල් ගිණුම සැකසීමට පෙර, T-Online වෙබ් අඩවිය වෙත ගොස් POP3 ඊ-තැපැල් පිව්සුම සඳහා මුරපදයක් සාදන්න."</string>
-    <string name="exchange_name" msgid="3793803477985438102">"සංස්ථාපිත"</string>
     <string name="exchange_name_alternate" msgid="293118547772095111">"Microsoft Exchange ක්‍රියාකාරී සමමුහුර්තය"</string>
     <string name="system_account_create_failed" msgid="2248313263003927725">"ගිණුම සෑදිය නොහැක. නැවත උත්සහ කරන්න."</string>
     <string name="device_admin_label" msgid="3335272972461391415">"ඊ-තැපෑල"</string>
