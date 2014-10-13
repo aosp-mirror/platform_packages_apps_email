@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -143,7 +144,7 @@ public class EmailNotificationController implements NotificationController {
                 .setContentText(contentText)
                 .setContentIntent(pending)
                 .setNumber(number == null ? 0 : number)
-                .setSmallIcon(R.drawable.ic_notification_mail_wht_24dp)
+                .setSmallIcon(R.drawable.ic_notification_mail_24dp)
                 .setWhen(mClock.getTime())
                 .setTicker(ticker)
                 .setOngoing(ongoing);
