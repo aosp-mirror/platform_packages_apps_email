@@ -40,6 +40,7 @@ import com.android.emailcommon.mail.Message;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.Credential;
+import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceProxy;
@@ -131,6 +132,26 @@ public class ImapStore extends Store {
 
     String getPassword() {
         return mPassword;
+    }
+
+    public boolean canSyncFolderType(final int type) {
+        switch (type) {
+            case Mailbox.TYPE_INBOX:
+            case Mailbox.TYPE_MAIL:
+            case Mailbox.TYPE_SENT:
+            case Mailbox.TYPE_TRASH:
+            case Mailbox.TYPE_JUNK:
+                return true;
+            case Mailbox.TYPE_NONE:
+            case Mailbox.TYPE_PARENT:
+            case Mailbox.TYPE_DRAFTS:
+            case Mailbox.TYPE_OUTBOX:
+            case Mailbox.TYPE_SEARCH:
+            case Mailbox.TYPE_STARRED:
+            case Mailbox.TYPE_UNREAD:
+            default:
+                return false;
+        }
     }
 
     @VisibleForTesting
@@ -373,6 +394,11 @@ public class ImapStore extends Store {
             // outside of #saveMailboxList()
             folder.mHash = mailbox.getHashes();
             // We must save this here to make sure we have a valid ID for later
+
+            // This is a newly created folder from the server. By definition, if it came from
+            // the server, it can be synched. We need to set the uiSyncStatus so that the UI
+            // will not try to display the empty state until the sync completes.
+            mailbox.mUiSyncStatus = EmailContent.SYNC_STATUS_INITIAL_SYNC_NEEDED;
             mailbox.save(mContext);
         }
         folder.mMailbox = mailbox;
