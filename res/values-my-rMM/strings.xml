@@ -238,6 +238,6 @@
     <string name="sent_folder_selection_title" msgid="9207482909822072856">"<xliff:g id="ACCOUNT">%s</xliff:g>အတွက် ဆာဗာမှ ပို့ချက်များ ဖိုလ်ဒါရွေး"</string>
     <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"ဖိုလ်ဒါ စာရင်းကို တင်နေ…"</string>
     <string name="no_quick_responses" msgid="8716297053803961304">"တစ်ခုမှ မရှိ"</string>
-    <string name="gmail_name" msgid="2099786953868369991">"Gmail"</string>
+    <string name="gmail_name" msgid="2099786953868369991">"ဂျီမေးလ်"</string>
     <string name="folder_sync_settings_pref_title" msgid="349478353401667107">"ဖိုလ်ဒါ စင့်က် ဆက်တင်များ"</string>
 </resources>
