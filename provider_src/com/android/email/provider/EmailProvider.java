@@ -5966,7 +5966,7 @@ public class EmailProvider extends ContentProvider
             // service can start its query, we need it to see that there is a sync in progress.
             // Otherwise it could show the empty state, until the service gets around to setting
             // the syncState.
-            cv.put(Mailbox.SYNC_STATUS, EmailContent.SYNC_STATUS_LIVE);
+            cv.put(Mailbox.UI_SYNC_STATUS, EmailContent.SYNC_STATUS_LIVE);
             // We don't know how many result we'll have yet, but we assume zero until we get
             // a response back from the server. Otherwise, we'll whatever count there was on the
             // previous search, and we'll display the "Load More" footer prior to having
