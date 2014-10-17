@@ -661,13 +661,20 @@ public class ImapStore extends Store {
     static class ImapException extends MessagingException {
         private static final long serialVersionUID = 1L;
 
+        private final String mStatus;
         private final String mAlertText;
         private final String mResponseCode;
 
-        public ImapException(String message, String alertText, String responseCode) {
+        public ImapException(String message, String status, String alertText,
+                String responseCode) {
             super(message);
+            mStatus = status;
             mAlertText = alertText;
             mResponseCode = responseCode;
+        }
+
+        public String getStatus() {
+            return mStatus;
         }
 
         public String getAlertText() {
