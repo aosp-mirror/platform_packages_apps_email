@@ -39,7 +39,7 @@
     <string name="mailbox_name_display_trash" msgid="7020792045007681852">"நீக்கப்பட்டவை"</string>
     <string name="mailbox_name_display_sent" msgid="6705058612006729985">"அனுப்பியவை"</string>
     <string name="mailbox_name_display_junk" msgid="1634126984313831675">"தேவையற்றவை"</string>
-    <string name="mailbox_name_display_starred" msgid="8076384721309828453">"நட்சத்திரமிட்டது"</string>
+    <string name="mailbox_name_display_starred" msgid="8076384721309828453">"நட்சத்திரமிட்டவை"</string>
     <string name="mailbox_name_display_unread" msgid="1453575937919310339">"படிக்காதவை"</string>
     <string name="account_folder_list_summary_inbox" msgid="6524816019350737506">"இன்பாக்ஸ்"</string>
     <string name="account_folder_list_summary_starred" msgid="1625089431195748236">"நட்சத்திரமிட்டது"</string>
