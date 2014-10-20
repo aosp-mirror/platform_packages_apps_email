@@ -19,7 +19,7 @@
     <string name="permission_read_attachment_label" msgid="6641407731311699536">"மின்னஞ்சல் இணைப்புகளைப் படி"</string>
     <string name="permission_read_attachment_desc" msgid="6579059616090100181">"உங்கள் மின்னஞ்சல் இணைப்புகளைப் படிக்க பயன்பாட்டை அனுமதிக்கிறது."</string>
     <string name="permission_access_provider_label" msgid="977700184037298723">"மின்னஞ்சல் வழங்குநர் தரவை அணுகு"</string>
-    <string name="permission_access_provider_desc" msgid="5338433949655493713">"பெறப்பட்ட மற்றும் அனுப்பிய செய்திகள், பயனர்பெயர்கள், கடவுச்சொற்கள் ஆகியவை உள்ளடங்கிய உங்கள் மின்னஞ்சல் தரவுத்தளத்தை அணுக பயன்பாட்டை அனுமதிக்கிறது."</string>
+    <string name="permission_access_provider_desc" msgid="5338433949655493713">"பெற்ற மற்றும் அனுப்பிய செய்திகள், பயனர்பெயர்கள், கடவுச்சொற்கள் ஆகியவை உள்ளடங்கிய உங்கள் மின்னஞ்சல் தரவுத்தளத்தை அணுக பயன்பாட்டை அனுமதிக்கிறது."</string>
     <string name="app_name" msgid="2206468539066258195">"மின்னஞ்சல்"</string>
     <string name="debug_title" msgid="1337476992195531309">"பிழைத்திருத்துக"</string>
     <string name="create_action" msgid="6575946089819721958">"புதியதை உருவாக்கு"</string>

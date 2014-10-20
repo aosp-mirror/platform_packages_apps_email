@@ -23,7 +23,7 @@
     <string name="app_name" msgid="2206468539066258195">"ईमेल"</string>
     <string name="debug_title" msgid="1337476992195531309">"डीबग करें"</string>
     <string name="create_action" msgid="6575946089819721958">"नया बनाएं"</string>
-    <string name="quick_responses_empty_view" msgid="3394094315357455290">"कोई त्वरित प्रतिसाद नहीं."</string>
+    <string name="quick_responses_empty_view" msgid="3394094315357455290">"कोई झटपट उत्तर नहीं."</string>
     <string name="account_settings_action" msgid="589969653965674604">"खाता सेटिंग"</string>
     <string name="status_network_error" msgid="526826323872477973">"कनेक्शन समस्या."</string>
   <plurals name="move_messages">
@@ -47,8 +47,8 @@
     <string name="account_folder_list_summary_outbox" msgid="5594504984407654721">"आउट-बॉक्स"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="4155918930481733669">"संयोजित दृश्‍य"</string>
     <string name="message_compose_fwd_header_fmt" msgid="6193988236722150221">\n\n"--------मूल संदेश --------\nविषय: <xliff:g id="SUBJECT">%1$s</xliff:g>\nप्रेषक: <xliff:g id="SENDER">%2$s</xliff:g>\nप्रति: <xliff:g id="TO">%3$s</xliff:g>\nCC: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
-    <string name="message_compose_insert_quick_response_list_title" msgid="5836926808818821309">"त्वरित प्रतिसाद सम्मिलित करें"</string>
-    <string name="message_compose_insert_quick_response_menu_title" msgid="4393288554605333619">"त्वरित प्रतिसाद सम्मिलित करें"</string>
+    <string name="message_compose_insert_quick_response_list_title" msgid="5836926808818821309">"झटपट उत्तर सम्मिलित करें"</string>
+    <string name="message_compose_insert_quick_response_menu_title" msgid="4393288554605333619">"झटपट उत्तर सम्मिलित करें"</string>
     <string name="message_view_attachment_background_load" msgid="7571652141281187845">"आपके द्वारा अग्रेषित संदेश को भेजने से पहले उसके एक या अधिक अटैचमेंट डाउनलोड किए जाएंगे."</string>
     <string name="attachment_not_found" msgid="5219773045406833000">"अटैचमेंट डाउनलोड नहीं किया जा सका."</string>
     <string name="message_decode_error" msgid="91396461771444300">"संदेश डीकोड करते समय कोई त्रुटि आई थी."</string>
@@ -98,7 +98,7 @@
     <string name="account_setup_check_settings_check_incoming_msg" msgid="9196418179524308411">"सर्वर सेटिंग सत्यापित की जा रही हैं…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="9062019904409225329">"smtp सेटिंग सत्यापित की जा रही हैं…"</string>
     <string name="account_setup_creating_account_msg" msgid="2898648422471181490">"खाता बना रहा है..."</string>
-    <string name="account_setup_ab_headline" msgid="1434091698882290052">"खाता प्रकार की पुष्टि करें"</string>
+    <string name="account_setup_ab_headline" msgid="1434091698882290052">"खाता प्रकार की दुबारा पूछें"</string>
     <string name="account_setup_ab_instructions_format" msgid="6223657094843768202">"आपने दर्शाया था कि <xliff:g id="EMAIL">%1$s</xliff:g> <xliff:g id="USERPROTOCOL">%2$s</xliff:g> का उपयोग करता है, लेकिन हो सकता है कि खाता <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g> का उपयोग करे"</string>
     <string name="account_setup_names_title" msgid="8780121351085082269">"खाता सेटअप"</string>
     <string name="account_setup_names_headline" msgid="2031978210683887370">"आपका खाता सेट हो गया है और शीघ्र ही ईमेल मिलने वाला है!"</string>
@@ -168,7 +168,7 @@
     <string name="account_setup_failed_dlg_auth_message" msgid="5608549872868036352">"उपयोगकर्ता नाम या पासवर्ड गलत है."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8811464534757505457">"प्रवेश विफल रहा.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_autodiscover_dlg_authfail_title" msgid="7551559109838593189">"खाता सेटअप के साथ समस्या"</string>
-    <string name="account_setup_autodiscover_dlg_authfail_message" msgid="4075075565221436715">"पुष्टि करें कि उपयोगकर्तानाम, पासवर्ड, और खाता सेटिंग सही हैं."</string>
+    <string name="account_setup_autodiscover_dlg_authfail_message" msgid="4075075565221436715">"दुबारा पूछें कि उपयोगकर्तानाम, पासवर्ड, और खाता सेटिंग सही हैं."</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="4725950885859654809">"सर्वर से सुरक्षित रूप से कनेक्‍ट नहीं हो सकता."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="3451681985727559303">"सर्वर से सुरक्षित रूप से कनेक्‍ट नहीं हो सकता.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="4607859382193244795">"एक क्लाइंट प्रमाणपत्र की आवश्यकता है. क्या आप क्लाइंट प्रमाणपत्र के साथ सर्वर से कनेक्ट होना चाहते हैं?"</string>
@@ -228,7 +228,7 @@
     <string name="account_settings_retry_summary" msgid="2598065993718592906">"इस खाते को समन्वयित करने के लिए यहां स्पर्श करें"</string>
     <string name="account_settings_description_label" msgid="2073736045984411004">"खाता नाम"</string>
     <string name="account_settings_name_label" msgid="8230436030850457988">"आपका नाम"</string>
-    <string name="account_settings_edit_quick_responses_label" msgid="6105791335935883199">"त्वरित प्रतिसाद"</string>
+    <string name="account_settings_edit_quick_responses_label" msgid="6105791335935883199">"झटपट उत्तर"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="5406599402930290682">"वह लेख संपादित करें जिसे आप अक्सर ईमेल लिखते समय शामिल करते हैं"</string>
     <string name="account_settings_notifications" msgid="2842952349214972116">"सूचना सेटिंग"</string>
     <string name="account_settings_data_usage" msgid="6400715160238559711">"डेटा उपयोग"</string>
@@ -240,12 +240,12 @@
     <string name="system_folders_sent_title" msgid="8792934374188279309">"भेजे गए आइटम फ़ोल्डर"</string>
     <string name="system_folders_sent_summary" msgid="4252740721870748375">"अपने सर्वर का भेजे गए आइटम फ़ोल्डर चुनें"</string>
     <string name="system_folders_sent_dlg" msgid="818944260541160146">"अपने सर्वर का भेजे गए आइटम फ़ोल्डर चुनें"</string>
-    <string name="edit_quick_response_dialog" msgid="3048014284772648575">"त्वरित प्रतिसाद"</string>
+    <string name="edit_quick_response_dialog" msgid="3048014284772648575">"झटपट उत्तर"</string>
     <string name="save_action" msgid="5740359453077441466">"सहेजें"</string>
     <string name="account_settings_sync_contacts_enable" msgid="2642448079273767521">"संपर्कों को समन्वयन करें"</string>
     <string name="account_settings_sync_contacts_summary" msgid="1716022682035150630">"इस खाते के लिए संपर्क समन्वयन करें"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3172491863244160828">"कैलेंडर समन्वयन करें"</string>
-    <string name="account_settings_sync_calendar_summary" msgid="411960248618953311">"इस खाता हेतु कैलें. इवेंट समन्व. करें"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="411960248618953311">"इस खाता के लिए कैलें. इवेंट समन्व. करें"</string>
     <string name="account_settings_sync_email_enable" msgid="7135765408226471860">"ईमेल समन्‍वयित करें"</string>
     <string name="account_settings_sync_email_summary" msgid="71710510041953351">"इस खाते के लिए ईमेल समन्वयन करें"</string>
     <string name="account_settings_vibrate_when_label" msgid="361069844540266098">"कंपन"</string>
@@ -288,7 +288,7 @@
     <string name="pop3_name" msgid="1235910677527117862">"POP3"</string>
     <string name="folder_picker_title" msgid="5906275472176731605">"फ़ोल्डर पिकर"</string>
     <string name="trash_folder_selection_title" msgid="686039558899469073">"<xliff:g id="ACCOUNT">%s</xliff:g> का सर्वर मिटाया हुआ फ़ोल्डर चुनें"</string>
-    <string name="sent_folder_selection_title" msgid="9207482909822072856">"<xliff:g id="ACCOUNT">%s</xliff:g> हेतु सर्वर प्रेषित आइटम फ़ोल्डर चुनें"</string>
+    <string name="sent_folder_selection_title" msgid="9207482909822072856">"<xliff:g id="ACCOUNT">%s</xliff:g> के लिए सर्वर प्रेषित आइटम फ़ोल्डर चुनें"</string>
     <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"फ़ोल्डर सूची लोड कर रहा है…"</string>
     <string name="no_quick_responses" msgid="8716297053803961304">"कोई भी उपलब्ध नहीं"</string>
     <string name="gmail_name" msgid="2099786953868369991">"Gmail"</string>
