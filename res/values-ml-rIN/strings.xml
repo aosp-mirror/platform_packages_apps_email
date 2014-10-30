@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2008 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permission_read_attachment_label" msgid="6641407731311699536">"ഇമെയിൽ അറ്റാച്ചുമെന്റുകൾ റീഡുചെയ്യുക"</string>
+    <string name="permission_read_attachment_desc" msgid="6579059616090100181">"നിങ്ങളുടെ ഇമെയിൽ അറ്റാച്ചുമെന്റുകൾ റീഡുചെയ്യാൻ അപ്ലിക്കേഷനെ അനുവദിക്കുന്നു."</string>
+    <string name="permission_access_provider_label" msgid="977700184037298723">"ഇമെയിൽ ദാതാവിന്റെ ഡാറ്റ ആക്‌സസ്സുചെയ്യുക"</string>
+    <string name="permission_access_provider_desc" msgid="5338433949655493713">"ലഭിച്ച സന്ദേശങ്ങളും അയച്ച സന്ദേശങ്ങളും ഉപയോക്തൃനാമങ്ങളും പാസ്‌വേഡുകളും ഉൾപ്പെടെ നിങ്ങളുടെ ഇമെയിൽ ഡാറ്റാബേസ് ആക്സസ്സുചെയ്യാൻ അപ്ലിക്കേഷനെ അനുവദിക്കുന്നു."</string>
+    <string name="app_name" msgid="2206468539066258195">"ഇമെയിൽ"</string>
+    <string name="debug_title" msgid="1337476992195531309">"ഡീബഗ്"</string>
+    <string name="create_action" msgid="6575946089819721958">"പുതിയത് സൃഷ്‌ടിക്കുക"</string>
+    <string name="quick_responses_empty_view" msgid="3394094315357455290">"ദ്രുത പ്രതികരണങ്ങളൊന്നുമില്ല."</string>
+    <string name="account_settings_action" msgid="589969653965674604">"അക്കൗണ്ട് ക്രമീകരണങ്ങൾ"</string>
+    <string name="status_network_error" msgid="526826323872477973">"കണക്ഷൻ പ്രശ്‌നം."</string>
+  <plurals name="move_messages">
+    <item quantity="one" msgid="3431489066510898753">"സന്ദേശം നീക്കുക"</item>
+    <item quantity="other" msgid="5083310421670206821">"സന്ദേശങ്ങൾ നീക്കുക"</item>
+  </plurals>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="1687394290312755846">"POP3 അക്കൗണ്ടുകളിൽ നീക്കുന്നതിനെ പിന്തുണയ്‌ക്കുന്നില്ല."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="1032577153519440211">"തിരഞ്ഞെടുത്തതിൽ ഒന്നിലധികം അക്കൗണ്ടുകൾ ഉള്ളതിനാൽ നീക്കാനാകില്ല."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="3758109129023839909">"ഡ്രാഫ്റ്റുകൾ, ഔട്ട്‌ബോക്‌സ്, അയച്ചവ എന്നിവയിലെ സന്ദേശങ്ങൾ നീക്കാനാകില്ല."</string>
+    <string name="mailbox_name_display_inbox" msgid="5093068725739672126">"ഇന്‍ബോക്‌സ്"</string>
+    <string name="mailbox_name_display_outbox" msgid="8735725798805339414">"ഔട്ട്ബോക്സ്"</string>
+    <string name="mailbox_name_display_drafts" msgid="3552043116466269581">"ഡ്രാഫ്‌റ്റുകൾ"</string>
+    <string name="mailbox_name_display_trash" msgid="7020792045007681852">"ട്രാഷ്"</string>
+    <string name="mailbox_name_display_sent" msgid="6705058612006729985">"അയച്ചവ"</string>
+    <string name="mailbox_name_display_junk" msgid="1634126984313831675">"ജങ്ക്"</string>
+    <string name="mailbox_name_display_starred" msgid="8076384721309828453">"നക്ഷത്രമിട്ടവ"</string>
+    <string name="mailbox_name_display_unread" msgid="1453575937919310339">"വായിക്കാത്തവ"</string>
+    <string name="account_folder_list_summary_inbox" msgid="6524816019350737506">"ഇന്‍ബോക്‌സ്"</string>
+    <string name="account_folder_list_summary_starred" msgid="1625089431195748236">"നക്ഷത്രമിട്ടവ"</string>
+    <string name="account_folder_list_summary_drafts" msgid="4050225674547841762">"ഡ്രാഫ്‌റ്റുകൾ"</string>
+    <string name="account_folder_list_summary_outbox" msgid="5594504984407654721">"ഔട്ട്ബോക്സ്"</string>
+    <string name="mailbox_list_account_selector_combined_view" msgid="4155918930481733669">"സംയോജിത കാഴ്‌ച"</string>
+    <string name="message_compose_fwd_header_fmt" msgid="6193988236722150221">\n\n"-------- യഥാർത്ഥ സന്ദേശം --------\nവിഷയം: <xliff:g id="SUBJECT">%1$s</xliff:g>\nഅയച്ചയാൾ: <xliff:g id="SENDER">%2$s</xliff:g>\nസ്വീകർത്താവ്: <xliff:g id="TO">%3$s</xliff:g>\nCC: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_insert_quick_response_list_title" msgid="5836926808818821309">"ദ്രുത പ്രതികരണം ചേർക്കുക"</string>
+    <string name="message_compose_insert_quick_response_menu_title" msgid="4393288554605333619">"ദ്രുത പ്രതികരണം ചേർക്കുക"</string>
+    <string name="message_view_attachment_background_load" msgid="7571652141281187845">"നിങ്ങൾ കൈമാറിയ സന്ദേശത്തിലെ ഒന്നോ അതിലധികമോ അറ്റാച്ചുമെന്റുകൾ അയയ്ക്കുന്നതിന് മുമ്പ് ഡൗൺലോഡുചെയ്യപ്പെടും."</string>
+    <string name="attachment_not_found" msgid="5219773045406833000">"അറ്റാച്ചുമെന്റ് ഡൗൺലോഡുചെയ്യാനായില്ല."</string>
+    <string name="message_decode_error" msgid="91396461771444300">"സന്ദേശം ഡീകോഡുചെയ്യുമ്പോൾ ഒരു പിശകുണ്ടായി."</string>
+    <string name="forward_download_failed_ticker" msgid="2900585518884851062">"ഒന്നോ അതിലധികമോ അറ്റാച്ചുമെന്റുകൾ കൈമാറാനായില്ല."</string>
+    <string name="forward_download_failed_title" msgid="2043036709913723298">"അറ്റാച്ചുമെന്റ് കൈമാറിയില്ല"</string>
+    <string name="login_failed_ticker" msgid="4620839194581484497">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> സൈൻ ഇൻ ചെയ്‌തു."</string>
+    <string name="login_failed_title" msgid="1737884069957090004">"സൈൻ ഇൻ ചെയ്യാനായില്ല"</string>
+  <plurals name="message_view_attachment_bytes">
+    <item quantity="one" msgid="884086921379532485">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
+    <item quantity="other" msgid="1883360269853654045">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
+  </plurals>
+  <plurals name="message_view_attachment_kilobytes">
+    <item quantity="one" msgid="7735927556589634941">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g>KB"</item>
+    <item quantity="other" msgid="7476806336055136146">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g>KB"</item>
+  </plurals>
+  <plurals name="message_view_attachment_megabytes">
+    <item quantity="one" msgid="7755624135347953938">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g>MB"</item>
+    <item quantity="other" msgid="3317120193748830799">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g>MB"</item>
+  </plurals>
+  <plurals name="message_view_attachment_gigabytes">
+    <item quantity="one" msgid="5180812866869430241">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
+    <item quantity="other" msgid="1607574223219436099">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
+  </plurals>
+    <string name="account_setup_basics_title" msgid="5050895656741229172">"അക്കൗണ്ട് സജ്ജീകരണം"</string>
+    <string name="oauth_authentication_title" msgid="3771260531636603518">"അംഗീകാരം അഭ്യർത്ഥിക്കുന്നു"</string>
+    <string name="sign_in_title" msgid="5051852806423550830">"സൈൻ ഇൻ ചെയ്യുക"</string>
+    <string name="oauth_error_description" msgid="8466102021844409849">"പ്രമാണീകരിക്കാനാകുന്നില്ല"</string>
+    <string name="password_warning_label" msgid="1887439537224212124">"ഇമെയിൽ വിലാസമോ പാസ്‌വേഡോ തെറ്റാണ്"</string>
+    <string name="email_confirmation_label" msgid="64258748053106017">"ഇമെയില്‍ വിലാസം:"</string>
+    <string name="account_setup_basics_headline" msgid="8468280216822264643">"ഇമെയിൽ അക്കൗണ്ട്"</string>
+    <string name="accounts_welcome" msgid="7230367425520242593">"കുറച്ചുമാത്രം ഘട്ടങ്ങളിലൂടെ നിങ്ങളുടെ അക്കൗണ്ടിനായി ഇമെയിൽ സജ്ജീകരിക്കാനാകും."</string>
+    <string name="account_setup_basics_email_label" msgid="8701406783555749929">"ഇമെയിൽ വിലാസം"</string>
+    <string name="or_label" msgid="6408695162723653446">"അല്ലെങ്കിൽ"</string>
+    <string name="sign_in_with_google" msgid="1412668282326928102">"Google ഉപയോഗിച്ച് സൈൻ ഇൻ ചെയ്യുക"</string>
+    <string name="account_setup_basics_password_label" msgid="784962388753706730">"പാസ്‌വേഡ്"</string>
+    <string name="password_hint" msgid="4226682910292828279">"പാസ്‌വേഡ്"</string>
+    <string name="signed_in_with_service_label" msgid="4282359206358453634">"%s ഉപയോഗിച്ച് സൈൻ ഇൻ ചെയ്‌തു"</string>
+    <string name="authentication_label" msgid="914463525214987772">"പ്രമാണീകരണം"</string>
+    <string name="add_authentication_label" msgid="382998197798081729">"പ്രാമാണീകരണം ചേർക്കുക"</string>
+    <string name="clear_authentication_label" msgid="4750930803913225689">"പ്രാമാണീകരണം മായ്‌ക്കുക"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="7690861839383362085">"സ്വമേധയാലുള്ള സജ്ജീകരണം"</string>
+    <string name="account_setup_username_password_toast" msgid="3659744829670065777">"ഒരു സാധുവായ ഇമെയിൽ വിലാസവും പാസ്‌വേഡും ടൈപ്പുചെയ്യുക."</string>
+    <string name="account_duplicate_dlg_title" msgid="3768813340753269695">"തനിപ്പകർപ്പ് അക്കൗണ്ട്"</string>
+    <string name="account_duplicate_dlg_message_fmt" msgid="6747351773934787126">"\"<xliff:g id="DUPLICATE">%s</xliff:g>\" എന്ന അക്കൗണ്ടിനായി നിങ്ങൾ ഇതിനകം ഈ ഉപയോക്തൃനാമം ഉപയോഗിക്കുന്നു."</string>
+    <string name="account_password_spaces_error" msgid="1035535222734047745">"ഈ പാസ്‌വേഡ് ഒന്നോ അതിലധികമോ സ്‌പെയ്‌സ് പ്രതീകങ്ങൾ ഉപയോഗിച്ച് ആരംഭിക്കുകയോ അവസാനിക്കുകയോ ചെയ്യുന്നു. മിക്ക സെർവറുകളും സ്‌പെയ്‌സുകളുള്ള പാസ്‌വേഡുകളെ പിന്തുണയ്‌ക്കില്ല."</string>
+    <string name="account_setup_check_settings_retr_info_msg" msgid="9103280616618316032">"അക്കൗണ്ട് വിവരം വീണ്ടെടുക്കുന്നു…"</string>
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="9196418179524308411">"സെർവർ ക്രമീകരണങ്ങൾ മൂല്യനിർണ്ണയം ചെയ്യുന്നു…"</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="9062019904409225329">"smtp ക്രമീകരണങ്ങൾ മൂല്യനിർണ്ണയം ചെയ്യുന്നു…"</string>
+    <string name="account_setup_creating_account_msg" msgid="2898648422471181490">"അക്കൗണ്ട് സൃഷ്‌ടിക്കുന്നു…"</string>
+    <string name="account_setup_ab_headline" msgid="1434091698882290052">"അക്കൗണ്ട് തരം സ്ഥിരീകരിക്കുക"</string>
+    <string name="account_setup_ab_instructions_format" msgid="6223657094843768202">"<xliff:g id="USERPROTOCOL">%2$s</xliff:g> ആണ് <xliff:g id="EMAIL">%1$s</xliff:g> ഉപയോഗിക്കുന്നതെന്ന് നിങ്ങൾ സൂചിപ്പിച്ചു, എന്നാൽ അക്കൗണ്ട് <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g> എന്നത് ഉപയോഗിച്ചേക്കാം"</string>
+    <string name="account_setup_names_title" msgid="8780121351085082269">"അക്കൗണ്ട് സജ്ജീകരണം"</string>
+    <string name="account_setup_names_headline" msgid="2031978210683887370">"നിങ്ങളുടെ അക്കൗണ്ട് സജ്ജീകരിച്ചു, ഇമെയിൽ ഉടൻ ലഭിച്ചുതുടങ്ങും!"</string>
+    <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"ഈ അക്കൗണ്ടിന് ഒരു പേര് നൽകുക (ഓപ്‌ഷണൽ)"</string>
+    <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"നിങ്ങളുടെ പേര് (ഔട്ട്ഗോയിംഗ് സന്ദേശങ്ങളിൽ പ്രദർശിപ്പിച്ചിരിക്കുന്നു)"</string>
+    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"ഈ ഫീൽഡ് ശൂന്യമായിടരുത്."</string>
+    <string name="account_setup_account_type_title" msgid="7081511430549429621">"അക്കൗണ്ട് സജ്ജീകരണം"</string>
+    <string name="account_setup_account_type_headline" msgid="3375795537675351389">"അക്കൗണ്ട് തരം"</string>
+    <string name="account_setup_account_type_instructions" msgid="968088954656738617">"ഇത് എന്തുതരം അക്കൗണ്ടാണ്?"</string>
+    <string name="account_setup_incoming_title" msgid="7743750350830383718">"അക്കൗണ്ട് സജ്ജീകരണം"</string>
+    <string name="account_setup_incoming_headline" msgid="6232828824446177639">"ഇൻകമിംഗ് സെർവർ ക്രമീകരണങ്ങൾ"</string>
+    <string name="account_setup_incoming_username_label" msgid="2609699829997945895">"ഉപയോക്തൃനാമം"</string>
+    <string name="account_setup_incoming_password_label" msgid="4806105500058512876">"പാസ്‌വേഡ്"</string>
+    <string name="account_setup_password_subheading" msgid="5930042642982830233">"പാസ്‌വേഡ്"</string>
+    <string name="account_setup_incoming_server_label" msgid="5409694850973258387">"സെർവർ"</string>
+    <string name="account_setup_incoming_port_label" msgid="402562424498833560">"പോർട്ട്"</string>
+    <string name="account_setup_incoming_security_label" msgid="8360505617331971663">"സുരക്ഷ തരം"</string>
+    <string name="account_setup_incoming_security_none_label" msgid="2461510827337484818">"ഒന്നുമില്ല"</string>
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="2834386066577239560">"SSL/TLS (എല്ലാ സർട്ടിഫിക്കറ്റുകളും അംഗീകരിക്കുന്നു)"</string>
+    <string name="account_setup_incoming_security_ssl_label" msgid="5169133414545009342">"SSL/TLS"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2281920902104029077">"STARTTLS (എല്ലാ സർട്ടിഫിക്കറ്റുകളും അംഗീകരിക്കുന്നു)"</string>
+    <string name="account_setup_incoming_security_tls_label" msgid="3892291833944170882">"STARTTLS"</string>
+    <string name="account_setup_incoming_delete_policy_label" msgid="2341742235654301690">"സെർവറിൽ നിന്നും ഇമെയിൽ ഇല്ലാതാക്കുക"</string>
+    <string name="account_setup_incoming_delete_policy_never_label" msgid="5777530843489961009">"ഒരിക്കലുമില്ല"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label" msgid="8677018382715596606">"ഞാൻ ഇൻബോക്‌സിൽ നിന്നും ഇല്ലാതാക്കുമ്പോൾ"</string>
+    <string name="account_setup_incoming_imap_path_prefix_label" msgid="3531290378620033218">"IMAP പാത്ത് പ്രീഫിക്സ്"</string>
+    <string name="account_setup_incoming_imap_path_prefix_hint" msgid="206747922689229932">"ഓപ്‌ഷണൽ"</string>
+    <string name="account_setup_outgoing_title" msgid="2808821899038184783">"അക്കൗണ്ട് സജ്ജീകരണം"</string>
+    <string name="account_setup_outgoing_headline" msgid="6638171491109658047">"ഔട്ട്‌ഗോയിംഗ് സെർവർ ക്രമീകരണങ്ങൾ"</string>
+    <string name="account_setup_outgoing_smtp_server_label" msgid="3460163861711242681">"SMTP സെർവർ"</string>
+    <string name="account_setup_outgoing_port_label" msgid="3735952013505812378">"പോർട്ട്"</string>
+    <string name="account_setup_outgoing_security_label" msgid="6473177134731615282">"സുരക്ഷ തരം"</string>
+    <string name="account_setup_outgoing_require_login_label" msgid="5405196721947884033">"സൈൻ ഇൻ ആവശ്യമാണ്"</string>
+    <string name="account_setup_outgoing_username_label" msgid="8844680398828891772">"ഉപയോക്തൃനാമം"</string>
+    <string name="account_setup_outgoing_password_label" msgid="112570779839746136">"പാസ്‌വേഡ്"</string>
+    <string name="account_setup_exchange_certificate_title" msgid="8756785660598838350">"ക്ലയന്റ് സർട്ടിഫിക്കറ്റ്"</string>
+    <string name="account_setup_exchange_select_certificate" msgid="264748505181695915">"തിരഞ്ഞെടുക്കുക"</string>
+    <string name="account_setup_exchange_use_certificate" msgid="6513687497912094538">"ക്ലയന്റ് സർട്ടിഫിക്കറ്റ് ഉപയോഗിക്കുക"</string>
+    <string name="account_setup_exchange_remove_certificate" msgid="1222387802827919583">"നീക്കംചെയ്യുക"</string>
+    <string name="account_setup_exchange_no_certificate" msgid="3569712401698909695">"ഒന്നുമില്ല"</string>
+    <string name="account_setup_exchange_device_id_label" msgid="2306603503497194905">"മൊബൈൽ ഐഡി"</string>
+    <string name="account_setup_options_title" msgid="3274463434235489134">"അക്കൗണ്ട് ക്രമീകരണങ്ങൾ"</string>
+    <string name="account_setup_options_headline" msgid="4810292194395251968">"അക്കൗണ്ട് ഓപ്‌ഷനുകൾ"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="7253305392938373553">"സമന്വയ ആവൃത്തി:"</string>
+    <string name="account_setup_options_mail_check_frequency_never" msgid="2937664246354067829">"ഒരിക്കലുമില്ല"</string>
+    <string name="account_setup_options_mail_check_frequency_push" msgid="5511415696925307797">"യാന്ത്രികം (പുഷ് ചെയ്യുക)"</string>
+    <string name="account_setup_options_mail_check_frequency_5min" msgid="8929785860545198867">"ഓരോ 5 മിനിറ്റിലും"</string>
+    <string name="account_setup_options_mail_check_frequency_10min" msgid="8787901333816702849">"ഓരോ 10 മിനിറ്റിലും"</string>
+    <string name="account_setup_options_mail_check_frequency_15min" msgid="7127640170766018765">"ഓരോ 15 മിനിറ്റിലും"</string>
+    <string name="account_setup_options_mail_check_frequency_30min" msgid="4223562871143897449">"ഓരോ 30 മിനിറ്റിലും"</string>
+    <string name="account_setup_options_mail_check_frequency_1hour" msgid="107706566853925273">"ഓരോ മണിക്കൂറും"</string>
+    <string name="account_setup_options_notify_label" msgid="3101529443722198112">"ഇമെയിൽ ലഭിക്കുമ്പോൾ എന്നെ അറിയിക്കുക"</string>
+    <string name="account_setup_options_sync_contacts_label" msgid="5029046373980454714">"ഈ അക്കൗണ്ടിൽ നിന്നും കോൺടാക്റ്റുകൾ സമന്വയിപ്പിക്കുക"</string>
+    <string name="account_setup_options_sync_calendar_label" msgid="303441956432308807">"ഈ അക്കൗണ്ടിൽ നിന്നും കലണ്ടർ സമന്വയിപ്പിക്കുക"</string>
+    <string name="account_setup_options_sync_email_label" msgid="468957966555663131">"ഈ അക്കൗണ്ടിൽ നിന്നും ഇമെയിൽ സമന്വയിപ്പിക്കുക"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="4085327585082867216">"Wi-Fi യിൽ കണക്റ്റുചെയ്‌തിരിക്കുമ്പോൾ അറ്റാച്ചുമെന്റുകൾ യാന്ത്രികമായി ഡൗൺലോഡുചെയ്യുക"</string>
+    <string name="account_setup_failed_dlg_title" msgid="7923577224474005464">"പൂർത്തിയാക്കാനായില്ല"</string>
+    <string name="account_setup_options_mail_window_label" msgid="4737241149297585368">"ഇതിൽ നിന്ന് ഇമെയിലുകൾ സമന്വയിപ്പിക്കുക:"</string>
+    <string name="account_setup_options_mail_window_auto" msgid="7407981634952005775">"യാന്ത്രികം"</string>
+    <string name="account_setup_options_mail_window_1day" msgid="7930883294844418428">"അവസാന ദിവസം"</string>
+    <string name="account_setup_options_mail_window_3days" msgid="3435093562391555730">"കഴിഞ്ഞ മൂന്നുദിവസം"</string>
+    <string name="account_setup_options_mail_window_1week" msgid="5230695719358085318">"കഴിഞ്ഞ ആഴ്‌ച"</string>
+    <string name="account_setup_options_mail_window_2weeks" msgid="1144271277694832921">"കഴിഞ്ഞ രണ്ട് ആഴ്‌ച"</string>
+    <string name="account_setup_options_mail_window_1month" msgid="3228265299330513816">"കഴിഞ്ഞ മാസം"</string>
+    <string name="account_setup_options_mail_window_all" msgid="4794683936065721438">"എല്ലാം"</string>
+    <string name="account_setup_options_mail_window_default" msgid="5518038139722596598">"അക്കൗണ്ട് സ്ഥിരമായത് ഉപയോഗിക്കുക"</string>
+    <string name="account_setup_failed_dlg_auth_message" msgid="5608549872868036352">"ഉപയോക്തൃനാമമോ പാസ്‌വേഡോ തെറ്റാണ്."</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8811464534757505457">"ലോഗിൻ പരാജയപ്പെട്ടു.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_autodiscover_dlg_authfail_title" msgid="7551559109838593189">"അക്കൗണ്ട് സജ്ജീകരണത്തിൽ പ്രശ്‌നമുണ്ട്"</string>
+    <string name="account_setup_autodiscover_dlg_authfail_message" msgid="4075075565221436715">"ഉപയോക്തൃനാമവും പാസ്‌വേഡും അക്കൗണ്ട് ക്രമീകരണങ്ങളും ശരിയാണെന്ന് സ്ഥിരീകരിക്കുക."</string>
+    <string name="account_setup_failed_dlg_certificate_message" msgid="4725950885859654809">"സെർവറിലേക്ക് സുരക്ഷിതമായി കണക്റ്റുചെയ്യാനാകില്ല."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="3451681985727559303">"സെർവറിലേക്ക് സുരക്ഷിതമായി കണക്റ്റുചെയ്യാനാകില്ല.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_certificate_required" msgid="4607859382193244795">"ഒരു ക്ലയന്റ് സർട്ടിഫിക്കറ്റ് ആവശ്യമാണ്. ഒരു ക്ലയന്റ് സർട്ടിഫിക്കറ്റ് ഉപയോഗിച്ച് സെർവറിൽ കണക്റ്റുചെയ്യേണ്ടതുണ്ടോ?"</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="4574461885959029072">"സർട്ടിഫിക്കറ്റ് അസാധുവോ ആക്‌സസ്സുചെയ്യാനാകാത്തതോ ആണ്."</string>
+    <string name="account_setup_failed_check_credentials_message" msgid="430054384233036305">"സെർവർ പ്രതികരണത്തിൽ പിശക്. നിങ്ങളുടെ ഉപയോക്തൃനാമവും പാസ്‌വേഡും പരിശോധിച്ചതിനുശേഷം വീണ്ടും ശ്രമിക്കുക."</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="1180197172141077524">"സെർവറിലേക്ക് കണക്റ്റുചെയ്യാനാകില്ല."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="3889441611138037320">"സെർവറിലേക്ക് കണക്റ്റുചെയ്യാനായില്ല.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_tls_required" msgid="1902309158359287958">"TLS ആവശ്യമാണെങ്കിലും സെർവർ പിന്തുണയ്‌ക്കുന്നില്ല."</string>
+    <string name="account_setup_failed_auth_required" msgid="2684010997018901707">"പ്രാമാണീകരണ രീതികളെ സെർവർ പിന്തുണയ്‌ക്കുന്നില്ല."</string>
+    <string name="account_setup_failed_security" msgid="1627240499907011040">"സുരക്ഷാ പിശകിനാൽ സെർവറിലേക്ക് കണക്ഷൻ തുറക്കാനായില്ല."</string>
+    <string name="account_setup_failed_ioerror" msgid="3862689923436539909">"സെർവറിലേക്ക് കണക്ഷൻ തുറക്കാനായില്ല."</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="4973054582044010375">"നിങ്ങൾ തെറ്റായ സെർവർ വിലാസം ടൈപ്പുചെയ്‌തു, അല്ലെങ്കിൽ സെർവറിന് ഇമെയിൽ പിന്തുണയ്‌ക്കാത്ത ഒരു പ്രോട്ടോക്കോൾ പതിപ്പ് ആവശ്യമാണ്."</string>
+    <string name="account_setup_failed_access_denied" msgid="2051742796367919026">"ഈ സെർവറുമായി സമന്വയിപ്പിക്കാൻ നിങ്ങൾക്ക് അനുമതിയില്ല. കൂടുതൽ വിവരങ്ങൾക്ക് നിങ്ങളുടെ സെർവറിന്റെ അഡ്‌മിനിസ്‌ട്രേറ്ററെ ബന്ധപ്പെടുക."</string>
+    <string name="account_setup_security_required_title" msgid="667943309546419435">"വിദൂര സുരക്ഷാ അഡ്‌മിനിസ്‌ട്രേഷൻ"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="9029471168291631932">"<xliff:g id="SERVER">%s</xliff:g> എന്ന സെർവറിന്, നിങ്ങളുടെ Android ഉപകരണത്തിന്റെ ചില സുരക്ഷാ സവിശേഷതകൾ വിദൂരമായി നിയന്ത്രിക്കാൻ അനുവദിക്കേണ്ടത് ആവശ്യമാണ്. ഈ അക്കൗണ്ട് സജ്ജീകരിക്കുന്നത് പൂർത്തിയാക്കണോ?"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="4619685657253094627">"ഈ സെർവറിന്, ഇനിപ്പറയുന്നവയുൾപ്പെടുന്ന Android ഉപകരണം പിന്തുണയ്‌ക്കാത്ത സുരക്ഷാ സവിശേഷതകൾ ആവശ്യമാണ്: <xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_username_uneditable_error" msgid="3607769783124215764">"നിങ്ങൾക്ക് ഒരു അക്കൗണ്ടിന്റെ ഉപയോക്തൃനാമം മാറ്റാനാകില്ല. മറ്റൊരു ഉപയോക്തൃനാമം ഉപയോഗിച്ച് ഒരു അക്കൗണ്ട് ചേർക്കാൻ, അക്കൗണ്ട് ചേർക്കുക സ്പർശിക്കുക."</string>
+    <string name="disable_admin_warning" msgid="6001542250505146252">"മുന്നറിയിപ്പ്: നിങ്ങളുടെ ഉപകരണത്തെ നിയന്ത്രിക്കാനുള്ള ഇമെയിൽ അപ്ലിക്കേഷന്റെ അധികാരം നിർജ്ജീവമാക്കുന്നത്, അത് ആവശ്യമായ എല്ലാ ഇമെയിൽ അക്കൗണ്ടുകളേയും അവയിലെ ഇമെയിലുകൾ, കോൺടാക്റ്റുകൾ, കലണ്ടർ ഇവന്റുകൾ, മറ്റ് ഡാറ്റ എന്നിവയേയും ഇല്ലാതാക്കും."</string>
+    <string name="account_security_dialog_title" msgid="7003032393805438164">"സുരക്ഷാ അപ്ഡേറ്റ്"</string>
+    <string name="account_security_dialog_content_fmt" msgid="4107093049191103780">"<xliff:g id="ACCOUNT">%s</xliff:g> എന്നതിന്, നിങ്ങളുടെ സുരക്ഷാ ക്രമീകരണങ്ങൾ അപ്‌ഡേറ്റുചെയ്യേണ്ടതാവശ്യമാണ്."</string>
+    <string name="security_unsupported_ticker_fmt" msgid="3249185558872836884">"സുരക്ഷാ ആവശ്യകതകളാൽ \"<xliff:g id="ACCOUNT">%s</xliff:g>\" എന്ന അക്കൗണ്ട് സമന്വയിപ്പിക്കാനാകില്ല."</string>
+    <string name="security_needed_ticker_fmt" msgid="7099561996532829229">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" എന്ന അക്കൗണ്ടിന് സുരക്ഷാ ക്രമീകരണങ്ങളുടെ അപ്‌ഡേറ്റ് ആവശ്യമാണ്."</string>
+    <string name="security_changed_ticker_fmt" msgid="3823930420292838192">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" എന്ന അക്കൗണ്ടിന്റെ സുരക്ഷാ ക്രമീകരണങ്ങൾ മാറ്റി, ഉപയോക്തൃ പ്രവർത്തനങ്ങളൊന്നും ആവശ്യമില്ല."</string>
+    <string name="security_notification_content_update_title" msgid="6321099538307807621">"സുരക്ഷാ അപ്‌ഡേറ്റ് ആവശ്യമാണ്"</string>
+    <string name="security_notification_content_change_title" msgid="615639963487448183">"സുരക്ഷാ നയങ്ങൾ മാറ്റി"</string>
+    <string name="security_notification_content_unsupported_title" msgid="6494791400431198228">"സുരക്ഷാ നയങ്ങൾ പാലിക്കാനാകില്ല"</string>
+    <string name="account_security_title" msgid="6072273231606918870">"ഉപകരണ സുരക്ഷ"</string>
+    <string name="account_security_policy_explanation_fmt" msgid="2527501853520160827">"<xliff:g id="SERVER">%s</xliff:g> എന്ന സെർവറിന്, നിങ്ങളുടെ Android ഉപകരണത്തിന്റെ ചില സുരക്ഷാ സവിശേഷതകൾ വിദൂരമായി നിയന്ത്രിക്കാൻ അനുവദിക്കേണ്ടത് ആവശ്യമാണ്."</string>
+    <string name="account_setup_failed_dlg_edit_details_action" msgid="8155332642922842729">"എഡിറ്റ് വിശദാംശങ്ങൾ"</string>
+    <string name="password_expire_warning_ticker_fmt" msgid="5543005790538884060">"നിങ്ങളുടെ ലോക്ക് സ്‌ക്രീൻ PIN അല്ലെങ്കിൽ പാസ്‌വേഡ് മാറ്റേണ്ടത് \"<xliff:g id="ACCOUNT">%s</xliff:g>\" എന്നതിന് ആവശ്യമാണ്."</string>
+    <string name="password_expire_warning_content_title" msgid="4360288708739366810">"ലോക്ക് സ്‌ക്രീൻ പാസ്‌വേഡ് കാലഹരണപ്പെടുന്നു"</string>
+    <string name="password_expired_ticker" msgid="3098703963402347483">"നിങ്ങളുടെ ലോക്ക് സ്‌ക്രീൻ PIN അല്ലെങ്കിൽ പാസ്‌വേഡ് കാലഹരണപ്പെട്ടു."</string>
+    <string name="password_expired_content_title" msgid="7379094218699681984">"ലോക്ക് സ്‌ക്രീൻ പാസ്‌വേഡ് കാലഹരണപ്പെട്ടു"</string>
+    <string name="password_expire_warning_dialog_title" msgid="4901499545146045672">"ലോക്ക് സ്‌ക്രീൻ പാസ്‌വേഡ് കാലഹരണപ്പെടുന്നു"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="1093389293050776319">"നിങ്ങളുടെ ലോക്ക് സ്‌ക്രീൻ PIN അല്ലെങ്കിൽ പാസ്‌വേഡ് ഉടൻ മാറ്റേണ്ടതുണ്ട്, അല്ലെങ്കിൽ <xliff:g id="ACCOUNT">%s</xliff:g> എന്നതിനായുള്ള ഡാറ്റ മായ്‌ക്കപ്പെടും. അത് ഇപ്പോൾ മാറ്റണമെന്നുണ്ടോ?"</string>
+    <string name="password_expired_dialog_title" msgid="7275534155170185252">"ലോക്ക് സ്‌ക്രീൻ പാസ്‌വേഡ് കാലഹരണപ്പെട്ടു"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="8322213184626443346">"നിങ്ങളുടെ ഉപകരണത്തിൽ നിന്നും <xliff:g id="ACCOUNT">%s</xliff:g> എന്നതിനായുള്ള ഡാറ്റ മായ്ച്ചുകൊണ്ടിരിക്കുന്നു.. നിങ്ങളുടെ ലോക്ക് സ്‌ക്രീൻ PIN അല്ലെങ്കിൽ പാസ്‌വേഡ് മാറ്റുന്നതിലൂടെ നിങ്ങൾക്ക് അത് പുനഃസ്ഥാപിക്കാനാകും. നിങ്ങൾക്ക് അത് ഇപ്പോൾ മാറ്റണമെന്നുണ്ടോ?"</string>
+    <string name="account_settings_exit_server_settings" msgid="4232590695889111419">"സംരക്ഷിക്കാത്ത മാറ്റങ്ങൾ നിരസിക്കണോ?"</string>
+    <string name="account_settings_login_dialog_title" msgid="2250911725501042470">"സൈൻ ഇൻ ചെയ്യാനായില്ല"</string>
+    <string name="account_settings_login_dialog_content_fmt" msgid="8687412692709766495">"<xliff:g id="ACCOUNT">%s</xliff:g> എന്നതിനുള്ള ഉപയോക്തൃനാമമോ പാസ്‌വേഡോ തെറ്റാണ്. അവ ഇപ്പോൾ അപ്‌ഡേറ്റുചെയ്യണോ?"</string>
+    <string name="account_settings_login_dialog_reason_fmt" msgid="2324678262137130809">"<xliff:g id="ACCOUNT">%s</xliff:g> എന്നതിലേക്കുള്ള നിങ്ങളുടെ ലോഗിൻ പരാജയപ്പെട്ടു, സെർവർ പറയുന്നു: <xliff:g id="REASON">%s</xliff:g> നിങ്ങളുടെ ഉപയോക്തൃനാമവും കൂടാതെ/അല്ലെങ്കിൽ പാസ്‌വേഡും അപ്‌ഡേറ്റുചെയ്യണമെന്നുണ്ടോ?"</string>
+    <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"അറ്റാച്ചുമെന്റുകൾ ഡൗൺലോഡുചെയ്യുക"</string>
+    <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"Wi-Fi മുഖേന പുതിയ സന്ദേശങ്ങളിലേക്ക് അറ്റാച്ചുമെന്റുകൾ യാന്ത്രികമായി ഡൗൺലോഡുചെയ്യുക"</string>
+    <string name="account_settings_notify_label" msgid="8621226576645167987">"ഇമെയിൽ അറിയിപ്പുകൾ"</string>
+    <string name="account_settings_summary" msgid="4733776978291376161">"സമന്വയ ആവർത്തനം, അറിയിപ്പ് മുതലായവ"</string>
+    <string name="account_settings_notify_summary" msgid="88560545461159120">"ഇമെയിൽ ലഭിക്കുമ്പോൾ അറിയിപ്പ് അയയ്‌ക്കുക"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="4107847714594035131">"സമന്വയ ആവർത്തനം"</string>
+    <string name="account_settings_incoming_label" msgid="3793314460723296874">"ഇൻകമിംഗ് ക്രമീകരണങ്ങൾ"</string>
+    <string name="account_settings_incoming_summary" msgid="7521181981008371492">"ഉപയോക്തൃനാമവും പാസ്‌വേഡും മറ്റ് ഇൻകമിംഗ് സെർവർ ക്രമീകരണങ്ങളും"</string>
+    <string name="account_settings_outgoing_label" msgid="4997504719643828381">"ഔട്ട്‌ഗോയിംഗ് ക്രമീകരണങ്ങൾ"</string>
+    <string name="account_settings_outgoing_summary" msgid="1884202151340479161">"ഉപയോക്തൃനാമവും പാസ്‌വേഡും മറ്റ് ഔട്ട്ഗോയിംഗ് സെർവർ ക്രമീകരണങ്ങളും"</string>
+    <string name="account_settings_enforced_label" msgid="7005050362066086119">"നയങ്ങൾ നടപ്പിലാക്കിയിരിക്കുന്നു"</string>
+    <string name="account_settings_enforced_summary" msgid="1668581504445370253">"ഒന്നുമില്ല"</string>
+    <string name="account_settings_unsupported_label" msgid="7286722617178322465">"പിന്തുണയ്‌ക്കാത്ത നയങ്ങൾ"</string>
+    <string name="account_settings_unsupported_summary" msgid="1980825746966562221">"ഒന്നുമില്ല"</string>
+    <string name="account_settings_retry_label" msgid="8605492340808650923">"സമന്വയിപ്പിക്കാൻ ശ്രമിക്കുക"</string>
+    <string name="account_settings_retry_summary" msgid="2598065993718592906">"ഈ അക്കൗണ്ട് സമന്വയിപ്പിക്കാൻ ഇവിടെ സ്‌പർശിക്കുക"</string>
+    <string name="account_settings_description_label" msgid="2073736045984411004">"അക്കൗണ്ടിന്റെ പേര്"</string>
+    <string name="account_settings_name_label" msgid="8230436030850457988">"നിങ്ങളുടെ പേര്"</string>
+    <string name="account_settings_edit_quick_responses_label" msgid="6105791335935883199">"ദ്രുത പ്രതികരണങ്ങൾ"</string>
+    <string name="account_settings_edit_quick_responses_summary" msgid="5406599402930290682">"ഇമെയിൽ രചിക്കുമ്പോൾ നിങ്ങൾ പതിവായി ചേർക്കുന്ന ടെക്‌സ്റ്റ് എഡിറ്റുചെയ്യുക"</string>
+    <string name="account_settings_notifications" msgid="2842952349214972116">"അറിയിപ്പ് ക്രമീകരണങ്ങൾ"</string>
+    <string name="account_settings_data_usage" msgid="6400715160238559711">"ഡാറ്റ ഉപയോഗം"</string>
+    <string name="account_settings_policies" msgid="5972183883466873359">"സുരക്ഷാ നയങ്ങൾ"</string>
+    <string name="system_folders_title" msgid="7161311881709109736">"സിസ്റ്റം ഫോൾഡറുകൾ"</string>
+    <string name="system_folders_trash_title" msgid="3190927115504713123">"ട്രാഷ് ഫോൾഡർ"</string>
+    <string name="system_folders_trash_summary" msgid="2583143581531897068">"നിങ്ങളുടെ സെർവറിന്റെ ട്രാഷ് ഫോൾഡർ തിരഞ്ഞെടുക്കുക"</string>
+    <string name="system_folders_trash_dlg" msgid="353701568340939392">"നിങ്ങളുടെ സെർവറിന്റെ ട്രാഷ് ഫോൾഡർ തിരഞ്ഞെടുക്കുക"</string>
+    <string name="system_folders_sent_title" msgid="8792934374188279309">"അയച്ച ഇനങ്ങളുടെ ഫോൾഡർ"</string>
+    <string name="system_folders_sent_summary" msgid="4252740721870748375">"നിങ്ങളുടെ സെർവറിന്റെ അയച്ച ഇനങ്ങളുടെ ഫോൾഡർ തിരഞ്ഞെടുക്കുക"</string>
+    <string name="system_folders_sent_dlg" msgid="818944260541160146">"നിങ്ങളുടെ സെർവറിന്റെ അയച്ച ഇനങ്ങളുടെ ഫോൾഡർ തിരഞ്ഞെടുക്കുക"</string>
+    <string name="edit_quick_response_dialog" msgid="3048014284772648575">"ദ്രുത പ്രതികരണം"</string>
+    <string name="save_action" msgid="5740359453077441466">"സംരക്ഷിക്കുക"</string>
+    <string name="account_settings_sync_contacts_enable" msgid="2642448079273767521">"കോൺടാക്റ്റുകൾ സമന്വയിപ്പിക്കുക"</string>
+    <string name="account_settings_sync_contacts_summary" msgid="1716022682035150630">"ഈ അക്കൗണ്ടിനായി കോൺടാക്റ്റുകൾ സമന്വയിപ്പിക്കുക"</string>
+    <string name="account_settings_sync_calendar_enable" msgid="3172491863244160828">"കലണ്ടർ സമന്വയിപ്പിക്കുക"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="411960248618953311">"ഈ അക്കൗണ്ടിനായി കലണ്ടർ ഇവന്റ് സമന്വയിപ്പിക്കുക"</string>
+    <string name="account_settings_sync_email_enable" msgid="7135765408226471860">"ഇമെയിൽ സമന്വയിപ്പിക്കുക"</string>
+    <string name="account_settings_sync_email_summary" msgid="71710510041953351">"ഈ അക്കൗണ്ടിനായി ഇമെയിൽ സമന്വയിപ്പിക്കുക"</string>
+    <string name="account_settings_vibrate_when_label" msgid="361069844540266098">"വൈബ്രേറ്റുചെയ്യുക"</string>
+    <string name="account_settings_ringtone" msgid="2238523918221865167">"റിംഗ്ടോൺ തിരഞ്ഞെടുക്കുക"</string>
+    <string name="account_settings_servers" msgid="3386185135392642067">"സെർവർ ക്രമീകരണങ്ങൾ"</string>
+    <string name="mailbox_settings_activity_title" msgid="2196614373847675314">"സമന്വയ ഓപ്‌ഷനുകൾ"</string>
+    <string name="mailbox_settings_activity_title_with_mailbox" msgid="5547676392298186906">"സമന്വയ ഓപ്‌ഷനുകൾ (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
+    <string name="mailbox_settings_sync_enabled_label" msgid="7723413381707277856">"ഈ ഫോൾഡർ സമന്വയിപ്പിക്കുക"</string>
+    <string name="mailbox_settings_sync_enabled_summary" msgid="742233465207750578">"കണക്റ്റുചെയ്‌തിരിക്കുമ്പോൾ സന്ദേശങ്ങൾ ഡൗൺലോഡുചെയ്യും"</string>
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="7027516982341382326">"സമന്വയിപ്പിക്കേണ്ട മെയിൽ ദിവസം"</string>
+    <string name="prefDialogTitle_conversationListIcon" msgid="1302579259733675896">"അയയ്‌ച്ചയാളുടെ ചിത്രം"</string>
+    <string name="provider_note_live" msgid="4289035326060391547">"POP ആക്‌സസ്സ് ഉൾപ്പെടുന്ന ചില \"Plus\" അക്കൗണ്ടുകൾ മാത്രമേ ഈ പ്രോഗ്രാമിനെ കണക്റ്റുചെയ്യാൻ അനുവദിക്കുന്നുള്ളൂ. നിങ്ങളുടെ ശരിയായ ഇമെയിൽ വിലാസവും പാസ്‌വേഡും ഉപയോഗിച്ച് സൈൻ ഇൻ ചെയ്യാനാകുന്നില്ലെങ്കിൽ, നിങ്ങൾക്ക് ഒരു പണമടച്ചുള്ള \"Plus\" അക്കൗണ്ട് ഉണ്ടായിരിക്കാനിടയില്ല. ഈ ഇമെയിൽ അക്കൗണ്ടുകളിലേക്ക് ആക്സസ് നേടാൻ വെബ് ബ്രൗസർ സമാരംഭിക്കുക."</string>
+    <string name="provider_note_t_online" msgid="1596701148051980218">"ഈ ഇമെയിൽ അക്കൗണ്ട് സജ്ജീകരിക്കുന്നതിന് മുമ്പാായി, ടി-ഓൺലൈൻ വെബ്‌സൈറ്റ് സന്ദർശിച്ച്  POP3 ഇമെയിൽ ആക്‌സസ്സിനായി ഒരു പാസ്‌വേഡ് സൃഷ്ടിക്കുക."</string>
+    <string name="exchange_name" msgid="3793803477985438102">"കോർപ്പറേറ്റ്"</string>
+    <string name="exchange_name_alternate" msgid="293118547772095111">"Microsoft Exchange ActiveSync"</string>
+    <string name="system_account_create_failed" msgid="2248313263003927725">"അക്കൗണ്ട് സൃഷ്‌ടിക്കാനായില്ല. വീണ്ടും ശ്രമിക്കുക."</string>
+    <string name="device_admin_label" msgid="3335272972461391415">"ഇമെയിൽ"</string>
+    <string name="device_admin_description" msgid="4299378570982520839">"സെർവർ നിർദ്ദിഷ്‌ട സുരക്ഷാ നയങ്ങൾ പ്രവർത്തനക്ഷമമാക്കുന്നു"</string>
+    <string name="settings_activity_title" msgid="4787565736829092053">"ക്രമീകരണങ്ങൾ"</string>
+    <string name="header_label_general_preferences" msgid="2924944721204930254">"പൊതുക്രമീകരണങ്ങൾ"</string>
+    <string name="general_preference_confirm_delete_label" msgid="4635169755738754289">"ഇല്ലാതാക്കുന്നതിന് മുമ്പ് സ്ഥിരീകരിക്കുക"</string>
+    <string name="general_preference_confirm_send_label" msgid="2985557291955796568">"അയയ്‌ക്കുന്നതിന് മുമ്പായി സ്ഥിരീകരിക്കുക"</string>
+    <string name="more_than_999" msgid="4088200269333058889">"999+"</string>
+    <string name="search_hint" msgid="3491349343647799436">"ഇമെയിൽ തിരയുക"</string>
+    <string name="policy_dont_allow_camera" msgid="8821533827628900689">"ഉപകരണ ക്യാമറ ഉപയോഗിക്കാൻ അനുവദിക്കരുത്"</string>
+    <string name="policy_require_password" msgid="3556860917024612396">"ഉപകരണ പാസ്‌വേഡ് ആവശ്യമാണ്"</string>
+    <string name="policy_password_history" msgid="9001177390979112746">"പുതിയ പാസ്‌വേഡുകളുടെ പുനരുപയോഗം നിയന്ത്രിക്കുക"</string>
+    <string name="policy_password_expiration" msgid="1287225242918742275">"കാലഹരണപ്പെടാൻ പാസ്‌വേഡുകൾ ആവശ്യമാണ്"</string>
+    <string name="policy_screen_timeout" msgid="3499201409239287702">"ഒരു നിഷ്‌ക്രിയ ഉപകരണത്തിന്റെ ലോക്ക് സ്‌ക്രീൻ ആവശ്യമാണ്"</string>
+    <string name="policy_calendar_age" msgid="6469328498345236120">"സമന്വയിപ്പിക്കേണ്ട കലണ്ടർ ഇവന്റുകളുടെ എണ്ണം പരിമിതപ്പെടുത്തുക"</string>
+    <string name="policy_email_age" msgid="3521941976575225050">"സമന്വയിപ്പിക്കേണ്ട ഇമെയിലുകളുടെ എണ്ണം പരിമിതപ്പെടുത്തുക"</string>
+    <string name="quick_1" msgid="9130521670178673190">"നന്ദി!"</string>
+    <string name="quick_2" msgid="8611591278119481491">"ഇത് നല്ലതാണെന്ന് തോന്നുന്നു!"</string>
+    <string name="quick_3" msgid="8070999183033184986">"ഞാൻ ഇത് പിന്നീട് വായിച്ച് നിങ്ങളെ ബന്ധപ്പെടാം."</string>
+    <string name="quick_4" msgid="216066940197616025">"ഇത് ചർച്ചചെയ്യാൻ ഒരു കൂടിക്കാഴ്‌ച സജ്ജമാക്കാൻ അനുവദിക്കുക"</string>
+    <string name="require_manual_sync_message" msgid="7361932179783481686">"റോമിംഗിലായിരിക്കുമ്പോൾ, ഈ അക്കൗണ്ടിനായുള്ള പശ്ചാത്തല സമന്വയം പ്രവർത്തനരഹിതമാക്കിയിരിക്കുന്നു."</string>
+    <string name="confirm_response" msgid="6764021931370809514">"പ്രതികരണം അയയ്ക്കുന്നു…"</string>
+    <string name="no_conversations" msgid="3785854971159919343">"സന്ദേശങ്ങളൊന്നുമില്ല."</string>
+    <string name="imap_name" msgid="1267915719183915252">"IMAP"</string>
+    <string name="pop3_name" msgid="1235910677527117862">"POP3"</string>
+    <string name="folder_picker_title" msgid="5906275472176731605">"ഫോൾഡർ പിക്കർ"</string>
+    <string name="trash_folder_selection_title" msgid="686039558899469073">"<xliff:g id="ACCOUNT">%s</xliff:g> എന്നതിനായി സെർവർ ട്രാഷ് ഫോൾഡർ തിരഞ്ഞെടുക്കുക"</string>
+    <string name="sent_folder_selection_title" msgid="9207482909822072856">"<xliff:g id="ACCOUNT">%s</xliff:g> എന്നതിനായുള്ള സെർവർ അയച്ച ഇനങ്ങളുടെ ഫോൾഡർ തിരഞ്ഞെടുക്കുക"</string>
+    <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"ഫോൾഡർ ലിസ്റ്റ് ലോഡുചെയ്യുന്നു…"</string>
+    <string name="no_quick_responses" msgid="8716297053803961304">"ലഭ്യമായതൊന്നുമില്ല"</string>
+    <string name="gmail_name" msgid="2099786953868369991">"Gmail"</string>
+    <string name="folder_sync_settings_pref_title" msgid="349478353401667107">"ഫോൾഡർ സമന്വയ ക്രമീകരണങ്ങൾ"</string>
+</resources>

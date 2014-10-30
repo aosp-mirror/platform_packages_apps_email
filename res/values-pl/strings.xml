@@ -32,9 +32,9 @@
   </plurals>
     <string name="cannot_move_protocol_not_supported_toast" msgid="1687394290312755846">"Przenoszenie nie jest obsługiwane na kontach POP3."</string>
     <string name="cannot_move_multiple_accounts_toast" msgid="1032577153519440211">"Nie można przenieść, ponieważ wybrane elementy pochodzą z wielu kont."</string>
-    <string name="cannot_move_special_mailboxes_toast" msgid="3758109129023839909">"Nie można przenosić wiadomości w Kopiach roboczych, Do wysłania ani Wysłanych."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="3758109129023839909">"Nie można przenosić wiadomości w Kopiach roboczych, Skrzynce nadawczej ani Wysłanych."</string>
     <string name="mailbox_name_display_inbox" msgid="5093068725739672126">"Odebrane"</string>
-    <string name="mailbox_name_display_outbox" msgid="8735725798805339414">"Do wysłania"</string>
+    <string name="mailbox_name_display_outbox" msgid="8735725798805339414">"Skrzynka nadawcza"</string>
     <string name="mailbox_name_display_drafts" msgid="3552043116466269581">"Kopie robocze"</string>
     <string name="mailbox_name_display_trash" msgid="7020792045007681852">"Kosz"</string>
     <string name="mailbox_name_display_sent" msgid="6705058612006729985">"Wysłane"</string>
@@ -44,7 +44,7 @@
     <string name="account_folder_list_summary_inbox" msgid="6524816019350737506">"Odebrane"</string>
     <string name="account_folder_list_summary_starred" msgid="1625089431195748236">"Oznaczone gwiazdką"</string>
     <string name="account_folder_list_summary_drafts" msgid="4050225674547841762">"Kopie robocze"</string>
-    <string name="account_folder_list_summary_outbox" msgid="5594504984407654721">"Do wysłania"</string>
+    <string name="account_folder_list_summary_outbox" msgid="5594504984407654721">"Skrzynka nadawcza"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="4155918930481733669">"Widok łączony"</string>
     <string name="message_compose_fwd_header_fmt" msgid="6193988236722150221">\n\n"-------- Wiadomość oryginalna --------\nTemat: <xliff:g id="SUBJECT">%1$s</xliff:g>\nOd: <xliff:g id="SENDER">%2$s</xliff:g>\nDo: <xliff:g id="TO">%3$s</xliff:g>\nDW: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5836926808818821309">"Wstaw szybką odpowiedź"</string>
@@ -292,4 +292,5 @@
     <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"Wczytuję listę folderów…"</string>
     <string name="no_quick_responses" msgid="8716297053803961304">"Brak dostępnych"</string>
     <string name="gmail_name" msgid="2099786953868369991">"Gmail"</string>
+    <string name="folder_sync_settings_pref_title" msgid="349478353401667107">"Ustawienia synchronizacji folderu"</string>
 </resources>

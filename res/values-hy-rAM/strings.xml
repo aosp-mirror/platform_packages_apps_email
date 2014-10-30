@@ -69,8 +69,8 @@
     <item quantity="other" msgid="3317120193748830799">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g>Մբ"</item>
   </plurals>
   <plurals name="message_view_attachment_gigabytes">
-    <item quantity="one" msgid="5180812866869430241">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>Գբ"</item>
-    <item quantity="other" msgid="1607574223219436099">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>Գբ"</item>
+    <item quantity="one" msgid="5180812866869430241">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>ԳԲ"</item>
+    <item quantity="other" msgid="1607574223219436099">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>ԳԲ"</item>
   </plurals>
     <string name="account_setup_basics_title" msgid="5050895656741229172">"Հաշվի ստեղծում"</string>
     <string name="oauth_authentication_title" msgid="3771260531636603518">"Կատարվում է թույլտվության հարցում"</string>
@@ -294,4 +294,5 @@
     <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"Բեռնվում է թղթապանակի ցանկը..."</string>
     <string name="no_quick_responses" msgid="8716297053803961304">"Ոչ մեկը հասանելի չէ"</string>
     <string name="gmail_name" msgid="2099786953868369991">"Gmail"</string>
+    <string name="folder_sync_settings_pref_title" msgid="349478353401667107">"Թղթապանակի համաժամեցման կարգավորումները"</string>
 </resources>

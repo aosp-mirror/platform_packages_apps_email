@@ -39,7 +39,7 @@
     <string name="mailbox_name_display_trash" msgid="7020792045007681852">"Udoti"</string>
     <string name="mailbox_name_display_sent" msgid="6705058612006729985">"Thunyelwe"</string>
     <string name="mailbox_name_display_junk" msgid="1634126984313831675">"Okungafuneki"</string>
-    <string name="mailbox_name_display_starred" msgid="8076384721309828453">"Okunenkanyizo"</string>
+    <string name="mailbox_name_display_starred" msgid="8076384721309828453">"Okunenkanyezi"</string>
     <string name="mailbox_name_display_unread" msgid="1453575937919310339">"Akufundiwe"</string>
     <string name="account_folder_list_summary_inbox" msgid="6524816019350737506">"Ibhokisi lokungenayo"</string>
     <string name="account_folder_list_summary_starred" msgid="1625089431195748236">"Okunenkanyezi"</string>
@@ -292,4 +292,5 @@
     <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"Ilayisha uhlu lwamafolda…"</string>
     <string name="no_quick_responses" msgid="8716297053803961304">"Lutho olutholakalayo"</string>
     <string name="gmail_name" msgid="2099786953868369991">"I-Gmail"</string>
+    <string name="folder_sync_settings_pref_title" msgid="349478353401667107">"Izilungiselelo zokuvumelanisa ifolda"</string>
 </resources>
