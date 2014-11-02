@@ -206,10 +206,7 @@
     <string name="password_expire_warning_dialog_content_fmt" msgid="1093389293050776319">"ທ່ານຕ້ອງປ່ຽນລະຫັດ ຫຼື PIN ລັອກໜ້າຈໍໄວໆນີ້, ບໍ່ດັ່ງນັ້ນຂໍ້ມູນຂອງ <xliff:g id="ACCOUNT">%s</xliff:g> ຈະຖືກລຶບ. ທ່ານຕ້ອງການປ່ຽນມັນດຽວນີ້ບໍ່?"</string>
     <string name="password_expired_dialog_title" msgid="7275534155170185252">"ລະຫັດ​ລັອກໜ້າ​ຈໍ​ໝົດ​ອາຍຸ​ແລ້ວ"</string>
     <string name="password_expired_dialog_content_fmt" msgid="8322213184626443346">"ຂໍ້ມູນສຳລັບ <xliff:g id="ACCOUNT">%s</xliff:g> ກຳລັງ​ຖືກລຶບ​ອອກ​ຈາກ​ອຸປະກອນ​ຂອງ​ທ່ານ. ທ່ານ​ສາມາດ​ກູ້ມັນຄືນ​ໄດ້ ໂດຍ​ການ​ປ່ຽນ​ລະຫັດ ຫຼື PIN ລັອກ​ໜ້າ​ຈໍຂອງ​ທ່ານ. ທ່ານ​ຕ້ອງ​ການ​ປ່ຽນ​ມັນ​ດຽວ​ນີ້ບໍ່?"</string>
-    <string name="account_settings_exit_server_settings" msgid="4232590695889111419">"ຍົກ​ເລີກ​ການ​ປ່ຽນ​ແປງ​ທີ່​ຍັງ​ບໍ່ໄດ້​ບັນ​ທຶກບໍ່?"</string>
-    <string name="account_settings_login_dialog_title" msgid="2250911725501042470">"ບໍ່ສາມາດເຂົ້າສູ່ລະບົບໄດ້"</string>
-    <string name="account_settings_login_dialog_content_fmt" msgid="8687412692709766495">"ຊື່ຜູ່ໃຊ້ ຫຼື ລະຫັດຜ່ານສໍາລັບ <xliff:g id="ACCOUNT">%s</xliff:g> ບໍ່ຖືກຕ້ອງ. ທ່ານຕ້ອງການອັບເດດມັນດຽວນີ້ບໍ່?"</string>
-    <string name="account_settings_login_dialog_reason_fmt" msgid="2324678262137130809">"ການເຂົ້າສູ່ລະບົບຂອງທ່ານຫາ <xliff:g id="ACCOUNT">%s</xliff:g> ລົ້ມເຫຼວ; ເຊີບເວີບອກວ່າ: <xliff:g id="REASON">%s</xliff:g> ທ່ານຕ້ອງການອັບເດດຊື່ຜູ່ໃຊ້ ແລະ/ຫຼື ລະຫັດຜ່ານຂອງທ່ານບໍ່?"</string>
+    <string name="account_settings_exit_server_settings" msgid="4232590695889111419">"ຖິ້ມ​ການ​ປ່ຽນ​ແປງ​ທີ່​ຍັງ​ບໍ່ໄດ້​ບັນ​ທຶກບໍ່?"</string>
     <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"ດາວໂຫຼດໄຟລ໌ແນບ"</string>
     <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"ດາວ​ໂຫລດ​ໄຟລ໌​ແນບ​ຈາກ​ອີ​ເມວຫຼ້າ​ສຸດ​ຜ່ານ​ທາງ Wi-Fi ໂດຍ​ອັດ​ຕະ​ໂນ​ມັດ"</string>
     <string name="account_settings_notify_label" msgid="8621226576645167987">"ການແຈ້ງເຕືອນອີເມວ"</string>
@@ -255,9 +252,13 @@
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="5547676392298186906">"ຕົວເລືອກການຊິ້ງຂໍ້ມູນ (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
     <string name="mailbox_settings_sync_enabled_label" msgid="7723413381707277856">"ຊິ້ງຂໍ້ມູນໂຟນເດີນີ້"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="742233465207750578">"ຂໍ້ຄວາມທັງໝົດ​ຈະຖືກດາວໂຫລດ​ເມື່ອມີການເຊື່ອມຕໍ່​ອິນເຕີເນັດ"</string>
+<<<<<<< HEAD
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="7027516982341382326">"ຈຳ​ນວນມື້ຂອງເມວທີ່ຕ້ອງຊິ້ງຂໍ້ມູນ"</string>
     <string name="prefDialogTitle_conversationListIcon" msgid="1302579259733675896">"ຮູບຜູ່ສົ່ງ"</string>
     <string name="provider_note_live" msgid="4289035326060391547">"ມີແຕ່​ບາງບັນ​ຊີ \"Plus\" ທີ່​ມີ​ການ​ເຂົ້າ​ເຖິງ POP ທີ່ອະນຸຍາດ​ໃຫ້​ໂປຣແກຣມ​ນີ້​ເຊື່ອມຕໍ່. ຫາກ​ທ່ານ​ບໍ່​ສາມາດ​ເຂົ້າສູ່​ລະບົບ​ດ້ວຍ​ທີ່​ຢູ່​ອີເມວ ແລະ​ລະຫັດ​ຜ່ານທີ່​ຖືກຕ້ອງໄດ້, ໝາຍ​ຄວາມ​ວ່າ​ທ່ານອາດບໍ່ມີບັນຊີ \"Plus\" ແບບ​ເສຍ​ເງິນ. ໃຫ້ເປີດ​ໂປຣແກຣມ​ທ່ອງເວັບ​ເພື່ອ​ເຂົ້າເຖິງ​ບັນຊີ​ອີເມວ​ເຫຼົ່ານີ້."</string>
+=======
+    <string name="mailbox_settings_mailbox_sync_window_label" msgid="7027516982341382326">"ຈຳນວນ​ມື້​ຂອງ​ອີເມວ​ທີ່​ຕ້ອງການ​ຊິ້ງ​ຂໍ້ມູນ"</string>
+>>>>>>> 19809304
     <string name="provider_note_t_online" msgid="1596701148051980218">"ກ່ອນ​ທີ່​ຈະ​ຕິດຕັ້ງ​ບັນ​ຊີ​ອີເມວ, ໃຫ້​ເຂົ້າ​ຊົມເວັບໄຊ T-Online ແລະ ສ້າງ​ລະຫັດ​ຜ່ານ​ສຳລັບ​ການ​ເຂົ້າເຖິງ​ອີເມວ POP3 ກ່ອນ."</string>
     <string name="exchange_name" msgid="3793803477985438102">"ອົງ​ກອນ"</string>
     <string name="exchange_name_alternate" msgid="293118547772095111">"Microsoft Exchange ActiveSync"</string>

@@ -50,8 +50,7 @@
     <string name="message_compose_insert_quick_response_list_title" msgid="5836926808818821309">"Masukkan tanggapan cepat"</string>
     <string name="message_compose_insert_quick_response_menu_title" msgid="4393288554605333619">"Masukkan tanggapan cepat"</string>
     <string name="message_view_attachment_background_load" msgid="7571652141281187845">"Satu atau beberapa lampiran dalam pesan yang diteruskan akan diunduh sebelum dikirim."</string>
-    <string name="attachment_not_found" msgid="5219773045406833000">"Tidak dapat mengunduh lampiran."</string>
-    <string name="message_decode_error" msgid="91396461771444300">"Terjadi kesalahan saat mengawasandikan pesan."</string>
+    <string name="message_decode_error" msgid="91396461771444300">"Terjadi kesalahan saat mendekode pesan."</string>
     <string name="forward_download_failed_ticker" msgid="2900585518884851062">"Tidak dapat meneruskan satu lampiran atau lebih."</string>
     <string name="forward_download_failed_title" msgid="2043036709913723298">"Lampiran tidak diteruskan"</string>
     <string name="login_failed_ticker" msgid="4620839194581484497">"Gagal masuk <xliff:g id="ACCOUNT_NAME">%s</xliff:g>."</string>
@@ -283,12 +282,10 @@
     <string name="quick_4" msgid="216066940197616025">"Mari kita adakan pertemuan untuk membahas masalah ini."</string>
     <string name="require_manual_sync_message" msgid="7361932179783481686">"Sinkronisasi latar belakang untuk akun ini dinonaktifkan saat roaming."</string>
     <string name="confirm_response" msgid="6764021931370809514">"Mengirim tanggapan..."</string>
-    <string name="no_conversations" msgid="3785854971159919343">"Tidak ada pesan."</string>
-    <string name="imap_name" msgid="1267915719183915252">"IMAP"</string>
-    <string name="pop3_name" msgid="1235910677527117862">"POP3"</string>
-    <string name="folder_picker_title" msgid="5906275472176731605">"Pemilih folder"</string>
-    <string name="trash_folder_selection_title" msgid="686039558899469073">"Plh folder sampah server utk <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
-    <string name="sent_folder_selection_title" msgid="9207482909822072856">"Plh flder item tkrm srver utk <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
+    <string name="imap_name" msgid="8285222985908214985">"Pribadi (IMAP)"</string>
+    <string name="pop3_name" msgid="6653484706414263493">"Pribadi (POP3)"</string>
+    <string name="trash_folder_selection_title" msgid="686039558899469073">"Folder sampah server untuk <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
+    <string name="sent_folder_selection_title" msgid="9207482909822072856">"Folder terkirim server <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"Memuat daftar folder..."</string>
     <string name="no_quick_responses" msgid="8716297053803961304">"Tak satu pun tersedia"</string>
     <string name="gmail_name" msgid="2099786953868369991">"Gmail"</string>
