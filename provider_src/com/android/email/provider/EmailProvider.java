@@ -1422,12 +1422,30 @@ public class EmailProvider extends ContentProvider
                 case UPDATED_MESSAGE_ID:
                 case ATTACHMENT_ID:
                 case MAILBOX_ID:
-                case ACCOUNT_ID:
                 case HOSTAUTH_ID:
                 case CREDENTIAL_ID:
                 case POLICY_ID:
                     id = uri.getPathSegments().get(1);
                     c = db.query(tableName, projection, whereWithId(id, selection),
+                            selectionArgs, null, null, sortOrder, limit);
+                    break;
+                case ACCOUNT_ID:
+                    id = uri.getPathSegments().get(1);
+                    // There seems to be an issue with smart forwarding sometimes including the
+                    // quoted text from the wrong message. For now, we just disable it.
+                    final String[] alternateProjection = new String[projection.length];
+                    for (int i = 0; i < projection.length; i++) {
+                        String column = projection[i];
+                        if (TextUtils.equals(column, AccountColumns.FLAGS)) {
+                            alternateProjection[i] = AccountColumns.FLAGS + " & ~" +
+                                    Account.FLAGS_SUPPORTS_SMART_FORWARD + " AS " +
+                                    AccountColumns.FLAGS;
+                        } else {
+                            alternateProjection[i] = projection[i];
+                        }
+                    }
+
+                    c = db.query(tableName, alternateProjection, whereWithId(id, selection),
                             selectionArgs, null, null, sortOrder, limit);
                     break;
                 case QUICK_RESPONSE_ID:
