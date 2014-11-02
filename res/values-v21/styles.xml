@@ -17,9 +17,7 @@
 <resources>
     <style name="AccountSetupDialogActivityTheme"
         parent="@android:style/Theme.Material.Light.Dialog.NoActionBar">
-        <!-- ActionBar color -->
         <item name="android:colorPrimary">@color/primary_color</item>
-        <!-- Used by the StatusBar and NavBar (currently broken?) -->
         <item name="android:colorPrimaryDark">@color/primary_dark_color</item>
         <item name="android:colorAccent">@color/accent_blue</item>
     </style>
