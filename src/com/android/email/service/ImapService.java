@@ -1457,8 +1457,8 @@ public class ImapService extends Service {
         final Mailbox mailbox = Mailbox.restoreMailboxWithId(context, searchParams.mMailboxId);
         final Mailbox destMailbox = Mailbox.restoreMailboxWithId(context, destMailboxId);
         if (account == null || mailbox == null || destMailbox == null) {
-            LogUtils.d(Logging.LOG_TAG, "Attempted search for " + searchParams
-                    + " but account or mailbox information was missing");
+            LogUtils.d(Logging.LOG_TAG, "Attempted search for %s "
+                    + "but account or mailbox information was missing", searchParams);
             return 0;
         }
 
@@ -1467,145 +1467,148 @@ public class ImapService extends Service {
         statusValues.put(Mailbox.UI_SYNC_STATUS, UIProvider.SyncStatus.LIVE_QUERY);
         destMailbox.update(context, statusValues);
 
-        final Store remoteStore = Store.getInstance(account, context);
-        final Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
-        remoteFolder.open(OpenMode.READ_WRITE);
+        Store remoteStore = null;
+        int numSearchResults = 0;
+        try {
+            remoteStore = Store.getInstance(account, context);
+            final Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
+            remoteFolder.open(OpenMode.READ_WRITE);
 
-        SortableMessage[] sortableMessages = new SortableMessage[0];
-        if (searchParams.mOffset == 0) {
-            // Get the "bare" messages (basically uid)
-            final Message[] remoteMessages = remoteFolder.getMessages(searchParams, null);
-            final int remoteCount = remoteMessages.length;
-            if (remoteCount > 0) {
-                sortableMessages = new SortableMessage[remoteCount];
-                int i = 0;
-                for (Message msg : remoteMessages) {
-                    sortableMessages[i++] = new SortableMessage(msg, Long.parseLong(msg.getUid()));
-                }
-                // Sort the uid's, most recent first
-                // Note: Not all servers will be nice and return results in the order of request;
-                // those that do will see messages arrive from newest to oldest
-                Arrays.sort(sortableMessages, new Comparator<SortableMessage>() {
-                    @Override
-                    public int compare(SortableMessage lhs, SortableMessage rhs) {
-                        return lhs.mUid > rhs.mUid ? -1 : lhs.mUid < rhs.mUid ? 1 : 0;
+            SortableMessage[] sortableMessages = new SortableMessage[0];
+            if (searchParams.mOffset == 0) {
+                // Get the "bare" messages (basically uid)
+                final Message[] remoteMessages = remoteFolder.getMessages(searchParams, null);
+                final int remoteCount = remoteMessages.length;
+                if (remoteCount > 0) {
+                    sortableMessages = new SortableMessage[remoteCount];
+                    int i = 0;
+                    for (Message msg : remoteMessages) {
+                        sortableMessages[i++] = new SortableMessage(msg,
+                                Long.parseLong(msg.getUid()));
                     }
-                });
-                sSearchResults.put(accountId, sortableMessages);
+                    // Sort the uid's, most recent first
+                    // Note: Not all servers will be nice and return results in the order of
+                    // request; those that do will see messages arrive from newest to oldest
+                    Arrays.sort(sortableMessages, new Comparator<SortableMessage>() {
+                        @Override
+                        public int compare(SortableMessage lhs, SortableMessage rhs) {
+                            return lhs.mUid > rhs.mUid ? -1 : lhs.mUid < rhs.mUid ? 1 : 0;
+                        }
+                    });
+                    sSearchResults.put(accountId, sortableMessages);
+                }
+            } else {
+                // It seems odd for this to happen, but if the previous query returned zero results,
+                // but the UI somehow still attempted to load more, then sSearchResults will have
+                // a null value for this account. We need to handle this below.
+                sortableMessages = sSearchResults.get(accountId);
             }
-        } else {
-            // It seems odd for this to happen, but if the previous query returned zero results,
-            // but the UI somehow still attempted to load more, then sSearchResults will have
-            // a null value for this account. We need to handle this below.
-            sortableMessages = sSearchResults.get(accountId);
-        }
 
-        final int numSearchResults = (sortableMessages != null ? sortableMessages.length : 0);
-        final int numToLoad =
-                Math.min(numSearchResults - searchParams.mOffset, searchParams.mLimit);
-        destMailbox.updateMessageCount(context, numSearchResults);
-        if (numToLoad <= 0) {
+            numSearchResults = (sortableMessages != null ? sortableMessages.length : 0);
+            final int numToLoad =
+                    Math.min(numSearchResults - searchParams.mOffset, searchParams.mLimit);
+            destMailbox.updateMessageCount(context, numSearchResults);
+            if (numToLoad <= 0) {
+                return 0;
+            }
+
+            final ArrayList<Message> messageList = new ArrayList<>();
+            for (int i = searchParams.mOffset; i < numToLoad + searchParams.mOffset; i++) {
+                messageList.add(sortableMessages[i].mMessage);
+            }
+            // First fetch FLAGS and ENVELOPE. In a second pass, we'll fetch STRUCTURE and
+            // the first body part.
+            final FetchProfile fp = new FetchProfile();
+            fp.add(FetchProfile.Item.FLAGS);
+            fp.add(FetchProfile.Item.ENVELOPE);
+
+            Message[] messageArray = messageList.toArray(new Message[messageList.size()]);
+
+            // TODO: We are purposely processing messages with a MessageRetrievalListener here,
+            // rather than just walking the messageArray after the operation completes. This is so
+            // that we can immediately update the database so the user can see something useful
+            // happening, even if the message body has not yet been fetched.
+            // There are some issues with this approach:
+            // 1. It means that we have a single thread doing both network and database operations,
+            // and either can block the other. The database updates could slow down the network
+            // reads, keeping our network connection open longer than is really necessary.
+            // 2. We still load all of this data into messageArray, even though it's not used.
+            // It would be nicer if we had one thread doing the network operation, and a separate
+            // thread consuming that data and performing the appropriate database work, then
+            // discarding the data as soon as it is no longer needed. This would reduce our memory
+            // footprint and potentially allow our network operation to complete faster.
+            remoteFolder.fetch(messageArray, fp, new MessageRetrievalListener() {
+                @Override
+                public void messageRetrieved(Message message) {
+                    try {
+                        EmailContent.Message localMessage = new EmailContent.Message();
+
+                        // Copy the fields that are available into the message
+                        LegacyConversions.updateMessageFields(localMessage,
+                                message, account.mId, mailbox.mId);
+                        // Save off the mailbox that this message *really* belongs in.
+                        // We need this information if we need to do more lookups
+                        // (like loading attachments) for this message. See b/11294681
+                        localMessage.mMainMailboxKey = localMessage.mMailboxKey;
+                        localMessage.mMailboxKey = destMailboxId;
+                        // We load 50k or so; maybe it's complete, maybe not...
+                        int flag = EmailContent.Message.FLAG_LOADED_COMPLETE;
+                        // We store the serverId of the source mailbox into protocolSearchInfo
+                        // This will be used by loadMessageForView, etc. to use the proper remote
+                        // folder
+                        localMessage.mProtocolSearchInfo = mailbox.mServerId;
+                        // Commit the message to the local store
+                        Utilities.saveOrUpdate(localMessage, context);
+                    } catch (MessagingException me) {
+                        LogUtils.e(Logging.LOG_TAG, me,
+                                "Error while copying downloaded message.");
+                    } catch (Exception e) {
+                        LogUtils.e(Logging.LOG_TAG, e,
+                                "Error while storing downloaded message.");
+                    }
+                }
+
+                @Override
+                public void loadAttachmentProgress(int progress) {
+                }
+            });
+
+            // Now load the structure for all of the messages:
+            fp.clear();
+            fp.add(FetchProfile.Item.STRUCTURE);
+            remoteFolder.fetch(messageArray, fp, null);
+
+            // Finally, load the first body part (i.e. message text).
+            // This means attachment contents are not yet loaded, but that's okay,
+            // we'll load them as needed, same as in synced messages.
+            Message[] oneMessageArray = new Message[1];
+            for (Message message : messageArray) {
+                // Build a list of parts we are interested in. Text parts will be downloaded
+                // right now, attachments will be left for later.
+                ArrayList<Part> viewables = new ArrayList<>();
+                ArrayList<Part> attachments = new ArrayList<>();
+                MimeUtility.collectParts(message, viewables, attachments);
+                // Download the viewables immediately
+                oneMessageArray[0] = message;
+                for (Part part : viewables) {
+                    fp.clear();
+                    fp.add(part);
+                    remoteFolder.fetch(oneMessageArray, fp, null);
+                }
+                // Store the updated message locally and mark it fully loaded
+                Utilities.copyOneMessageToProvider(context, message, account, destMailbox,
+                        EmailContent.Message.FLAG_LOADED_COMPLETE);
+            }
+
+        } finally {
+            if (remoteStore != null) {
+                remoteStore.closeConnections();
+            }
             // Tell UI that we're done loading messages
             statusValues.put(Mailbox.SYNC_TIME, System.currentTimeMillis());
             statusValues.put(Mailbox.UI_SYNC_STATUS, UIProvider.SyncStatus.NO_SYNC);
             destMailbox.update(context, statusValues);
-            return 0;
         }
-
-        final ArrayList<Message> messageList = new ArrayList<Message>();
-        for (int i = searchParams.mOffset; i < numToLoad + searchParams.mOffset; i++) {
-            messageList.add(sortableMessages[i].mMessage);
-        }
-        // First fetch FLAGS and ENVELOPE. In a second pass, we'll fetch STRUCTURE and
-        // the first body part.
-        final FetchProfile fp = new FetchProfile();
-        fp.add(FetchProfile.Item.FLAGS);
-        fp.add(FetchProfile.Item.ENVELOPE);
-
-        Message[] messageArray = messageList.toArray(new Message[messageList.size()]);
-
-        // TODO: We are purposely processing messages with a MessageRetrievalListener here, rather
-        // than just walking the messageArray after the operation completes. This is so that we can
-        // immediately update the database so the user can see something useful happening, even
-        // if the message body has not yet been fetched.
-        // There are some issues with this approach:
-        // 1. It means that we have a single thread doing both network and database operations, and
-        // either can block the other. The database updates could slow down the network reads,
-        // keeping our network connection open longer than is really necessary.
-        // 2. We still load all of this data into messageArray, even though it's not used.
-        // It would be nicer if we had one thread doing the network operation, and a separate
-        // thread consuming that data and performing the appropriate database work, then discarding
-        // the data as soon as it is no longer needed. This would reduce our memory footprint and
-        // potentially allow our network operation to complete faster.
-        remoteFolder.fetch(messageArray, fp, new MessageRetrievalListener() {
-            @Override
-            public void messageRetrieved(Message message) {
-                try {
-                    EmailContent.Message localMessage = new EmailContent.Message();
-
-                    // Copy the fields that are available into the message
-                    LegacyConversions.updateMessageFields(localMessage,
-                            message, account.mId, mailbox.mId);
-                    // Save off the mailbox that this message *really* belongs in.
-                    // We need this information if we need to do more lookups
-                    // (like loading attachments) for this message. See b/11294681
-                    localMessage.mMainMailboxKey = localMessage.mMailboxKey;
-                    localMessage.mMailboxKey = destMailboxId;
-                    // We load 50k or so; maybe it's complete, maybe not...
-                    int flag = EmailContent.Message.FLAG_LOADED_COMPLETE;
-                    // We store the serverId of the source mailbox into protocolSearchInfo
-                    // This will be used by loadMessageForView, etc. to use the proper remote
-                    // folder
-                    localMessage.mProtocolSearchInfo = mailbox.mServerId;
-                    // Commit the message to the local store
-                    Utilities.saveOrUpdate(localMessage, context);
-                } catch (MessagingException me) {
-                    LogUtils.e(Logging.LOG_TAG, me,
-                            "Error while copying downloaded message.");
-                } catch (Exception e) {
-                    LogUtils.e(Logging.LOG_TAG, e,
-                            "Error while storing downloaded message.");
-                }
-            }
-
-            @Override
-            public void loadAttachmentProgress(int progress) {
-            }
-        });
-
-        // Now load the structure for all of the messages:
-        fp.clear();
-        fp.add(FetchProfile.Item.STRUCTURE);
-        remoteFolder.fetch(messageArray, fp, null);
-
-        // Finally, load the first body part (i.e. message text).
-        // This means attachment contents are not yet loaded, but that's okay,
-        // we'll load them as needed, same as in synced messages.
-        Message [] oneMessageArray = new Message[1];
-        for (Message message : messageArray) {
-            // Build a list of parts we are interested in. Text parts will be downloaded
-            // right now, attachments will be left for later.
-            ArrayList<Part> viewables = new ArrayList<Part>();
-            ArrayList<Part> attachments = new ArrayList<Part>();
-            MimeUtility.collectParts(message, viewables, attachments);
-            // Download the viewables immediately
-            oneMessageArray[0] = message;
-            for (Part part : viewables) {
-                fp.clear();
-                fp.add(part);
-                remoteFolder.fetch(oneMessageArray, fp, null);
-            }
-            // Store the updated message locally and mark it fully loaded
-            Utilities.copyOneMessageToProvider(context, message, account, destMailbox,
-                    EmailContent.Message.FLAG_LOADED_COMPLETE);
-        }
-
-        // Tell UI that we're done loading messages
-        statusValues.put(Mailbox.SYNC_TIME, System.currentTimeMillis());
-        statusValues.put(Mailbox.UI_SYNC_STATUS, UIProvider.SyncStatus.NO_SYNC);
-        destMailbox.update(context, statusValues);
-
-        remoteStore.closeConnections();
 
         return numSearchResults;
     }
