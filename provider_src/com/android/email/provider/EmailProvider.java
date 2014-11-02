@@ -758,12 +758,9 @@ public class EmailProvider extends ContentProvider
             if (messageDeletion) {
                 if (match == MESSAGE_ID) {
                     // Delete the Body record associated with the deleted message
-                    final ContentValues emptyValues = new ContentValues(2);
-                    emptyValues.putNull(BodyColumns.HTML_CONTENT);
-                    emptyValues.putNull(BodyColumns.TEXT_CONTENT);
                     final long messageId = Long.valueOf(id);
                     try {
-                        writeBodyFiles(context, messageId, emptyValues);
+                        deleteBodyFiles(context, messageId);
                     } catch (final IllegalStateException e) {
                         LogUtils.v(LogUtils.TAG, e, "Exception while deleting bodies");
                     }
@@ -772,13 +769,10 @@ public class EmailProvider extends ContentProvider
                     // Delete any orphaned Body records
                     final Cursor orphans = db.rawQuery(ORPHAN_BODY_MESSAGE_ID_SELECT, null);
                     try {
-                        final ContentValues emptyValues = new ContentValues(2);
-                        emptyValues.putNull(BodyColumns.HTML_CONTENT);
-                        emptyValues.putNull(BodyColumns.TEXT_CONTENT);
                         while (orphans.moveToNext()) {
                             final long messageId = orphans.getLong(0);
                             try {
-                                writeBodyFiles(context, messageId, emptyValues);
+                                deleteBodyFiles(context, messageId);
                             } catch (final IllegalStateException e) {
                                 LogUtils.v(LogUtils.TAG, e, "Exception while deleting bodies");
                             }
@@ -908,6 +902,8 @@ public class EmailProvider extends ContentProvider
                                 "Cannot insert body without MESSAGE_KEY");
                     }
                     final long messageId = values.getAsLong(BodyColumns.MESSAGE_KEY);
+                    // Ensure that no pre-existing body files contaminate the message
+                    deleteBodyFiles(context, messageId);
                     writeBodyFiles(getContext(), messageId, values);
                     break;
                 // NOTE: It is NOT legal for production code to insert directly into UPDATED_MESSAGE
@@ -2218,6 +2214,14 @@ public class EmailProvider extends ContentProvider
         }
 
         return result;
+    }
+
+    private static void deleteBodyFiles(final Context c, final long messageId)
+            throws IllegalStateException {
+        final ContentValues emptyValues = new ContentValues(2);
+        emptyValues.putNull(BodyColumns.HTML_CONTENT);
+        emptyValues.putNull(BodyColumns.TEXT_CONTENT);
+        writeBodyFiles(c, messageId, emptyValues);
     }
 
     /**
