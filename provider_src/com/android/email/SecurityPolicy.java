@@ -56,7 +56,7 @@ import java.util.ArrayList;
  * into and out of various security states.
  */
 public class SecurityPolicy {
-    private static final String TAG = "Email/SecurityPolicy";
+    private static final String TAG = "Email";
     private static SecurityPolicy sInstance = null;
     private Context mContext;
     private DevicePolicyManager mDPM;
@@ -438,7 +438,14 @@ public class SecurityPolicy {
             dpm.setPasswordMinimumNumeric(mAdminName, 0);
             dpm.setPasswordMinimumNonLetter(mAdminName, aggregatePolicy.mPasswordComplexChars);
             // Device capabilities
-            dpm.setCameraDisabled(mAdminName, aggregatePolicy.mDontAllowCamera);
+            try {
+                // If we are running in a managed policy, it is a securityException to even
+                // call setCameraDisabled(), if is disabled is false. We have to swallow
+                // the exception here.
+                dpm.setCameraDisabled(mAdminName, aggregatePolicy.mDontAllowCamera);
+            } catch (SecurityException e) {
+                LogUtils.d(TAG, "SecurityException in setCameraDisabled, nothing changed");
+            }
 
             // encryption required
             dpm.setStorageEncryption(mAdminName, aggregatePolicy.mRequireEncryption);
