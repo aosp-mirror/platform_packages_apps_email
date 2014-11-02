@@ -23,7 +23,7 @@ include $(CLEAR_VARS)
 appcompat_dir := ../../../prebuilts/sdk/current/support/v7/appcompat/res
 chips_dir := ../../../frameworks/opt/chips/res
 unified_email_dir := ../UnifiedEmail
-photo_dir := ../../../frameworks/opt/photoviewer/res ../../../frameworks/opt/photoviewer/activity/res
+photo_dir := ../../../frameworks/opt/photoviewer/res ../../../frameworks/opt/photoviewer/appcompat/res
 emailcommon_dir := emailcommon
 gridlayout_dir := ../../../prebuilts/sdk/current/support/v7/gridlayout/res
 bitmap_dir := ../../../frameworks/opt/bitmap/res
@@ -45,7 +45,8 @@ LOCAL_ASSET_DIR := $(LOCAL_PATH)/$(unified_email_dir)/assets
 LOCAL_AAPT_FLAGS := --auto-add-overlay
 LOCAL_AAPT_FLAGS += --extra-packages com.android.ex.chips:com.android.mail:com.android.email:com.android.emailcommon:com.android.ex.photo:android.support.v7.appcompat:android.support.v7.gridlayout:com.android.bitmap:com.android.datetimepicker
 
-LOCAL_STATIC_JAVA_LIBRARIES := android-common com.android.emailcommon guava libchips libphotoviewer
+LOCAL_STATIC_JAVA_LIBRARIES := android-common com.android.emailcommon guava libchips
+LOCAL_STATIC_JAVA_LIBRARIES += libphotoviewer_appcompat
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v7-appcompat
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v7-gridlayout
