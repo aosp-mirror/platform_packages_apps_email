@@ -19,11 +19,6 @@
     <!-- Boolean value indicating whether the feedback is supported. -->
     <bool name="feedback_supported">false</bool>
 
-    <!-- Alpha value for 'manual setup' button when disabled -->
-    <fraction name="manual_setup_disabled_alpha">40%</fraction>
-    <!-- Alpha value for 'manual setup' button when enabled -->
-    <fraction name="manual_setup_enabled_alpha">100%</fraction>
-
     <!-- Boolean value indicating if quick responses are supported -->
     <bool name="quickresponse_supported">true</bool>
 
