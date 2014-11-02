@@ -229,10 +229,6 @@
     <string name="account_duplicate_dlg_message_fmt">
         You\'re already using this username for the account \"<xliff:g id="duplicate">%s</xliff:g>\".
     </string>
-    <!-- String that is displayed as error text for passwords with leading or trailing
-         spaces.  [CHAR LIMIT=none] -->
-    <string name="account_password_spaces_error">This password starts or ends with one or more
-        space characters. Many servers don\'t support passwords with spaces.</string>
 
     <!-- On check-settings screen, this is the initially-displayed message. -->
     <string name="account_setup_check_settings_retr_info_msg">
