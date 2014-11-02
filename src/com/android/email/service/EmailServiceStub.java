@@ -25,11 +25,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 
+import com.android.email.DebugUtils;
 import com.android.email.NotificationController;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
-import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.TrafficFlags;
 import com.android.emailcommon.internet.MimeBodyPart;
@@ -462,7 +462,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                     messageId = c.getLong(0);
                     // Don't send messages with unloaded attachments
                     if (Utility.hasUnloadedAttachments(context, messageId)) {
-                        if (MailActivityEmail.DEBUG) {
+                        if (DebugUtils.DEBUG) {
                             LogUtils.d(Logging.LOG_TAG, "Can't send #" + messageId +
                                     "; unloaded attachments");
                         }
