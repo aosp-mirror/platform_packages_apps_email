@@ -18,6 +18,7 @@ package com.android.email.activity.setup;
 
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
+import android.app.ActionBar;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -211,6 +212,13 @@ public class AccountSetupFinal extends AccountSetupActivity
         }
 
         setContentView(R.layout.account_setup_activity);
+
+        final ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            // Hide the app icon.
+            actionBar.setIcon(android.R.color.transparent);
+            actionBar.setDisplayUseLogoEnabled(false);
+        }
 
         if (savedInstanceState != null) {
             mIsProcessing = savedInstanceState.getBoolean(SAVESTATE_KEY_IS_PROCESSING, false);
