@@ -42,7 +42,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/debug_clear_webview_cache"
-    />
+        />
+    <Button
+        android:id="@+id/clear_migration_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/debug_clear_migration_state"
+        />
     <CheckBox
         android:id="@+id/debug_force_one_minute_refresh"
         android:layout_width="wrap_content"

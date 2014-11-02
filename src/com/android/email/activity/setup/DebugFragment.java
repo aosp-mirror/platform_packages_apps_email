@@ -33,6 +33,7 @@ import com.android.email.R;
 import com.android.email.activity.UiUtilities;
 import com.android.email.service.EmailServiceUtils;
 import com.android.emailcommon.Logging;
+import com.android.mail.preferences.MailPrefs;
 import com.android.mail.utils.LogUtils;
 
 public class DebugFragment extends Fragment implements OnCheckedChangeListener,
@@ -73,6 +74,7 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
         }
 
         UiUtilities.getView(view, R.id.clear_webview_cache).setOnClickListener(this);
+        UiUtilities.getView(view, R.id.clear_migration_state).setOnClickListener(this);
 
         final CheckBox enableStrictModeView =
                 UiUtilities.getView(view, R.id.debug_enable_strict_mode);
@@ -112,6 +114,9 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
             case R.id.clear_webview_cache:
                 clearWebViewCache();
                 break;
+            case R.id.clear_migration_state:
+                clearMigrationState();
+                break;
         }
     }
 
@@ -123,5 +128,10 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
         } finally {
             webview.destroy();
         }
+    }
+
+    private void clearMigrationState() {
+        MailPrefs prefs = MailPrefs.get(getActivity());
+        prefs.setMigrationState(MailPrefs.PreferenceKeys.MIGRATION_STATE_NONE);
     }
 }
