@@ -250,7 +250,7 @@
     <string name="account_settings_sync_calendar_summary" msgid="411960248618953311">"Համաժամեցնել օրացուցային իրադարձությունը այս հաշվում"</string>
     <string name="account_settings_sync_email_enable" msgid="7135765408226471860">"Համաժամեցնել էլփոստը"</string>
     <string name="account_settings_sync_email_summary" msgid="71710510041953351">"Համաժամեցնել Էլփոստը այս հաշվում"</string>
-    <string name="account_settings_vibrate_when_label" msgid="361069844540266098">"Թրթռալ"</string>
+    <string name="label_notification_vibrate_title" msgid="361069844540266098">"Թրթռալ"</string>
     <string name="account_settings_ringtone" msgid="2238523918221865167">"Ընտրեք զանգերանգը"</string>
     <string name="account_settings_servers" msgid="3386185135392642067">"Սերվերի կարգավորումներ"</string>
     <string name="mailbox_settings_activity_title" msgid="2196614373847675314">"Համաժամեցման ընտրանքներ"</string>

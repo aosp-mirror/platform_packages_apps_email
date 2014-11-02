@@ -37,32 +37,12 @@
 
     <!--  Menu item used to create a new quick response [CHAR_LIMIT=16] -->
     <string name="create_action">Create new</string>
+
     <!-- Message informing user when a list that would contain quick responses
             is empty [CHAR_LIMIT=80] -->
     <string name="quick_responses_empty_view">No quick responses.</string>
     <!-- Menu item -->
     <string name="account_settings_action">Account settings</string>
-    <!-- Appears in message list view when there's a network error. -->
-    <!-- Also appears in a toast, in the message viewer, when there's a network error. -->
-    <string name="status_network_error">Connection problem.</string>
-    <!-- Text shown with dragged messages to indicate how many are being dragged [CHAR LIMIT=40]-->
-    <plurals name="move_messages">
-        <item quantity="one">Move message</item>
-        <item quantity="other">Move messages</item>
-    </plurals>
-    <!-- Toast shown when a message(s) can't be moved because it's not supported by the POP3
-        protocol. [CHAR LIMIT=none]-->
-    <string name="cannot_move_protocol_not_supported_toast">Move isn\'t supported on POP3 accounts.
-        </string>
-    <!-- Toast shown when messages can't be moved because the selection contains multiple accounts'
-        messages. [CHAR LIMIT=none]-->
-    <string name="cannot_move_multiple_accounts_toast">Can\'t move because selection contains multiple
-        accounts.</string>
-    <!-- Toast shown when messages can't be moved because they're in a special mailbox.  "Drafts",
-        "Outbox" and "Sent". [CHAR LIMIT=none]-->
-    <string name="cannot_move_special_mailboxes_toast">Messages in Drafts, Outbox, and Sent can\'t be
-        moved.</string>
-
     <!-- The next set of strings are used in local display and may be localized. -->
     <!-- In the UI, the inbox will be displayed with this name -->
     <string name="mailbox_name_display_inbox">Inbox</string>
@@ -96,26 +76,12 @@
     <string name="debug_clear_webview_cache" translatable="false">
         Clear WebView cache</string>
     <!-- Do Not Translate.  Checkbox label, shown on debug screen. -->
-    <string name="debug_disable_graphics_acceleration_label" translatable="false">
-        Disable hardware graphics acceleration</string>
-    <!-- Do Not Translate.  Checkbox label, shown on debug screen. -->
     <string name="debug_force_one_minute_refresh_label" translatable="false">
         Force 1-minute refresh for POP/IMAP</string>
     <!-- Do Not Translate.  Checkbox label, shown on debug screen. -->
     <string name="debug_enable_strict_mode_label" translatable="false">
         Enable strict mode (with logging)</string>
 
-    <!-- The summary section entry in the AccountFolder list to display all inboxes -->
-    <string name="account_folder_list_summary_inbox">Inbox</string>
-    <!-- The summary section entry in the AccountFolder list to display all starred
-        [CHAR LIMIT=200dip] -->
-    <string name="account_folder_list_summary_starred">Starred</string>
-    <!-- The summary section entry in the AccountFolder list to display all drafts
-        [CHAR LIMIT=200dip] -->
-    <string name="account_folder_list_summary_drafts">Drafts</string>
-    <!-- The summary section entry in the AccountFolder list to display all outboxes
-        [CHAR LIMIT=200dip] -->
-    <string name="account_folder_list_summary_outbox">Outbox</string>
 
     <!-- Label shown in the account selector to select "Combined view", which contains
          Combined Inbox, Combined Outbox, etc. [CHAR LIMIT=30] -->
@@ -133,10 +99,6 @@
     <string name="message_view_attachment_background_load">One or more attachments in your
         forwarded message will be downloaded prior to sending.</string>
 
-    <!-- Error banner when an attachment could not be downloaded due to a problem at the server
-            [CHAR LIMIT=100] -->
-    <string name="attachment_not_found">Couldn\'t download the attachment.</string>
-
     <!-- String used in place of a message that could not be properly decoded (e.g. bad base64
          data was received.) [CHAR LIMIT=none] -->
     <string name="message_decode_error">There was an error while decoding the message.</string>
@@ -151,27 +113,6 @@
         <xliff:g id="account_name">%s</xliff:g> signin unsuccessful.</string>
     <!-- Notification title when email account authentication fails [CHAR LIMIT=30]-->
     <string name="login_failed_title">Couldn\'t sign in</string>
-
-    <!-- Size unit for bytes for attachments [CHAR LIMIT=10] -->
-    <plurals name="message_view_attachment_bytes">
-        <item quantity="one"  ><xliff:g id="size_in_bytes" example="1"  >%d</xliff:g>B</item>
-        <item quantity="other"><xliff:g id="size_in_bytes" example="279">%d</xliff:g>B</item>
-    </plurals>
-    <!-- Size unit for kilo bytes for attachments [CHAR LIMIT=10] -->
-    <plurals name="message_view_attachment_kilobytes">
-        <item quantity="one"  ><xliff:g id="size_in_kilobytes" example="1"  >%d</xliff:g>KB</item>
-        <item quantity="other"><xliff:g id="size_in_kilobytes" example="279">%d</xliff:g>KB</item>
-    </plurals>
-    <!-- Size unit for mega bytes for attachments [CHAR LIMIT=10] -->
-    <plurals name="message_view_attachment_megabytes">
-        <item quantity="one"  ><xliff:g id="size_in_megabytes" example="1"  >%d</xliff:g>MB</item>
-        <item quantity="other"><xliff:g id="size_in_megabytes" example="279">%d</xliff:g>MB</item>
-    </plurals>
-    <!-- Size unit for giga bytes for attachments [CHAR LIMIT=10] -->
-    <plurals name="message_view_attachment_gigabytes">
-        <item quantity="one"  ><xliff:g id="size_in_gigabytes" example="1"  >%d</xliff:g>GB</item>
-        <item quantity="other"><xliff:g id="size_in_gigabytes" example="279">%d</xliff:g>GB</item>
-    </plurals>
 
     <!-- Title of screen when setting up new email account [CHAR LIMIT=45] -->
     <string name="account_setup_basics_title">Account setup</string>
@@ -213,10 +154,6 @@
     <string name="clear_authentication_label">Clear authentication</string>
     <!-- Button name on "Set up email" screen, with action underlined using html [CHAR LIMIT=20] -->
     <string name="account_setup_basics_manual_setup_action">Manual setup</string>
-    <!-- Do not translate. Button name on "Set up email" screen [CHAR LIMIT=20] TODO: This is a temporary workaround
-     to allow initiating the OAuth setup flow before we have the real design working. This string
-     should be removed. -->
-    <string name="account_setup_basics_oauth_setup_action" translatable="false">OAuth</string>
     <!-- Toast when we can't build a URI from the given email & password -->
     <!-- Note, the error message in the toast is purposefully vague, because I *don't* know
         exactly what's wrong. -->
@@ -248,8 +185,6 @@
     <!-- Explanatory text that appears on the "Confirm account type" screen [CHAR LIMIT=none] -->
     <string name="account_setup_ab_instructions_format">You indicated <xliff:g id="email">%1$s</xliff:g> uses <xliff:g id="userProtocol">%2$s</xliff:g>, but the account may use <xliff:g id="providerProtocol">%3$s</xliff:g></string>
 
-    <!-- Title of "Set up email" screen after success [CHAR LIMIT=45] -->
-    <string name="account_setup_names_title">Account setup</string>
     <!-- Text that appears on "Set up email" screen after successfully setting up an account
         [CHAR LIMIT=none] -->
     <string name="account_setup_names_headline">
@@ -261,15 +196,11 @@
     <string name="account_setup_names_user_name_label">
         Your name (displayed on outgoing messages)</string>
 
-    <!-- Activity Title for the account type selector (IMAP or POP3 or EAS) [CHAR LIMIT=45] -->
-    <string name="account_setup_account_type_title">Account setup</string>
     <!-- Headline for the the account type selector (IMAP or POP3 or EAS) [CHAR LIMIT=none] -->
     <string name="account_setup_account_type_headline">Account type</string>
     <!-- "Add new email account" screen, text that appears on screen -->
     <string name="account_setup_account_type_instructions">What type of account is this?</string>
 
-    <!-- "Incoming server settings" screen, title [CHAR LIMIT=45] -->
-    <string name="account_setup_incoming_title">Account setup</string>
     <!-- "Incoming server settings" screen, headline (text over divider) [CHAR LIMIT=none] -->
     <string name="account_setup_incoming_headline">Incoming server settings</string>
     <!-- "Incoming server settings" screen, label for text field, should be uppercase where applicable -->
@@ -317,8 +248,6 @@
     <!-- "Incoming server settings" screen, hint for setting IMAP path prefix: -->
     <string name="account_setup_incoming_imap_path_prefix_hint">Optional</string>
 
-    <!-- "Outgoing server settings" screen, title [CHAR LIMIT=45] -->
-    <string name="account_setup_outgoing_title">Account setup</string>
     <!-- "Outgoing server settings" screen, headline (text over divider) [CHAR LIMIT=none] -->
     <string name="account_setup_outgoing_headline">Outgoing server settings</string>
     <!-- On "Outgoing server settings" screen, label for text field, should be uppercase where applicable -->
@@ -331,8 +260,6 @@
     <string name="account_setup_outgoing_require_login_label">Require signin</string>
     <!-- On "Outgoing server settings" screen, label for text field, should be uppercase where applicable-->
     <string name="account_setup_outgoing_username_label">USERNAME</string>
-    <!-- On "Outgoing server settings" screen, label for text field, should be uppercase where applicable -->
-    <string name="account_setup_outgoing_password_label">PASSWORD</string>
 
     <!-- On "Exchange" setup screen, a heading title for the current client certificate, should be uppercase where applicable [CHAR LIMIT=50] -->
     <string name="account_setup_exchange_certificate_title">CLIENT CERTIFICATE</string>
@@ -348,8 +275,6 @@
     <!-- On "Exchange" setup screen, the exchange device-id label, should be uppercase where applicable [CHAR LIMIT=30] -->
     <string name="account_setup_exchange_device_id_label">MOBILE DEVICE ID</string>
 
-    <!-- In Account setup options screen, Activity title [CHAR LIMIT=45] -->
-    <string name="account_setup_options_title">Account settings</string>
     <!-- In Account setup options screen, Activity headline [CHAR LIMIT=none] -->
     <string name="account_setup_options_headline">Account options</string>
     <!-- In Account setup options screen, label for email check frequency selector -->
@@ -403,8 +328,6 @@
 
     <!-- "Setup could not finish" dialog text; e.g., Username or password incorrect -->
     <string name="account_setup_failed_dlg_auth_message">Username or password is incorrect.</string>
-    <!-- "Setup could not finish" dialog text; e.g., Username or password incorrect\n(ERR01 Account does not exist) -->
-    <string name="account_setup_failed_dlg_auth_message_fmt">Login failed.\n(<xliff:g id="error">%s</xliff:g>)</string>
 
     <!-- Account setup autodiscover auth failure dialog title. This is shown when autodiscover hits
         an "access denied" server error, which could imply incorrect username/password or that no
@@ -475,9 +398,6 @@
     <string name="account_setup_failed_security_policies_unsupported">
          This server requires security features that your Android device doesn\'t support,
           including: <xliff:g id="error">%s</xliff:g></string>
-    <!-- The user name can only be changed during initial account setup. [CHAR LIMIT=none] -->
-    <string name="account_setup_username_uneditable_error">You can\'t change an account\'s username.
-         To add an account with a different username, touch Add Account.</string>
     <!-- Warning given to users when they request disabling device administration (i.e. that their
          administered accounts will be deleted) [CHAR LIMIT=none] -->
     <string name="disable_admin_warning">WARNING: Deactivating the Email app\'s authority
@@ -557,20 +477,6 @@
     <!-- On AccountSettingsXL, dialog text if you try to exit in/out/eas fragment (server settings)
          without checking/saving [CHAR LIMIT=none]-->
     <string name="account_settings_exit_server_settings">Discard unsaved changes?</string>
-
-    <!-- On AccountSettingsXL, dialog title if you were brought here due to a login failure.
-        [CHAR_LIMIT=40] -->
-    <string name="account_settings_login_dialog_title">Couldn\'t sign in</string>
-    <!-- Dialog content if you were brought here due to a login failure.
-        [CHAR_LIMIT=none] -->
-    <string name="account_settings_login_dialog_content_fmt">
-         The username or password for <xliff:g id="account">%s</xliff:g> is incorrect.
-         Do you want to update them now?</string>
-    <!-- Dialog content if you were brought here due to a login failure, and the server provided a reason
-        [CHAR_LIMIT=none] -->
-    <string name="account_settings_login_dialog_reason_fmt">
-         Your login to <xliff:g id="account">%s</xliff:g> failed; the server said: <xliff:g id="reason">%s</xliff:g>
-         Do you want to update your username and/or password?</string>
 
     <!-- On Settings screen, setting option name -->
     <!-- Title of account preference for downloading attachments in background [CHAR LIMIT=32] -->
@@ -653,7 +559,7 @@
     <string name="account_settings_sync_email_summary">Sync email for this account</string>
 
     <!-- On Settings screen, vibrate pop-up menu label -->
-    <string name="account_settings_vibrate_when_label">Vibrate</string>
+    <string name="label_notification_vibrate_title">Vibrate</string>
 
     <!-- On Settings screen, setting option name -->
     <string name="account_settings_ringtone">Choose ringtone</string>
@@ -671,15 +577,6 @@
     <!-- On mailbox settings screen: Mailbox sync window (the number of days to synchronize email for) setting label [CHAR LIMIT=none] -->
     <string name="mailbox_settings_mailbox_sync_window_label">Days of mail to sync</string>
 
-    <!-- Dialog title for the choosing whether to show checkboxes or sender image [CHAR LIMIT=200] -->
-    <string name="prefDialogTitle_conversationListIcon">Sender image</string>
-
-    <!-- Message that appears when adding a Windows Live Hotmail Plus account -->
-    <string name="provider_note_live">Only some \"Plus\" accounts include POP access
-        allowing this program to connect. If you\'re not able to sign in with
-        your correct email address and password, you may not have a paid
-        \"Plus\" account. Launch the web browser to gain access to
-        these email accounts.</string>
     <!-- Message that appears when adding a T-Online account -->
     <string name="provider_note_t_online">Before setting up this email account, visit the T-Online website and create a password for POP3 email access.</string>
 
@@ -696,32 +593,6 @@
     <string name="device_admin_label">Email</string>
     <!-- Long-form description of the DeviceAdmin (2nd line in settings & in user conf. screen) -->
     <string name="device_admin_description">Enables server-specified security policies</string>
-
-    <!-- Settings activity title [CHAR LIMIT=40]-->
-    <string name="settings_activity_title">Settings</string>
-
-    <!-- General Preferences Screen -->
-    <!-- Label in preferences header to describe general preferences [CHAR LIMIT=32] -->
-    <string name="header_label_general_preferences">General settings</string>
-
-    <!-- General preference: Label of the setting for requiring confirmation before
-         message deletion [CHAR LIMIT=32] -->
-    <string name="general_preference_confirm_delete_label">Confirm before deleting</string>
-    <!-- General preference: Description of the setting for requiring confirmation before
-         message deletion [CHAR LIMIT=64] -->
-    <!-- General preference: Label of the setting for requiring confirmation before
-         message sending [CHAR LIMIT=32] -->
-    <string name="general_preference_confirm_send_label">Confirm before sending</string>
-    <!-- General preference: Description of the setting for requiring confirmation before
-         message sending [CHAR LIMIT=32] -->
-
-    <!-- Generic string shown instead of regular numbers, when a number is larger than 999.
-         This should not be altered if the original string ("999+") makes sense in the
-         target language. Typical alternatives include "+999" and ">999".  [CHAR_LIMIT=4] -->
-    <string name="more_than_999">999+</string>
-
-    <!-- The hint used in the search box when searching all mailboxes [CHAR LIMIT=35] -->
-    <string name="search_hint">Search email</string>
 
     <!-- A policy disallowing the user of the device's camera [CHAR LIMIT=50] -->
     <string name="policy_dont_allow_camera">Disallow use of the device\'s camera</string>
@@ -753,21 +624,13 @@
     <!-- A "quick response", i.e. a quick reply to a received mail [CHAR LIMIT=NONE] -->
     <string name="quick_4">Let\'s set up a meeting to discuss this.</string>
 
-    <!-- This is the message warning the user that they must sync manually when roaming. [CHAR LIMIT=none]-->
-    <string name="require_manual_sync_message">Background sync for this account is disabled while\
-     roaming.</string>
-
     <!-- This is shown when a user responds to a meeting invitation [CHAR LIMIT=none]-->
     <string name="confirm_response">Sending response&#8230;</string>
-
-    <!-- Displayed in the middle of the screen when the inbox is empty [CHAR LIMIT 100]-->
-    <string name="no_conversations">No messages.</string>
 
     <!-- Used by AccountManager -->
     <string name="imap_name">IMAP</string>
     <string name="pop3_name">POP3</string>
 
-    <string name="folder_picker_title">Folder picker</string>
     <!-- Displayed when the user must pick his server's trash folder from a list [CHAR LIMIT 30]-->
     <string name="trash_folder_selection_title">Select server trash folder for <xliff:g id="account">%s</xliff:g></string>
     <!-- Displayed when the user must pick his server's sent items folder from a list [CHAR LIMIT 30]-->
