@@ -1505,6 +1505,10 @@ public class ImapService extends Service {
                 Math.min(numSearchResults - searchParams.mOffset, searchParams.mLimit);
         destMailbox.updateMessageCount(context, numSearchResults);
         if (numToLoad <= 0) {
+            // Tell UI that we're done loading messages
+            statusValues.put(Mailbox.SYNC_TIME, System.currentTimeMillis());
+            statusValues.put(Mailbox.UI_SYNC_STATUS, UIProvider.SyncStatus.NO_SYNC);
+            destMailbox.update(context, statusValues);
             return 0;
         }
 
