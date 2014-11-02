@@ -225,11 +225,17 @@ public final class Account extends EmailContent implements Parcelable {
                 new String[] {AccountColumns._ID},
                 AccountColumns.EMAIL_ADDRESS + "=?", new String[] {emailAddress},
                 null);
-        if (c == null || !c.moveToFirst()) {
-            return null;
+        try {
+            if (c == null || !c.moveToFirst()) {
+                return null;
+            }
+            final long id = c.getLong(c.getColumnIndex(AccountColumns._ID));
+            return restoreAccountWithId(context, id, observer);
+        } finally {
+            if (c != null) {
+                c.close();
+            }
         }
-        final long id = c.getLong(c.getColumnIndex(AccountColumns._ID));
-        return restoreAccountWithId(context, id, observer);
     }
 
     @Override
