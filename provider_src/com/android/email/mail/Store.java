@@ -156,6 +156,16 @@ public abstract class Store {
         return true;
     }
 
+    /**
+     * Some protocols allow for syncing of folder types other than inbox. The store for any such
+     * protocol should override this to return what types can be synced.
+     * @param type The type of mailbox
+     * @return true if the given type of mailbox can be synced.
+     */
+    public boolean canSyncFolderType(final int type) {
+        return (type == Mailbox.TYPE_INBOX);
+    }
+
     public Folder getFolder(String name) throws MessagingException {
         return null;
     }
