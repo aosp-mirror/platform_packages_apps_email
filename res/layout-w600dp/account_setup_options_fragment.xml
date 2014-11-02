@@ -16,119 +16,102 @@
 
 <!-- Common data-entry area of account options setup screen - check freq, options, etc. -->
 <!-- tablet version -->
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
     >
     <!-- Spinners in a table to line everything up nicely -->
-    <TableLayout
-        android:id="@+id/spinners_table"
-        android:layout_alignParentTop="true"
+    <android.support.v7.widget.GridLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:stretchColumns="1" >
-        <TableRow
-            android:paddingTop="16dip" >
-            <TextView
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:layout_marginRight="16dip"
-                android:text="@string/account_setup_options_mail_check_frequency_label"
-                style="@style/account_setup_label_text" />
-            <Spinner
-                android:id="@+id/account_check_frequency"
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent" />
-        </TableRow>
+        app:columnCount="2" >
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            app:layout_gravity="center_vertical"
+            android:layout_margin="8dp"
+            android:text="@string/account_setup_options_mail_check_frequency_label"
+            style="@style/account_setup_label_text" />
+        <Spinner
+            android:id="@+id/account_check_frequency"
+            android:layout_height="wrap_content"
+            app:layout_gravity="center_vertical|fill_horizontal"/>
         <!-- 2nd row is shown only for EAS accounts -->
-        <TableRow
-            android:id="@+id/account_sync_window_row"
-            android:paddingTop="16dip"
-            android:visibility="gone" >
-            <TextView
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:layout_marginRight="16dip"
-                android:text="@string/account_setup_options_mail_window_label"
-                style="@style/account_setup_label_text" />
-            <Spinner
-                android:id="@+id/account_sync_window"
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent" />
-        </TableRow>
-    </TableLayout>
+        <TextView
+            android:id="@+id/account_sync_window_label"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            app:layout_gravity="center_vertical"
+            android:layout_margin="8dp"
+            android:text="@string/account_setup_options_mail_window_label"
+            android:visibility="gone"
+            style="@style/account_setup_label_text" />
+        <Spinner
+            android:id="@+id/account_sync_window"
+            android:layout_height="wrap_content"
+            app:layout_gravity="center_vertical|fill_horizontal"
+            android:visibility="gone" />
+
+    </android.support.v7.widget.GridLayout>
     <CheckBox
         android:id="@+id/account_notify"
-        android:layout_below="@+id/spinners_table"
         style="@style/account_setup_checkbox"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:text="@string/account_setup_options_notify_label" />
+    <!-- Contacts sync - hide unless EAS -->
     <View
-        android:id="@+id/account_notify_divider"
-        android:layout_below="@+id/account_notify"
+        android:id="@+id/account_sync_contacts_divider"
         android:layout_width="match_parent"
         android:layout_height="1px"
-        android:background="@color/account_setup_divider_color" />
-    <!-- Contacts sync - hide unless EAS -->
+        android:background="@color/account_setup_divider_color"
+        android:visibility="gone" />
     <CheckBox
         android:id="@+id/account_sync_contacts"
-        android:layout_below="@+id/account_notify_divider"
         style="@style/account_setup_checkbox"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:text="@string/account_setup_options_sync_contacts_label"
         android:visibility="gone" />
+    <!-- Calendar sync - hide unless EAS -->
     <View
-        android:id="@+id/account_sync_contacts_divider"
-        android:layout_below="@+id/account_sync_contacts"
+        android:id="@+id/account_sync_calendar_divider"
         android:layout_width="match_parent"
         android:layout_height="1px"
         android:background="@color/account_setup_divider_color"
         android:visibility="gone" />
-    <!-- Calendar sync - hide unless EAS -->
     <CheckBox
         android:id="@+id/account_sync_calendar"
-        android:layout_below="@+id/account_sync_contacts_divider"
         style="@style/account_setup_checkbox"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:text="@string/account_setup_options_sync_calendar_label"
         android:visibility="gone" />
+    <!-- Email sync - always show -->
     <View
-        android:id="@+id/account_sync_calendar_divider"
-        android:layout_below="@+id/account_sync_calendar"
         android:layout_width="match_parent"
         android:layout_height="1px"
-        android:background="@color/account_setup_divider_color"
-        android:visibility="gone" />
-    <!-- Email sync - always show -->
+        android:background="@color/account_setup_divider_color" />
     <CheckBox
         android:id="@+id/account_sync_email"
-        android:layout_below="@+id/account_sync_calendar_divider"
         style="@style/account_setup_checkbox"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:text="@string/account_setup_options_sync_email_label" />
+    <!-- Auto-download attachments - always show, unless POP3 -->
     <View
-        android:id="@+id/account_sync_email_divider"
-        android:layout_below="@+id/account_sync_email"
+        android:id="@+id/account_background_attachments_divider"
         android:layout_width="match_parent"
         android:layout_height="1px"
         android:background="@color/account_setup_divider_color" />
-    <!-- Auto-download attachments - always show, unless POP3 -->
     <CheckBox
         android:id="@+id/account_background_attachments"
-        android:layout_below="@+id/account_sync_email_divider"
         style="@style/account_setup_checkbox"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:text="@string/account_setup_options_background_attachments_label" />
-    <View
-        android:id="@+id/account_background_attachments_divider"
-        android:layout_below="@+id/account_sync_email"
-        android:layout_width="match_parent"
-        android:layout_height="1px"
-        android:background="@color/account_setup_divider_color" />
-</RelativeLayout>
+</LinearLayout>
