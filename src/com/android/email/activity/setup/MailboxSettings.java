@@ -105,6 +105,9 @@ public class MailboxSettings extends PreferenceActivity {
         ActionBar actionBar = getActionBar();
         if (actionBar != null) {
             actionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
+            // Hide the app icon.
+            actionBar.setIcon(android.R.color.transparent);
+            actionBar.setDisplayUseLogoEnabled(false);
         }
     }
 
