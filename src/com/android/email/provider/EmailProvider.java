@@ -67,6 +67,7 @@ import com.android.email.DebugUtils;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
+import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettingsFragment;
 import com.android.email.activity.setup.AccountSettingsUtils;
 import com.android.email.activity.setup.HeadlessAccountSettingsLoader;
@@ -3332,10 +3333,8 @@ public class EmailProvider extends ContentProvider
         return sb.toString();
     }
 
-    private static int getCapabilities(Context context, long accountId) {
-        final Account account = Account.restoreAccountWithId(context, accountId);
+    private static int getCapabilities(Context context, final Account account) {
         if (account == null) {
-            LogUtils.d(TAG, "Account %d not found during getCapabilities", accountId);
             return 0;
         }
         // Account capabilities are based on protocol -- different protocols (and, for EAS,
@@ -3376,10 +3375,10 @@ public class EmailProvider extends ContentProvider
                         AccountCapabilities.DISCARD_CONVERSATION_DRAFTS;
             }
         } else {
-            LogUtils.w(TAG, "Unknown protocol for account %d", accountId);
+            LogUtils.w(TAG, "Unknown protocol for account %d", account.getId());
             return 0;
         }
-        LogUtils.d(TAG, "getCapabilities() for %d (protocol %s): 0x%x %s", accountId, protocol,
+        LogUtils.d(TAG, "getCapabilities() for %d (protocol %s): 0x%x %s", account.getId(), protocol,
                 capabilities, getBits(capabilities));
 
         // If the configuration states that feedback is supported, add that capability
@@ -3421,9 +3420,14 @@ public class EmailProvider extends ContentProvider
         // TODO: If uiProjection is null, this will NPE. We should do everything here if it's null.
         final Set<String> projectionColumns = ImmutableSet.copyOf(uiProjection);
 
+        final Account account = Account.restoreAccountWithId(context, accountId);
+        if (account == null) {
+            LogUtils.d(TAG, "Account %d not found during genQueryAccount", accountId);
+        }
         if (projectionColumns.contains(UIProvider.AccountColumns.CAPABILITIES)) {
             // Get account capabilities from the service
-            values.put(UIProvider.AccountColumns.CAPABILITIES, getCapabilities(context, accountId));
+            values.put(UIProvider.AccountColumns.CAPABILITIES,
+                    (account == null ? 0 : getCapabilities(context, account)));
         }
         if (projectionColumns.contains(UIProvider.AccountColumns.SETTINGS_INTENT_URI)) {
             values.put(UIProvider.AccountColumns.SETTINGS_INTENT_URI,
@@ -3501,6 +3505,16 @@ public class EmailProvider extends ContentProvider
         if (projectionColumns.contains(UIProvider.AccountColumns.ENABLE_MESSAGE_TRANSFORMS)) {
             // Email is now sanitized, which grants the ability to inject beautifying javascript.
             values.put(UIProvider.AccountColumns.ENABLE_MESSAGE_TRANSFORMS, 1);
+        }
+        if (projectionColumns.contains(UIProvider.AccountColumns.SECURITY_HOLD)) {
+            final int hold = ((account != null &&
+                    ((account.getFlags() & Account.FLAGS_SECURITY_HOLD) == 0)) ? 0 : 1);
+            values.put(UIProvider.AccountColumns.SECURITY_HOLD, hold);
+        }
+        if (projectionColumns.contains(UIProvider.AccountColumns.ACCOUNT_SECURITY_URI)) {
+            values.put(UIProvider.AccountColumns.ACCOUNT_SECURITY_URI,
+                    (account == null ? "" : AccountSecurity.getUpdateSecurityUri(
+                            account.getId(), true).toString()));
         }
         if (projectionColumns.contains(
                 UIProvider.AccountColumns.SettingsColumns.IMPORTANCE_MARKERS_ENABLED)) {
@@ -3631,7 +3645,6 @@ public class EmailProvider extends ContentProvider
         final Map<String, Integer> colPosMap = builder.build();
 
         final MailPrefs mailPrefs = MailPrefs.get(getContext());
-
         final Object[] values = new Object[columnNames.length];
         if (colPosMap.containsKey(BaseColumns._ID)) {
             values[colPosMap.get(BaseColumns._ID)] = 0;
@@ -3669,6 +3682,12 @@ public class EmailProvider extends ContentProvider
         if (colPosMap.containsKey(UIProvider.AccountColumns.MIME_TYPE)) {
             values[colPosMap.get(UIProvider.AccountColumns.MIME_TYPE)] =
                     EMAIL_APP_MIME_TYPE;
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.SECURITY_HOLD)) {
+            values[colPosMap.get(UIProvider.AccountColumns.SECURITY_HOLD)] = 0;
+        }
+        if (colPosMap.containsKey(UIProvider.AccountColumns.ACCOUNT_SECURITY_URI)) {
+            values[colPosMap.get(UIProvider.AccountColumns.ACCOUNT_SECURITY_URI)] = "";
         }
         if (colPosMap.containsKey(UIProvider.AccountColumns.SETTINGS_INTENT_URI)) {
             values[colPosMap.get(UIProvider.AccountColumns.SETTINGS_INTENT_URI)] =
