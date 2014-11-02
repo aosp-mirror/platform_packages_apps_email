@@ -23,7 +23,7 @@
 <account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
     android:accountType="@string/account_manager_type_imap"
     android:icon="@mipmap/ic_launcher_mail"
-    android:smallIcon="@drawable/ic_notification_mail_wht_24dp"
+    android:smallIcon="@drawable/ic_notification_mail_24dp"
     android:label="@string/imap_name"
     android:accountPreferences="@xml/account_preferences"
 />
