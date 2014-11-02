@@ -122,10 +122,13 @@ public class MailTransport {
             if (canTrySslSecurity() && !canTrustAllCertificates()) {
                 verifyHostname(mSocket, getHost());
             }
+            Analytics.getInstance().sendEvent("socket_certificates",
+                    "open", Boolean.toString(canTrustAllCertificates()), 0);
             if (mSocket instanceof SSLSocket) {
                 final SSLSocket sslSocket = (SSLSocket) mSocket;
                 if (sslSocket.getSession() != null) {
-                    Analytics.getInstance().sendEvent("cipher_suite", "open",
+                    Analytics.getInstance().sendEvent("cipher_suite",
+                            sslSocket.getSession().getProtocol(),
                             sslSocket.getSession().getCipherSuite(), 0);
                 }
             }
@@ -167,9 +170,12 @@ public class MailTransport {
             mIn = new BufferedInputStream(mSocket.getInputStream(), 1024);
             mOut = new BufferedOutputStream(mSocket.getOutputStream(), 512);
 
+            Analytics.getInstance().sendEvent("socket_certificates",
+                    "reopenTls", Boolean.toString(canTrustAllCertificates()), 0);
             final SSLSocket sslSocket = (SSLSocket) mSocket;
             if (sslSocket.getSession() != null) {
-                Analytics.getInstance().sendEvent("cipher_suite", "reopenTls",
+                Analytics.getInstance().sendEvent("cipher_suite",
+                        sslSocket.getSession().getProtocol(),
                         sslSocket.getSession().getCipherSuite(), 0);
             }
         } catch (SSLException e) {
