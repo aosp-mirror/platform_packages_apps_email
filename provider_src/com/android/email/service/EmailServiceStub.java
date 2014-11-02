@@ -27,6 +27,7 @@ import android.os.RemoteException;
 
 import com.android.email.DebugUtils;
 import com.android.email.NotificationController;
+import com.android.email.NotificationControllerCreatorHolder;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
@@ -424,7 +425,8 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             return;
         }
         TrafficStats.setThreadStatsTag(TrafficFlags.getSmtpFlags(context, account));
-        final NotificationController nc = NotificationController.getInstance(context);
+        final NotificationController nc =
+                NotificationControllerCreatorHolder.getInstance(context);
         // 1.  Loop through all messages in the account's outbox
         final long outboxId = Mailbox.findMailboxOfType(context, account.mId, Mailbox.TYPE_OUTBOX);
         if (outboxId == Mailbox.NO_MAILBOX) {
@@ -471,7 +473,7 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                     sender.sendMessage(messageId);
                 } catch (MessagingException me) {
                     // report error for this message, but keep trying others
-                    if (me instanceof AuthenticationFailedException) {
+                    if (me instanceof AuthenticationFailedException && nc != null) {
                         nc.showLoginFailedNotificationSynchronous(account.mId,
                                 false /* incoming */);
                     }
@@ -507,9 +509,11 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
                     resolver.delete(syncedUri, null, null);
                 }
             }
-            nc.cancelLoginFailedNotification(account.mId);
+            if (nc != null) {
+                nc.cancelLoginFailedNotification(account.mId);
+            }
         } catch (MessagingException me) {
-            if (me instanceof AuthenticationFailedException) {
+            if (me instanceof AuthenticationFailedException && nc != null) {
                 nc.showLoginFailedNotificationSynchronous(account.mId, false /* incoming */);
             }
         } finally {

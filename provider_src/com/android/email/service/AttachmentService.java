@@ -34,6 +34,7 @@ import android.text.format.DateUtils;
 
 import com.android.email.AttachmentInfo;
 import com.android.email.EmailConnectivityManager;
+import com.android.email.NotificationControllerCreatorHolder;
 import com.android.email.NotificationController;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
@@ -1133,8 +1134,11 @@ public class AttachmentService extends Service implements Runnable {
                     // message never get sent
                     EmailContent.delete(this, Attachment.CONTENT_URI, attachment.mId);
                     // TODO: Talk to UX about whether this is even worth doing
-                    NotificationController nc = NotificationController.getInstance(this);
-                    nc.showDownloadForwardFailedNotificationSynchronous(attachment);
+                    final NotificationController nc =
+                            NotificationControllerCreatorHolder.getInstance(this);
+                    if (nc != null) {
+                        nc.showDownloadForwardFailedNotificationSynchronous(attachment);
+                    }
                     deleted = true;
                     LogUtils.w(LOG_TAG, "Deleting forwarded attachment #%d for message #%d",
                         attachmentId, attachment.mMessageKey);
