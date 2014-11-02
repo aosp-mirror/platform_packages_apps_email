@@ -21,7 +21,6 @@
     <string name="permission_access_provider_label" msgid="977700184037298723">"גש לנתוני ספק האימייל"</string>
     <string name="permission_access_provider_desc" msgid="5338433949655493713">"מאפשר ליישום לגשת למסד הנתונים של האימייל שלך, כולל להודעות שהתקבלו, להודעות שנשלחו, לשמות משתמש ולסיסמאות."</string>
     <string name="app_name" msgid="2206468539066258195">"אימייל"</string>
-    <string name="debug_title" msgid="1337476992195531309">"ניקוי באגים"</string>
     <string name="create_action" msgid="6575946089819721958">"צור חדש"</string>
     <string name="quick_responses_empty_view" msgid="3394094315357455290">"אין תגובות מהירות."</string>
     <string name="account_settings_action" msgid="589969653965674604">"הגדרות חשבון"</string>
@@ -100,7 +99,6 @@
     <string name="account_setup_creating_account_msg" msgid="2898648422471181490">"יוצר חשבון…"</string>
     <string name="account_setup_ab_headline" msgid="1434091698882290052">"אישור סוג חשבון"</string>
     <string name="account_setup_ab_instructions_format" msgid="6223657094843768202">"ציינת ש-<xliff:g id="EMAIL">%1$s</xliff:g> משתמש ב-<xliff:g id="USERPROTOCOL">%2$s</xliff:g>, אבל החשבון עשוי להשתמש ב-<xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g>"</string>
-    <string name="account_setup_names_title" msgid="8780121351085082269">"הגדרת חשבון"</string>
     <string name="account_setup_names_headline" msgid="2031978210683887370">"החשבון שלך הוגדר והאימייל בדרך!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"תן שם לחשבון זה (אופציונלי)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"שמך (מוצג בהודעות יוצאות)"</string>
@@ -185,7 +183,6 @@
     <string name="account_setup_security_required_title" msgid="667943309546419435">"ניהול אבטחה מרחוק"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="9029471168291631932">"‏השרת <xliff:g id="SERVER">%s</xliff:g> דורש שתאפשר לו שליטה מרחוק על תכונות אבטחה מסוימות במכשיר Android שלך. האם ברצונך לסיים את ההגדרה של חשבון זה?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="4619685657253094627">"‏שרת זה מחייב תכונות אבטחה שמכשיר ה-Android שלך אינו תומך בהן, כולל: <xliff:g id="ERROR">%s</xliff:g>"</string>
-    <string name="account_setup_username_uneditable_error" msgid="3607769783124215764">"לא ניתן לשנות את שם המשתמש של חשבון. כדי להוסיף חשבון עם שם משתמש אחר, גע באפשרות \'הוסף חשבון\'."</string>
     <string name="disable_admin_warning" msgid="6001542250505146252">"אזהרה: השבתת ההרשאה של יישום האימייל לטפל במכשיר תגרום למחיקת כל חשבונות האימייל שמחייבים הרשאה זו, כולל הודעות האימייל, אנשי הקשר, האירועים בלוח השנה ונתונים אחרים."</string>
     <string name="account_security_dialog_title" msgid="7003032393805438164">"עדכון אבטחה"</string>
     <string name="account_security_dialog_content_fmt" msgid="4107093049191103780">"<xliff:g id="ACCOUNT">%s</xliff:g> מחייב עדכון של הגדרות האבטחה שלך."</string>
@@ -245,10 +242,10 @@
     <string name="account_settings_sync_contacts_enable" msgid="2642448079273767521">"סנכרן אנשי קשר"</string>
     <string name="account_settings_sync_contacts_summary" msgid="1716022682035150630">"סנכרן אנשי קשר בחשבון זה"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3172491863244160828">"סנכרן יומן"</string>
-    <string name="account_settings_sync_calendar_summary" msgid="411960248618953311">"סינכרון אירוע לוח שנה עבור חשבון זה"</string>
-    <string name="account_settings_sync_email_enable" msgid="7135765408226471860">"סנכרן דוא\"ל"</string>
-    <string name="account_settings_sync_email_summary" msgid="71710510041953351">"סנכרן דוא\"ל בחשבון זה"</string>
-    <string name="label_notification_vibrate_title" msgid="361069844540266098">"רטט"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="411960248618953311">"סנכרון אירוע לוח שנה עבור חשבון זה"</string>
+    <string name="account_settings_sync_email_enable" msgid="7135765408226471860">"סנכרן אימיילים"</string>
+    <string name="account_settings_sync_email_summary" msgid="71710510041953351">"סנכרן אימיילים בחשבון זה"</string>
+    <string name="label_notification_vibrate_title" msgid="140881511322826320">"רטט"</string>
     <string name="account_settings_ringtone" msgid="2238523918221865167">"בחר רינגטון"</string>
     <string name="account_settings_servers" msgid="3386185135392642067">"הגדרות שרת"</string>
     <string name="mailbox_settings_activity_title" msgid="2196614373847675314">"אפשרויות סנכרון"</string>
@@ -256,20 +253,11 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="7723413381707277856">"סנכרן את התיקיה הזו"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="742233465207750578">"לאחר שתחחבר תתבצע הורדה של ההודעות"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="7027516982341382326">"כמה ימי דואר לסנכרן"</string>
-    <string name="prefDialogTitle_conversationListIcon" msgid="1302579259733675896">"תמונת שולח"</string>
-    <string name="provider_note_live" msgid="4289035326060391547">"‏רק חשבונות \"Plus\" מסוימים כוללים גישה ל-POP, שמאפשרת לתוכנית זו להתחבר. אם אינך מצליח להיכנס עם כתובת האימייל והסיסמה הנכונות שלך, ייתכן שאין לך חשבון \"Plus\" בתשלום. הפעל את דפדפן האינטרנט כדי לקבל גישה לחשבונות אימייל אלה."</string>
     <string name="provider_note_t_online" msgid="1596701148051980218">"‏לפני הגדרת חשבון אימייל זה, בקר באתר T-Online וצור סיסמה לגישה לאימייל מסוג POP3."</string>
-    <string name="exchange_name" msgid="3793803477985438102">"תאגידי"</string>
     <string name="exchange_name_alternate" msgid="293118547772095111">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="2248313263003927725">"לא ניתן ליצור את החשבון. נסה שוב."</string>
     <string name="device_admin_label" msgid="3335272972461391415">"אימייל"</string>
     <string name="device_admin_description" msgid="4299378570982520839">"מאפשר מדיניות אבטחה המצוינת בשרת"</string>
-    <string name="settings_activity_title" msgid="4787565736829092053">"הגדרות"</string>
-    <string name="header_label_general_preferences" msgid="2924944721204930254">"הגדרות כלליות"</string>
-    <string name="general_preference_confirm_delete_label" msgid="4635169755738754289">"אשר לפני מחיקה"</string>
-    <string name="general_preference_confirm_send_label" msgid="2985557291955796568">"אשר לפני שליחה"</string>
-    <string name="more_than_999" msgid="4088200269333058889">"999+"</string>
-    <string name="search_hint" msgid="3491349343647799436">"חפש אימייל"</string>
     <string name="policy_dont_allow_camera" msgid="8821533827628900689">"אל תאפשר שימוש במצלמה של המכשיר"</string>
     <string name="policy_require_password" msgid="3556860917024612396">"נדרשת סיסמת מכשיר"</string>
     <string name="policy_password_history" msgid="9001177390979112746">"הגבל את השימוש החוזר בסיסמאות אחרונות"</string>
@@ -281,7 +269,6 @@
     <string name="quick_2" msgid="8611591278119481491">"נשמע לי טוב!"</string>
     <string name="quick_3" msgid="8070999183033184986">"אקרא את זה מאוחר יותר ואחזור אליך."</string>
     <string name="quick_4" msgid="216066940197616025">"בוא נקבע פגישה כדי לדון בנושא זה."</string>
-    <string name="require_manual_sync_message" msgid="7361932179783481686">"סנכרון ברקע של חשבון זה מושבת בזמן נדידה."</string>
     <string name="confirm_response" msgid="6764021931370809514">"שולח תגובה…"</string>
     <string name="no_conversations" msgid="3785854971159919343">"אין הודעות."</string>
     <string name="imap_name" msgid="1267915719183915252">"IMAP"</string>

@@ -207,9 +207,6 @@
     <string name="password_expired_dialog_title" msgid="7275534155170185252">"Пароль блокировки экрана устарел"</string>
     <string name="password_expired_dialog_content_fmt" msgid="8322213184626443346">"Данные аккаунта <xliff:g id="ACCOUNT">%s</xliff:g> удаляются с устройства. Вы можете восстановить их, изменив свой PIN-код или пароль блокировки экрана. Сделать это сейчас?"</string>
     <string name="account_settings_exit_server_settings" msgid="4232590695889111419">"Отменить несохраненные изменения?"</string>
-    <string name="account_settings_login_dialog_title" msgid="2250911725501042470">"Не удалось войти в аккаунт."</string>
-    <string name="account_settings_login_dialog_content_fmt" msgid="8687412692709766495">"Неверное имя пользователя или пароль для доступа в аккаунт <xliff:g id="ACCOUNT">%s</xliff:g>. Изменить их?"</string>
-    <string name="account_settings_login_dialog_reason_fmt" msgid="2324678262137130809">"Не удалось войти в аккаунт <xliff:g id="ACCOUNT">%s</xliff:g>. Причина проблемы: <xliff:g id="REASON">%s</xliff:g>. Обновить имя пользователя и/или пароль?"</string>
     <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"Скачивать файлы"</string>
     <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"Автоматически скачивать прикрепленные файлы при наличии Wi-Fi-подключения"</string>
     <string name="account_settings_notify_label" msgid="8621226576645167987">"Оповещения"</string>

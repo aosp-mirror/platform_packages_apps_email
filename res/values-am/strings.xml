@@ -264,12 +264,6 @@
     <string name="system_account_create_failed" msgid="2248313263003927725">"መለያውን መፍጠር አልቻለም:: እባክህ እንደገና ሞክር።"</string>
     <string name="device_admin_label" msgid="3335272972461391415">"ኢሜይል"</string>
     <string name="device_admin_description" msgid="4299378570982520839">"በአገልጋይ-የተገለፁ የደህንነት መምሪያዎች አንቃ"</string>
-    <string name="settings_activity_title" msgid="4787565736829092053">"ቅንብሮች"</string>
-    <string name="header_label_general_preferences" msgid="2924944721204930254">"ጠቅላላ ቅንብሮች"</string>
-    <string name="general_preference_confirm_delete_label" msgid="4635169755738754289">"ከመሰረዝዎ በፊት ያረጋግጡ"</string>
-    <string name="general_preference_confirm_send_label" msgid="2985557291955796568">"ከመላክዎ በፊት ያረጋግጡ"</string>
-    <string name="more_than_999" msgid="4088200269333058889">"999+"</string>
-    <string name="search_hint" msgid="3491349343647799436">"ኢሜይል ፈልግ"</string>
     <string name="policy_dont_allow_camera" msgid="8821533827628900689">"የመሳሪያውን ካሜራ መጠቀምን አትፍቀድ"</string>
     <string name="policy_require_password" msgid="3556860917024612396">"የመሳሪያ የይለፍ ቃል ጠይቅ"</string>
     <string name="policy_password_history" msgid="9001177390979112746">"የቅርብ የይለፍ ቃሎችን ዳግመኛ መጠቀምን ከልክል"</string>
