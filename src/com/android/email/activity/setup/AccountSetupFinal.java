@@ -960,22 +960,22 @@ public class AccountSetupFinal extends AccountSetupActivity
         final String domain = emailParts[1];
 
         final Account account = mSetupData.getAccount();
+        final EmailServiceUtils.EmailServiceInfo info =
+                mSetupData.getIncomingServiceInfo(this);
 
         final HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
         recvAuth.setUserName(email);
         recvAuth.setConnection(mSetupData.getIncomingProtocol(), domain,
-                HostAuth.PORT_UNKNOWN, HostAuth.FLAG_NONE);
+                HostAuth.PORT_UNKNOWN, info.offerTls ? HostAuth.FLAG_TLS : HostAuth.FLAG_SSL);
         AccountSetupCredentialsFragment.populateHostAuthWithResults(this, recvAuth,
                 mSetupData.getCredentialResults());
         mSetupData.setIncomingCredLoaded(true);
 
-        final EmailServiceUtils.EmailServiceInfo info =
-                mSetupData.getIncomingServiceInfo(this);
         if (info.usesSmtp) {
             final HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
             sendAuth.setUserName(email);
             sendAuth.setConnection(HostAuth.LEGACY_SCHEME_SMTP, domain,
-                    HostAuth.PORT_UNKNOWN, HostAuth.FLAG_NONE);
+                    HostAuth.PORT_UNKNOWN, HostAuth.FLAG_TLS);
             AccountSetupCredentialsFragment.populateHostAuthWithResults(this, sendAuth,
                     mSetupData.getCredentialResults());
             mSetupData.setOutgoingCredLoaded(true);
