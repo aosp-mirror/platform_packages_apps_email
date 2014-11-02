@@ -24,6 +24,6 @@
     android:accountType="com.android.exchange"
     android:icon="@mipmap/ic_launcher_mail"
     android:smallIcon="@drawable/ic_notification_mail_24dp"
-    android:label="@string/exchange_name"
+    android:label="@string/exchange_eas_name"
     android:accountPreferences="@xml/account_preferences"
 />
