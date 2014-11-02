@@ -253,15 +253,6 @@
     <string name="system_account_create_failed" msgid="2248313263003927725">"មិន​អាច​បង្កើត​គណនី​។ សូម​ព្យាយាម​ម្ដងទៀត។"</string>
     <string name="device_admin_label" msgid="3335272972461391415">"អ៊ីមែល"</string>
     <string name="device_admin_description" msgid="4299378570982520839">"បើក​​គោល​ន​យោ​បាយ​សុវត្ថិភាព​ម៉ាស៊ីន​មេ​​ដែល​បាន​បញ្ជាក់​"</string>
-<<<<<<< HEAD
-    <string name="settings_activity_title" msgid="4787565736829092053">"កំណត់"</string>
-    <string name="header_label_general_preferences" msgid="2924944721204930254">"ការ​កំណត់​ទូទៅ"</string>
-    <string name="general_preference_confirm_delete_label" msgid="4635169755738754289">"បញ្ជាក់​មុន​ពេល​លុប"</string>
-    <string name="general_preference_confirm_send_label" msgid="2985557291955796568">"បញ្ជាក់​មុន​ពេល​ផ្ញើ"</string>
-    <string name="more_than_999" msgid="4088200269333058889">"999+"</string>
-    <string name="search_hint" msgid="3491349343647799436">"ស្វែងរក​អ៊ីមែល"</string>
-=======
->>>>>>> 19809304
     <string name="policy_dont_allow_camera" msgid="8821533827628900689">"មិន​អនុញ្ញាត​ឲ្យ​ប្រើ​ម៉ាស៊ីន​ថត​របស់​ឧបករណ៍"</string>
     <string name="policy_require_password" msgid="3556860917024612396">"ត្រូវ​ការ​ពាក្យ​សម្ងាត់​ឧបករណ៍"</string>
     <string name="policy_password_history" msgid="9001177390979112746">"ដាក់កម្រិត​​ប្រើ​​ពាក្យ​សម្ងាត់​ថ្មី​ៗ​ឡើងវិញ"</string>
@@ -275,15 +266,8 @@
     <string name="quick_4" msgid="216066940197616025">"​រៀបចំ​កិច្ច​ប្រជុំ​​​​​ ដើម្បី​ពិភាក្សា​រឿង​នេះ​។"</string>
     <string name="require_manual_sync_message" msgid="7361932179783481686">"បាន​បិទ​ការ​ធ្វើ​សម​កាល​កម្ម​ផ្ទៃ​ខាង​ក្រោយ​សម្រាប់​គណនី​នេះ​​​ខណៈ​ពេល​នៅ​ក្រៅ​ប្រទេស។"</string>
     <string name="confirm_response" msgid="6764021931370809514">"កំពុង​ផ្ញើ​​ការ​ឆ្លើយ​តប..."</string>
-<<<<<<< HEAD
-    <string name="no_conversations" msgid="3785854971159919343">"គ្មាន​សារ។"</string>
-    <string name="imap_name" msgid="1267915719183915252">"IMAP​"</string>
-    <string name="pop3_name" msgid="1235910677527117862">"POP3"</string>
-    <string name="folder_picker_title" msgid="5906275472176731605">"កម្មវិធី​ជ្រើស​ថត"</string>
-=======
     <string name="imap_name" msgid="8285222985908214985">"ផ្ទាល់​ខ្លួន (IMAP​)"</string>
     <string name="pop3_name" msgid="6653484706414263493">"ផ្ទាល់​ខ្លួន (POP3​)"</string>
->>>>>>> 19809304
     <string name="trash_folder_selection_title" msgid="686039558899469073">"ជ្រើស​ថត​ធុង​សំរាម​ម៉ាស៊ីន​​មេ​​សម្រាប់ <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="sent_folder_selection_title" msgid="9207482909822072856">"ជ្រើស​​ថត​ធាតុ​បាន​ផ្ញើ​ដោយ​ម៉ាស៊ីន​​មេ​សម្រាប់ <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"កំពុង​ផ្ទុក​បញ្ជី​ថត ..."</string>
