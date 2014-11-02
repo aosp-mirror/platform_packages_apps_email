@@ -20,6 +20,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Base64DataException;
 
+import com.android.email.DebugUtils;
 import com.android.email.mail.store.ImapStore.ImapException;
 import com.android.email.mail.store.ImapStore.ImapMessage;
 import com.android.email.mail.store.imap.ImapConstants;
@@ -29,7 +30,6 @@ import com.android.email.mail.store.imap.ImapResponse;
 import com.android.email.mail.store.imap.ImapString;
 import com.android.email.mail.store.imap.ImapUtility;
 import com.android.email.service.ImapService;
-import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.BinaryTempFileBody;
 import com.android.emailcommon.internet.MimeBodyPart;
@@ -1265,7 +1265,7 @@ class ImapFolder extends Folder {
     }
 
     private MessagingException ioExceptionHandler(ImapConnection connection, IOException ioe) {
-        if (MailActivityEmail.DEBUG) {
+        if (DebugUtils.DEBUG) {
             LogUtils.d(Logging.LOG_TAG, "IO Exception detected: ", ioe);
         }
         connection.close();

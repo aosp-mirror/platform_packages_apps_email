@@ -48,26 +48,8 @@ import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.Utils;
 
 public class MailActivityEmail extends com.android.mail.ui.MailActivity {
-    /**
-     * If this is enabled there will be additional logging information sent to
-     * LogUtils.d, including protocol dumps.
-     *
-     * This should only be used for logs that are useful for debbuging user problems,
-     * not for internal/development logs.
-     *
-     * This can be enabled by typing "debug" in the AccountFolderList activity.
-     * Changing the value to 'true' here will likely have no effect at all!
-     *
-     * TODO: rename this to sUserDebug, and rename LOGD below to DEBUG.
-     */
-    public static boolean DEBUG;
 
     public static final String LOG_TAG = LogTag.getLogTag();
-
-    // Exchange debugging flags (passed to Exchange, when available, via EmailServiceProxy)
-    public static boolean DEBUG_EXCHANGE;
-    public static boolean DEBUG_VERBOSE;
-    public static boolean DEBUG_FILE;
 
     private static final int MATCH_LEGACY_SHORTCUT_INTENT = 1;
     /**
@@ -177,13 +159,7 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
         }
 
         super.onCreate(bundle);
-        final Preferences prefs = Preferences.getPreferences(this);
-        DEBUG = prefs.getEnableDebugLogging();
-        enableStrictMode(prefs.getEnableStrictMode());
         TempDirectory.setTempDirectory(this);
-
-        // Enable logging in the EAS service, so it starts up as early as possible.
-        updateLoggingFlags(this);
 
         // Make sure all required services are running when the app is started (can prevent
         // issues after an adb sync/install)
@@ -191,31 +167,11 @@ public class MailActivityEmail extends com.android.mail.ui.MailActivity {
     }
 
     /**
-     * Load enabled debug flags from the preferences and update the EAS debug flag.
-     */
-    public static void updateLoggingFlags(Context context) {
-        Preferences prefs = Preferences.getPreferences(context);
-        int debugLogging = prefs.getEnableDebugLogging() ? EmailServiceProxy.DEBUG_BIT : 0;
-        int verboseLogging =
-            prefs.getEnableExchangeLogging() ? EmailServiceProxy.DEBUG_VERBOSE_BIT : 0;
-        int fileLogging =
-            prefs.getEnableExchangeFileLogging() ? EmailServiceProxy.DEBUG_FILE_BIT : 0;
-        int enableStrictMode =
-            prefs.getEnableStrictMode() ? EmailServiceProxy.DEBUG_ENABLE_STRICT_MODE : 0;
-        int debugBits = debugLogging | verboseLogging | fileLogging | enableStrictMode;
-        EmailServiceUtils.setRemoteServicesLogging(context, debugBits);
-     }
-
-    /**
      * Internal, utility method for logging.
      * The calls to log() must be guarded with "if (Email.LOGD)" for performance reasons.
      */
     public static void log(String message) {
         LogUtils.d(Logging.LOG_TAG, message);
-    }
-
-    public static void enableStrictMode(boolean enabled) {
-        Utility.enableStrictMode(enabled);
     }
 
     private Intent getViewIntent(long accountId, long mailboxId) {
