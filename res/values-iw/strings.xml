@@ -245,10 +245,10 @@
     <string name="account_settings_sync_contacts_enable" msgid="2642448079273767521">"סנכרן אנשי קשר"</string>
     <string name="account_settings_sync_contacts_summary" msgid="1716022682035150630">"סנכרן אנשי קשר בחשבון זה"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3172491863244160828">"סנכרן יומן"</string>
-    <string name="account_settings_sync_calendar_summary" msgid="411960248618953311">"סנכרון אירוע לוח שנה עבור חשבון זה"</string>
-    <string name="account_settings_sync_email_enable" msgid="7135765408226471860">"סנכרן אימיילים"</string>
-    <string name="account_settings_sync_email_summary" msgid="71710510041953351">"סנכרן אימיילים בחשבון זה"</string>
-    <string name="account_settings_vibrate_when_label" msgid="361069844540266098">"רטט"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="411960248618953311">"סינכרון אירוע לוח שנה עבור חשבון זה"</string>
+    <string name="account_settings_sync_email_enable" msgid="7135765408226471860">"סנכרן דוא\"ל"</string>
+    <string name="account_settings_sync_email_summary" msgid="71710510041953351">"סנכרן דוא\"ל בחשבון זה"</string>
+    <string name="label_notification_vibrate_title" msgid="361069844540266098">"רטט"</string>
     <string name="account_settings_ringtone" msgid="2238523918221865167">"בחר רינגטון"</string>
     <string name="account_settings_servers" msgid="3386185135392642067">"הגדרות שרת"</string>
     <string name="mailbox_settings_activity_title" msgid="2196614373847675314">"אפשרויות סנכרון"</string>

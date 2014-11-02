@@ -28,45 +28,6 @@ public class UiUtilities {
     }
 
     /**
-     * Formats the given size as a String in bytes, kB, MB or GB.  Ex: 12,315,000 = 11 MB
-     */
-    public static String formatSize(Context context, long size) {
-        final Resources res = context.getResources();
-        final long KB = 1024;
-        final long MB = (KB * 1024);
-        final long GB  = (MB * 1024);
-
-        int resId;
-        int value;
-
-        if (size < KB) {
-            resId = R.plurals.message_view_attachment_bytes;
-            value = (int) size;
-        } else if (size < MB) {
-            resId = R.plurals.message_view_attachment_kilobytes;
-            value = (int) (size / KB);
-        } else if (size < GB) {
-            resId = R.plurals.message_view_attachment_megabytes;
-            value = (int) (size / MB);
-        } else {
-            resId = R.plurals.message_view_attachment_gigabytes;
-            value = (int) (size / GB);
-        }
-        return res.getQuantityString(resId, value, value);
-    }
-
-    public static String getMessageCountForUi(Context context, int count,
-            boolean replaceZeroWithBlank) {
-        if (replaceZeroWithBlank && (count == 0)) {
-            return "";
-        } else if (count > 999) {
-            return context.getString(R.string.more_than_999);
-        } else {
-            return Integer.toString(count);
-        }
-    }
-
-    /**
      * Same as {@link View#findViewById}, but crashes if there's no view.
      */
     @SuppressWarnings("unchecked")
@@ -88,13 +49,6 @@ public class UiUtilities {
         if (v != null) {
             v.setVisibility(visibility);
         }
-    }
-
-    /**
-     * Same as {@link View#setVisibility(int)}, but doesn't crash even if {@code view} is null.
-     */
-    public static void setVisibilitySafe(Activity parent, int viewId, int visibility) {
-        setVisibilitySafe(parent.findViewById(viewId), visibility);
     }
 
     /**
