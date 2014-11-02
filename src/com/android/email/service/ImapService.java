@@ -30,12 +30,12 @@ import android.os.SystemClock;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 
+import com.android.email.DebugUtils;
 import com.android.email.LegacyConversions;
 import com.android.email.NotificationController;
 import com.android.email.R;
 import com.android.email.mail.Store;
 import com.android.email.provider.Utilities;
-import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.TrafficFlags;
 import com.android.emailcommon.internet.MimeUtility;
@@ -850,7 +850,7 @@ public class ImapService extends Service {
         } catch (MessagingException me) {
             // Presumably an error here is an account connection failure, so there is
             // no point in continuing through the rest of the pending updates.
-            if (MailActivityEmail.DEBUG) {
+            if (DebugUtils.DEBUG) {
                 LogUtils.d(Logging.LOG_TAG, "Unable to process pending delete for id="
                         + lastMessageId + ": " + me);
             }
@@ -926,7 +926,7 @@ public class ImapService extends Service {
         } catch (MessagingException me) {
             // Presumably an error here is an account connection failure, so there is
             // no point in continuing through the rest of the pending updates.
-            if (MailActivityEmail.DEBUG) {
+            if (DebugUtils.DEBUG) {
                 LogUtils.d(Logging.LOG_TAG, "Unable to process pending upsync for id="
                         + lastMessageId + ": " + me);
             }
@@ -1009,7 +1009,7 @@ public class ImapService extends Service {
         } catch (MessagingException me) {
             // Presumably an error here is an account connection failure, so there is
             // no point in continuing through the rest of the pending updates.
-            if (MailActivityEmail.DEBUG) {
+            if (DebugUtils.DEBUG) {
                 LogUtils.d(Logging.LOG_TAG, "Unable to process pending update for id="
                         + lastMessageId + ": " + me);
             }
@@ -1113,7 +1113,7 @@ public class ImapService extends Service {
         if (remoteMessage == null) {
             return;
         }
-        if (MailActivityEmail.DEBUG) {
+        if (DebugUtils.DEBUG) {
             LogUtils.d(Logging.LOG_TAG,
                     "Update for msg id=" + newMessage.mId
                     + " read=" + newMessage.mFlagRead

@@ -27,11 +27,11 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
+import com.android.email.DebugUtils;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.activity.UiUtilities;
 import com.android.email.service.EmailServiceUtils;
-import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.mail.utils.LogUtils;
 
@@ -45,8 +45,8 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        if (Logging.DEBUG_LIFECYCLE && MailActivityEmail.DEBUG) {
-            LogUtils.d(Logging.LOG_TAG, "AccountSetupBasicsFragment onCreateView");
+        if (Logging.DEBUG_LIFECYCLE && DebugUtils.DEBUG) {
+            LogUtils.d(Logging.LOG_TAG, "DebugFragment onCreateView");
         }
         View view = inflater.inflate(R.layout.debug, container, false);
 
@@ -54,21 +54,21 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
         mPreferences = Preferences.getPreferences(context);
 
         final CheckBox enableDebugLoggingView = UiUtilities.getView(view, R.id.debug_logging);
-        enableDebugLoggingView.setChecked(MailActivityEmail.DEBUG);
+        enableDebugLoggingView.setChecked(DebugUtils.DEBUG);
 
-        final CheckBox enableVerboseLoggingView = UiUtilities.getView(view, R.id.verbose_logging);
+        final CheckBox enableExchangeLoggingView = UiUtilities.getView(view, R.id.exchange_logging);
         final CheckBox enableFileLoggingView = UiUtilities.getView(view, R.id.file_logging);
 
         // Note:  To prevent recursion while presetting checkboxes, assign all listeners last
         enableDebugLoggingView.setOnCheckedChangeListener(this);
 
         if (EmailServiceUtils.areRemoteServicesInstalled(context)) {
-            enableVerboseLoggingView.setChecked(MailActivityEmail.DEBUG_VERBOSE);
-            enableFileLoggingView.setChecked(MailActivityEmail.DEBUG_FILE);
-            enableVerboseLoggingView.setOnCheckedChangeListener(this);
+            enableExchangeLoggingView.setChecked(DebugUtils.DEBUG_EXCHANGE);
+            enableFileLoggingView.setChecked(DebugUtils.DEBUG_FILE);
+            enableExchangeLoggingView.setOnCheckedChangeListener(this);
             enableFileLoggingView.setOnCheckedChangeListener(this);
         } else {
-            enableVerboseLoggingView.setVisibility(View.GONE);
+            enableExchangeLoggingView.setVisibility(View.GONE);
             enableFileLoggingView.setVisibility(View.GONE);
         }
 
@@ -87,24 +87,23 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
         switch (buttonView.getId()) {
             case R.id.debug_logging:
                 mPreferences.setEnableDebugLogging(isChecked);
-                MailActivityEmail.DEBUG = isChecked;
-                MailActivityEmail.DEBUG_EXCHANGE = isChecked;
+                DebugUtils.DEBUG = isChecked;
                 break;
-            case R.id.verbose_logging:
+            case R.id.exchange_logging:
                 mPreferences.setEnableExchangeLogging(isChecked);
-                MailActivityEmail.DEBUG_VERBOSE = isChecked;
+                DebugUtils.DEBUG_EXCHANGE = isChecked;
                 break;
             case R.id.file_logging:
                 mPreferences.setEnableExchangeFileLogging(isChecked);
-                MailActivityEmail.DEBUG_FILE = isChecked;
+                DebugUtils.DEBUG_FILE = isChecked;
                 break;
             case R.id.debug_enable_strict_mode:
                 mPreferences.setEnableStrictMode(isChecked);
-                MailActivityEmail.enableStrictMode(isChecked);
+                DebugUtils.enableStrictMode(isChecked);
                 break;
         }
 
-        MailActivityEmail.updateLoggingFlags(getActivity());
+        DebugUtils.updateLoggingFlags(getActivity());
     }
 
     @Override
