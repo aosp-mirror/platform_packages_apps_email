@@ -24,6 +24,7 @@ import com.android.emailcommon.mail.CertificateValidationException;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.SSLUtils;
+import com.android.mail.analytics.Analytics;
 import com.android.mail.utils.LogUtils;
 
 import java.io.BufferedInputStream;
@@ -121,6 +122,13 @@ public class MailTransport {
             if (canTrySslSecurity() && !canTrustAllCertificates()) {
                 verifyHostname(mSocket, getHost());
             }
+            if (mSocket instanceof SSLSocket) {
+                final SSLSocket sslSocket = (SSLSocket) mSocket;
+                if (sslSocket.getSession() != null) {
+                    Analytics.getInstance().sendEvent("cipher_suite", "open",
+                            sslSocket.getSession().getCipherSuite(), 0);
+                }
+            }
             mIn = new BufferedInputStream(mSocket.getInputStream(), 1024);
             mOut = new BufferedOutputStream(mSocket.getOutputStream(), 512);
             mSocket.setSoTimeout(SOCKET_READ_TIMEOUT);
@@ -159,6 +167,11 @@ public class MailTransport {
             mIn = new BufferedInputStream(mSocket.getInputStream(), 1024);
             mOut = new BufferedOutputStream(mSocket.getOutputStream(), 512);
 
+            final SSLSocket sslSocket = (SSLSocket) mSocket;
+            if (sslSocket.getSession() != null) {
+                Analytics.getInstance().sendEvent("cipher_suite", "reopenTls",
+                        sslSocket.getSession().getCipherSuite(), 0);
+            }
         } catch (SSLException e) {
             if (DebugUtils.DEBUG) {
                 LogUtils.d(Logging.LOG_TAG, e.toString());
