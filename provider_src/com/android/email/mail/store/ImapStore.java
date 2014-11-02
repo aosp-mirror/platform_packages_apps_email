@@ -321,6 +321,11 @@ public class ImapStore extends Store {
             String parentPath = null;
             if (delimiterIdx != -1) {
                 parentPath = path.substring(0, delimiterIdx);
+                if (ImapConstants.INBOX.equalsIgnoreCase(parentPath)) {
+                    // The Inbox is added as a special case, and always in all caps. In reality,
+                    // it might not be in all caps, this folder's parent path might have mixed case.
+                    parentPath = ImapConstants.INBOX;
+                }
                 final ImapFolder parentFolder = mailboxes.get(parentPath);
                 final Mailbox parentMailbox = (parentFolder == null) ? null : parentFolder.mMailbox;
                 if (parentMailbox != null) {
