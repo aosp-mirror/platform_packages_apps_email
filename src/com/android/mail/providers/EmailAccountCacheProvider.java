@@ -38,9 +38,4 @@ public class EmailAccountCacheProvider extends MailAppProvider {
     protected Intent getNoAccountsIntent(Context context) {
         return AccountSetupFinal.actionNewAccountWithResultIntent(context);
     }
-
-    @Override
-    public String getSuggestionAuthority() {
-        return null;
-    }
 }
