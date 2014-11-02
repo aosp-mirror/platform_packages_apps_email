@@ -628,8 +628,10 @@
     <string name="confirm_response">Sending response&#8230;</string>
 
     <!-- Used by AccountManager -->
-    <string name="imap_name">IMAP</string>
-    <string name="pop3_name">POP3</string>
+    <!-- Account type name as used by AccountManager UI (IMAP is not translatable) [CHAR LIMIT=30] -->
+    <string name="imap_name">Personal (IMAP)</string>
+    <!-- Account type name as used by AccountManager UI (POP3 is not translatable) [CHAR LIMIT=30] -->
+    <string name="pop3_name">Personal (POP3)</string>
 
     <!-- Displayed when the user must pick his server's trash folder from a list [CHAR LIMIT 30]-->
     <string name="trash_folder_selection_title">Select server trash folder for <xliff:g id="account">%s</xliff:g></string>
