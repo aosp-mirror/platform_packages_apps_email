@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.RemoteException;
 
+import com.android.email.provider.EmailProvider;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.provider.Account;
@@ -298,7 +299,7 @@ public class AccountCreationFragment extends Fragment {
                     account.mFlags &= ~Account.FLAGS_SECURITY_HOLD;
                     AccountSettingsUtils.commitSettings(mAppContext, account);
                     // Start up services based on new account(s)
-                    MailActivityEmail.setServicesEnabledSync(mAppContext);
+                    EmailProvider.setServicesEnabledSync(mAppContext);
                     EmailServiceUtils
                             .startService(mAppContext, account.mHostAuthRecv.mProtocol);
                     return account;

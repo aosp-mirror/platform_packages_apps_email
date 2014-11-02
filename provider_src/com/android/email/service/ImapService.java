@@ -33,6 +33,7 @@ import android.text.format.DateUtils;
 import com.android.email.DebugUtils;
 import com.android.email.LegacyConversions;
 import com.android.email.NotificationController;
+import com.android.email.NotificationControllerCreatorHolder;
 import com.android.email.R;
 import com.android.email.mail.Store;
 import com.android.email.provider.Utilities;
@@ -164,7 +165,8 @@ public class ImapService extends Service {
             final Account account, final Mailbox folder, final boolean loadMore,
             final boolean uiRefresh) throws MessagingException {
         TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(context, account));
-        NotificationController nc = NotificationController.getInstance(context);
+        final NotificationController nc =
+                NotificationControllerCreatorHolder.getInstance(context);
         Store remoteStore = null;
         try {
             remoteStore = Store.getInstance(account, context);

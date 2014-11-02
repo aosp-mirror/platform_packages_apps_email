@@ -29,8 +29,9 @@ import android.provider.CalendarContract;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
 
-import com.android.email.NotificationController;
 import com.android.email.R;
+import com.android.email.NotificationController;
+import com.android.email.NotificationControllerCreatorHolder;
 import com.android.email.SecurityPolicy;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
@@ -206,7 +207,11 @@ public class AccountReconciler {
                         exchangeAccountDeleted = true;
                     }
                     // Cancel all notifications for this account
-                    NotificationController.cancelNotifications(context, providerAccount);
+                    final NotificationController nc =
+                            NotificationControllerCreatorHolder.getInstance(context);
+                    if (nc != null) {
+                        nc.cancelNotifications(context, providerAccount);
+                    }
 
                     context.getContentResolver().delete(
                             EmailProvider.uiUri("uiaccount", providerAccount.mId), null, null);

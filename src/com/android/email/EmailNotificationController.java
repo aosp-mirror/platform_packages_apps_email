@@ -62,7 +62,7 @@ import java.util.Set;
 /**
  * Class that manages notifications.
  */
-public class NotificationController {
+public class EmailNotificationController implements NotificationController {
     private static final String LOG_TAG = LogTag.getLogTag();
 
     private static final int NOTIFICATION_ID_ATTACHMENT_WARNING = 3;
@@ -76,7 +76,7 @@ public class NotificationController {
 
     private static NotificationThread sNotificationThread;
     private static Handler sNotificationHandler;
-    private static NotificationController sInstance;
+    private static EmailNotificationController sInstance;
     private final Context mContext;
     private final NotificationManager mNotificationManager;
     private final Clock mClock;
@@ -86,7 +86,7 @@ public class NotificationController {
     private ContentObserver mAccountObserver;
 
     /** Constructor */
-    protected NotificationController(Context context, Clock clock) {
+    protected EmailNotificationController(Context context, Clock clock) {
         mContext = context.getApplicationContext();
         EmailContent.init(context);
         mNotificationManager = (NotificationManager) context.getSystemService(
@@ -95,9 +95,9 @@ public class NotificationController {
     }
 
     /** Singleton access */
-    public static synchronized NotificationController getInstance(Context context) {
+    public static synchronized EmailNotificationController getInstance(Context context) {
         if (sInstance == null) {
-            sInstance = new NotificationController(context, Clock.INSTANCE);
+            sInstance = new EmailNotificationController(context, Clock.INSTANCE);
         }
         return sInstance;
     }
@@ -182,6 +182,7 @@ public class NotificationController {
      * notification shown to the user. And, when we start observing database changes, we restore
      * the saved state.
      */
+    @Override
     public void watchForMessages() {
         ensureHandlerExists();
         // Run this on the message notification handler
@@ -386,6 +387,7 @@ public class NotificationController {
      *
      * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
      */
+    @Override
     public void showDownloadForwardFailedNotificationSynchronous(Attachment attachment) {
         final Message message = Message.restoreMessageWithId(mContext, attachment.mMessageKey);
         if (message == null) return;
@@ -410,6 +412,7 @@ public class NotificationController {
      *
      * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
      */
+    @Override
     public void showLoginFailedNotificationSynchronous(long accountId, boolean incoming) {
         final Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) return;
@@ -420,7 +423,7 @@ public class NotificationController {
         final Intent settingsIntent;
         if (incoming) {
             settingsIntent = new Intent(Intent.ACTION_VIEW,
-                    HeadlessAccountSettingsLoader.getIncomingSettingsUri(accountId));
+                    EmailProvider.getIncomingSettingsUri(accountId));
         } else {
             settingsIntent = new Intent(Intent.ACTION_VIEW,
                     HeadlessAccountSettingsLoader.getOutgoingSettingsUri(accountId));
@@ -436,6 +439,7 @@ public class NotificationController {
     /**
      * Cancels the login failed notification for the given account.
      */
+    @Override
     public void cancelLoginFailedNotification(long accountId) {
         mNotificationManager.cancel(getLoginFailedNotificationId(accountId));
     }
@@ -446,6 +450,7 @@ public class NotificationController {
      *
      * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
      */
+    @Override
     public void showPasswordExpiringNotificationSynchronous(long accountId) {
         final Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) return;
@@ -466,6 +471,7 @@ public class NotificationController {
      *
      * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
      */
+    @Override
     public void showPasswordExpiredNotificationSynchronous(long accountId) {
         final Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) return;
@@ -482,6 +488,7 @@ public class NotificationController {
     /**
      * Cancels any password expire notifications [both expired & expiring].
      */
+    @Override
     public void cancelPasswordExpirationNotifications() {
         mNotificationManager.cancel(NOTIFICATION_ID_PASSWORD_EXPIRING);
         mNotificationManager.cancel(NOTIFICATION_ID_PASSWORD_EXPIRED);
@@ -491,6 +498,7 @@ public class NotificationController {
      * Show (or update) a security needed notification. If tapped, the user is taken to a
      * dialog asking whether he wants to update his settings.
      */
+    @Override
     public void showSecurityNeededNotification(Account account) {
         Intent intent = AccountSecurity.actionUpdateSecurityIntent(mContext, account.mId, true);
         String accountName = account.getDisplayName();
@@ -505,9 +513,10 @@ public class NotificationController {
      * Show (or update) a security changed notification. If tapped, the user is taken to the
      * account settings screen where he can view the list of enforced policies
      */
+    @Override
     public void showSecurityChangedNotification(Account account) {
         final Intent intent = new Intent(Intent.ACTION_VIEW,
-                HeadlessAccountSettingsLoader.getIncomingSettingsUri(account.getId()));
+                EmailProvider.getIncomingSettingsUri(account.getId()));
         final String accountName = account.getDisplayName();
         final String ticker =
             mContext.getString(R.string.security_changed_ticker_fmt, accountName);
@@ -521,9 +530,10 @@ public class NotificationController {
      * Show (or update) a security unsupported notification. If tapped, the user is taken to the
      * account settings screen where he can view the list of unsupported policies
      */
+    @Override
     public void showSecurityUnsupportedNotification(Account account) {
         final Intent intent = new Intent(Intent.ACTION_VIEW,
-                HeadlessAccountSettingsLoader.getIncomingSettingsUri(account.getId()));
+                EmailProvider.getIncomingSettingsUri(account.getId()));
         final String accountName = account.getDisplayName();
         final String ticker =
             mContext.getString(R.string.security_unsupported_ticker_fmt, accountName);
@@ -536,6 +546,7 @@ public class NotificationController {
     /**
      * Cancels all security needed notifications.
      */
+    @Override
     public void cancelSecurityNeededNotification() {
         EmailAsyncTask.runAsyncParallel(new Runnable() {
             @Override
@@ -559,7 +570,8 @@ public class NotificationController {
      * Cancels all notifications for the specified account id. This includes new mail notifications,
      * as well as special login/security notifications.
      */
-    public static void cancelNotifications(final Context context, final Account account) {
+    @Override
+    public void cancelNotifications(final Context context, final Account account) {
         final EmailServiceUtils.EmailServiceInfo serviceInfo
                 = EmailServiceUtils.getServiceInfoForAccount(context, account.mId);
         if (serviceInfo == null) {
@@ -646,7 +658,8 @@ public class NotificationController {
         }
     }
 
-    public static void handleUpdateNotificationIntent(Context context, Intent intent) {
+    @Override
+    public void handleUpdateNotificationIntent(Context context, Intent intent) {
         final Uri accountUri =
                 intent.getParcelableExtra(UIProvider.UpdateNotificationExtras.EXTRA_ACCOUNT);
         final Uri folderUri =
