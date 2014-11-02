@@ -234,10 +234,10 @@ public class SSLSocketFactoryWrapper extends javax.net.ssl.SSLSocketFactory {
         ssl.startHandshake();
 
         SSLSession session = ssl.getSession();
-        LogUtils.d(LogUtils.TAG, "using cipherSuite %s", session.getCipherSuite());
         if (session == null) {
             throw new SSLException("Cannot verify SSL socket without session");
         }
+        LogUtils.d(LogUtils.TAG, "using cipherSuite %s", session.getCipherSuite());
         if (!HttpsURLConnection.getDefaultHostnameVerifier().verify(hostname, session)) {
             throw new SSLPeerUnverifiedException("Cannot verify hostname: " + hostname);
         }
