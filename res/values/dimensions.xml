@@ -45,9 +45,11 @@
     <dimen name="setup_fragment_padding_bottom">16dp</dimen>
 
     <!-- Account setup navigation buttons -->
-    <dimen name="setup_nav_button_padding_top">24dp</dimen>
-    <dimen name="setup_nav_button_padding_side">20dp</dimen>
-    <dimen name="setup_nav_button_padding_bottom">24dp</dimen>
+    <dimen name="setup_nav_button_padding_top">16dp</dimen>
+    <dimen name="setup_nav_button_drawable_padding">16dp</dimen>
+    <dimen name="setup_nav_button_padding_side">12dp</dimen>
+    <dimen name="setup_nav_button_padding_bottom">16dp</dimen>
+    <dimen name="setup_nav_button_margin">4dp</dimen>
 
     <!-- Account setup text buttons -->
     <!-- See also w600dp -->
