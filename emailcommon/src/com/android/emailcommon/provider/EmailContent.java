@@ -96,6 +96,8 @@ public abstract class EmailContent {
     public static final int SYNC_STATUS_USER = UIProvider.SyncStatus.USER_REFRESH;
     public static final int SYNC_STATUS_BACKGROUND = UIProvider.SyncStatus.BACKGROUND_SYNC;
     public static final int SYNC_STATUS_LIVE = UIProvider.SyncStatus.LIVE_QUERY;
+    public static final int SYNC_STATUS_INITIAL_SYNC_NEEDED =
+            UIProvider.SyncStatus.INITIAL_SYNC_NEEDED;
 
     public static final int LAST_SYNC_RESULT_SUCCESS = UIProvider.LastSyncResult.SUCCESS;
     public static final int LAST_SYNC_RESULT_AUTH_ERROR = UIProvider.LastSyncResult.AUTH_ERROR;
