@@ -20,7 +20,7 @@
     android:minResizeWidth="180dp"
     android:minResizeHeight="110dp"
     android:updatePeriodMillis="0"
-    android:previewImage="@drawable/email_widget_preview"
+    android:previewImage="@drawable/mail_widget_preview"
     android:initialLayout="@layout/widget"
     android:resizeMode="horizontal|vertical"
     android:configure="com.android.email2.ui.MailboxSelectionActivityEmail"
