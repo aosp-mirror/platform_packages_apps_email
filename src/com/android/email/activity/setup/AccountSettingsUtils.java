@@ -21,12 +21,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.XmlResourceParser;
 import android.net.Uri;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.widget.EditText;
 
 import com.android.email.R;
-import com.android.email.SecurityPolicy;
 import com.android.email.provider.AccountBackupRestore;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.VendorPolicyLoader;
@@ -431,19 +428,6 @@ public class AccountSettingsUtils {
             }
         }
         return ((incoming != null) ? incoming : outgoing) + '.' + server.substring(keepFirstChar);
-    }
-
-    /**
-     * Helper to set error status on password fields that have leading or trailing spaces
-     */
-    public static void checkPasswordSpaces(Context context, EditText passwordField) {
-        Editable password = passwordField.getText();
-        int length = password.length();
-        if (length > 0) {
-            if (password.charAt(0) == ' ' || password.charAt(length-1) == ' ') {
-                passwordField.setError(context.getString(R.string.account_password_spaces_error));
-            }
-        }
     }
 
 }
