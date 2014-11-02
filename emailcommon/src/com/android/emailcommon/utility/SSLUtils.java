@@ -138,16 +138,15 @@ public class SSLUtils {
         }
     }
 
-    public static abstract class ExternalSecureSocketFactoryBuilder {
-        abstract public javax.net.ssl.SSLSocketFactory createSecureSocketFactory(
-                final Context context, final int handshakeTimeoutMillis);
+    public static abstract class ExternalSecurityProviderInstaller {
+        abstract public void installIfNeeded(final Context context);
     }
 
-    private static ExternalSecureSocketFactoryBuilder sExternalSocketFactoryBuilder;
+    private static ExternalSecurityProviderInstaller sExternalSecurityProviderInstaller;
 
-    public static void setExternalSecureSocketFactoryBuilder(
-            ExternalSecureSocketFactoryBuilder builder) {
-        sExternalSocketFactoryBuilder = builder;
+    public static void setExternalSecurityProviderInstaller (
+            ExternalSecurityProviderInstaller installer) {
+        sExternalSecurityProviderInstaller = installer;
     }
 
     /**
@@ -159,6 +158,11 @@ public class SSLUtils {
     public synchronized static javax.net.ssl.SSLSocketFactory getSSLSocketFactory(
             final Context context, final HostAuth hostAuth, final KeyManager keyManager,
             final boolean insecure) {
+        // If we have an external security provider installer, then install. This will
+        // potentially replace the default implementation of SSLSocketFactory.
+        if (sExternalSecurityProviderInstaller != null) {
+            sExternalSecurityProviderInstaller.installIfNeeded(context);
+        }
         try {
             final KeyManager[] keyManagers = (keyManager == null ? null :
                     new KeyManager[]{keyManager});
