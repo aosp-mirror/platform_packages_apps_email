@@ -355,6 +355,12 @@ public class EmailProvider extends ContentProvider
 
     private static final String SYNC_STATUS_CALLBACK_METHOD = "sync_status";
 
+    private static final String[] MIME_TYPE_PROJECTION = new String[]{AttachmentColumns.MIME_TYPE};
+
+    private static final String[] CACHED_FILE_QUERY_PROJECTION = new String[]
+            { AttachmentColumns._ID, AttachmentColumns.FILENAME, AttachmentColumns.SIZE,
+                    AttachmentColumns.CONTENT_URI };
+
     /**
      * Wrap the UriMatcher call so we can throw a runtime exception if an unknown Uri is passed in
      * @param uri the Uri to match
@@ -843,6 +849,23 @@ public class EmailProvider extends ContentProvider
                 return "vnd.android.cursor.dir/email-hostauth";
             case HOSTAUTH_ID:
                 return "vnd.android.cursor.item/email-hostauth";
+            case ATTACHMENTS_CACHED_FILE_ACCESS: {
+                SQLiteDatabase db = getDatabase(getContext());
+                Cursor c = db.query(Attachment.TABLE_NAME, MIME_TYPE_PROJECTION,
+                        AttachmentColumns.CACHED_FILE + "=?", new String[]{uri.toString()},
+                        null, null, null, null);
+                try {
+                    if (c != null && c.moveToFirst()) {
+                        return c.getString(0);
+                    } else {
+                        return null;
+                    }
+                } finally {
+                    if (c != null) {
+                        c.close();
+                    }
+                }
+            }
             default:
                 return null;
         }
@@ -1423,6 +1446,59 @@ public class EmailProvider extends ContentProvider
                     id = uri.getPathSegments().get(2);
                     c = uiQuickResponseAccount(projection, id);
                     break;
+                case ATTACHMENTS_CACHED_FILE_ACCESS:
+                    if (projection == null) {
+                        projection =
+                                new String[] {
+                                        AttachmentUtilities.Columns._ID,
+                                        AttachmentUtilities.Columns.DATA,
+                                };
+                    }
+                    // Map the columns of our attachment table to the columns defined in
+                    // AttachmentUtils. These are a superset of OpenableColumns.
+                    // This mirrors similar code in AttachmentProvider.
+                    c = db.query(Attachment.TABLE_NAME,
+                            CACHED_FILE_QUERY_PROJECTION, AttachmentColumns.CACHED_FILE + "=?",
+                            new String[]{uri.toString()}, null, null, null, null);
+                    try {
+                        if (c.getCount() > 1) {
+                            LogUtils.e(TAG, "multiple results querying CACHED_FILE_ACCESS %s", uri);
+                        }
+                        if (c != null && c.moveToFirst()) {
+                            MatrixCursor ret = new MatrixCursorWithCachedColumns(projection);
+                            Object[] values = new Object[projection.length];
+                            for (int i = 0, count = projection.length; i < count; i++) {
+                                String column = projection[i];
+                                if (AttachmentUtilities.Columns._ID.equals(column)) {
+                                    values[i] = c.getLong(
+                                            c.getColumnIndexOrThrow(AttachmentColumns._ID));
+                                }
+                                else if (AttachmentUtilities.Columns.DATA.equals(column)) {
+                                    values[i] = c.getString(
+                                            c.getColumnIndexOrThrow(AttachmentColumns.CONTENT_URI));
+                                }
+                                else if (AttachmentUtilities.Columns.DISPLAY_NAME.equals(column)) {
+                                    values[i] = c.getString(
+                                            c.getColumnIndexOrThrow(AttachmentColumns.FILENAME));
+                                }
+                                else if (AttachmentUtilities.Columns.SIZE.equals(column)) {
+                                    values[i] = c.getInt(
+                                            c.getColumnIndexOrThrow(AttachmentColumns.SIZE));
+                                } else {
+                                    LogUtils.e(TAG,
+                                            "unexpected column %s requested for CACHED_FILE",
+                                            column);
+                                }
+                            }
+                            ret.addRow(values);
+                            return ret;
+                        }
+                    } finally {
+                        if (c !=  null) {
+                            c.close();
+                        }
+                    }
+                    return null;
                 default:
                     throw new IllegalArgumentException("Unknown URI " + uri);
             }
