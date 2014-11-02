@@ -32,6 +32,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 
+import com.android.email.NotificationController;
+import com.android.email.NotificationControllerCreatorHolder;
 import com.android.email.provider.AccountReconciler;
 import com.android.email.provider.EmailProvider;
 import com.android.email.service.EmailBroadcastProcessorService;
@@ -452,7 +454,9 @@ public class SecurityPolicy {
             setAccountHoldFlag(context, account, newState);
             if (newState) {
                 // Make sure there's a notification up
-                NotificationController.getInstance(context).showSecurityNeededNotification(account);
+                final NotificationController nc =
+                        NotificationControllerCreatorHolder.getInstance(context);
+                nc.showSecurityNeededNotification(account);
             }
         }
     }
@@ -499,11 +503,12 @@ public class SecurityPolicy {
         setAccountHoldFlag(mContext, account, true);
 
         // Put up an appropriate notification
+        final NotificationController nc =
+                NotificationControllerCreatorHolder.getInstance(mContext);
         if (policy.mProtocolPoliciesUnsupported == null) {
-            NotificationController.getInstance(mContext).showSecurityNeededNotification(account);
+            nc.showSecurityNeededNotification(account);
         } else {
-            NotificationController.getInstance(mContext).showSecurityUnsupportedNotification(
-                    account);
+            nc.showSecurityUnsupportedNotification(account);
         }
     }
 
@@ -612,14 +617,15 @@ public class SecurityPolicy {
         }
 
         boolean setHold = false;
+        final NotificationController nc =
+                NotificationControllerCreatorHolder.getInstance(mContext);
         if (policy.mProtocolPoliciesUnsupported != null) {
             // We can't support this, reasons in unsupportedRemotePolicies
             LogUtils.d(Logging.LOG_TAG,
                     "Notify policies for " + account.mDisplayName + " not supported.");
             setHold = true;
             if (notify) {
-                NotificationController.getInstance(mContext).showSecurityUnsupportedNotification(
-                        account);
+                nc.showSecurityUnsupportedNotification(account);
             }
             // Erase data
             Uri uri = EmailProvider.uiUri("uiaccountdata", accountId);
@@ -630,8 +636,7 @@ public class SecurityPolicy {
                         + " changed.");
                 if (notify) {
                     // Notify that policies changed
-                    NotificationController.getInstance(mContext).showSecurityChangedNotification(
-                            account);
+                    nc.showSecurityChangedNotification(account);
                 }
             } else {
                 LogUtils.d(Logging.LOG_TAG, "Policy is active and unchanged; do not notify.");
@@ -642,8 +647,7 @@ public class SecurityPolicy {
                     " are not being enforced.");
             if (notify) {
                 // Put up a notification
-                NotificationController.getInstance(mContext).showSecurityNeededNotification(
-                        account);
+                nc.showSecurityNeededNotification(account);
             }
         }
         // Set/clear the account hold.
@@ -655,7 +659,10 @@ public class SecurityPolicy {
      * cleared now.
      */
     public void clearNotification() {
-        NotificationController.getInstance(mContext).cancelSecurityNeededNotification();
+        final NotificationController nc =
+                NotificationControllerCreatorHolder.getInstance(mContext);
+
+        nc.cancelSecurityNeededNotification();
     }
 
     /**
@@ -754,17 +761,17 @@ public class SecurityPolicy {
         long expirationDate = getDPM().getPasswordExpiration(mAdminName);
         long timeUntilExpiration = expirationDate - System.currentTimeMillis();
         boolean expired = timeUntilExpiration < 0;
+        final NotificationController nc =
+                NotificationControllerCreatorHolder.getInstance(context);
         if (!expired) {
             // 4.  If warning, simply put up a generic notification and report that it came from
             // the shortest-expiring account.
-            NotificationController.getInstance(mContext).showPasswordExpiringNotificationSynchronous(
-                    nextExpiringAccountId);
+            nc.showPasswordExpiringNotificationSynchronous(nextExpiringAccountId);
         } else {
             // 5.  Actually expired - find all accounts that expire passwords, and wipe them
             boolean wiped = wipeExpiredAccounts(context);
             if (wiped) {
-                NotificationController.getInstance(mContext).showPasswordExpiredNotificationSynchronous(
-                        nextExpiringAccountId);
+                nc.showPasswordExpiredNotificationSynchronous(nextExpiringAccountId);
             }
         }
     }
@@ -838,7 +845,10 @@ public class SecurityPolicy {
                 // Clear security holds (if any)
                 Account.clearSecurityHoldOnAllAccounts(context);
                 // Cancel any active notifications (if any are posted)
-                NotificationController.getInstance(context).cancelPasswordExpirationNotifications();
+                final NotificationController nc =
+                        NotificationControllerCreatorHolder.getInstance(context);
+
+                nc.cancelPasswordExpirationNotifications();
                 break;
             case DEVICE_ADMIN_MESSAGE_PASSWORD_EXPIRING:
                 instance.onPasswordExpiring(instance.mContext);

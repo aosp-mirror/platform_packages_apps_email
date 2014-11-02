@@ -27,7 +27,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 
-import com.android.email.activity.setup.AccountSetupFinal;
+import com.android.email.setup.AuthenticatorSetupIntentHelper;
 
 /**
  * Anauthenticator service for reconciliation tests; it simply adds the account to AccountManager
@@ -67,8 +67,8 @@ public class EasTestAuthenticatorService extends Service {
             } else {
                 Bundle b = new Bundle();
                 Intent intent =
-                    AccountSetupFinal.actionGetCreateAccountIntent(
-                            EasTestAuthenticatorService.this, accountType);
+                        AuthenticatorSetupIntentHelper.actionGetCreateAccountIntent(
+                                EasTestAuthenticatorService.this, accountType);
                 intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
                 b.putParcelable(AccountManager.KEY_INTENT, intent);
                 return b;

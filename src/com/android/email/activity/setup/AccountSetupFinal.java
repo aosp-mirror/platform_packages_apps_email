@@ -43,6 +43,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.android.email.R;
+import com.android.email.setup.AuthenticatorSetupIntentHelper;
 import com.android.email.service.EmailServiceUtils;
 import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.provider.Account;
@@ -97,8 +98,6 @@ public class AccountSetupFinal extends AccountSetupActivity
      * and the appropriate incoming/outgoing information will be filled in automatically.
      */
     private static String INTENT_FORCE_CREATE_ACCOUNT;
-    private static final String EXTRA_FLOW_MODE = "FLOW_MODE";
-    private static final String EXTRA_FLOW_ACCOUNT_TYPE = "FLOW_ACCOUNT_TYPE";
     private static final String EXTRA_CREATE_ACCOUNT_EMAIL = "EMAIL";
     private static final String EXTRA_CREATE_ACCOUNT_USER = "USER";
     private static final String EXTRA_CREATE_ACCOUNT_PASSWORD = "PASSWORD";
@@ -180,26 +179,6 @@ public class AccountSetupFinal extends AccountSetupActivity
     private static final int EXISTING_ACCOUNTS_LOADER_ID = 1;
     private Map<String, String> mExistingAccountsMap;
 
-    public static Intent actionNewAccountIntent(final Context context) {
-        final Intent i = new Intent(context, AccountSetupFinal.class);
-        i.putExtra(EXTRA_FLOW_MODE, SetupDataFragment.FLOW_MODE_NORMAL);
-        return i;
-    }
-
-    public static Intent actionNewAccountWithResultIntent(final Context context) {
-        final Intent i = new Intent(context, AccountSetupFinal.class);
-        i.putExtra(EXTRA_FLOW_MODE, SetupDataFragment.FLOW_MODE_NO_ACCOUNTS);
-        return i;
-    }
-
-    public static Intent actionGetCreateAccountIntent(final Context context,
-            final String accountManagerType) {
-        final Intent i = new Intent(context, AccountSetupFinal.class);
-        i.putExtra(EXTRA_FLOW_MODE, SetupDataFragment.FLOW_MODE_ACCOUNT_MANAGER);
-        i.putExtra(EXTRA_FLOW_ACCOUNT_TYPE, accountManagerType);
-        return i;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -250,11 +229,13 @@ public class AccountSetupFinal extends AccountSetupActivity
 
             // Initialize the SetupDataFragment
             if (INTENT_FORCE_CREATE_ACCOUNT.equals(action)) {
-                mSetupData.setFlowMode(SetupDataFragment.FLOW_MODE_FORCE_CREATE);
+                mSetupData.setFlowMode(AuthenticatorSetupIntentHelper.FLOW_MODE_FORCE_CREATE);
             } else {
-                final int intentFlowMode = intent.getIntExtra(EXTRA_FLOW_MODE,
-                        SetupDataFragment.FLOW_MODE_UNSPECIFIED);
-                final String flowAccountType = intent.getStringExtra(EXTRA_FLOW_ACCOUNT_TYPE);
+                final int intentFlowMode = intent.getIntExtra(
+                        AuthenticatorSetupIntentHelper.EXTRA_FLOW_MODE,
+                        AuthenticatorSetupIntentHelper.FLOW_MODE_UNSPECIFIED);
+                final String flowAccountType = intent.getStringExtra(
+                        AuthenticatorSetupIntentHelper.EXTRA_FLOW_ACCOUNT_TYPE);
                 mSetupData.setAmProtocol(
                         EmailServiceUtils.getProtocolFromAccountType(this, flowAccountType));
                 mSetupData.setFlowMode(intentFlowMode);
@@ -273,8 +254,8 @@ public class AccountSetupFinal extends AccountSetupActivity
             mPasswordFailed = false;
         }
 
-        if (!mIsProcessing
-                && mSetupData.getFlowMode() == SetupDataFragment.FLOW_MODE_FORCE_CREATE) {
+        if (!mIsProcessing && mSetupData.getFlowMode() ==
+                AuthenticatorSetupIntentHelper.FLOW_MODE_FORCE_CREATE) {
             /**
              * To support continuous testing, we allow the forced creation of accounts.
              * This works in a manner fairly similar to automatic setup, in which the complete
@@ -679,7 +660,8 @@ public class AccountSetupFinal extends AccountSetupActivity
             case STATE_CREATING:
                 mState = STATE_NAMES;
                 updateContentFragment(true /* addToBackstack */);
-                if (mSetupData.getFlowMode() == SetupDataFragment.FLOW_MODE_FORCE_CREATE) {
+                if (mSetupData.getFlowMode() ==
+                        AuthenticatorSetupIntentHelper.FLOW_MODE_FORCE_CREATE) {
                     getFragmentManager().executePendingTransactions();
                     initiateAccountFinalize();
                 }
