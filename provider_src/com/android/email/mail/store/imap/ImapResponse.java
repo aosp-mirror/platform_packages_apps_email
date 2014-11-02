@@ -120,6 +120,13 @@ public class ImapResponse extends ImapList {
         return getStringOrEmpty(getElementOrNone(1).isList() ? 2 : 1);
     }
 
+    public ImapString getStatusOrEmpty() {
+        if (!isStatusResponse()) {
+            return ImapString.EMPTY;
+        }
+        return getStringOrEmpty(0);
+    }
+
     @Override
     public String toString() {
         String tag = mTag;
