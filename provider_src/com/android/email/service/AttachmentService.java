@@ -137,8 +137,9 @@ public class AttachmentService extends Service implements Runnable {
 
     // A map of attachment ids to the number of failed attempts to download the attachment
     // NOTE: We do not want to persist this. This allows us to retry background downloading
-    // if any transient network errors are fixed & and the app is restarted
-    final ConcurrentHashMap<Long, Integer> mAttachmentFailureMap = new ConcurrentHashMap<Long, Integer>();
+    // if any transient network errors are fixed and the app is restarted
+    final ConcurrentHashMap<Long, Integer> mAttachmentFailureMap =
+            new ConcurrentHashMap<Long, Integer>();
 
     // Keeps tracks of downloads in progress based on an attachment ID to DownloadRequest mapping.
     final ConcurrentHashMap<Long, DownloadRequest> mDownloadsInProgress =
@@ -699,10 +700,10 @@ public class AttachmentService extends Service implements Runnable {
 
             // In advanced debug mode, let's look at the state of all in-progress downloads
             // after processQueue() runs.
-            debugTrace("Downloads Map before processQueue");
+            debugTrace("In progress downloads before processQueue");
             dumpInProgressDownloads();
             processQueue();
-            debugTrace("Downloads Map after processQueue");
+            debugTrace("In progress downloads after processQueue");
             dumpInProgressDownloads();
 
             if (mDownloadQueue.isEmpty() && (mDownloadsInProgress.size() < 1)) {
@@ -710,7 +711,7 @@ public class AttachmentService extends Service implements Runnable {
                 stopSelf();
                 break;
             }
-            debugTrace("Run() wait for mLock");
+            debugTrace("Run() idle, wait for mLock (something to do)");
             synchronized(mLock) {
                 try {
                     mLock.wait(PROCESS_QUEUE_WAIT_TIME);
@@ -718,7 +719,7 @@ public class AttachmentService extends Service implements Runnable {
                     // That's ok; we'll just keep looping
                 }
             }
-            debugTrace("Run() got mLock");
+            debugTrace("Run() got mLock (there is work to do or we timed out)");
         }
 
         // Unregister now that we're done
@@ -899,12 +900,13 @@ public class AttachmentService extends Service implements Runnable {
 
         // Then, try opportunistic download of appropriate attachments
         final int availableBackgroundThreads =
-                MAX_SIMULTANEOUS_DOWNLOADS - mDownloadsInProgress.size() - 1;
+                MAX_SIMULTANEOUS_DOWNLOADS - mDownloadsInProgress.size();
         if (availableBackgroundThreads < 1) {
             // We want to leave one spot open for a user requested download that we haven't
             // started processing yet.
             LogUtils.d(LOG_TAG, "Skipping opportunistic downloads, %d threads available",
                     availableBackgroundThreads);
+            dumpInProgressDownloads();
             return;
         }
 
@@ -1289,6 +1291,7 @@ public class AttachmentService extends Service implements Runnable {
         if (ENABLE_ATTACHMENT_SERVICE_DEBUG < 1) {
             LogUtils.d(LOG_TAG, "Advanced logging not configured.");
         }
+        LogUtils.d(LOG_TAG, "Here are the in-progress downloads...");
         for (final DownloadRequest req : mDownloadsInProgress.values()) {
             LogUtils.d(LOG_TAG, "--BEGIN DownloadRequest DUMP--");
             LogUtils.d(LOG_TAG, "Account: #%d", req.mAccountId);
@@ -1309,6 +1312,7 @@ public class AttachmentService extends Service implements Runnable {
             LogUtils.d(LOG_TAG, "Last Callback Time: %d", req.mLastCallbackTime);
             LogUtils.d(LOG_TAG, "------------------------------");
         }
+        LogUtils.d(LOG_TAG, "Done reporting in-progress downloads...");
     }
 
 
