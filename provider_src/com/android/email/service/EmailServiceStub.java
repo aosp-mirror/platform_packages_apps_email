@@ -293,10 +293,18 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
         Cursor localFolderCursor = null;
         Store store = null;
         try {
+            store = Store.getInstance(account, mContext);
+
             // Step 0: Make sure the default system mailboxes exist.
             for (final int type : Mailbox.REQUIRED_FOLDER_TYPES) {
                 if (Mailbox.findMailboxOfType(mContext, accountId, type) == Mailbox.NO_MAILBOX) {
                     final Mailbox mailbox = Mailbox.newSystemMailbox(mContext, accountId, type);
+                    if (store.canSyncFolderType(type)) {
+                        // If this folder is syncable, then we should set its UISyncStatus.
+                        // Otherwise the UI could show the empty state until the sync
+                        // actually occurs.
+                        mailbox.mUiSyncStatus = Mailbox.SYNC_STATUS_INITIAL_SYNC_NEEDED;
+                    }
                     mailbox.save(mContext);
                     if (type == Mailbox.TYPE_INBOX) {
                         inboxId = mailbox.mId;
@@ -305,7 +313,6 @@ public abstract class EmailServiceStub extends IEmailService.Stub implements IEm
             }
 
             // Step 1: Get remote mailboxes
-            store = Store.getInstance(account, mContext);
             final Folder[] remoteFolders = store.updateFolders();
             final HashSet<String> remoteFolderNames = new HashSet<String>();
             for (final Folder remoteFolder : remoteFolders) {
