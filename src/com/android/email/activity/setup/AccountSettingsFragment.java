@@ -367,16 +367,19 @@ public class AccountSettingsFragment extends MailAccountPrefsFragment
                     mAccount.mEmailAddress, mServiceInfo.accountType);
             ContentResolver.setSyncAutomatically(androidAcct, EmailContent.AUTHORITY,
                     (Boolean) newValue);
+            loadSettings();
         } else if (key.equals(PREFERENCE_SYNC_CONTACTS)) {
             final android.accounts.Account androidAcct = new android.accounts.Account(
                     mAccount.mEmailAddress, mServiceInfo.accountType);
             ContentResolver.setSyncAutomatically(androidAcct, ContactsContract.AUTHORITY,
                     (Boolean) newValue);
+            loadSettings();
         } else if (key.equals(PREFERENCE_SYNC_CALENDAR)) {
             final android.accounts.Account androidAcct = new android.accounts.Account(
                     mAccount.mEmailAddress, mServiceInfo.accountType);
             ContentResolver.setSyncAutomatically(androidAcct, CalendarContract.AUTHORITY,
                     (Boolean) newValue);
+            loadSettings();
         } else if (key.equals(PREFERENCE_BACKGROUND_ATTACHMENTS)) {
             int newFlags = mAccount.getFlags() & ~(Account.FLAGS_BACKGROUND_ATTACHMENTS);
 
