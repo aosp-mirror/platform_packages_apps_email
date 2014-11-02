@@ -85,6 +85,24 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
         waitForCompletion();
     }
 
+    public boolean canDisableCamera() throws RemoteException {
+        setTask(new ProxyTask() {
+            @Override
+            public void run() throws RemoteException {
+                mReturn = mService.canDisableCamera();
+            }
+        }, "canDisableCamera");
+        waitForCompletion();
+        if (mReturn == null) {
+            // This is not a great situation, but it's better to act like the policy isn't enforced
+            // rather than crash.
+            LogUtils.e(TAG, "PolicyService unavailable in canDisableCamera; assuming false");
+            return false;
+        } else {
+            return (Boolean)mReturn;
+        }
+    }
+
     @Override
     public void remoteWipe() throws RemoteException {
         setTask(new ProxyTask() {
@@ -144,6 +162,14 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
         } catch (RemoteException e) {
         }
         throw new IllegalStateException("PolicyService transaction failed");
+    }
+
+    public static boolean canDisableCamera(Context context) {
+        try {
+            return new PolicyServiceProxy(context).canDisableCamera();
+        } catch (RemoteException e) {
+        }
+        return false;
     }
 }
 
