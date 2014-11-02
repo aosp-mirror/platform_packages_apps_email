@@ -225,7 +225,7 @@
             android:label="@string/app_name"
             android:name="com.android.email2.ui.MailActivityEmail"
             android:theme="@style/MailActivityTheme"
-            android:windowSoftInputMode="adjustPan|stateUnspecified" >
+            android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
