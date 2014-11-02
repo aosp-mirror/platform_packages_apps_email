@@ -22,9 +22,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 
-import com.android.email.NotificationController;
+import com.android.email.DebugUtils;
 import com.android.email.ResourceHelper;
-import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Configuration;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.VendorPolicyLoader;
@@ -62,7 +61,7 @@ public class AccountService extends Service {
                         // Make sure remote services are running (re: lifecycle)
                         EmailServiceUtils.startRemoteServices(mContext);
                         // Send current logging flags
-                        MailActivityEmail.updateLoggingFlags(mContext);
+                        DebugUtils.updateLoggingFlags(mContext);
                     }});
                 return Device.getDeviceId(mContext);
             } catch (IOException e) {

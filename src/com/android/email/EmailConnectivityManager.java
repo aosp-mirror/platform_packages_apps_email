@@ -28,7 +28,6 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 
-import com.android.email2.ui.MailActivityEmail;
 import com.android.mail.utils.LogUtils;
 
 /**
@@ -181,14 +180,14 @@ public class EmailConnectivityManager extends BroadcastReceiver {
                 if (info != null) {
                     // We're done if there's an active network
                     if (waiting) {
-                        if (MailActivityEmail.DEBUG) {
+                        if (DebugUtils.DEBUG) {
                             LogUtils.d(TAG, mName + ": Connectivity wait ended");
                         }
                     }
                     return;
                 } else {
                     if (!waiting) {
-                        if (MailActivityEmail.DEBUG) {
+                        if (DebugUtils.DEBUG) {
                             LogUtils.d(TAG, mName + ": Connectivity waiting...");
                         }
                         waiting = true;

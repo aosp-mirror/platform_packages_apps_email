@@ -19,9 +19,9 @@ package com.android.email.mail.transport;
 import android.content.Context;
 import android.util.Base64;
 
+import com.android.email.DebugUtils;
 import com.android.email.mail.Sender;
 import com.android.email.mail.internet.AuthenticationCache;
-import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.Rfc822Output;
 import com.android.emailcommon.mail.Address;
@@ -128,7 +128,7 @@ public class SmtpSender extends Sender {
                      */
                     result = executeSimpleCommand("EHLO " + localHost);
                 } else {
-                    if (MailActivityEmail.DEBUG) {
+                    if (DebugUtils.DEBUG) {
                         LogUtils.d(Logging.LOG_TAG, "TLS not supported but required");
                     }
                     throw new MessagingException(MessagingException.TLS_REQUIRED);
@@ -164,12 +164,12 @@ public class SmtpSender extends Sender {
                 // It is acceptable to hvae no authentication at all for SMTP.
             }
         } catch (SSLException e) {
-            if (MailActivityEmail.DEBUG) {
+            if (DebugUtils.DEBUG) {
                 LogUtils.d(Logging.LOG_TAG, e.toString());
             }
             throw new CertificateValidationException(e.getMessage(), e);
         } catch (IOException ioe) {
-            if (MailActivityEmail.DEBUG) {
+            if (DebugUtils.DEBUG) {
                 LogUtils.d(Logging.LOG_TAG, ioe.toString());
             }
             throw new MessagingException(MessagingException.IOERROR, ioe.toString());

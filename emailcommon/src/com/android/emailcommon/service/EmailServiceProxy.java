@@ -65,13 +65,13 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
     private final boolean isRemote;
 
     // Standard debugging
-    public static final int DEBUG_BIT = 1;
+    public static final int DEBUG_BIT = 0x01;
     // Verbose (parser) logging
-    public static final int DEBUG_VERBOSE_BIT = 2;
+    public static final int DEBUG_EXCHANGE_BIT = 0x02;
     // File (SD card) logging
-    public static final int DEBUG_FILE_BIT = 4;
+    public static final int DEBUG_FILE_BIT = 0x04;
     // Enable strict mode
-    public static final int DEBUG_ENABLE_STRICT_MODE = 8;
+    public static final int DEBUG_ENABLE_STRICT_MODE = 0x08;
 
     // The first two constructors are used with local services that can be referenced by class
     public EmailServiceProxy(Context _context, Class<?> _class) {

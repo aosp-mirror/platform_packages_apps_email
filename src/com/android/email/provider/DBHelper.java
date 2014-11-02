@@ -31,8 +31,8 @@ import android.provider.CalendarContract;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
 
+import com.android.email.DebugUtils;
 import com.android.email.R;
-import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.Credential;
@@ -1628,7 +1628,7 @@ public final class DBHelper {
                                     LEGACY_SCHEME_POP3.equals(protocol)) {
                                 // If this is a pop3 or imap account, create the account manager
                                 // account
-                                if (MailActivityEmail.DEBUG) {
+                                if (DebugUtils.DEBUG) {
                                     LogUtils.d(TAG, "Create AccountManager account for " + protocol
                                             + "account: "
                                             + accountCursor.getString(V21_ACCOUNT_EMAIL));
