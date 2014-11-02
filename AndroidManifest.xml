@@ -309,6 +309,7 @@
             android:label="@string/mailbox_settings_activity_title"
             android:exported="false"
             android:excludeFromRecents="true"
+            android:windowSoftInputMode="adjustResize"
             android:theme="@style/AccountSetupDialogActivityTheme" />
         <!-- a Headless Activity to load the account from the account id before navigating to the
         Incoming Account Settings fragment -->
