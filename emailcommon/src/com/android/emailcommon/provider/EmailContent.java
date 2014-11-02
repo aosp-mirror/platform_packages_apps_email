@@ -493,9 +493,6 @@ public abstract class EmailContent {
         public static final int CONTENT_SOURCE_KEY_COLUMN = 4;
         public static final int CONTENT_QUOTED_TEXT_START_POS_COLUMN = 5;
 
-        private static final String[] PROJECTION_SOURCE_KEY =
-            new String[] {BaseColumns._ID, BodyColumns.SOURCE_MESSAGE_KEY};
-
         public long mMessageKey;
         public String mHtmlContent;
         public String mTextContent;
@@ -577,7 +574,7 @@ public abstract class EmailContent {
         @VisibleForTesting
         public static long restoreBodySourceKey(Context context, long messageId) {
             return Utility.getFirstRowLong(context, Body.CONTENT_URI,
-                    Body.PROJECTION_SOURCE_KEY,
+                    new String[] {BodyColumns.SOURCE_MESSAGE_KEY},
                     BodyColumns.MESSAGE_KEY + "=?", new String[] {Long.toString(messageId)}, null,
                     0, 0L);
         }
