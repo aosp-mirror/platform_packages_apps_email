@@ -34,12 +34,12 @@ import com.android.emailcommon.service.SyncWindow;
 public class AccountSetupOptionsFragment extends AccountSetupFragment {
     private Spinner mCheckFrequencyView;
     private Spinner mSyncWindowView;
+    private View mSyncwindowLabel;
     private CheckBox mNotifyView;
     private CheckBox mSyncContactsView;
     private CheckBox mSyncCalendarView;
     private CheckBox mSyncEmailView;
     private CheckBox mBackgroundAttachmentsView;
-    private View mAccountSyncWindowRow;
 
     /** Default sync window for new EAS accounts */
     private static final int SYNC_WINDOW_EAS_DEFAULT = SyncWindow.SYNC_WINDOW_1_WEEK;
@@ -68,7 +68,7 @@ public class AccountSetupOptionsFragment extends AccountSetupFragment {
         mSyncEmailView.setChecked(true);
         mBackgroundAttachmentsView = UiUtilities.getView(view, R.id.account_background_attachments);
         mBackgroundAttachmentsView.setChecked(true);
-        mAccountSyncWindowRow = UiUtilities.getView(view, R.id.account_sync_window_row);
+        mSyncwindowLabel = UiUtilities.getView(view, R.id.account_sync_window_label);
 
         return view;
     }
@@ -96,7 +96,7 @@ public class AccountSetupOptionsFragment extends AccountSetupFragment {
                     Integer.valueOf(frequencyValues[i].toString()), frequencyEntries[i].toString());
         }
         final ArrayAdapter<SpinnerOption> checkFrequenciesAdapter =
-                new ArrayAdapter<SpinnerOption>(getActivity(), android.R.layout.simple_spinner_item,
+                new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item,
                         checkFrequencies);
         checkFrequenciesAdapter
                 .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -130,7 +130,8 @@ public class AccountSetupOptionsFragment extends AccountSetupFragment {
      */
     private void enableLookbackSpinner(Account account) {
         // Show everything
-        mAccountSyncWindowRow.setVisibility(View.VISIBLE);
+        mSyncWindowView.setVisibility(View.VISIBLE);
+        mSyncwindowLabel.setVisibility(View.VISIBLE);
 
         // Generate spinner entries using XML arrays used by the preferences
         final CharSequence[] windowValues = getResources().getTextArray(
@@ -164,7 +165,7 @@ public class AccountSetupOptionsFragment extends AccountSetupFragment {
         }
 
         final ArrayAdapter<SpinnerOption> windowOptionsAdapter =
-                new ArrayAdapter<SpinnerOption>(getActivity(), android.R.layout.simple_spinner_item,
+                new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item,
                         windowOptions);
         windowOptionsAdapter
                 .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -188,7 +189,7 @@ public class AccountSetupOptionsFragment extends AccountSetupFragment {
      * @return Sync window value or null if view is hidden
      */
     public Integer getAccountSyncWindowValue() {
-        if (mAccountSyncWindowRow.getVisibility() != View.VISIBLE) {
+        if (mSyncWindowView.getVisibility() != View.VISIBLE) {
             return null;
         }
         return (Integer)((SpinnerOption)mSyncWindowView.getSelectedItem()).value;
