@@ -344,6 +344,7 @@ class ImapConnection {
 
         if (!response.isOk()) {
             final String toString = response.toString();
+            final String status = response.getStatusOrEmpty().getString();
             final String alert = response.getAlertTextOrEmpty().getString();
             final String responseCode = response.getResponseCodeOrEmpty().getString();
             destroyResponses();
@@ -353,7 +354,7 @@ class ImapConnection {
                 throw new MessagingException(MessagingException.SERVER_ERROR, alert);
             }
 
-            throw new ImapException(toString, alert, responseCode);
+            throw new ImapException(toString, status, alert, responseCode);
         }
         return responses;
     }
@@ -505,12 +506,14 @@ class ImapConnection {
                 LogUtils.d(Logging.LOG_TAG, ie, "ImapException");
             }
 
+            final String status = ie.getStatus();
             final String code = ie.getResponseCode();
             final String alertText = ie.getAlertText();
 
             // if the response code indicates expired or bad credentials, throw a special exception
             if (ImapConstants.AUTHENTICATIONFAILED.equals(code) ||
-                    ImapConstants.EXPIRED.equals(code)) {
+                    ImapConstants.EXPIRED.equals(code) ||
+                    (ImapConstants.NO.equals(status) && TextUtils.isEmpty(code))) {
                 throw new AuthenticationFailedException(alertText, ie);
             }
 
