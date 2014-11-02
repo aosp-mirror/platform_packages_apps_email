@@ -256,6 +256,17 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
 
         configureEditor();
         loadSettings();
+
+        final List<VendorPolicyLoader.OAuthProvider> oauthProviders =
+                AccountSettingsUtils.getAllOAuthProviders(getActivity());
+        final boolean offerOAuth = (mServiceInfo.offerOAuth && oauthProviders.size() > 0);
+        if (mAuthenticationLabel != null) {
+            if (offerOAuth) {
+                mAuthenticationLabel.setText(R.string.authentication_label);
+            } else {
+                mAuthenticationLabel.setText(R.string.account_setup_basics_password_label);
+            }
+        }
     }
 
     /**
@@ -342,16 +353,9 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment
         mServiceInfo = mSetupData.getIncomingServiceInfo(getActivity());
         final List<VendorPolicyLoader.OAuthProvider> oauthProviders =
                 AccountSettingsUtils.getAllOAuthProviders(getActivity());
-        final boolean offerOAuth = (mServiceInfo.offerOAuth && oauthProviders.size() > 0);
 
+        final boolean offerOAuth = (mServiceInfo.offerOAuth && oauthProviders.size() > 0);
         mAuthenticationView.setAuthInfo(offerOAuth, recvAuth);
-        if (mAuthenticationLabel != null) {
-            if (offerOAuth) {
-                mAuthenticationLabel.setText(R.string.authentication_label);
-            } else {
-                mAuthenticationLabel.setText(R.string.account_setup_basics_password_label);
-            }
-        }
 
         final String username = recvAuth.mLogin;
         if (username != null) {
