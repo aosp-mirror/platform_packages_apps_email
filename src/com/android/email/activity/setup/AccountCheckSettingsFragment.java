@@ -314,8 +314,8 @@ public class AccountCheckSettingsFragment extends Fragment {
         final SetupDataFragment mSetupData;
         final Account mAccount;
         final String mStoreHost;
-        final String mCheckEmail;
         final String mCheckPassword;
+        final String mCheckEmail;
 
         /**
          * Create task and parameterize it
@@ -330,9 +330,14 @@ public class AccountCheckSettingsFragment extends Fragment {
             mMode = mode;
             mSetupData = setupData;
             mAccount = setupData.getAccount();
-            mStoreHost = mAccount.mHostAuthRecv.mAddress;
+            if (mAccount.mHostAuthRecv != null) {
+                mStoreHost = mAccount.mHostAuthRecv.mAddress;
+                mCheckPassword = mAccount.mHostAuthRecv.mPassword;
+            } else {
+                mStoreHost = null;
+                mCheckPassword = null;
+            }
             mCheckEmail = mAccount.mEmailAddress;
-            mCheckPassword = mAccount.mHostAuthRecv.mPassword;
         }
 
         @Override
@@ -411,11 +416,18 @@ public class AccountCheckSettingsFragment extends Fragment {
                     }
                 }
 
-                final String protocol = mAccount.mHostAuthRecv.mProtocol;
-                final EmailServiceInfo info = EmailServiceUtils.getServiceInfo(mContext, protocol);
+                final EmailServiceInfo info;
+                if (mAccount.mHostAuthRecv != null) {
+                    final String protocol = mAccount.mHostAuthRecv.mProtocol;
+                    info = EmailServiceUtils
+                            .getServiceInfo(mContext, protocol);
+                } else {
+                    info = null;
+                }
 
                 // Check Outgoing Settings
-                if (info.usesSmtp && (mMode & SetupDataFragment.CHECK_OUTGOING) != 0) {
+                if ((info == null || info.usesSmtp) &&
+                        (mMode & SetupDataFragment.CHECK_OUTGOING) != 0) {
                     if (isCancelled()) return null;
                     LogUtils.d(Logging.LOG_TAG, "Begin check of outgoing email settings");
                     publishProgress(STATE_CHECK_OUTGOING);
