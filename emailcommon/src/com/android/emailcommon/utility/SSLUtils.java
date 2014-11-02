@@ -20,8 +20,6 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.net.SSLCertificateSocketFactory;
-import android.net.SSLSessionCache;
 import android.security.KeyChain;
 import android.security.KeyChainException;
 
@@ -34,6 +32,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -159,43 +159,33 @@ public class SSLUtils {
     public synchronized static javax.net.ssl.SSLSocketFactory getSSLSocketFactory(
             final Context context, final HostAuth hostAuth, final KeyManager keyManager,
             final boolean insecure) {
-        if (insecure) {
-            final SSLCertificateSocketFactory insecureFactory = (SSLCertificateSocketFactory)
-                    SSLCertificateSocketFactory.getInsecure(SSL_HANDSHAKE_TIMEOUT, null);
-            insecureFactory.setTrustManagers(
-                    new TrustManager[] {
-                            new SameCertificateCheckingTrustManager(context, hostAuth)});
-            if (keyManager != null) {
-                insecureFactory.setKeyManagers(new KeyManager[] { keyManager });
+        try {
+            final KeyManager[] keyManagers = (keyManager == null ? null :
+                    new KeyManager[]{keyManager});
+            if (insecure) {
+                final TrustManager[] trustManagers = new TrustManager[]{
+                        new SameCertificateCheckingTrustManager(context, hostAuth)};
+                SSLSocketFactoryWrapper insecureFactory =
+                        (SSLSocketFactoryWrapper) SSLSocketFactoryWrapper.getInsecure(
+                                keyManagers, trustManagers, SSL_HANDSHAKE_TIMEOUT);
+                return insecureFactory;
+            } else {
+                if (sSecureFactory == null) {
+                    SSLSocketFactoryWrapper secureFactory =
+                            (SSLSocketFactoryWrapper) SSLSocketFactoryWrapper.getDefault(
+                                    keyManagers, SSL_HANDSHAKE_TIMEOUT);
+                    sSecureFactory = secureFactory;
+                }
+                return sSecureFactory;
             }
-            return insecureFactory;
-        } else {
-            if (sSecureFactory == null) {
-                // First try to get use an externally supplied, more secure SSLSocketBuilder.
-                // If so we should use that.
-                javax.net.ssl.SSLSocketFactory socketFactory = null;
-                if (sExternalSocketFactoryBuilder != null) {
-                    socketFactory = sExternalSocketFactoryBuilder.createSecureSocketFactory(
-                            context, SSL_HANDSHAKE_TIMEOUT);
-                }
-                if (socketFactory != null) {
-                    sSecureFactory = socketFactory;
-                    LogUtils.d(TAG, "Using externally created CertificateSocketFactory");
-                    return sSecureFactory;
-                }
-                // Only fall back to the platform one if that fails.
-                LogUtils.d(TAG, "Falling back to platform CertificateSocketFactory");
-                final SSLCertificateSocketFactory certificateSocketFactory =
-                        (SSLCertificateSocketFactory)
-                        SSLCertificateSocketFactory.getDefault(SSL_HANDSHAKE_TIMEOUT,
-                                new SSLSessionCache(context));
-                if (keyManager != null) {
-                    certificateSocketFactory.setKeyManagers(new KeyManager[] { keyManager });
-                }
-                sSecureFactory = certificateSocketFactory;
-            }
-            return sSecureFactory;
+        } catch (NoSuchAlgorithmException e) {
+            LogUtils.wtf(TAG, e, "Unable to acquire SSLSocketFactory");
+            // TODO: what can we do about this?
+        } catch (KeyManagementException e) {
+            LogUtils.wtf(TAG, e, "Unable to acquire SSLSocketFactory");
+            // TODO: what can we do about this?
         }
+        return null;
     }
 
     /**
