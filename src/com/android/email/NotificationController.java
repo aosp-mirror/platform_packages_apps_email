@@ -726,7 +726,7 @@ public class NotificationController {
 
     private static void refreshAllNotificationsInternal(final Context context) {
         NotificationUtils.resendNotifications(
-                context, false, null, null, null /* ContactPhotoFetcher */);
+                context, false, null, null, null /* ContactFetcher */);
     }
 
     /**
