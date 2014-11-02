@@ -20,7 +20,7 @@
         <!-- ActionBar color -->
         <item name="android:colorPrimary">@color/actionbar_color</item>
         <!-- Used by the StatusBar and NavBar (currently broken?) -->
-        <item name="android:colorPrimaryDark">@color/statusbar_color</item>
+        <item name="android:colorPrimaryDark">@color/primary_dark_color</item>
         <item name="android:colorAccent">@color/accent_blue</item>
     </style>
 </resources>
