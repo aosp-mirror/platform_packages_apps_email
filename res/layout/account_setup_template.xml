@@ -14,75 +14,78 @@
      limitations under the License.
 -->
 
-<!-- Account Setup Layout - standard -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            style="@style/account_setup_content"
-            android:fillViewport="true" >
-    <LinearLayout
+<!-- Account Setup Layout -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
-
-        <!-- Headline -->
-        <!-- Set headline for first fragment, change in code as we progress through screens -->
-        <TextView
-            android:id="@+id/headline"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:text="@string/account_setup_options_headline"
-            style="@style/account_setup_headline" />
-
-        <!-- Primary Content -->
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/setup_fragment_content"
-            style="@style/account_setup_fragment_container"
-            />
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
-
-        <!-- Buttons below that -->
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        style="@style/account_setup_content" >
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="@dimen/setup_nav_button_padding_top"
-            android:paddingLeft="@dimen/setup_nav_button_padding_side"
-            android:paddingRight="@dimen/setup_nav_button_padding_side"
-            android:paddingBottom="@dimen/setup_nav_button_padding_bottom"
-            android:orientation="horizontal">
-            <ImageButton
-                style="@style/account_setup_nav_button"
-                android:contentDescription="@string/previous"
-                android:id="@+id/previous"
+            android:orientation="vertical" >
+
+            <!-- Headline -->
+            <!-- Set headline for first fragment, change in code as we progress through screens -->
+            <TextView
+                android:id="@+id/headline"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                android:src="@drawable/ic_nav_arrow_previous_button"
-                android:text="@string/next" />
-            <Button
-                android:id="@+id/manual_setup"
+                android:text="@string/account_setup_options_headline"
+                style="@style/account_setup_headline" />
+
+            <!-- Primary Content -->
+            <FrameLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:text="@string/account_setup_basics_manual_setup_action"
-                android:visibility="gone"
-                android:layout_gravity="center_vertical"
-                style="@style/account_setup_manual_button" />
-            <View
-                android:layout_height="match_parent"
-                android:layout_width="0dp"
-                android:layout_weight="1" />
-            <ImageButton
-                style="@style/account_setup_nav_button"
-                android:contentDescription="@string/next"
-                android:id="@+id/next"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:src="@drawable/ic_nav_arrow_next_button"
-                android:text="@string/next" />
+                android:id="@+id/setup_fragment_content"
+                style="@style/account_setup_fragment_container"
+                />
+
         </LinearLayout>
+    </ScrollView>
+        <!-- Buttons below that -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="56dp"
+        android:orientation="horizontal"
+        android:background="@color/account_setup_button_bar_background" >
+        <TextView
+            android:id="@+id/previous"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:drawableStart="@drawable/ic_prev"
+            android:drawableLeft="@drawable/ic_prev"
+            android:drawablePadding="@dimen/setup_nav_button_drawable_padding"
+            android:text="@string/previous"
+            style="@style/account_setup_nav_button" />
+        <TextView
+            android:id="@+id/manual_setup"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/account_setup_basics_manual_setup_action"
+            android:visibility="gone"
+            style="@style/account_setup_nav_button" />
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+        <TextView
+            android:id="@+id/next"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:drawableEnd="@drawable/ic_next"
+            android:drawableRight="@drawable/ic_next"
+            android:drawablePadding="@dimen/setup_nav_button_drawable_padding"
+            android:text="@string/next"
+            style="@style/account_setup_nav_button" />
     </LinearLayout>
-</ScrollView>
+</LinearLayout>

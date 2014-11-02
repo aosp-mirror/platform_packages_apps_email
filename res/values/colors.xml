@@ -24,7 +24,7 @@
     <color name="account_setup_label_large_text_color">#000000</color>
     <color name="account_setup_divider_color">#CCCCCC</color>
     <color name="account_setup_xlarge_background_color">#e5e5e5</color>
-    <color name="account_setup_manual_button_color">#373737</color>
+    <color name="account_setup_button_bar_background">@color/very_light_grey</color>
 
     <!-- Standard text colors -->
     <color name="text_secondary_color">#666666</color>
@@ -40,7 +40,6 @@
     <color name="combined_view_account_color_8">#ff738359</color>
     <color name="combined_view_account_color_9">#ff9d50a4</color>
 
-    <color name="button_text_color">#777777</color>
     <color name="button_text_disabled_color">#cccccc</color>
 
     <color name="password_warning_color">#d30000</color>
