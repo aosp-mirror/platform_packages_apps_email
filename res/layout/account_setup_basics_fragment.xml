@@ -32,14 +32,6 @@
             android:importantForAccessibility="no" >
         <requestFocus/>
     </View>
-    <ImageView
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:src="@drawable/ic_email_yellow_big"
-            android:contentDescription="@null"
-            android:layout_marginTop="@dimen/setup_basics_logo_margin_top"
-            android:layout_marginBottom="@dimen/setup_basics_logo_margin_bottom"
-            android:layout_gravity="center_horizontal" />
     <TextView
             android:id="@+id/lower_headline"
             android:layout_height="wrap_content"
