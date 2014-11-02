@@ -104,7 +104,7 @@
             android:key="notification-vibrate"
             android:dependency="notifications-enabled"
             android:defaultValue="false"
-            android:title="@string/account_settings_vibrate_when_label" />
+            android:title="@string/label_notification_vibrate_title" />
 
     </PreferenceCategory>
 
