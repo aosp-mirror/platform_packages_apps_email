@@ -237,7 +237,7 @@
         <incoming-fallback uri="imap+ssl+://imap-mail.outlook.com" username="$email" />
         <outgoing-fallback uri="smtp+tls+://smtp-mail.outlook.com" username="$email" />
     </provider>
-        <provider id="outlook" label="Outlook" domain="outlook.com">
+        <provider id="outlook" label="Outlook" domain="outlook.*">
         <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
         <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
             <incoming-fallback uri="imap+ssl+://imap-mail.outlook.com" username="$email" />
@@ -245,7 +245,11 @@
     </provider>
 
     <!-- Yahoo! Mail variants -->
-    <provider id="yahoo" label="Yahoo!" domain="yahoo.com">
+    <provider id="yahoo" label="Yahoo!" domain="yahoo.*">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo1" label="Yahoo!" domain="yahoo.*.*">
         <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
         <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
     </provider>
@@ -357,7 +361,7 @@
         <incoming uri="pop3://mx.freenet.de" username="$user" />
         <outgoing uri="smtp+ssl://mx.freenet.de" username="$email" />
     </provider>
-    <provider id="gmx" label="GMX" domain="gmx.de">
+    <provider id="gmx" label="GMX" domain="gmx.*">
         <incoming uri="pop3://pop.gmx.net" username="$email" />
         <outgoing uri="smtp://mail.gmx.net" username="$email" />
     </provider>
