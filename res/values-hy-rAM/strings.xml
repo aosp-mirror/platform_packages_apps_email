@@ -56,22 +56,6 @@
     <string name="forward_download_failed_title" msgid="2043036709913723298">"Կցորդը չի փոխանցվել"</string>
     <string name="login_failed_ticker" msgid="4620839194581484497">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g>-ի մուտք գործումը խափանվել է:"</string>
     <string name="login_failed_title" msgid="1737884069957090004">"Չհաջողվեց մուտք գործել"</string>
-  <plurals name="message_view_attachment_bytes">
-    <item quantity="one" msgid="884086921379532485">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>Բ"</item>
-    <item quantity="other" msgid="1883360269853654045">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>Բ"</item>
-  </plurals>
-  <plurals name="message_view_attachment_kilobytes">
-    <item quantity="one" msgid="7735927556589634941">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g>Կբ"</item>
-    <item quantity="other" msgid="7476806336055136146">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g>Կբ"</item>
-  </plurals>
-  <plurals name="message_view_attachment_megabytes">
-    <item quantity="one" msgid="7755624135347953938">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g>Մբ"</item>
-    <item quantity="other" msgid="3317120193748830799">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g>Մբ"</item>
-  </plurals>
-  <plurals name="message_view_attachment_gigabytes">
-    <item quantity="one" msgid="5180812866869430241">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>Գբ"</item>
-    <item quantity="other" msgid="1607574223219436099">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>Գբ"</item>
-  </plurals>
     <string name="account_setup_basics_title" msgid="5050895656741229172">"Հաշվի ստեղծում"</string>
     <string name="oauth_authentication_title" msgid="3771260531636603518">"Կատարվում է թույլտվության հարցում"</string>
     <string name="sign_in_title" msgid="5051852806423550830">"Մուտք գործել"</string>

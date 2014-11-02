@@ -25,14 +25,6 @@
     <string name="create_action" msgid="6575946089819721958">"បង្កើត​ថ្មី"</string>
     <string name="quick_responses_empty_view" msgid="3394094315357455290">"មិន​មាន​ការ​ឆ្លើយ​តប​រហ័ស​។"</string>
     <string name="account_settings_action" msgid="589969653965674604">"ការ​កំណត់​គណនី"</string>
-    <string name="status_network_error" msgid="526826323872477973">"បញ្ហា​​ក្នុង​ការ​តភ្ជាប់​។"</string>
-  <plurals name="move_messages">
-    <item quantity="one" msgid="3431489066510898753">"ផ្លាស់ទី​សារ"</item>
-    <item quantity="other" msgid="5083310421670206821">"ផ្លាស់ទី​សារ"</item>
-  </plurals>
-    <string name="cannot_move_protocol_not_supported_toast" msgid="1687394290312755846">"ការ​ផ្លាស់​ទី​មិន​ត្រូវ​បាន​គាំ​ទ្រ​នៅ​លើ​គណនី​ POP3 ។"</string>
-    <string name="cannot_move_multiple_accounts_toast" msgid="1032577153519440211">"មិន​អាច​ផ្លាស់ទី​ដោយ​សារ​តែ​ការ​ជ្រើស​​​មាន​គណនី​ជា​ច្រើន​​។"</string>
-    <string name="cannot_move_special_mailboxes_toast" msgid="3758109129023839909">"សារ​នៅ​ក្នុង​សេចក្ដី​ព្រាង​ ប្រអប់​ចេញ​ និង​បាន​ផ្ញើ​​​​មិន​អាច​ត្រូវ​បាន​ផ្លាស់ទី​ឡើយ។"</string>
     <string name="mailbox_name_display_inbox" msgid="5093068725739672126">"ប្រអប់​ទទួល​"</string>
     <string name="mailbox_name_display_outbox" msgid="8735725798805339414">"ប្រអប់​ចេញ"</string>
     <string name="mailbox_name_display_drafts" msgid="3552043116466269581">"សេចក្ដី​ព្រាង"</string>
@@ -41,10 +33,7 @@
     <string name="mailbox_name_display_junk" msgid="1634126984313831675">"ឥត​បាន​ការ"</string>
     <string name="mailbox_name_display_starred" msgid="8076384721309828453">"បាន​ដាក់​ផ្កាយ"</string>
     <string name="mailbox_name_display_unread" msgid="1453575937919310339">"មិន​ទាន់​​អាន"</string>
-    <string name="account_folder_list_summary_inbox" msgid="6524816019350737506">"ប្រអប់​ទទួល​"</string>
-    <string name="account_folder_list_summary_starred" msgid="1625089431195748236">"បាន​ដាក់​ផ្កាយ"</string>
-    <string name="account_folder_list_summary_drafts" msgid="4050225674547841762">"សេចក្ដី​ព្រាង"</string>
-    <string name="account_folder_list_summary_outbox" msgid="5594504984407654721">"ប្រអប់​ចេញ"</string>
+    <string name="debug_title" msgid="1337476992195531309">"កែ​កំហុស"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="4155918930481733669">"ទិដ្ឋភាព​រួម​បញ្ចូល​គ្នា"</string>
     <string name="message_compose_fwd_header_fmt" msgid="6193988236722150221">\n\n"-------- សារ​ដើម --------\n ប្រធានបទ៖ <xliff:g id="SUBJECT">%1$s</xliff:g>\n ពី៖ <xliff:g id="SENDER">%2$s</xliff:g>\n ជូន​ចំពោះ៖ <xliff:g id="TO">%3$s</xliff:g>\n ចម្លង​ជូន៖ <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5836926808818821309">"បញ្ចូល​​ការ​ឆ្លើយតប​​​រហ័ស"</string>
@@ -264,12 +253,15 @@
     <string name="system_account_create_failed" msgid="2248313263003927725">"មិន​អាច​បង្កើត​គណនី​។ សូម​ព្យាយាម​ម្ដងទៀត។"</string>
     <string name="device_admin_label" msgid="3335272972461391415">"អ៊ីមែល"</string>
     <string name="device_admin_description" msgid="4299378570982520839">"បើក​​គោល​ន​យោ​បាយ​សុវត្ថិភាព​ម៉ាស៊ីន​មេ​​ដែល​បាន​បញ្ជាក់​"</string>
+<<<<<<< HEAD
     <string name="settings_activity_title" msgid="4787565736829092053">"កំណត់"</string>
     <string name="header_label_general_preferences" msgid="2924944721204930254">"ការ​កំណត់​ទូទៅ"</string>
     <string name="general_preference_confirm_delete_label" msgid="4635169755738754289">"បញ្ជាក់​មុន​ពេល​លុប"</string>
     <string name="general_preference_confirm_send_label" msgid="2985557291955796568">"បញ្ជាក់​មុន​ពេល​ផ្ញើ"</string>
     <string name="more_than_999" msgid="4088200269333058889">"999+"</string>
     <string name="search_hint" msgid="3491349343647799436">"ស្វែងរក​អ៊ីមែល"</string>
+=======
+>>>>>>> 19809304
     <string name="policy_dont_allow_camera" msgid="8821533827628900689">"មិន​អនុញ្ញាត​ឲ្យ​ប្រើ​ម៉ាស៊ីន​ថត​របស់​ឧបករណ៍"</string>
     <string name="policy_require_password" msgid="3556860917024612396">"ត្រូវ​ការ​ពាក្យ​សម្ងាត់​ឧបករណ៍"</string>
     <string name="policy_password_history" msgid="9001177390979112746">"ដាក់កម្រិត​​ប្រើ​​ពាក្យ​សម្ងាត់​ថ្មី​ៗ​ឡើងវិញ"</string>
@@ -283,10 +275,15 @@
     <string name="quick_4" msgid="216066940197616025">"​រៀបចំ​កិច្ច​ប្រជុំ​​​​​ ដើម្បី​ពិភាក្សា​រឿង​នេះ​។"</string>
     <string name="require_manual_sync_message" msgid="7361932179783481686">"បាន​បិទ​ការ​ធ្វើ​សម​កាល​កម្ម​ផ្ទៃ​ខាង​ក្រោយ​សម្រាប់​គណនី​នេះ​​​ខណៈ​ពេល​នៅ​ក្រៅ​ប្រទេស។"</string>
     <string name="confirm_response" msgid="6764021931370809514">"កំពុង​ផ្ញើ​​ការ​ឆ្លើយ​តប..."</string>
+<<<<<<< HEAD
     <string name="no_conversations" msgid="3785854971159919343">"គ្មាន​សារ។"</string>
     <string name="imap_name" msgid="1267915719183915252">"IMAP​"</string>
     <string name="pop3_name" msgid="1235910677527117862">"POP3"</string>
     <string name="folder_picker_title" msgid="5906275472176731605">"កម្មវិធី​ជ្រើស​ថត"</string>
+=======
+    <string name="imap_name" msgid="8285222985908214985">"ផ្ទាល់​ខ្លួន (IMAP​)"</string>
+    <string name="pop3_name" msgid="6653484706414263493">"ផ្ទាល់​ខ្លួន (POP3​)"</string>
+>>>>>>> 19809304
     <string name="trash_folder_selection_title" msgid="686039558899469073">"ជ្រើស​ថត​ធុង​សំរាម​ម៉ាស៊ីន​​មេ​​សម្រាប់ <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="sent_folder_selection_title" msgid="9207482909822072856">"ជ្រើស​​ថត​ធាតុ​បាន​ផ្ញើ​ដោយ​ម៉ាស៊ីន​​មេ​សម្រាប់ <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"កំពុង​ផ្ទុក​បញ្ជី​ថត ..."</string>
