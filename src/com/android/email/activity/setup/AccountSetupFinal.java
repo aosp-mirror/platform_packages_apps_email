@@ -35,6 +35,7 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -44,9 +45,10 @@ import com.android.email.R;
 import com.android.email.service.EmailServiceUtils;
 import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.SyncWindow;
+import com.android.mail.providers.MailAppProvider;
+import com.android.mail.providers.UIProvider;
 import com.android.mail.utils.LogUtils;
 
 import java.net.URISyntaxException;
@@ -368,67 +370,70 @@ public class AccountSetupFinal extends AccountSetupActivity
 
         // Launch a loader to look up the owner name.  It should be ready well in advance of
         // the time the user clicks next or manual.
-        getLoaderManager().initLoader(OWNER_NAME_LOADER_ID, null,
-                new LoaderManager.LoaderCallbacks<Cursor>() {
-                    @Override
-                    public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
-                        return new CursorLoader(AccountSetupFinal.this,
-                                ContactsContract.Profile.CONTENT_URI,
-                                new String[] {ContactsContract.Profile.DISPLAY_NAME_PRIMARY},
-                                null, null, null);
-                    }
-
-                    @Override
-                    public void onLoadFinished(final Loader<Cursor> loader, final Cursor data) {
-                        if (data != null && data.moveToFirst()) {
-                            mOwnerName = data.getString(data.getColumnIndex(
-                                    ContactsContract.Profile.DISPLAY_NAME_PRIMARY));
-                        }
-                    }
-
-                    @Override
-                    public void onLoaderReset(final Loader<Cursor> loader) {}
-                });
+        getLoaderManager().initLoader(OWNER_NAME_LOADER_ID, null, new OwnerNameLoaderCallbacks());
 
         // Launch a loader to cache some info about existing accounts so we can dupe-check against
         // them.
         getLoaderManager().initLoader(EXISTING_ACCOUNTS_LOADER_ID, null,
-                new LoaderManager.LoaderCallbacks<Cursor> () {
-                    @Override
-                    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-                        return new CursorLoader(AccountSetupFinal.this, Account.CONTENT_URI,
-                                new String[] {AccountColumns.EMAIL_ADDRESS,
-                                        AccountColumns.DISPLAY_NAME},
-                                null, null, null);
-                    }
+                new ExistingAccountsLoaderCallbacks());
+    }
 
-                    @Override
-                    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-                        if (data == null) {
-                            mExistingAccountsMap = null;
-                            return;
-                        }
+    private class OwnerNameLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor> {
+        @Override
+        public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
+            return new CursorLoader(AccountSetupFinal.this,
+                    ContactsContract.Profile.CONTENT_URI,
+                    new String[] {ContactsContract.Profile.DISPLAY_NAME_PRIMARY},
+                    null, null, null);
+        }
 
-                        mExistingAccountsMap = new HashMap<String, String>();
+        @Override
+        public void onLoadFinished(final Loader<Cursor> loader, final Cursor data) {
+            if (data != null && data.moveToFirst()) {
+                mOwnerName = data.getString(data.getColumnIndex(
+                        ContactsContract.Profile.DISPLAY_NAME_PRIMARY));
+            }
+        }
 
-                        final int emailColumnIndex = data.getColumnIndex(
-                                AccountColumns.EMAIL_ADDRESS);
-                        final int displayNameColumnIndex =
-                                data.getColumnIndex(AccountColumns.DISPLAY_NAME);
+        @Override
+        public void onLoaderReset(final Loader<Cursor> loader) {}
+    }
 
-                        while (data.moveToNext()) {
-                            final String email = data.getString(emailColumnIndex);
-                            final String displayName = data.getString(displayNameColumnIndex);
-                            mExistingAccountsMap.put(email,
-                                    TextUtils.isEmpty(displayName) ? email : displayName);
-                        }
-                    }
+    private class ExistingAccountsLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor> {
+        @Override
+        public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
+            return new CursorLoader(AccountSetupFinal.this, MailAppProvider.getAccountsUri(),
+                    new String[] {UIProvider.AccountColumns.ACCOUNT_MANAGER_NAME,
+                            UIProvider.AccountColumns.NAME},
+                    null, null, null);
+        }
 
-                    @Override
-                    public void onLoaderReset(Loader<Cursor> loader) {
-                        mExistingAccountsMap = null;
-                    }
-                });
+        @Override
+        public void onLoadFinished(final Loader<Cursor> loader, final Cursor data) {
+            if (data == null || !data.moveToFirst()) {
+                mExistingAccountsMap = null;
+                return;
+            }
+
+            mExistingAccountsMap = new HashMap<>();
+
+            final int emailColumnIndex = data.getColumnIndex(
+                    UIProvider.AccountColumns.ACCOUNT_MANAGER_NAME);
+            final int displayNameColumnIndex =
+                    data.getColumnIndex(UIProvider.AccountColumns.NAME);
+
+            do {
+                final String email = data.getString(emailColumnIndex);
+                final String displayName = data.getString(displayNameColumnIndex);
+                mExistingAccountsMap.put(email,
+                        TextUtils.isEmpty(displayName) ? email : displayName);
+            } while (data.moveToNext());
+        }
+
+        @Override
+        public void onLoaderReset(final Loader<Cursor> loader) {
+            mExistingAccountsMap = null;
+        }
     }
 
     @Override
@@ -445,7 +450,7 @@ public class AccountSetupFinal extends AccountSetupActivity
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(SAVESTATE_KEY_IS_PROCESSING, mIsProcessing);
         outState.putInt(SAVESTATE_KEY_STATE, mState);
