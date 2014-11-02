@@ -37,7 +37,11 @@ public class EmailIntentService extends MailIntentService {
         super.onHandleIntent(intent);
 
         if (UIProvider.ACTION_UPDATE_NOTIFICATION.equals(intent.getAction())) {
-            NotificationController.handleUpdateNotificationIntent(this, intent);
+            final NotificationController nc =
+                    NotificationControllerCreatorHolder.getInstance(this);
+            if (nc != null) {
+                nc.handleUpdateNotificationIntent(this, intent);
+            }
         }
 
         LogUtils.v(LOG_TAG, "Handling intent %s", intent);

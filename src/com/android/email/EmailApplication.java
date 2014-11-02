@@ -62,5 +62,13 @@ public class EmailApplication extends Application {
                 });
 
         PublicPreferenceActivity.sPreferenceActivityClass = EmailPreferenceActivity.class;
+
+        NotificationControllerCreatorHolder.setNotificationControllerCreator(
+                new NotificationControllerCreator() {
+                    @Override
+                    public NotificationController getInstance(Context context){
+                        return EmailNotificationController.getInstance(context);
+                    }
+                });
     }
 }

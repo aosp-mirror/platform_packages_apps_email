@@ -27,6 +27,7 @@ import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
 import com.android.email.R;
+import com.android.email.setup.AuthenticatorSetupIntentHelper;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 
@@ -173,7 +174,7 @@ public class AccountSetupOptionsTests
         auth.setHostAuthFromString(storeUri);
         final SetupDataFragment setupDataFragment =
                 new SetupDataFragment();
-        setupDataFragment.setFlowMode(SetupDataFragment.FLOW_MODE_NORMAL);
+        setupDataFragment.setFlowMode(AuthenticatorSetupIntentHelper.FLOW_MODE_NORMAL);
         setupDataFragment.setAccount(account);
         final Intent i = new Intent(AccountSetupFinal.ACTION_JUMP_TO_OPTIONS);
         i.putExtra(SetupDataFragment.EXTRA_SETUP_DATA, setupDataFragment);

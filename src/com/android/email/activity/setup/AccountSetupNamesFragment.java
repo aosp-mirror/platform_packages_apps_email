@@ -33,6 +33,7 @@ import android.widget.EditText;
 import com.android.email.R;
 import com.android.email.activity.UiUtilities;
 import com.android.email.service.EmailServiceUtils;
+import com.android.email.setup.AuthenticatorSetupIntentHelper;
 import com.android.emailcommon.provider.Account;
 
 public class AccountSetupNamesFragment extends AccountSetupFragment {
@@ -81,8 +82,8 @@ public class AccountSetupNamesFragment extends AccountSetupFragment {
 
         final Account account = setupData.getAccount();
 
-        if (flowMode != SetupDataFragment.FLOW_MODE_FORCE_CREATE
-                && flowMode != SetupDataFragment.FLOW_MODE_EDIT) {
+        if (flowMode != AuthenticatorSetupIntentHelper.FLOW_MODE_FORCE_CREATE
+                && flowMode != AuthenticatorSetupIntentHelper.FLOW_MODE_EDIT) {
             final String accountEmail = account.mEmailAddress;
             mDescription.setText(accountEmail);
 
@@ -99,8 +100,8 @@ public class AccountSetupNamesFragment extends AccountSetupFragment {
         } else {
             if (account.getSenderName() != null) {
                 mName.setText(account.getSenderName());
-            } else if (flowMode != SetupDataFragment.FLOW_MODE_FORCE_CREATE
-                    && flowMode != SetupDataFragment.FLOW_MODE_EDIT) {
+            } else if (flowMode != AuthenticatorSetupIntentHelper.FLOW_MODE_FORCE_CREATE
+                    && flowMode != AuthenticatorSetupIntentHelper.FLOW_MODE_EDIT) {
                 // Attempt to prefill the name field from the profile if we don't have it,
                 final Context loaderContext = getActivity().getApplicationContext();
                 getLoaderManager().initLoader(0, null, new LoaderManager.LoaderCallbacks<Cursor>() {

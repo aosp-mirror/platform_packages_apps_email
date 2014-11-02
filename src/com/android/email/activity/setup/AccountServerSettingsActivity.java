@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.android.email.R;
+import com.android.email.setup.AuthenticatorSetupIntentHelper;
 import com.android.emailcommon.provider.Account;
 import com.android.mail.utils.LogUtils;
 
@@ -65,7 +66,7 @@ public class AccountServerSettingsActivity extends AccountSetupActivity implemen
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mSetupData.setFlowMode(SetupDataFragment.FLOW_MODE_EDIT);
+        mSetupData.setFlowMode(AuthenticatorSetupIntentHelper.FLOW_MODE_EDIT);
 
         setContentView(R.layout.account_server_settings);
         setFinishOnTouchOutside(false);
