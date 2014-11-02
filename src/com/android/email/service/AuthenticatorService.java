@@ -73,7 +73,7 @@ public class AuthenticatorService extends Service {
                             account, options.getString(OPTIONS_PASSWORD), null);
 
                 // Set up contacts syncing, if appropriate
-                if (info.syncContacts) {
+                if (info != null && info.syncContacts) {
                     boolean syncContacts = options.getBoolean(OPTIONS_CONTACTS_SYNC_ENABLED, false);
                     ContentResolver.setIsSyncable(account, ContactsContract.AUTHORITY, 1);
                     ContentResolver.setSyncAutomatically(account, ContactsContract.AUTHORITY,
@@ -81,7 +81,7 @@ public class AuthenticatorService extends Service {
                 }
 
                 // Set up calendar syncing, if appropriate
-                if (info.syncCalendar) {
+                if (info != null && info.syncCalendar) {
                     boolean syncCalendar = options.getBoolean(OPTIONS_CALENDAR_SYNC_ENABLED, false);
                     ContentResolver.setIsSyncable(account, CalendarContract.AUTHORITY, 1);
                     ContentResolver.setSyncAutomatically(account, CalendarContract.AUTHORITY,
