@@ -114,19 +114,24 @@ public abstract class ServiceProxy {
                     try {
                         mTask.run();
                     } catch (RemoteException e) {
-                    }
-                    try {
-                        // Each ServiceProxy handles just one task, so we unbind after we're
-                        // done with our work.
-                        mContext.unbindService(mConnection);
-                    } catch (RuntimeException e) {
-                        // The exceptions that are thrown here look like IllegalStateException,
-                        // IllegalArgumentException and RuntimeException. Catching RuntimeException
-                        // which get them all. Reasons for these exceptions include services that
-                        // have already been stopped or unbound. This can happen if the user ended
-                        // the activity that was using the service. This is harmless, but we've got
-                        // to catch it.
-                        LogUtils.e(mTag, e, "RuntimeException when trying to unbind from service");
+                        LogUtils.e(mTag, e, "RemoteException thrown running mTask!");
+                    } finally {
+                        // Make sure that we unbind the mConnection even on exceptions in the
+                        // task provided by the subclass.
+                        try {
+                            // Each ServiceProxy handles just one task, so we unbind after we're
+                            // done with our work.
+                            mContext.unbindService(mConnection);
+                        } catch (RuntimeException e) {
+                            // The exceptions that are thrown here look like IllegalStateException,
+                            // IllegalArgumentException and RuntimeException. Catching
+                            // RuntimeException which get them all. Reasons for these exceptions
+                            // include services that have already been stopped or unbound. This can
+                            // happen if the user ended the activity that was using the service.
+                            // This is harmless, but we've got to catch it.
+                            LogUtils.e(mTag, e,
+                                    "RuntimeException when trying to unbind from service");
+                        }
                     }
                     mTaskCompleted = true;
                     synchronized(mConnection) {
