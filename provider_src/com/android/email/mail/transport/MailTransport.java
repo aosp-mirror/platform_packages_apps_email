@@ -112,7 +112,7 @@ public class MailTransport {
             SocketAddress socketAddress = new InetSocketAddress(getHost(), getPort());
             if (canTrySslSecurity()) {
                 mSocket = SSLUtils.getSSLSocketFactory(
-                        mContext, mHostAuth, canTrustAllCertificates()).createSocket();
+                        mContext, mHostAuth, null, canTrustAllCertificates()).createSocket();
             } else {
                 mSocket = new Socket();
             }
@@ -152,7 +152,8 @@ public class MailTransport {
      */
     public void reopenTls() throws MessagingException {
         try {
-            mSocket = SSLUtils.getSSLSocketFactory(mContext, mHostAuth, canTrustAllCertificates())
+            mSocket = SSLUtils.getSSLSocketFactory(mContext, mHostAuth, null,
+                    canTrustAllCertificates())
                     .createSocket(mSocket, getHost(), getPort(), true);
             mSocket.setSoTimeout(SOCKET_READ_TIMEOUT);
             mIn = new BufferedInputStream(mSocket.getInputStream(), 1024);

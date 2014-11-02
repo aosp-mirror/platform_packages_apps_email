@@ -21,6 +21,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.SSLCertificateSocketFactory;
+import android.net.SSLSessionCache;
 import android.security.KeyChain;
 import android.security.KeyChainException;
 
@@ -49,7 +50,7 @@ import javax.net.ssl.X509TrustManager;
 
 public class SSLUtils {
     // All secure factories are the same; all insecure factories are associated with HostAuth's
-    private static SSLCertificateSocketFactory sSecureFactory;
+    private static javax.net.ssl.SSLSocketFactory sSecureFactory;
 
     private static final boolean LOG_ENABLED = false;
     private static final String TAG = "Email.Ssl";
@@ -137,40 +138,73 @@ public class SSLUtils {
         }
     }
 
+    public static abstract class ExternalSecureSocketFactoryBuilder {
+        abstract public javax.net.ssl.SSLSocketFactory createSecureSocketFactory(
+                final Context context, final int handshakeTimeoutMillis);
+    }
+
+    private static ExternalSecureSocketFactoryBuilder sExternalSocketFactoryBuilder;
+
+    public static void setExternalSecureSocketFactoryBuilder(
+            ExternalSecureSocketFactoryBuilder builder) {
+        sExternalSocketFactoryBuilder = builder;
+    }
+
     /**
      * Returns a {@link javax.net.ssl.SSLSocketFactory}.
      * Optionally bypass all SSL certificate checks.
      *
      * @param insecure if true, bypass all SSL certificate checks
      */
-    public synchronized static SSLCertificateSocketFactory getSSLSocketFactory(Context context,
-            HostAuth hostAuth, boolean insecure) {
+    public synchronized static javax.net.ssl.SSLSocketFactory getSSLSocketFactory(
+            final Context context, final HostAuth hostAuth, final KeyManager keyManager,
+            final boolean insecure) {
         if (insecure) {
-            SSLCertificateSocketFactory insecureFactory = (SSLCertificateSocketFactory)
+            final SSLCertificateSocketFactory insecureFactory = (SSLCertificateSocketFactory)
                     SSLCertificateSocketFactory.getInsecure(SSL_HANDSHAKE_TIMEOUT, null);
             insecureFactory.setTrustManagers(
                     new TrustManager[] {
                             new SameCertificateCheckingTrustManager(context, hostAuth)});
+            if (keyManager != null) {
+                insecureFactory.setKeyManagers(new KeyManager[] { keyManager });
+            }
             return insecureFactory;
         } else {
             if (sSecureFactory == null) {
-                sSecureFactory = (SSLCertificateSocketFactory)
-                        SSLCertificateSocketFactory.getDefault(SSL_HANDSHAKE_TIMEOUT, null);
+                // First try to get use an externally supplied, more secure SSLSocketBuilder.
+                // If so we should use that.
+                javax.net.ssl.SSLSocketFactory socketFactory = null;
+                if (sExternalSocketFactoryBuilder != null) {
+                    socketFactory = sExternalSocketFactoryBuilder.createSecureSocketFactory(
+                            context, SSL_HANDSHAKE_TIMEOUT);
+                }
+                if (socketFactory != null) {
+                    sSecureFactory = socketFactory;
+                    LogUtils.d(TAG, "Using externally created CertificateSocketFactory");
+                    return sSecureFactory;
+                }
+                // Only fall back to the platform one if that fails.
+                LogUtils.d(TAG, "Falling back to platform CertificateSocketFactory");
+                final SSLCertificateSocketFactory certificateSocketFactory =
+                        (SSLCertificateSocketFactory)
+                        SSLCertificateSocketFactory.getDefault(SSL_HANDSHAKE_TIMEOUT,
+                                new SSLSessionCache(context));
+                if (keyManager != null) {
+                    certificateSocketFactory.setKeyManagers(new KeyManager[] { keyManager });
+                }
+                sSecureFactory = certificateSocketFactory;
             }
             return sSecureFactory;
         }
     }
 
     /**
-     * Returns a {@link org.apache.http.conn.ssl.SSLSocketFactory SSLSocketFactory} for use with the
-     * Apache HTTP stack.
+     * Returns a com.android.emailcommon.utility.SSLSocketFactory
      */
     public static SSLSocketFactory getHttpSocketFactory(Context context, HostAuth hostAuth,
             KeyManager keyManager, boolean insecure) {
-        SSLCertificateSocketFactory underlying = getSSLSocketFactory(context, hostAuth, insecure);
-        if (keyManager != null) {
-            underlying.setKeyManagers(new KeyManager[] { keyManager });
-        }
+        javax.net.ssl.SSLSocketFactory underlying = getSSLSocketFactory(context, hostAuth,
+                keyManager, insecure);
         SSLSocketFactory wrapped = new SSLSocketFactory(underlying);
         if (insecure) {
             wrapped.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
