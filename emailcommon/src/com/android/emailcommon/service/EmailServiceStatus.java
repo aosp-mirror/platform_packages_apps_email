@@ -33,6 +33,7 @@ import android.os.Bundle;
 public abstract class EmailServiceStatus {
     public static final int SUCCESS = 0;
     public static final int IN_PROGRESS = 1;
+    public static final int FAILURE = 2;
 
     public static final int MESSAGE_NOT_FOUND = 0x10;
     public static final int ATTACHMENT_NOT_FOUND = 0x11;

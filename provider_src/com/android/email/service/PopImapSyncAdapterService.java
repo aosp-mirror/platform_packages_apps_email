@@ -122,17 +122,21 @@ public class PopImapSyncAdapterService extends Service {
         Uri mailboxUri = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId);
         ContentValues values = new ContentValues();
         // Set mailbox sync state
-        values.put(Mailbox.UI_SYNC_STATUS,
-                uiRefresh ? EmailContent.SYNC_STATUS_USER : EmailContent.SYNC_STATUS_BACKGROUND);
+        final int syncStatus = uiRefresh ? EmailContent.SYNC_STATUS_USER :
+                EmailContent.SYNC_STATUS_BACKGROUND;
+        values.put(Mailbox.UI_SYNC_STATUS, syncStatus);
         resolver.update(mailboxUri, values, null, null);
         try {
+            int lastSyncResult;
             try {
                 String legacyImapProtocol = context.getString(R.string.protocol_legacy_imap);
                 if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
                     EmailServiceStub.sendMailImpl(context, account.mId);
                 } else {
+                    lastSyncResult = UIProvider.createSyncValue(syncStatus,
+                            EmailContent.LAST_SYNC_RESULT_SUCCESS);
                     EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId,
-                            EmailServiceStatus.IN_PROGRESS, 0, UIProvider.LastSyncResult.SUCCESS);
+                            EmailServiceStatus.IN_PROGRESS, 0, lastSyncResult);
                     final int status;
                     if (protocol.equals(legacyImapProtocol)) {
                         status = ImapService.synchronizeMailboxSynchronous(context, account,
@@ -142,30 +146,38 @@ public class PopImapSyncAdapterService extends Service {
                                 mailbox, deltaMessageCount);
                     }
                     EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId, status, 0,
-                            UIProvider.LastSyncResult.SUCCESS);
+                            lastSyncResult);
                 }
             } catch (MessagingException e) {
                 final int type = e.getExceptionType();
                 // type must be translated into the domain of values used by EmailServiceStatus
-                switch(type) {
+                switch (type) {
                     case MessagingException.IOERROR:
-                        EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId, type, 0,
-                                UIProvider.LastSyncResult.CONNECTION_ERROR);
+                        lastSyncResult = UIProvider.createSyncValue(syncStatus,
+                                EmailContent.LAST_SYNC_RESULT_CONNECTION_ERROR);
+                        EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId,
+                                EmailServiceStatus.FAILURE, 0, lastSyncResult);
                         syncResult.stats.numIoExceptions++;
                         break;
                     case MessagingException.AUTHENTICATION_FAILED:
-                        EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId, type, 0,
-                                UIProvider.LastSyncResult.AUTH_ERROR);
+                        lastSyncResult = UIProvider.createSyncValue(syncStatus,
+                                EmailContent.LAST_SYNC_RESULT_AUTH_ERROR);
+                        EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId,
+                                EmailServiceStatus.FAILURE, 0, lastSyncResult);
                         syncResult.stats.numAuthExceptions++;
                         break;
                     case MessagingException.SERVER_ERROR:
-                        EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId, type, 0,
-                                UIProvider.LastSyncResult.SERVER_ERROR);
+                        lastSyncResult = UIProvider.createSyncValue(syncStatus,
+                                EmailContent.LAST_SYNC_RESULT_SERVER_ERROR);
+                        EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId,
+                                EmailServiceStatus.FAILURE, 0, lastSyncResult);
                         break;
 
                     default:
-                        EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId, type, 0,
-                                UIProvider.LastSyncResult.INTERNAL_ERROR);
+                        lastSyncResult = UIProvider.createSyncValue(syncStatus,
+                                EmailContent.LAST_SYNC_RESULT_INTERNAL_ERROR);
+                        EmailServiceStatus.syncMailboxStatus(resolver, extras, mailboxId,
+                                EmailServiceStatus.FAILURE, 0, lastSyncResult);
                 }
             }
         } finally {
