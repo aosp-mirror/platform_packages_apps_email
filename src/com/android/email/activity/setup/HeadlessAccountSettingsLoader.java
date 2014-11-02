@@ -21,13 +21,6 @@ import com.android.mail.ui.MailAsyncTaskLoader;
  */
 public class HeadlessAccountSettingsLoader extends Activity {
 
-    public static Uri getIncomingSettingsUri(long accountId) {
-        final Uri.Builder baseUri = Uri.parse("auth://" + EmailContent.EMAIL_PACKAGE_NAME +
-                ".ACCOUNT_SETTINGS/incoming/").buildUpon();
-        IntentUtilities.setAccountId(baseUri, accountId);
-        return baseUri.build();
-    }
-
     public static Uri getOutgoingSettingsUri(long accountId) {
         final Uri.Builder baseUri = Uri.parse("auth://" + EmailContent.EMAIL_PACKAGE_NAME +
                 ".ACCOUNT_SETTINGS/outgoing/").buildUpon();

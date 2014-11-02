@@ -22,6 +22,7 @@ import android.net.Uri;
 
 import com.android.email.R;
 import com.android.email.activity.setup.AccountSetupFinal;
+import com.android.email.setup.AuthenticatorSetupIntentHelper;
 
 public class EmailAccountCacheProvider extends MailAppProvider {
     // Content provider for Email
@@ -36,6 +37,6 @@ public class EmailAccountCacheProvider extends MailAppProvider {
 
     @Override
     protected Intent getNoAccountsIntent(Context context) {
-        return AccountSetupFinal.actionNewAccountWithResultIntent(context);
+        return AuthenticatorSetupIntentHelper.actionNewAccountWithResultIntent(context);
     }
 }

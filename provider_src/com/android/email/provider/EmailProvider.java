@@ -33,6 +33,7 @@ import android.content.PeriodicSync;
 import android.content.SharedPreferences;
 import android.content.UriMatcher;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.ContentObserver;
@@ -66,15 +67,14 @@ import com.android.common.content.ProjectionMap;
 import com.android.email.DebugUtils;
 import com.android.email.Preferences;
 import com.android.email.R;
+import com.android.email.NotificationControllerCreatorHolder;
+import com.android.email.NotificationController;
 import com.android.email.SecurityPolicy;
 import com.android.email.activity.setup.AccountSecurity;
-import com.android.email.activity.setup.AccountSettingsFragment;
 import com.android.email.activity.setup.AccountSettingsUtils;
-import com.android.email.activity.setup.HeadlessAccountSettingsLoader;
 import com.android.email.service.AttachmentService;
 import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.EmailServiceUtils.EmailServiceInfo;
-import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.Account;
@@ -106,6 +106,7 @@ import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.EmailAsyncTask;
+import com.android.emailcommon.utility.IntentUtilities;
 import com.android.emailcommon.utility.Utility;
 import com.android.ex.photo.provider.PhotoContract;
 import com.android.mail.preferences.MailPrefs;
@@ -168,6 +169,9 @@ public class EmailProvider extends ContentProvider
     private static final String BACKUP_DATABASE_NAME = "EmailProviderBackup.db";
     private static final String ACCOUNT_MANAGER_JSON_TAG = "accountJson";
 
+
+    private static final String PREFERENCE_FRAGMENT_CLASS_NAME =
+            "com.android.email.activity.setup.AccountSettingsFragment";
     /**
      * Notifies that changes happened. Certain UI components, e.g., widgets, can register for this
      * {@link android.content.Intent} and update accordingly. However, this can be very broad and
@@ -1015,7 +1019,7 @@ public class EmailProvider extends ContentProvider
         init(context);
         DebugUtils.init(context);
         // Do this last, so that EmailContent/EmailProvider are initialized
-        MailActivityEmail.setServicesEnabledAsync(context);
+        setServicesEnabledAsync(context);
         reconcileAccountsAsync(context);
 
         // Update widgets
@@ -3439,8 +3443,7 @@ public class EmailProvider extends ContentProvider
         }
         if (projectionColumns.contains(UIProvider.AccountColumns.REAUTHENTICATION_INTENT_URI)) {
             values.put(UIProvider.AccountColumns.REAUTHENTICATION_INTENT_URI,
-                    HeadlessAccountSettingsLoader.getIncomingSettingsUri(accountId)
-                    .toString());
+                    getIncomingSettingsUri(accountId).toString());
         }
         if (projectionColumns.contains(UIProvider.AccountColumns.MIME_TYPE)) {
             values.put(UIProvider.AccountColumns.MIME_TYPE, EMAIL_APP_MIME_TYPE);
@@ -3566,7 +3569,7 @@ public class EmailProvider extends ContentProvider
         }
         if (projectionColumns.contains(UIProvider.AccountColumns.SETTINGS_FRAGMENT_CLASS)) {
             values.put(UIProvider.AccountColumns.SETTINGS_FRAGMENT_CLASS,
-                    AccountSettingsFragment.class.getName());
+                    PREFERENCE_FRAGMENT_CLASS_NAME);
         }
         if (projectionColumns.contains(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR)) {
             values.put(UIProvider.AccountColumns.SettingsColumns.REPLY_BEHAVIOR,
@@ -5917,7 +5920,7 @@ public class EmailProvider extends ContentProvider
             // Clean up
             AccountBackupRestore.backup(context);
             SecurityPolicy.getInstance(context).reducePolicies();
-            MailActivityEmail.setServicesEnabledSync(context);
+            setServicesEnabledSync(context);
             // TODO: We ought to reconcile accounts here, but some callers do this in a loop,
             // which would be a problem when the first account reconciliation shuts us down.
             return 1;
@@ -6185,4 +6188,90 @@ public class EmailProvider extends ContentProvider
             notifyUI(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null);
         }
     }
+
+    /**
+     * Asynchronous version of {@link #setServicesEnabledSync(Context)}.  Use when calling from
+     * UI thread (or lifecycle entry points.)
+     */
+    public static void setServicesEnabledAsync(final Context context) {
+        if (context.getResources().getBoolean(R.bool.enable_services)) {
+            EmailAsyncTask.runAsyncParallel(new Runnable() {
+                @Override
+                public void run() {
+                    setServicesEnabledSync(context);
+                }
+            });
+        }
+    }
+
+    /**
+     * Called throughout the application when the number of accounts has changed. This method
+     * enables or disables the Compose activity, the boot receiver and the service based on
+     * whether any accounts are configured.
+     *
+     * Blocking call - do not call from UI/lifecycle threads.
+     *
+     * @return true if there are any accounts configured.
+     */
+    public static boolean setServicesEnabledSync(Context context) {
+        // Make sure we're initialized
+        EmailContent.init(context);
+        Cursor c = null;
+        try {
+            c = context.getContentResolver().query(
+                    Account.CONTENT_URI,
+                    Account.ID_PROJECTION,
+                    null, null, null);
+            boolean enable = c != null && c.getCount() > 0;
+            setServicesEnabled(context, enable);
+            return enable;
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
+    }
+
+    private static void setServicesEnabled(Context context, boolean enabled) {
+        PackageManager pm = context.getPackageManager();
+        pm.setComponentEnabledSetting(
+                new ComponentName(context, AttachmentService.class),
+                enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
+                        PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP);
+
+        // Start/stop the various services depending on whether there are any accounts
+        // TODO: Make sure that the AttachmentService responds to this request as it
+        // expects a particular set of data in the intents that it receives or it ignores.
+        startOrStopService(enabled, context, new Intent(context, AttachmentService.class));
+        final NotificationController controller =
+                NotificationControllerCreatorHolder.getInstance(context);
+
+        if (controller != null) {
+            controller.watchForMessages();
+        }
+    }
+
+    /**
+     * Starts or stops the service as necessary.
+     * @param enabled If {@code true}, the service will be started. Otherwise, it will be stopped.
+     * @param context The context to manage the service with.
+     * @param intent The intent of the service to be managed.
+     */
+    private static void startOrStopService(boolean enabled, Context context, Intent intent) {
+        if (enabled) {
+            context.startService(intent);
+        } else {
+            context.stopService(intent);
+        }
+    }
+
+
+    public static Uri getIncomingSettingsUri(long accountId) {
+        final Uri.Builder baseUri = Uri.parse("auth://" + EmailContent.EMAIL_PACKAGE_NAME +
+                ".ACCOUNT_SETTINGS/incoming/").buildUpon();
+        IntentUtilities.setAccountId(baseUri, accountId);
+        return baseUri.build();
+    }
+
 }
