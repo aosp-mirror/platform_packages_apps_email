@@ -17,6 +17,8 @@
 package com.android.email.service;
 
 import android.app.Service;
+import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
@@ -82,6 +84,34 @@ public class PolicyService extends Service {
                 throw e;
             }
         }
+
+        public boolean canDisableCamera() {
+            // TODO: This is not a clean way to do this, but there is not currently
+            // any api that can answer the question "will disabling the camera work?"
+            // We need to answer this question here so that we can tell the server what
+            // policies we are able to support, and only apply them after it confirms that
+            // our partial support is acceptable.
+            DevicePolicyManager dpm =
+                    (DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
+            final ComponentName adminName = new ComponentName(mContext, SecurityPolicy.PolicyAdmin.class);
+            final boolean cameraDisabled = dpm.getCameraDisabled(adminName);
+            if (cameraDisabled) {
+                // The camera is already disabled, by this admin.
+                // Apparently we can support disabling the camera.
+                return true;
+            } else {
+                try {
+                    dpm.setCameraDisabled(adminName, true);
+                    dpm.setCameraDisabled(adminName, false);
+                } catch (SecurityException e) {
+                    // Apparently we cannot support disabling the camera.
+                    LogUtils.w(LOG_TAG, "SecurityException checking camera disabling.");
+                    return false;
+                }
+            }
+            return true;
+        }
+
     };
 
     @Override
