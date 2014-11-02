@@ -2675,13 +2675,13 @@ public class EmailProvider extends ContentProvider
             + " ELSE " + UIProvider.FolderType.DEFAULT + " END";
 
     private static final String FOLDER_ICON = "CASE " + MailboxColumns.TYPE
-            + " WHEN " + Mailbox.TYPE_INBOX   + " THEN " + R.drawable.ic_drawer_inbox
-            + " WHEN " + Mailbox.TYPE_DRAFTS  + " THEN " + R.drawable.ic_drawer_drafts
-            + " WHEN " + Mailbox.TYPE_OUTBOX  + " THEN " + R.drawable.ic_drawer_outbox
-            + " WHEN " + Mailbox.TYPE_SENT    + " THEN " + R.drawable.ic_drawer_sent
-            + " WHEN " + Mailbox.TYPE_TRASH   + " THEN " + R.drawable.ic_drawer_trash
-            + " WHEN " + Mailbox.TYPE_STARRED + " THEN " + R.drawable.ic_drawer_starred
-            + " ELSE " + R.drawable.ic_drawer_folder + " END";
+            + " WHEN " + Mailbox.TYPE_INBOX   + " THEN " + R.drawable.ic_drawer_inbox_24dp
+            + " WHEN " + Mailbox.TYPE_DRAFTS  + " THEN " + R.drawable.ic_drawer_drafts_24dp
+            + " WHEN " + Mailbox.TYPE_OUTBOX  + " THEN " + R.drawable.ic_drawer_outbox_24dp
+            + " WHEN " + Mailbox.TYPE_SENT    + " THEN " + R.drawable.ic_drawer_sent_24dp
+            + " WHEN " + Mailbox.TYPE_TRASH   + " THEN " + R.drawable.ic_drawer_trash_24dp
+            + " WHEN " + Mailbox.TYPE_STARRED + " THEN " + R.drawable.ic_drawer_starred_24dp
+            + " ELSE " + R.drawable.ic_drawer_folder_24dp + " END";
 
     /**
      * Local-only folders set totalCount < 0; such folders should substitute message count for
@@ -3799,11 +3799,11 @@ public class EmailProvider extends ContentProvider
                 }
             } else if (column.equals(UIProvider.FolderColumns.ICON_RES_ID)) {
                 if (mailboxType == Mailbox.TYPE_INBOX) {
-                    values[i] = R.drawable.ic_drawer_inbox;
+                    values[i] = R.drawable.ic_drawer_inbox_24dp;
                 } else if (mailboxType == Mailbox.TYPE_UNREAD) {
-                    values[i] = R.drawable.ic_drawer_unread;
+                    values[i] = R.drawable.ic_drawer_unread_24dp;
                 } else if (mailboxType == Mailbox.TYPE_STARRED) {
-                    values[i] = R.drawable.ic_drawer_starred;
+                    values[i] = R.drawable.ic_drawer_starred_24dp;
                 }
             }
         }
