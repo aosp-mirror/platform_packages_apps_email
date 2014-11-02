@@ -543,6 +543,12 @@ public class EmailServiceUtils {
             }
 
             final ImmutableMap.Builder<String, EmailServiceInfo> builder = ImmutableMap.builder();
+            if (!context.getResources().getBoolean(R.bool.enable_services)) {
+                // Return an empty map if services have been disabled because this is the Email
+                // Tombstone app.
+                sServiceMap = builder.build();
+                return sServiceMap;
+            }
 
             try {
                 final Resources res = context.getResources();
