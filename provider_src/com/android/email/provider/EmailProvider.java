@@ -65,10 +65,10 @@ import android.util.SparseArray;
 
 import com.android.common.content.ProjectionMap;
 import com.android.email.DebugUtils;
+import com.android.email.NotificationController;
+import com.android.email.NotificationControllerCreatorHolder;
 import com.android.email.Preferences;
 import com.android.email.R;
-import com.android.email.NotificationControllerCreatorHolder;
-import com.android.email.NotificationController;
 import com.android.email.SecurityPolicy;
 import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettingsUtils;
@@ -5751,13 +5751,13 @@ public class EmailProvider extends ContentProvider
                     .monitorRefreshStatus(mailbox.mId, new RefreshStatusMonitor.Callback() {
                 @Override
                 public void onRefreshCompleted(long mailboxId, int result) {
+                    // all calls to this method assumed to be started by a user action
+                    final int syncValue = UIProvider.createSyncValue(EmailContent.SYNC_STATUS_USER,
+                            result);
                     final ContentValues values = new ContentValues();
                     values.put(Mailbox.UI_SYNC_STATUS, UIProvider.SyncStatus.NO_SYNC);
-                    values.put(Mailbox.UI_LAST_SYNC_RESULT, result);
-                    mDatabase.update(
-                            Mailbox.TABLE_NAME,
-                            values,
-                            WHERE_ID,
+                    values.put(Mailbox.UI_LAST_SYNC_RESULT, syncValue);
+                    mDatabase.update(Mailbox.TABLE_NAME, values, WHERE_ID,
                             new String[] { String.valueOf(mailboxId) });
                     notifyUIFolder(mailbox.mId, mailbox.mAccountKey);
                 }

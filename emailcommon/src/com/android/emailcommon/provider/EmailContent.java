@@ -35,10 +35,10 @@ import android.os.Parcelable;
 import android.os.RemoteException;
 import android.provider.BaseColumns;
 
-import com.android.emailcommon.utility.TextUtilities;
-import com.android.emailcommon.utility.Utility;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.R;
+import com.android.emailcommon.utility.TextUtilities;
+import com.android.emailcommon.utility.Utility;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.utils.LogUtils;
 import com.google.common.annotations.VisibleForTesting;
@@ -101,6 +101,7 @@ public abstract class EmailContent {
 
     public static final int LAST_SYNC_RESULT_SUCCESS = UIProvider.LastSyncResult.SUCCESS;
     public static final int LAST_SYNC_RESULT_AUTH_ERROR = UIProvider.LastSyncResult.AUTH_ERROR;
+    public static final int LAST_SYNC_RESULT_SERVER_ERROR = UIProvider.LastSyncResult.SERVER_ERROR;
     public static final int LAST_SYNC_RESULT_SECURITY_ERROR =
             UIProvider.LastSyncResult.SECURITY_ERROR;
     public static final int LAST_SYNC_RESULT_CONNECTION_ERROR =

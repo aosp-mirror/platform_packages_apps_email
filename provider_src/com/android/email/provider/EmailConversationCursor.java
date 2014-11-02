@@ -72,8 +72,6 @@ public class EmailConversationCursor extends CursorWrapper implements
         if (mailbox != null) {
             mMailboxTypeId = mailbox.mType;
 
-            mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_ERROR,
-                    mailbox.mUiLastSyncResult);
             mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_TOTAL_COUNT, mailbox.mTotalCount);
             if (mailbox.mUiSyncStatus == EmailContent.SYNC_STATUS_BACKGROUND
                     || mailbox.mUiSyncStatus == EmailContent.SYNC_STATUS_USER
@@ -106,8 +104,6 @@ public class EmailConversationCursor extends CursorWrapper implements
         } else {
             mMailboxTypeId = -1;
             // TODO for virtual mailboxes, we may want to do something besides just fake it
-            mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_ERROR,
-                    UIProvider.LastSyncResult.SUCCESS);
             mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_TOTAL_COUNT,
                     cursor != null ? cursor.getCount() : 0);
             mExtras.putInt(UIProvider.CursorExtraKeys.EXTRA_STATUS,
