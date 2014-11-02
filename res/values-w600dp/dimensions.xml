@@ -21,9 +21,6 @@
     <dimen name="settings_fragment_padding_side">32dp</dimen>
     <dimen name="settings_fragment_padding_bottom">24dp</dimen>
 
-    <!-- Account setup nav buttons -->
-    <dimen name="setup_nav_button_padding_side">64dp</dimen>
-
     <!-- Account setup fragments -->
     <dimen name="setup_fragment_padding_top">16dp</dimen>
     <dimen name="setup_fragment_padding_side">64dp</dimen>
