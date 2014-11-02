@@ -145,21 +145,23 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
         mClientCertificateSelector.setCertificate(getArguments().getString(EXTRA_CLIENT_CERT));
 
         // After any text edits, call validateFields() which enables or disables the Next button
-        mValidationTextWatcher = new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-                validatePassword();
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) { }
-        };
+        mValidationTextWatcher = new PasswordTextWatcher();
         mImapPasswordText.addTextChangedListener(mValidationTextWatcher);
         mRegularPasswordText.addTextChangedListener(mValidationTextWatcher);
 
         return view;
+    }
+
+    private class PasswordTextWatcher implements TextWatcher {
+        @Override
+        public void afterTextChanged(Editable s) {
+            validatePassword();
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) { }
     }
 
     @Override
@@ -243,9 +245,6 @@ public class AccountSetupCredentialsFragment extends AccountSetupFragment
 
     public void validatePassword() {
         setNextButtonEnabled(!TextUtils.isEmpty(getPassword()));
-        // Warn (but don't prevent) if password has leading/trailing spaces
-        AccountSettingsUtils.checkPasswordSpaces(mAppContext, mImapPasswordText);
-        AccountSettingsUtils.checkPasswordSpaces(mAppContext, mRegularPasswordText);
     }
 
     @Override
