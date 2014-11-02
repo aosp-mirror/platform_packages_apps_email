@@ -860,7 +860,7 @@ public class EmailProvider extends ContentProvider
     //public static Uri UIPROVIDER_SETTINGS_NOTIFIER;
     private static Uri UIPROVIDER_ATTACHMENT_NOTIFIER;
     private static Uri UIPROVIDER_ATTACHMENTS_NOTIFIER;
-    public static Uri UIPROVIDER_ALL_ACCOUNTS_NOTIFIER;
+    private static Uri UIPROVIDER_ALL_ACCOUNTS_NOTIFIER;
     private static Uri UIPROVIDER_MESSAGE_NOTIFIER;
     private static Uri UIPROVIDER_RECENT_FOLDERS_NOTIFIER;
 
@@ -3394,8 +3394,8 @@ public class EmailProvider extends ContentProvider
         // TODO: Should this be stored per-account, or some other mechanism?
         capabilities |= AccountCapabilities.NESTED_FOLDERS;
 
-        // sanitization happens lazily in the EmailMessageCursor as HTML email bodies are requested
-        capabilities |= UIProvider.AccountCapabilities.SANITIZED_HTML;
+        // the client is permitted to sanitize HTML emails for all Email accounts
+        capabilities |= AccountCapabilities.CLIENT_SANITIZED_HTML;
 
         return capabilities;
     }
