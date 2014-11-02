@@ -40,13 +40,13 @@ import com.android.email.R;
 import com.android.email.SecurityPolicy;
 import com.android.email.provider.AccountReconciler;
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.VendorPolicyLoader;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.mail.providers.UIProvider;
 import com.android.mail.utils.LogUtils;
+import com.android.mail.utils.NotificationActionUtils;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 
@@ -367,5 +367,9 @@ public class EmailBroadcastProcessorService extends IntentService {
     private void onSystemAccountChanged() {
         LogUtils.i(Logging.LOG_TAG, "System accounts updated.");
         reconcileAndStartServices();
+        // Resend all notifications, so that there is no notification that points to a removed
+        // account.
+        NotificationActionUtils.resendNotifications(getApplicationContext(),
+                null /* all accounts */, null /* all folders */);
     }
 }
