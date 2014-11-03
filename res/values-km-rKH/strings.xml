@@ -21,7 +21,6 @@
     <string name="permission_access_provider_label" msgid="977700184037298723">"ចូល​ដំណើរ​ការ​ទិន្នន័យ​អ្នក​ផ្តល់​អ៊ីមែល"</string>
     <string name="permission_access_provider_desc" msgid="5338433949655493713">"អនុញ្ញាត​​ឲ្យ​​កម្មវិធី​ដើម្បី​ចូល​ដំណើរការ​មូលដ្ឋាន​ទិន្នន័យ​អ៊ីមែល​របស់​អ្នក​ រួម​ទាំង​សារ​ដែល​បាន​ទទួល ​សារ​ដែល​បាន​ផ្ញើ ​ឈ្មោះ​អ្នក​ប្រើ ​និង​ពាក្យ​សម្ងាត់​។"</string>
     <string name="app_name" msgid="2206468539066258195">"អ៊ីមែល"</string>
-    <string name="debug_title" msgid="1337476992195531309">"កែ​កំហុស"</string>
     <string name="create_action" msgid="6575946089819721958">"បង្កើត​ថ្មី"</string>
     <string name="quick_responses_empty_view" msgid="3394094315357455290">"មិន​មាន​ការ​ឆ្លើយ​តប​រហ័ស​។"</string>
     <string name="account_settings_action" msgid="589969653965674604">"ការ​កំណត់​គណនី"</string>
@@ -39,28 +38,11 @@
     <string name="message_compose_insert_quick_response_list_title" msgid="5836926808818821309">"បញ្ចូល​​ការ​ឆ្លើយតប​​​រហ័ស"</string>
     <string name="message_compose_insert_quick_response_menu_title" msgid="4393288554605333619">"បញ្ចូល​​ការ​ឆ្លើយតប​​​រហ័ស"</string>
     <string name="message_view_attachment_background_load" msgid="7571652141281187845">"ឯកសារ​ភ្ជាប់​​មួយ ​ឬ​ច្រើន​នៅ​ក្នុង​សារ​​ដែល​បាន​​បញ្ជូន​បន្ត​របស់​អ្នក​នឹង​​ត្រូវ​បាន​ទាញ​យក​មុន​ពេល​ផ្ញើ​។"</string>
-    <string name="attachment_not_found" msgid="5219773045406833000">"មិន​អាច​ទាញ​យក​ឯកសារ​ភ្ជាប់​​។"</string>
     <string name="message_decode_error" msgid="91396461771444300">"មាន​កំហុស​មួយ​ខណៈ​ពេល​បំលែង​សារ។"</string>
     <string name="forward_download_failed_ticker" msgid="2900585518884851062">"មិន​អាច​បញ្ជូន​បន្ត​ឯកសារ​ភ្ជាប់​មួយ​ ឬ​ច្រើន​។"</string>
     <string name="forward_download_failed_title" msgid="2043036709913723298">"មិន​បាន​បញ្ជូន​បន្ត​ឯកសារ​ភ្ជាប់"</string>
     <string name="login_failed_ticker" msgid="4620839194581484497">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> ចូល​មិន​បាន​ជោគជ័យ។"</string>
     <string name="login_failed_title" msgid="1737884069957090004">"មិន​អាច​ចូល"</string>
-  <plurals name="message_view_attachment_bytes">
-    <item quantity="one" msgid="884086921379532485">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> បៃ"</item>
-    <item quantity="other" msgid="1883360269853654045">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> បៃ"</item>
-  </plurals>
-  <plurals name="message_view_attachment_kilobytes">
-    <item quantity="one" msgid="7735927556589634941">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g> គីឡូបៃ"</item>
-    <item quantity="other" msgid="7476806336055136146">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g> គីឡូបៃ"</item>
-  </plurals>
-  <plurals name="message_view_attachment_megabytes">
-    <item quantity="one" msgid="7755624135347953938">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g> មេកាបៃ"</item>
-    <item quantity="other" msgid="3317120193748830799">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g> មេកាបៃ"</item>
-  </plurals>
-  <plurals name="message_view_attachment_gigabytes">
-    <item quantity="one" msgid="5180812866869430241">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> ជីកាបៃ"</item>
-    <item quantity="other" msgid="1607574223219436099">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> ជីកាបៃ"</item>
-  </plurals>
     <string name="account_setup_basics_title" msgid="5050895656741229172">"រៀបចំ​គណនី"</string>
     <string name="oauth_authentication_title" msgid="3771260531636603518">"ស្នើសុំ​ការ​អនុញ្ញាត"</string>
     <string name="sign_in_title" msgid="5051852806423550830">"ចូល"</string>
@@ -82,22 +64,17 @@
     <string name="account_setup_username_password_toast" msgid="3659744829670065777">"វាយ​​បញ្ចូល​​ពាក្យ​សម្ងាត់ ​និង​​អាសយដ្ឋាន​អ៊ីមែល​​ដែល​ត្រឹមត្រូវ​។"</string>
     <string name="account_duplicate_dlg_title" msgid="3768813340753269695">"គណនី​ស្ទួន"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6747351773934787126">"អ្នក​បាន​កំពុង​ប្រើ​ឈ្មោះ​អ្នក​ប្រើ​នេះ​រួច​ហើយ​សម្រាប់​គណនី \"<xliff:g id="DUPLICATE">%s</xliff:g>\" ។"</string>
-    <string name="account_password_spaces_error" msgid="1035535222734047745">"ពាក្យ​សម្ងាត់​នេះ​ចាប់​ផ្ដើម​ ឬ​បញ្ចប់​ជា​មួយ​​​តួអក្សរ​ដកឃ្លា​មួយ​ ឬ​ច្រើន​។ ម៉ាស៊ីន​មេ​​ជា​ច្រើន​មិន​គាំទ្រ​ពាក្យ​សម្ងាត់​​ដោយ​ប្រើ​ដំណ​​ក​ឃ្លា​ទេ​។"</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="9103280616618316032">"កំពុង​ទៅ​យក​ព័ត៌មាន​គណនី..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="9196418179524308411">"កំពុង​ធ្វើ​សុពលភាព​ការ​កំណត់​ម៉ាស៊ីន​មេ..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="9062019904409225329">"កំពុង​ធ្វើ​សុពលភាព​ការ​កំណត់ smtp..."</string>
     <string name="account_setup_creating_account_msg" msgid="2898648422471181490">"កំពុង​បង្កើត​គណនី…"</string>
     <string name="account_setup_ab_headline" msgid="1434091698882290052">"បញ្ជាក់​ប្រភេទ​គណនី"</string>
     <string name="account_setup_ab_instructions_format" msgid="6223657094843768202">"អ្នក​បាន​បង្ហាញ​ថា <xliff:g id="EMAIL">%1$s</xliff:g> ប្រើ <xliff:g id="USERPROTOCOL">%2$s</xliff:g> ​ប៉ុន្តែ​គណនី​អាច​ប្រើ <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g>"</string>
-    <string name="account_setup_names_title" msgid="8780121351085082269">"រៀបចំ​គណនី"</string>
     <string name="account_setup_names_headline" msgid="2031978210683887370">"បាន​រៀបចំ​គណនី​របស់​អ្នក ​ហើយ​​អ៊ីមែល​​កំពុង​ដំណើរការ!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"ដាក់​ដល់​គណនី​នេះ (ជា​ជម្រើស​)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"ឈ្មោះ​របស់​អ្នក (បាន​បង្ហាញ​នៅ​លើ​សារ​ចេញ​)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"វាល​នេះ​មិន​អាច​ទទេ​ឡើយ។"</string>
-    <string name="account_setup_account_type_title" msgid="7081511430549429621">"រៀបចំ​គណនី"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"ប្រភេទ​គណនី"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"តើ​​គណនី​នេះ​ជា​ប្រភេទ​អ្វី?"</string>
-    <string name="account_setup_incoming_title" msgid="7743750350830383718">"រៀបចំ​គណនី"</string>
     <string name="account_setup_incoming_headline" msgid="6232828824446177639">"ការ​កំណត់​ម៉ាស៊ីន​​មេ​ចូល"</string>
     <string name="account_setup_incoming_username_label" msgid="2609699829997945895">"ឈ្មោះ​អ្នក​ប្រើ"</string>
     <string name="account_setup_incoming_password_label" msgid="4806105500058512876">"ពាក្យសម្ងាត់"</string>
@@ -115,21 +92,18 @@
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="8677018382715596606">"នៅ​ពេល​ដែល​ខ្ញុំ​បាន​លុប​ពី​ប្រអប់​ទទួល"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="3531290378620033218">"បុព្វបទ​ផ្លូវ IMAP"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="206747922689229932">"ជា​ជម្រើស"</string>
-    <string name="account_setup_outgoing_title" msgid="2808821899038184783">"រៀបចំ​គណនី"</string>
     <string name="account_setup_outgoing_headline" msgid="6638171491109658047">"ការ​កំណត់​ម៉ាស៊ីន​​មេ​​ចេញ"</string>
     <string name="account_setup_outgoing_smtp_server_label" msgid="3460163861711242681">"ម៉ាស៊ីន​​មេ SMTP"</string>
     <string name="account_setup_outgoing_port_label" msgid="3735952013505812378">"ច្រក​"</string>
     <string name="account_setup_outgoing_security_label" msgid="6473177134731615282">"ប្រភេទ​​សុវត្ថិភាព"</string>
     <string name="account_setup_outgoing_require_login_label" msgid="5405196721947884033">"ទាមទារ​ឲ្យ​​ចូល"</string>
     <string name="account_setup_outgoing_username_label" msgid="8844680398828891772">"ឈ្មោះ​អ្នក​ប្រើ"</string>
-    <string name="account_setup_outgoing_password_label" msgid="112570779839746136">"ពាក្យសម្ងាត់"</string>
     <string name="account_setup_exchange_certificate_title" msgid="8756785660598838350">"វិញ្ញាបនបត្រ​ម៉ាស៊ីន​កូន"</string>
     <string name="account_setup_exchange_select_certificate" msgid="264748505181695915">"ជ្រើសរើស"</string>
     <string name="account_setup_exchange_use_certificate" msgid="6513687497912094538">"ប្រើ​វិញ្ញាបនបត្រ​ម៉ាស៊ីន​កូន"</string>
     <string name="account_setup_exchange_remove_certificate" msgid="1222387802827919583">"យក​ចេញ"</string>
     <string name="account_setup_exchange_no_certificate" msgid="3569712401698909695">"គ្មាន"</string>
     <string name="account_setup_exchange_device_id_label" msgid="2306603503497194905">"លេខ​សម្គាល់​ឧបករណ៍​ចល័ត"</string>
-    <string name="account_setup_options_title" msgid="3274463434235489134">"ការ​កំណត់​គណនី"</string>
     <string name="account_setup_options_headline" msgid="4810292194395251968">"ជម្រើស​គណនី"</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="7253305392938373553">"ប្រេកង់​សម​កាល​កម្ម​៖"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="2937664246354067829">"កុំ"</string>
@@ -155,7 +129,6 @@
     <string name="account_setup_options_mail_window_all" msgid="4794683936065721438">"ទាំង​អស់​"</string>
     <string name="account_setup_options_mail_window_default" msgid="5518038139722596598">"ប្រើ​លំនាំដើម​គណនី"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="5608549872868036352">"ឈ្មោះ​អ្នក​ប្រើ ​ឬ​ពាក្យ​សម្ងាត់​​មិន​ត្រឹមត្រូវ​។"</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8811464534757505457">"ការ​ចូល​បាន​បរាជ័យ​។\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_autodiscover_dlg_authfail_title" msgid="7551559109838593189">"មាន​បញ្ហា​ជាមួយ​​​ការ​រៀបចំ​គណនី"</string>
     <string name="account_setup_autodiscover_dlg_authfail_message" msgid="4075075565221436715">"បញ្ជាក់​ឈ្មោះ​អ្នកប្រើ ពាក្យ​សម្ងាត់ និង​ការកំណត់​គណនី​ថា​ត្រឹមត្រូវ។"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="4725950885859654809">"មិន​អាច​​ភ្ជាប់​ទៅ​ម៉ាស៊ីន​មេ​ដោយ​សុវត្ថិភាព​។"</string>
@@ -174,7 +147,6 @@
     <string name="account_setup_security_required_title" msgid="667943309546419435">"ការ​គ្រប់គ្រង​សុវត្ថិភាព​ពី​ចម្ងាយ"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="9029471168291631932">"ម៉ាស៊ីន​​មេ <xliff:g id="SERVER">%s</xliff:g> តម្រូវ​ឲ្យ​​​អ្នក​អនុញ្ញាត​​​វា​​ដើម្បី​​ត្រួត​ពិនិត្យ​ពី​ចម្ងាយ​លក្ខណៈ​​​​​សុវត្ថិភាព​មួយ​ចំនួន​​នៃ​ឧបករណ៍ Android របស់​អ្នក​។ តើ​អ្នក​ចង់​បញ្ចប់​ការ​​រៀបចំ​គណនី​នេះ​​ឬ​?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="4619685657253094627">"ម៉ាស៊ីន​​មេ​​នេះ​តម្រូវ​ឲ្យ​​មាន​លក្ខណៈ​សុវត្ថិភាព​ដែល​​​​​ឧបករណ៍ Android របស់​អ្នក​មិន​គាំទ្រ រួម​មាន៖ <xliff:g id="ERROR">%s</xliff:g>"</string>
-    <string name="account_setup_username_uneditable_error" msgid="3607769783124215764">"អ្នក​មិន​អាច​​ប្ដូរ​ឈ្មោះ​អ្នក​ប្រើ​របស់​គណនី​មួយ​។ ដើម្បី​បន្ថែម​គណនី​មួយ​ដោយ​ប្រើ​​​ឈ្មោះ​អ្នក​ប្រើ​ផ្សេង​គ្នា​​​ ប៉ះ​បន្ថែម​គណនី​។"</string>
     <string name="disable_admin_warning" msgid="6001542250505146252">"​ព្រមាន៖ ការ​ធ្វើ​ឲ្យ​អសកម្ម​ការ​អនុញ្ញាត​របស់​កម្មវិធី​អ៊ីមែល ​ដើម្បី​គ្រប់គ្រង​ឧបករណ៍​របស់​​អ្នក​​ នឹង​លុប​គណនី​អ៊ីមែល​ទាំង​អស់​ដែល​​ទាមទារ​វា ​រួម​ជាមួយ​អ៊ីមែល​​ ​ទំនាក់​ទំនង ព្រឹត្តិការណ៍​ប្រតិទិន ​និង​ទិន្នន័យ​ផ្សេង​ទៀត​។"</string>
     <string name="account_security_dialog_title" msgid="7003032393805438164">"​បច្ចុប្បន្នភាព​សុវត្ថិភាព"</string>
     <string name="account_security_dialog_content_fmt" msgid="4107093049191103780">"<xliff:g id="ACCOUNT">%s</xliff:g> តម្រូវ​​ឲ្យ​​អ្នក​​អ្នក​ធ្វើ​បច្ចុប្បន្នភាព​ការ​កំណត់​​​សុវត្ថិភាព​របស់​អ្នក​។"</string>
@@ -196,9 +168,6 @@
     <string name="password_expired_dialog_title" msgid="7275534155170185252">"ពាក្យ​សម្ងាត់​ចាក់​សោ​បាន​​ផុត​កំណត់"</string>
     <string name="password_expired_dialog_content_fmt" msgid="8322213184626443346">"ទិន្នន័យ​សម្រាប់ <xliff:g id="ACCOUNT">%s</xliff:g> នឹង​​ត្រូវ​បាន​លុប​ចេញ​ពី​ឧបករណ៍​របស់​អ្នក​។ អ្នក​អាច​ស្ដារ​វា​ដោយ​ប្ដូរ​កូដ PIN ចាក់​សោ​អេក្រង់​ ឬ​ពាក្យ​សម្ងាត់​របស់​អ្នក។ តើ​អ្នក​ចង់​ប្ដូរ​​វា​ឥឡូវ​នេះ​ទេ?"</string>
     <string name="account_settings_exit_server_settings" msgid="4232590695889111419">"បោះបង់​ការ​ផ្លាស់ប្ដូរ​​ដែល​មិន​បាន​រក្សាទុក?"</string>
-    <string name="account_settings_login_dialog_title" msgid="2250911725501042470">"មិន​អាច​ចូល"</string>
-    <string name="account_settings_login_dialog_content_fmt" msgid="8687412692709766495">"ឈ្មោះ​អ្នក​ប្រើ ​ឬ​ពាក្យ​សម្ងាត់​សម្រាប់ <xliff:g id="ACCOUNT">%s</xliff:g> គឺ​មិន​ត្រឹមត្រូវ​។ តើ​អ្នក​ចង់​ធ្វើ​បច្ចុប្បន្នភាព​វា​ឥឡូវ​នេះ​ឬ?"</string>
-    <string name="account_settings_login_dialog_reason_fmt" msgid="2324678262137130809">"ការ​ចូល​​​ <xliff:g id="ACCOUNT">%s</xliff:g> របស់​អ្នក​បាន​បរាជ័យ ម៉ាស៊ីន​មេ​បាន​បង្ហាញ​ថា៖ <xliff:g id="REASON">%s</xliff:g> តើ​អ្នក​ចង់​ធ្វើ​បច្ចុប្បន្នភាព​ឈ្មោះ​អ្នក​ប្រើ និង/​ឬ ពាក្យ​សម្ងាត់​របស់​អ្នក​ទេ?"</string>
     <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"ទាញ​យក​ឯកសារ​ភ្ជាប់"</string>
     <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"​ទាញ​យក​ឯកសារ​ភ្ជាប់​ដោយ​ស្វ័យ​ប្រវត្តិ​ចំពោះ​​​សារ​ថ្មី​ៗ​តាម​វ៉ាយហ្វាយ"</string>
     <string name="account_settings_notify_label" msgid="8621226576645167987">"ការ​ជូន​ដំណឹង​អ៊ីមែល"</string>
@@ -237,7 +206,7 @@
     <string name="account_settings_sync_calendar_summary" msgid="411960248618953311">"ធ្វើ​សមកាលកម្ម​ព្រឹត្តិការណ៍​ប្រតិទិន​សម្រាប់​​គណនី​នេះ"</string>
     <string name="account_settings_sync_email_enable" msgid="7135765408226471860">"ធ្វើ​សម​កាល​កម្ម​អ៊ីមែល"</string>
     <string name="account_settings_sync_email_summary" msgid="71710510041953351">"ធ្វើ​សម​កាល​កម្ម​អ៊ីមែល​សម្រាប់​គណនី​នេះ"</string>
-    <string name="account_settings_vibrate_when_label" msgid="361069844540266098">"ញ័រ"</string>
+    <string name="label_notification_vibrate_title" msgid="140881511322826320">"ញ័រ"</string>
     <string name="account_settings_ringtone" msgid="2238523918221865167">"ជ្រើស​សំឡេង​រោទ៍"</string>
     <string name="account_settings_servers" msgid="3386185135392642067">"ការ​កំណត់​ម៉ាស៊ីន​មេ"</string>
     <string name="mailbox_settings_activity_title" msgid="2196614373847675314">"ជម្រើស​សម​កាល​កម្ម"</string>
@@ -245,10 +214,7 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="7723413381707277856">"ធ្វើ​សម​កាល​កម្ម​ថត​នេះ"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="742233465207750578">"សារ​នឹង​ទាញ​យក​នៅ​ពេល​​តភ្ជាប់"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="7027516982341382326">"ថ្ងៃ​ដែល​សំបុត្រ​​ត្រូវ​ធ្វើ​សម​កាល​កម្ម"</string>
-    <string name="prefDialogTitle_conversationListIcon" msgid="1302579259733675896">"រូបភាព​អ្នក​ផ្ញើ"</string>
-    <string name="provider_note_live" msgid="4289035326060391547">"មាន​​​តែ​គណនី \"Plus\" មួយ​ចំនួនប៉ុណ្ណោះ រួម​បញ្ចូល​នូវ​ការ​ចូល​ដំណើរ​ការ POP អនុញ្ញាត​​ឲ្យ​​កម្មវិធី​នេះ​ត្រូវ​​តភ្ជាប់​។ ​បើ​អ្នក​មិន​អាច​ចុះ​ហត្ថលេខា​​ដោយ​ប្រើ​​អាសយដ្ឋាន​អ៊ីមែល​ត្រឹមត្រូវ​និង​ពាក្យ​សម្ងាត់​របស់​អ្នក អ្នក​ប្រហែល​ជា​មិន​​ចាំបាច់​បង់​ប្រាក់​​គណនី \"Plus\" ទេ។ បើក​ដំណើរការ​កម្មវិធី​អ៊ីនធឺណិត​បណ្ដាញ​ដើម្បី​ទទួល​បាន​នូវ​ការ​ចូល​ដំណើរ​ការ​ទៅ​កាន់​គណនី​អ៊ីមែល​ទាំងនេះ​។"</string>
     <string name="provider_note_t_online" msgid="1596701148051980218">"មុន​ពេល​រៀបចំ​គណនី​អ៊ីមែល​​នេះ សូម​​មើល​តំបន់​បណ្ដាញ T-Online ហើយ​​បង្កើត​ពាក្យ​សម្ងាត់​សម្រាប់​ចូល​ដំណើរ​ការ​អ៊ីមែល POP3 ។"</string>
-    <string name="exchange_name" msgid="3793803477985438102">"សហការ"</string>
     <string name="exchange_name_alternate" msgid="293118547772095111">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="2248313263003927725">"មិន​អាច​បង្កើត​គណនី​។ សូម​ព្យាយាម​ម្ដងទៀត។"</string>
     <string name="device_admin_label" msgid="3335272972461391415">"អ៊ីមែល"</string>
@@ -264,7 +230,6 @@
     <string name="quick_2" msgid="8611591278119481491">"ល្អ​ចំពោះ​ខ្ញុំ​!"</string>
     <string name="quick_3" msgid="8070999183033184986">"ខ្ញុំ​នឹង​​អាន​នៅ​ពេល​ក្រោយ និង​ឆ្លើយតប​​អ្នក​វិញ។"</string>
     <string name="quick_4" msgid="216066940197616025">"​រៀបចំ​កិច្ច​ប្រជុំ​​​​​ ដើម្បី​ពិភាក្សា​រឿង​នេះ​។"</string>
-    <string name="require_manual_sync_message" msgid="7361932179783481686">"បាន​បិទ​ការ​ធ្វើ​សម​កាល​កម្ម​ផ្ទៃ​ខាង​ក្រោយ​សម្រាប់​គណនី​នេះ​​​ខណៈ​ពេល​នៅ​ក្រៅ​ប្រទេស។"</string>
     <string name="confirm_response" msgid="6764021931370809514">"កំពុង​ផ្ញើ​​ការ​ឆ្លើយ​តប..."</string>
     <string name="imap_name" msgid="8285222985908214985">"ផ្ទាល់​ខ្លួន (IMAP​)"</string>
     <string name="pop3_name" msgid="6653484706414263493">"ផ្ទាល់​ខ្លួន (POP3​)"</string>
