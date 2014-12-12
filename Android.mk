@@ -56,6 +56,8 @@ LOCAL_STATIC_JAVA_LIBRARIES += android-opt-bitmap
 LOCAL_STATIC_JAVA_LIBRARIES += android-opt-datetimepicker
 LOCAL_STATIC_JAVA_LIBRARIES += owasp-html-sanitizer
 
+LOCAL_JAVA_LIBRARIES := org.apache.http.legacy
+
 LOCAL_PACKAGE_NAME := Email
 
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags $(unified_email_dir)/proguard.flags
