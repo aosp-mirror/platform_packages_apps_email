@@ -170,7 +170,7 @@
     <string name="account_settings_exit_server_settings" msgid="4232590695889111419">"למחוק שינויים שלא נשמרו?"</string>
     <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"הורד קבצים מצורפים"</string>
     <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"‏הורד באופן אוטומטי קבצים מצורפים להודעות שהתקבלו לאחרונה באמצעות Wi-Fi"</string>
-    <string name="account_settings_notify_label" msgid="8621226576645167987">"התראות אימייל"</string>
+    <string name="account_settings_notify_label" msgid="8621226576645167987">"התראות באימייל"</string>
     <string name="account_settings_summary" msgid="4733776978291376161">"תדירות סנכרון, התראות וכדומה"</string>
     <string name="account_settings_notify_summary" msgid="88560545461159120">"שלח הודעה כשמגיע אימייל"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="4107847714594035131">"תדירות סנכרון"</string>
