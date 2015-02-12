@@ -149,7 +149,7 @@
     <string name="account_setup_failed_security_policies_unsupported" msgid="4619685657253094627">"Voor deze server zijn beveiligingsfuncties nodig die uw Android-apparaat niet ondersteunt, waaronder: <xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="disable_admin_warning" msgid="6001542250505146252">"WAARSCHUWING: als u de rechten van de app E-mail voor het beheren van uw apparaat uitschakelt, worden alle e-mailaccounts verwijderd waarvoor deze rechten vereist zijn, samen met de bijbehorende e-mails, contacten, agenda-afspraken en andere gegevens."</string>
     <string name="account_security_dialog_title" msgid="7003032393805438164">"Beveiligingsupdate"</string>
-    <string name="account_security_dialog_content_fmt" msgid="4107093049191103780">"Voor <xliff:g id="ACCOUNT">%s</xliff:g> moet u uw beveiligingsinstellingen bijwerken."</string>
+    <string name="account_security_dialog_content_fmt" msgid="4107093049191103780">"Voor <xliff:g id="ACCOUNT">%s</xliff:g> moet u uw beveiligingsinstellingen updaten."</string>
     <string name="security_unsupported_ticker_fmt" msgid="3249185558872836884">"Account \'<xliff:g id="ACCOUNT">%s</xliff:g>\' kan niet worden gesynchroniseerd wegens beveiligingsvereisten."</string>
     <string name="security_needed_ticker_fmt" msgid="7099561996532829229">"Account \'<xliff:g id="ACCOUNT">%s</xliff:g>\' vereist een update van de beveiligingsinstellingen."</string>
     <string name="security_changed_ticker_fmt" msgid="3823930420292838192">"De beveiligingsinstellingen van het account \'<xliff:g id="ACCOUNT">%s</xliff:g>\' zijn gewijzigd, er is geen gebruikersactie vereist."</string>
@@ -167,7 +167,7 @@
     <string name="password_expire_warning_dialog_content_fmt" msgid="1093389293050776319">"U moet uw pincode of wachtwoord voor schermvergrendeling snel wijzigen, of de gegevens voor <xliff:g id="ACCOUNT">%s</xliff:g> worden gewist. Wilt u dit nu wijzigen?"</string>
     <string name="password_expired_dialog_title" msgid="7275534155170185252">"Wachtwoord schermvergrendeling verlopen"</string>
     <string name="password_expired_dialog_content_fmt" msgid="8322213184626443346">"De gegevens voor <xliff:g id="ACCOUNT">%s</xliff:g> worden gewist op uw apparaat. U kunt het account herstellen door uw pincode of wachtwoord voor schermvergrendeling te wijzigen. Nu wijzigen?"</string>
-    <string name="account_settings_exit_server_settings" msgid="4232590695889111419">"Niet-opgeslagen wijzigingen annuleren?"</string>
+    <string name="account_settings_exit_server_settings" msgid="4232590695889111419">"Wijzigingen niet opslaan?"</string>
     <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"Bijlagen downloaden"</string>
     <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"Bijlagen van recente berichten automatisch downloaden via wifi"</string>
     <string name="account_settings_notify_label" msgid="8621226576645167987">"Meldingen via e-mail"</string>

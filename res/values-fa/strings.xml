@@ -160,12 +160,12 @@
     <string name="account_security_policy_explanation_fmt" msgid="2527501853520160827">"‏سرور <xliff:g id="SERVER">%s</xliff:g> از شما می‌خواهد که به آن اجازه دهید برخی از ویژگی‌های امنیتی دستگاه Android شما را از راه دور کنترل کند."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="8155332642922842729">"ویرایش جزئیات"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="5543005790538884060">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" از شما می‌خواهد کد پین یا گذرواژه قفل صفحه را تغییر دهید."</string>
-    <string name="password_expire_warning_content_title" msgid="4360288708739366810">"رمز ورود قفل صفحه در حال انقضا"</string>
-    <string name="password_expired_ticker" msgid="3098703963402347483">"کد پین یا رمز ورود قفل صفحه منقضی شده است."</string>
-    <string name="password_expired_content_title" msgid="7379094218699681984">"رمز ورود قفل صفحه منقضی شده است"</string>
-    <string name="password_expire_warning_dialog_title" msgid="4901499545146045672">"رمز ورود قفل صفحه در حال انقضا"</string>
+    <string name="password_expire_warning_content_title" msgid="4360288708739366810">"گذرواژه قفل صفحه در حال انقضا"</string>
+    <string name="password_expired_ticker" msgid="3098703963402347483">"پین قفل صفحه یا گذرواژه منقضی شده است."</string>
+    <string name="password_expired_content_title" msgid="7379094218699681984">"گذرواژه قفل صفحه منقضی شده است"</string>
+    <string name="password_expire_warning_dialog_title" msgid="4901499545146045672">"گذرواژه قفل صفحه در حال انقضا"</string>
     <string name="password_expire_warning_dialog_content_fmt" msgid="1093389293050776319">"باید پین قفل صفحه یا گذرواژهٔ خود را سریع تغییر دهید، در غیر اینصورت داده‌های <xliff:g id="ACCOUNT">%s</xliff:g> پاک خواهد شد . آیا می‌خواهید اکنون آن‌ را تغییر دهید؟"</string>
-    <string name="password_expired_dialog_title" msgid="7275534155170185252">"رمز ورود قفل صفحه منقضی شده است"</string>
+    <string name="password_expired_dialog_title" msgid="7275534155170185252">"گذرواژه قفل صفحه منقضی شده است"</string>
     <string name="password_expired_dialog_content_fmt" msgid="8322213184626443346">"داده‌های <xliff:g id="ACCOUNT">%s</xliff:g> در حال پاک شدن از دستگاه شما است. با تغییر دادن پین صفحه قفل یا گذرواژهٔ خود می‌توانید آن‌ها را بازگردانید. آیا می‌خواهید هم‌اکنون آن‌ را تغییر دهید؟"</string>
     <string name="account_settings_exit_server_settings" msgid="4232590695889111419">"از تغییرات ذخیره نشده صرفنظر شود؟"</string>
     <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"دانلود پیوست‌ها"</string>
@@ -175,9 +175,9 @@
     <string name="account_settings_notify_summary" msgid="88560545461159120">"ارسال اعلان هنگام ورود ایمیل"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="4107847714594035131">"تعداد دفعات همگام‌سازی"</string>
     <string name="account_settings_incoming_label" msgid="3793314460723296874">"تنظیمات ورودی"</string>
-    <string name="account_settings_incoming_summary" msgid="7521181981008371492">"نام کاربری، رمز ورود و سایر تنظیمات سرور ورودی"</string>
+    <string name="account_settings_incoming_summary" msgid="7521181981008371492">"نام کاربری، گذرواژه و سایر تنظیمات سرور ورودی"</string>
     <string name="account_settings_outgoing_label" msgid="4997504719643828381">"تنظیمات خروجی"</string>
-    <string name="account_settings_outgoing_summary" msgid="1884202151340479161">"نام کاربری، رمز ورود و سایر تنظیمات سرور خروجی"</string>
+    <string name="account_settings_outgoing_summary" msgid="1884202151340479161">"نام کاربری، گذرواژه و سایر تنظیمات سرور خروجی"</string>
     <string name="account_settings_enforced_label" msgid="7005050362066086119">"خط‌مشی‌های اعمال شده"</string>
     <string name="account_settings_enforced_summary" msgid="1668581504445370253">"هیچکدام"</string>
     <string name="account_settings_unsupported_label" msgid="7286722617178322465">"خط مشی‌های پشتیبانی نشده"</string>
