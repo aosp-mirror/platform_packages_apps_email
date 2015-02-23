@@ -196,7 +196,7 @@
     <string name="system_folders_trash_summary" msgid="2583143581531897068">"Selectaţi dosarul coş de gunoi al serverului dvs."</string>
     <string name="system_folders_trash_dlg" msgid="353701568340939392">"Selectaţi dosarul coş de gunoi al serverului dvs."</string>
     <string name="system_folders_sent_title" msgid="8792934374188279309">"Dosar articole trimise"</string>
-    <string name="system_folders_sent_summary" msgid="4252740721870748375">"Selectaţi dosarul cu articole trimise al serverului dvs."</string>
+    <string name="system_folders_sent_summary" msgid="4252740721870748375">"Selectaţi dosarul cu elemente trimise al serverului dvs."</string>
     <string name="system_folders_sent_dlg" msgid="818944260541160146">"Selectaţi dosarul cu articole trimise al serverului dvs."</string>
     <string name="edit_quick_response_dialog" msgid="3048014284772648575">"Răspuns rapid"</string>
     <string name="save_action" msgid="5740359453077441466">"Salvaţi"</string>
