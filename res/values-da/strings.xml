@@ -83,9 +83,9 @@
     <string name="account_setup_incoming_port_label" msgid="402562424498833560">"PORT"</string>
     <string name="account_setup_incoming_security_label" msgid="8360505617331971663">"SIKKERHEDSTYPE"</string>
     <string name="account_setup_incoming_security_none_label" msgid="2461510827337484818">"Ingen"</string>
-    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="2834386066577239560">"SSL/TLS (accepter alle certifikater)"</string>
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="2834386066577239560">"SSL/TLS (acceptér alle certifikater)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="5169133414545009342">"SSL/TLS"</string>
-    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2281920902104029077">"STARTTLS (accepter alle certifikater)"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2281920902104029077">"STARTTLS (acceptér alle certifikater)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="3892291833944170882">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="2341742235654301690">"Slet e-mail fra server"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="5777530843489961009">"Aldrig"</string>

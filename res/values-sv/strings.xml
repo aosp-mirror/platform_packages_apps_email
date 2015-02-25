@@ -203,7 +203,7 @@
     <string name="account_settings_sync_contacts_enable" msgid="2642448079273767521">"Synkronisera kontakter"</string>
     <string name="account_settings_sync_contacts_summary" msgid="1716022682035150630">"Synkronisera kontakter för det här kontot"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3172491863244160828">"Synkronisera kalender"</string>
-    <string name="account_settings_sync_calendar_summary" msgid="411960248618953311">"Synka kalenderhändelse för kontot"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="411960248618953311">"Synkronisera kalenderhändelse för kontot"</string>
     <string name="account_settings_sync_email_enable" msgid="7135765408226471860">"Synkronisera e-post"</string>
     <string name="account_settings_sync_email_summary" msgid="71710510041953351">"Synkronisera e-post för det här kontot"</string>
     <string name="label_notification_vibrate_title" msgid="140881511322826320">"Vibrera"</string>
