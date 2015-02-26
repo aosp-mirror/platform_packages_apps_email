@@ -21,12 +21,11 @@
     <string name="permission_access_provider_label" msgid="977700184037298723">"Dostęp do danych dostawcy poczty e-mail"</string>
     <string name="permission_access_provider_desc" msgid="5338433949655493713">"Zezwala aplikacji na dostęp do bazy danych e-maili, w tym odebranych i wysłanych wiadomości, nazw użytkowników oraz haseł."</string>
     <string name="app_name" msgid="2206468539066258195">"Poczta"</string>
-    <string name="debug_title" msgid="1337476992195531309">"Debuguj"</string>
     <string name="create_action" msgid="6575946089819721958">"Utwórz nową"</string>
     <string name="quick_responses_empty_view" msgid="3394094315357455290">"Brak szybkich odpowiedzi"</string>
     <string name="account_settings_action" msgid="589969653965674604">"Ustawienia konta"</string>
     <string name="mailbox_name_display_inbox" msgid="5093068725739672126">"Odebrane"</string>
-    <string name="mailbox_name_display_outbox" msgid="8735725798805339414">"Do wysłania"</string>
+    <string name="mailbox_name_display_outbox" msgid="8735725798805339414">"Skrzynka nadawcza"</string>
     <string name="mailbox_name_display_drafts" msgid="3552043116466269581">"Kopie robocze"</string>
     <string name="mailbox_name_display_trash" msgid="7020792045007681852">"Kosz"</string>
     <string name="mailbox_name_display_sent" msgid="6705058612006729985">"Wysłane"</string>
@@ -39,28 +38,11 @@
     <string name="message_compose_insert_quick_response_list_title" msgid="5836926808818821309">"Wstaw szybką odpowiedź"</string>
     <string name="message_compose_insert_quick_response_menu_title" msgid="4393288554605333619">"Wstaw szybką odpowiedź"</string>
     <string name="message_view_attachment_background_load" msgid="7571652141281187845">"Co najmniej jeden załącznik w przekazywanej wiadomości zostanie pobrany przed wysłaniem."</string>
-    <string name="attachment_not_found" msgid="5219773045406833000">"Nie można pobrać załącznika."</string>
     <string name="message_decode_error" msgid="91396461771444300">"Podczas dekodowania wiadomości wystąpił błąd."</string>
     <string name="forward_download_failed_ticker" msgid="2900585518884851062">"Co najmniej jednego załącznika nie można przekazać dalej."</string>
     <string name="forward_download_failed_title" msgid="2043036709913723298">"Nie przekazano załącznika"</string>
     <string name="login_failed_ticker" msgid="4620839194581484497">"Nie udało się zalogować na konto <xliff:g id="ACCOUNT_NAME">%s</xliff:g>."</string>
     <string name="login_failed_title" msgid="1737884069957090004">"Nie można się zalogować"</string>
-  <plurals name="message_view_attachment_bytes">
-    <item quantity="one" msgid="884086921379532485">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
-    <item quantity="other" msgid="1883360269853654045">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
-  </plurals>
-  <plurals name="message_view_attachment_kilobytes">
-    <item quantity="one" msgid="7735927556589634941">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g> KB"</item>
-    <item quantity="other" msgid="7476806336055136146">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g> KB"</item>
-  </plurals>
-  <plurals name="message_view_attachment_megabytes">
-    <item quantity="one" msgid="7755624135347953938">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g> MB"</item>
-    <item quantity="other" msgid="3317120193748830799">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g> MB"</item>
-  </plurals>
-  <plurals name="message_view_attachment_gigabytes">
-    <item quantity="one" msgid="5180812866869430241">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> GB"</item>
-    <item quantity="other" msgid="1607574223219436099">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> GB"</item>
-  </plurals>
     <string name="account_setup_basics_title" msgid="5050895656741229172">"Konfiguracja konta"</string>
     <string name="oauth_authentication_title" msgid="3771260531636603518">"Proszę o autoryzację"</string>
     <string name="sign_in_title" msgid="5051852806423550830">"Zaloguj się"</string>
@@ -82,22 +64,17 @@
     <string name="account_setup_username_password_toast" msgid="3659744829670065777">"Wpisz prawidłowy adres e-mail i hasło."</string>
     <string name="account_duplicate_dlg_title" msgid="3768813340753269695">"Zduplikowane konto"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6747351773934787126">"Używasz już tej nazwy użytkownika na koncie „<xliff:g id="DUPLICATE">%s</xliff:g>”."</string>
-    <string name="account_password_spaces_error" msgid="1035535222734047745">"Hasło zaczyna się lub kończy co najmniej jedną spacją. Wiele serwerów nie obsługuje haseł ze spacjami."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="9103280616618316032">"Pobieranie informacji o koncie…"</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="9196418179524308411">"Sprawdzam ustawienia serwera…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="9062019904409225329">"Sprawdzam ustawienia SMTP…"</string>
     <string name="account_setup_creating_account_msg" msgid="2898648422471181490">"Tworzę konto…"</string>
     <string name="account_setup_ab_headline" msgid="1434091698882290052">"Potwierdź typ konta"</string>
     <string name="account_setup_ab_instructions_format" msgid="6223657094843768202">"Wskazałeś, że adres <xliff:g id="EMAIL">%1$s</xliff:g> korzysta z protokołu <xliff:g id="USERPROTOCOL">%2$s</xliff:g>, ale konto może używać protokołu <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g>"</string>
-    <string name="account_setup_names_title" msgid="8780121351085082269">"Konfiguracja konta"</string>
     <string name="account_setup_names_headline" msgid="2031978210683887370">"Konto zostało skonfigurowane, a e-maile są w drodze."</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Nazwa konta (opcjonalnie)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"Twoja nazwa (wyświetlana w wiadomościach wychodzących)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="602103532054000846">"To pole nie może być puste."</string>
-    <string name="account_setup_account_type_title" msgid="7081511430549429621">"Konfiguracja konta"</string>
     <string name="account_setup_account_type_headline" msgid="3375795537675351389">"Typ konta"</string>
     <string name="account_setup_account_type_instructions" msgid="968088954656738617">"Jakiego typu jest to konto?"</string>
-    <string name="account_setup_incoming_title" msgid="7743750350830383718">"Konfiguracja konta"</string>
     <string name="account_setup_incoming_headline" msgid="6232828824446177639">"Ustawienia serwera poczty przychodzącej"</string>
     <string name="account_setup_incoming_username_label" msgid="2609699829997945895">"NAZWA UŻYTKOWNIKA"</string>
     <string name="account_setup_incoming_password_label" msgid="4806105500058512876">"HASŁO"</string>
@@ -115,21 +92,18 @@
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="8677018382715596606">"Po usunięciu z folderu Odebrane"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="3531290378620033218">"Prefiks ścieżki IMAP"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="206747922689229932">"Opcjonalnie"</string>
-    <string name="account_setup_outgoing_title" msgid="2808821899038184783">"Konfiguracja konta"</string>
     <string name="account_setup_outgoing_headline" msgid="6638171491109658047">"Ustawienia serwera poczty wychodzącej"</string>
     <string name="account_setup_outgoing_smtp_server_label" msgid="3460163861711242681">"SERWER SMTP"</string>
     <string name="account_setup_outgoing_port_label" msgid="3735952013505812378">"PORT"</string>
     <string name="account_setup_outgoing_security_label" msgid="6473177134731615282">"TYP ZABEZPIECZEŃ"</string>
     <string name="account_setup_outgoing_require_login_label" msgid="5405196721947884033">"Wymagaj logowania"</string>
     <string name="account_setup_outgoing_username_label" msgid="8844680398828891772">"NAZWA UŻYTKOWNIKA"</string>
-    <string name="account_setup_outgoing_password_label" msgid="112570779839746136">"HASŁO"</string>
     <string name="account_setup_exchange_certificate_title" msgid="8756785660598838350">"CERTYFIKAT KLIENTA"</string>
     <string name="account_setup_exchange_select_certificate" msgid="264748505181695915">"Wybierz"</string>
     <string name="account_setup_exchange_use_certificate" msgid="6513687497912094538">"Użyj certyfikatu klienta"</string>
     <string name="account_setup_exchange_remove_certificate" msgid="1222387802827919583">"Usuń"</string>
     <string name="account_setup_exchange_no_certificate" msgid="3569712401698909695">"Brak"</string>
     <string name="account_setup_exchange_device_id_label" msgid="2306603503497194905">"ID URZĄDZENIA MOBILNEGO"</string>
-    <string name="account_setup_options_title" msgid="3274463434235489134">"Ustawienia konta"</string>
     <string name="account_setup_options_headline" msgid="4810292194395251968">"Opcje konta"</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="7253305392938373553">"Częstotliwość synchronizacji:"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="2937664246354067829">"Nigdy"</string>
@@ -155,7 +129,6 @@
     <string name="account_setup_options_mail_window_all" msgid="4794683936065721438">"Wszystkie"</string>
     <string name="account_setup_options_mail_window_default" msgid="5518038139722596598">"Użyj wartości domyślnej konta"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="5608549872868036352">"Nieprawidłowa nazwa użytkownika lub hasło"</string>
-    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8811464534757505457">"Nie udało się zalogować.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_autodiscover_dlg_authfail_title" msgid="7551559109838593189">"Problem z konfiguracją konta"</string>
     <string name="account_setup_autodiscover_dlg_authfail_message" msgid="4075075565221436715">"Potwierdź poprawność nazwy użytkownika, hasła i ustawień konta."</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="4725950885859654809">"Nie można bezpiecznie połączyć się z serwerem."</string>
@@ -174,7 +147,6 @@
     <string name="account_setup_security_required_title" msgid="667943309546419435">"Zdalne administrowanie zabezpieczeniami"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="9029471168291631932">"Serwer <xliff:g id="SERVER">%s</xliff:g> wymaga udzielenia zezwolenia na zdalną kontrolę niektórych funkcji zabezpieczeń tego urządzenia z systemem Android. Czy chcesz zakończyć konfigurowanie tego konta?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="4619685657253094627">"Serwer wymaga funkcji zabezpieczeń, których to urządzenie z Androidem nie obsługuje, w tym: <xliff:g id="ERROR">%s</xliff:g>."</string>
-    <string name="account_setup_username_uneditable_error" msgid="3607769783124215764">"Nie można zmienić nazwy użytkownika konta. Aby dodać konto z inną nazwą użytkownika, kliknij Dodaj konto."</string>
     <string name="disable_admin_warning" msgid="6001542250505146252">"OSTRZEŻENIE: cofnięcie Poczcie uprawnień do administrowania urządzeniem spowoduje usunięcie wszystkich kont e-mail, które ich wymagają, wraz z wiadomościami, kontaktami, wydarzeniami w kalendarzu i innymi danymi."</string>
     <string name="account_security_dialog_title" msgid="7003032393805438164">"Aktualizacja zabezpieczeń"</string>
     <string name="account_security_dialog_content_fmt" msgid="4107093049191103780">"Konto <xliff:g id="ACCOUNT">%s</xliff:g> wymaga aktualizacji ustawień zabezpieczeń."</string>
@@ -196,9 +168,6 @@
     <string name="password_expired_dialog_title" msgid="7275534155170185252">"Hasło ekranu blokady wygasło"</string>
     <string name="password_expired_dialog_content_fmt" msgid="8322213184626443346">"Trwa wymazywanie z urządzenia danych konta <xliff:g id="ACCOUNT">%s</xliff:g>. Można je przywrócić, zmieniając PIN lub hasło ekranu blokady. Zmienić je teraz?"</string>
     <string name="account_settings_exit_server_settings" msgid="4232590695889111419">"Odrzucić niezapisane zmiany?"</string>
-    <string name="account_settings_login_dialog_title" msgid="2250911725501042470">"Nie można się zalogować"</string>
-    <string name="account_settings_login_dialog_content_fmt" msgid="8687412692709766495">"Nazwa użytkownika lub hasło dla konta <xliff:g id="ACCOUNT">%s</xliff:g> są nieprawidłowe. Chcesz je poprawić?"</string>
-    <string name="account_settings_login_dialog_reason_fmt" msgid="2324678262137130809">"Błąd logowania się na <xliff:g id="ACCOUNT">%s</xliff:g>. Odpowiedź serwera: <xliff:g id="REASON">%s</xliff:g> Czy chcesz zaktualizować nazwę użytkownika i/lub hasło?"</string>
     <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"Pobieraj załączniki"</string>
     <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"Automatycznie pobieraj załączniki najnowszych wiadomości przez Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="8621226576645167987">"Powiadomienia e-mail"</string>
@@ -237,7 +206,7 @@
     <string name="account_settings_sync_calendar_summary" msgid="411960248618953311">"Synchronizuj kalendarz dla tego konta"</string>
     <string name="account_settings_sync_email_enable" msgid="7135765408226471860">"Synchronizuj e-maile"</string>
     <string name="account_settings_sync_email_summary" msgid="71710510041953351">"Synchronizuj wiadomości e-mail dla tego konta"</string>
-    <string name="label_notification_vibrate_title" msgid="361069844540266098">"Wibracje"</string>
+    <string name="label_notification_vibrate_title" msgid="140881511322826320">"Wibracje"</string>
     <string name="account_settings_ringtone" msgid="2238523918221865167">"Wybierz dzwonek"</string>
     <string name="account_settings_servers" msgid="3386185135392642067">"Ustawienia serwera"</string>
     <string name="mailbox_settings_activity_title" msgid="2196614373847675314">"Opcje synchronizacji"</string>
@@ -245,20 +214,11 @@
     <string name="mailbox_settings_sync_enabled_label" msgid="7723413381707277856">"Zsynchronizuj ten folder"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="742233465207750578">"Wiadomości zostaną pobrane po nawiązaniu połączenia"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="7027516982341382326">"Okres do synchronizacji"</string>
-    <string name="prefDialogTitle_conversationListIcon" msgid="1302579259733675896">"Zdjęcie nadawcy"</string>
-    <string name="provider_note_live" msgid="4289035326060391547">"Tylko niektóre konta typu „Plus” zawierają funkcję dostępu POP umożliwiającą łączenie się za pomocą tego programu. Jeśli nie możesz zalogować się przy użyciu poprawnego adresu e-mail i hasła, być może nie masz płatnego konta typu „Plus”. Uruchom przeglądarkę, aby uzyskać dostęp do tych kont e-mail."</string>
     <string name="provider_note_t_online" msgid="1596701148051980218">"Przed skonfigurowaniem tego konta e-mail odwiedź witrynę T-Online i utwórz hasło dostępu do poczty POP3."</string>
-    <string name="exchange_name" msgid="3793803477985438102">"Firma"</string>
     <string name="exchange_name_alternate" msgid="293118547772095111">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="2248313263003927725">"Nie można utworzyć konta. Spróbuj ponownie."</string>
     <string name="device_admin_label" msgid="3335272972461391415">"E-mail"</string>
     <string name="device_admin_description" msgid="4299378570982520839">"Włącza zasady zabezpieczeń określone na serwerze"</string>
-    <string name="settings_activity_title" msgid="4787565736829092053">"Ustawienia"</string>
-    <string name="header_label_general_preferences" msgid="2924944721204930254">"Ustawienia ogólne"</string>
-    <string name="general_preference_confirm_delete_label" msgid="4635169755738754289">"Potwierdź usuwanie"</string>
-    <string name="general_preference_confirm_send_label" msgid="2985557291955796568">"Potwierdź wysyłanie"</string>
-    <string name="more_than_999" msgid="4088200269333058889">"999+"</string>
-    <string name="search_hint" msgid="3491349343647799436">"Wyszukaj w e-mailach"</string>
     <string name="policy_dont_allow_camera" msgid="8821533827628900689">"Nie zezwalaj na używanie aparatu"</string>
     <string name="policy_require_password" msgid="3556860917024612396">"Wymagaj hasła do urządzenia"</string>
     <string name="policy_password_history" msgid="9001177390979112746">"Nie zezwalaj na używanie poprzednich haseł"</string>
@@ -270,15 +230,13 @@
     <string name="quick_2" msgid="8611591278119481491">"Brzmi dobrze."</string>
     <string name="quick_3" msgid="8070999183033184986">"Przeczytam później i skontaktuję się."</string>
     <string name="quick_4" msgid="216066940197616025">"Spotkajmy się, aby to omówić."</string>
-    <string name="require_manual_sync_message" msgid="7361932179783481686">"Synchronizacja w tle z tym kontem jest podczas roamingu wyłączona."</string>
     <string name="confirm_response" msgid="6764021931370809514">"Wysyłam odpowiedź…"</string>
-    <string name="no_conversations" msgid="3785854971159919343">"Brak wiadomości."</string>
-    <string name="imap_name" msgid="1267915719183915252">"IMAP"</string>
-    <string name="pop3_name" msgid="1235910677527117862">"POP3"</string>
-    <string name="folder_picker_title" msgid="5906275472176731605">"Selektor folderów"</string>
+    <string name="imap_name" msgid="8285222985908214985">"Osobiste (IMAP)"</string>
+    <string name="pop3_name" msgid="6653484706414263493">"Osobiste (POP3)"</string>
     <string name="trash_folder_selection_title" msgid="686039558899469073">"Wybierz folder kosza na serwerze dla: <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="sent_folder_selection_title" msgid="9207482909822072856">"Wybierz folder elementów wysłanych na serwerze dla: <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"Wczytuję listę folderów…"</string>
     <string name="no_quick_responses" msgid="8716297053803961304">"Brak dostępnych"</string>
     <string name="gmail_name" msgid="2099786953868369991">"Gmail"</string>
+    <string name="folder_sync_settings_pref_title" msgid="349478353401667107">"Ustawienia synchronizacji folderu"</string>
 </resources>
