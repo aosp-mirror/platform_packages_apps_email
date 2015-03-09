@@ -134,7 +134,7 @@
     <string name="account_setup_failed_dlg_certificate_message" msgid="4725950885859654809">"Impossible d\'établir une connexion sécurisée avec le serveur."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="3451681985727559303">"Impossible d\'établir une connexion sécurisée avec le serveur.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_certificate_required" msgid="4607859382193244795">"Certificat client requis. Voulez-vous vous connecter au serveur avec un certificat client ?"</string>
-    <string name="account_setup_failed_certificate_inaccessible" msgid="4574461885959029072">"Le certificat est invalide ou inaccessible."</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="4574461885959029072">"Le certificat est incorrect ou inaccessible."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="430054384233036305">"Erreur du serveur. Veuillez vérifier votre nom d\'utilisateur et votre mot de passe, puis réessayer."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="1180197172141077524">"Impossible de se connecter au serveur."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="3889441611138037320">"Impossible de se connecter au serveur.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
