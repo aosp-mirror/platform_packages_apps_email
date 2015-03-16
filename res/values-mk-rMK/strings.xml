@@ -42,10 +42,10 @@
     <string name="forward_download_failed_ticker" msgid="2900585518884851062">"Не можеше да се проследат еден или повеќе прилози."</string>
     <string name="forward_download_failed_title" msgid="2043036709913723298">"Прилогот не е проследен"</string>
     <string name="login_failed_ticker" msgid="4620839194581484497">"Најавувањето на <xliff:g id="ACCOUNT_NAME">%s</xliff:g> е неуспешно."</string>
-    <string name="login_failed_title" msgid="1737884069957090004">"Не можеше да се пријави."</string>
+    <string name="login_failed_title" msgid="1737884069957090004">"Не можеше да се најави."</string>
     <string name="account_setup_basics_title" msgid="5050895656741229172">"Поставување сметка"</string>
     <string name="oauth_authentication_title" msgid="3771260531636603518">"Барање авторизација"</string>
-    <string name="sign_in_title" msgid="5051852806423550830">"Пријави се"</string>
+    <string name="sign_in_title" msgid="5051852806423550830">"Најави се"</string>
     <string name="oauth_error_description" msgid="8466102021844409849">"Не можеме да извршиме автентикација"</string>
     <string name="password_warning_label" msgid="1887439537224212124">"Адресата на е-пошта или лозинката се неточни"</string>
     <string name="email_confirmation_label" msgid="64258748053106017">"Адреса на е-пошта:"</string>
@@ -56,7 +56,7 @@
     <string name="sign_in_with_google" msgid="1412668282326928102">"Најави се со Google"</string>
     <string name="account_setup_basics_password_label" msgid="784962388753706730">"ЛОЗИНКА"</string>
     <string name="password_hint" msgid="4226682910292828279">"Лозинка"</string>
-    <string name="signed_in_with_service_label" msgid="4282359206358453634">"Пријавен со %s"</string>
+    <string name="signed_in_with_service_label" msgid="4282359206358453634">"Најавен со %s"</string>
     <string name="authentication_label" msgid="914463525214987772">"АВТЕНТИКАЦИЈА"</string>
     <string name="add_authentication_label" msgid="382998197798081729">"Додај автентикација"</string>
     <string name="clear_authentication_label" msgid="4750930803913225689">"Исчисти автентикација"</string>

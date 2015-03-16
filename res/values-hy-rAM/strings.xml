@@ -193,13 +193,13 @@
     <string name="account_settings_notifications" msgid="2842952349214972116">"Ծանուցման կարգավորումներ"</string>
     <string name="account_settings_data_usage" msgid="6400715160238559711">"Տվյալների օգտագործումը"</string>
     <string name="account_settings_policies" msgid="5972183883466873359">"Անվտանգության քաղաքականություն"</string>
-    <string name="system_folders_title" msgid="7161311881709109736">"Համակարգային թղթապանակներ"</string>
-    <string name="system_folders_trash_title" msgid="3190927115504713123">"Աղբարկղի թղթապանակ"</string>
-    <string name="system_folders_trash_summary" msgid="2583143581531897068">"Ընտրեք ձեր սերվերի թափոնի թղթապանակը"</string>
-    <string name="system_folders_trash_dlg" msgid="353701568340939392">"Ընտրեք ձեր սերվերի աղբարկղի թղթապանակը"</string>
-    <string name="system_folders_sent_title" msgid="8792934374188279309">"Ուղարկված նյութերի թղթապանակ"</string>
-    <string name="system_folders_sent_summary" msgid="4252740721870748375">"Ընտրեք ձեր սերվերի ուղարկած նյութերի թղթապանակը"</string>
-    <string name="system_folders_sent_dlg" msgid="818944260541160146">"Ընտրեք ձեր սերվերի կողմից ուղարկված նյութերի թղթապանակը"</string>
+    <string name="system_folders_title" msgid="7161311881709109736">"Համակարգային պանակներ"</string>
+    <string name="system_folders_trash_title" msgid="3190927115504713123">"Աղբարկղի պանակ"</string>
+    <string name="system_folders_trash_summary" msgid="2583143581531897068">"Ընտրեք ձեր սերվերի թափոնի պանակը"</string>
+    <string name="system_folders_trash_dlg" msgid="353701568340939392">"Ընտրեք ձեր սերվերի աղբարկղի պանակը"</string>
+    <string name="system_folders_sent_title" msgid="8792934374188279309">"Ուղարկված նյութերի պանակ"</string>
+    <string name="system_folders_sent_summary" msgid="4252740721870748375">"Ընտրեք ձեր սերվերի ուղարկած նյութերի պանակը"</string>
+    <string name="system_folders_sent_dlg" msgid="818944260541160146">"Ընտրեք ձեր սերվերի կողմից ուղարկված նյութերի պանակը"</string>
     <string name="edit_quick_response_dialog" msgid="3048014284772648575">"Արագ պատասխան"</string>
     <string name="save_action" msgid="5740359453077441466">"Պահել"</string>
     <string name="account_settings_sync_contacts_enable" msgid="2642448079273767521">"Համաժամեցնել կոնտակտները"</string>
@@ -213,7 +213,7 @@
     <string name="account_settings_servers" msgid="3386185135392642067">"Սերվերի կարգավորումներ"</string>
     <string name="mailbox_settings_activity_title" msgid="2196614373847675314">"Համաժամեցման ընտրանքներ"</string>
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="5547676392298186906">"Համաժամեցնել ընտրանքները (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>
-    <string name="mailbox_settings_sync_enabled_label" msgid="7723413381707277856">"Համաժամել այս թղթապանակը"</string>
+    <string name="mailbox_settings_sync_enabled_label" msgid="7723413381707277856">"Համաժամել այս պանակը"</string>
     <string name="mailbox_settings_sync_enabled_summary" msgid="742233465207750578">"Հաղորդագրությունները կներբեռնվեն միանալուն պես"</string>
     <string name="mailbox_settings_mailbox_sync_window_label" msgid="7027516982341382326">"Փոստի համաժամեցման օրեր"</string>
     <string name="provider_note_t_online" msgid="1596701148051980218">"Նախքան այս էլփոստի հաշիվը ստեղծելը խնդրում ենք այցելել T-Online կայքէջը և ստեղծել գաղտնաբառ` POP3 էլփոստի մուտքի համար:"</string>
@@ -235,9 +235,9 @@
     <string name="confirm_response" msgid="6764021931370809514">"Ուղարկվում է պատասխանը..."</string>
     <string name="imap_name" msgid="8285222985908214985">"Անհատական (IMAP)"</string>
     <string name="pop3_name" msgid="6653484706414263493">"Անհատական (POP3)"</string>
-    <string name="trash_folder_selection_title" msgid="686039558899469073">"Ընտրեք սերվերի թափոնի թղթապանակը <xliff:g id="ACCOUNT">%s</xliff:g>-ի համար"</string>
-    <string name="sent_folder_selection_title" msgid="9207482909822072856">"Ընտրեք սերվերի ուղարկած նյութերի թղթապանակը <xliff:g id="ACCOUNT">%s</xliff:g>-ի համար"</string>
-    <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"Բեռնվում է թղթապանակի ցանկը..."</string>
+    <string name="trash_folder_selection_title" msgid="686039558899469073">"Ընտրեք սերվերի թափոնի պանակը <xliff:g id="ACCOUNT">%s</xliff:g>-ի համար"</string>
+    <string name="sent_folder_selection_title" msgid="9207482909822072856">"Ընտրեք սերվերի ուղարկած նյութերի պանակը <xliff:g id="ACCOUNT">%s</xliff:g>-ի համար"</string>
+    <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"Բեռնվում է պանակի ցանկը..."</string>
     <string name="no_quick_responses" msgid="8716297053803961304">"Ոչ մեկը հասանելի չէ"</string>
     <string name="gmail_name" msgid="2099786953868369991">"Gmail"</string>
     <string name="folder_sync_settings_pref_title" msgid="349478353401667107">"Թղթապանակի համաժամեցման կարգավորումները"</string>
