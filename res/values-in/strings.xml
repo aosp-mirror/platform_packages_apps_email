@@ -170,7 +170,7 @@
     <string name="account_settings_exit_server_settings" msgid="4232590695889111419">"Buang perubahan yang tidak tersimpan?"</string>
     <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"Unduh lampiran"</string>
     <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"Unduh-otomatis lampiran pada pesan terbaru melalui Wi-Fi"</string>
-    <string name="account_settings_notify_label" msgid="8621226576645167987">"Pemberitahuan email"</string>
+    <string name="account_settings_notify_label" msgid="8621226576645167987">"Notifikasi email"</string>
     <string name="account_settings_summary" msgid="4733776978291376161">"Sinkronkan frekuensi, pemberitahuan, dll."</string>
     <string name="account_settings_notify_summary" msgid="88560545461159120">"Mengirimkan pemberitahuan bila email tiba"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="4107847714594035131">"Frekuensi sinkronisasi"</string>
