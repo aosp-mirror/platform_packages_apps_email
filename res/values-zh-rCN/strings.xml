@@ -189,7 +189,7 @@
     <string name="account_settings_edit_quick_responses_label" msgid="6105791335935883199">"快速回复"</string>
     <string name="account_settings_edit_quick_responses_summary" msgid="5406599402930290682">"编辑您在写电子邮件时经常插入的文本"</string>
     <string name="account_settings_notifications" msgid="2842952349214972116">"通知设置"</string>
-    <string name="account_settings_data_usage" msgid="6400715160238559711">"流量使用"</string>
+    <string name="account_settings_data_usage" msgid="6400715160238559711">"数据流量"</string>
     <string name="account_settings_policies" msgid="5972183883466873359">"安全策略"</string>
     <string name="system_folders_title" msgid="7161311881709109736">"系统文件夹"</string>
     <string name="system_folders_trash_title" msgid="3190927115504713123">"已删除邮件文件夹"</string>
