@@ -27,7 +27,7 @@
     <string name="mailbox_name_display_inbox" msgid="5093068725739672126">"Inbox"</string>
     <string name="mailbox_name_display_outbox" msgid="8735725798805339414">"Outbox"</string>
     <string name="mailbox_name_display_drafts" msgid="3552043116466269581">"Drafts"</string>
-    <string name="mailbox_name_display_trash" msgid="7020792045007681852">"Recycle Bin"</string>
+    <string name="mailbox_name_display_trash" msgid="7020792045007681852">"Bin"</string>
     <string name="mailbox_name_display_sent" msgid="6705058612006729985">"Sent"</string>
     <string name="mailbox_name_display_junk" msgid="1634126984313831675">"Junk"</string>
     <string name="mailbox_name_display_starred" msgid="8076384721309828453">"Starred"</string>
@@ -192,9 +192,9 @@
     <string name="account_settings_data_usage" msgid="6400715160238559711">"Data usage"</string>
     <string name="account_settings_policies" msgid="5972183883466873359">"Security policies"</string>
     <string name="system_folders_title" msgid="7161311881709109736">"System folders"</string>
-    <string name="system_folders_trash_title" msgid="3190927115504713123">"Recycle bin"</string>
-    <string name="system_folders_trash_summary" msgid="2583143581531897068">"Select your server\'s trash folder"</string>
-    <string name="system_folders_trash_dlg" msgid="353701568340939392">"Select your server\'s trash folder"</string>
+    <string name="system_folders_trash_title" msgid="3190927115504713123">"Bin folder"</string>
+    <string name="system_folders_trash_summary" msgid="2583143581531897068">"Select your server\'s bin folder"</string>
+    <string name="system_folders_trash_dlg" msgid="353701568340939392">"Select your server\'s bin folder"</string>
     <string name="system_folders_sent_title" msgid="8792934374188279309">"Sent items folder"</string>
     <string name="system_folders_sent_summary" msgid="4252740721870748375">"Select your server\'s sent items folder"</string>
     <string name="system_folders_sent_dlg" msgid="818944260541160146">"Select your server\'s sent items folder"</string>
@@ -233,7 +233,7 @@
     <string name="confirm_response" msgid="6764021931370809514">"Sending response…"</string>
     <string name="imap_name" msgid="8285222985908214985">"Personal (IMAP)"</string>
     <string name="pop3_name" msgid="6653484706414263493">"Personal (POP3)"</string>
-    <string name="trash_folder_selection_title" msgid="686039558899469073">"Select server recycle folder for <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
+    <string name="trash_folder_selection_title" msgid="686039558899469073">"Select server bin folder for <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="sent_folder_selection_title" msgid="9207482909822072856">"Select server sent items folder for <xliff:g id="ACCOUNT">%s</xliff:g>"</string>
     <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"Loading folder list…"</string>
     <string name="no_quick_responses" msgid="8716297053803961304">"None available"</string>
