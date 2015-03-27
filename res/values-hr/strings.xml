@@ -173,7 +173,7 @@
     <string name="account_settings_notify_label" msgid="8621226576645167987">"Obavijesti e-pošte"</string>
     <string name="account_settings_summary" msgid="4733776978291376161">"Učestalost sinkronizacije, obavijesti itd."</string>
     <string name="account_settings_notify_summary" msgid="88560545461159120">"Pošalji obavijest kada stigne e-pošta"</string>
-    <string name="account_settings_mail_check_frequency_label" msgid="4107847714594035131">"Frekvencija sinkronizacije"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="4107847714594035131">"Učestalost sinkronizacije"</string>
     <string name="account_settings_incoming_label" msgid="3793314460723296874">"Dolazne postavke"</string>
     <string name="account_settings_incoming_summary" msgid="7521181981008371492">"Korisničko ime, zaporka i ostale postavke dolaznog poslužitelja"</string>
     <string name="account_settings_outgoing_label" msgid="4997504719643828381">"Odlazne postavke"</string>
