@@ -34,7 +34,7 @@
     <string name="mailbox_name_display_unread" msgid="1453575937919310339">"بغیر پڑھے ہوئے"</string>
     <string name="debug_title" msgid="1337476992195531309">"ڈیبگ کریں"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="4155918930481733669">"مشترکہ منظر"</string>
-    <string name="message_compose_fwd_header_fmt" msgid="6193988236722150221">"‏\n\n-------- اصل پیغام --------\nموضوع: <xliff:g id="SUBJECT">%1$s</xliff:g>\nمنجانب: <xliff:g id="SENDER">%2$s</xliff:g>\nبنام: <xliff:g id="TO">%3$s</xliff:g>\nCC: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
+    <string name="message_compose_fwd_header_fmt" msgid="6193988236722150221">\n\n"-------- اصل پیغام --------\nموضوع: <xliff:g id="SUBJECT">%1$s</xliff:g>\nمنجانب: <xliff:g id="SENDER">%2$s</xliff:g>\nبنام: <xliff:g id="TO">%3$s</xliff:g>\nسی سی: <xliff:g id="CC_0">%4$s</xliff:g>\n\n"</string>
     <string name="message_compose_insert_quick_response_list_title" msgid="5836926808818821309">"فوری جواب داخل کریں"</string>
     <string name="message_compose_insert_quick_response_menu_title" msgid="4393288554605333619">"فوری جواب داخل کریں"</string>
     <string name="message_view_attachment_background_load" msgid="7571652141281187845">"آپ کے فارورڈ کیے ہوئے پیغام میں ایک یا زیادہ منسلکات بھیجنے سے پہلے ڈاؤن لوڈ ہوں گے۔"</string>
