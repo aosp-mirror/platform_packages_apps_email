@@ -20,12 +20,12 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 # Include res dir from chips, unified, emailcommon, and photoviewer
-appcompat_dir := ../../../prebuilts/sdk/current/support/v7/appcompat/res
+appcompat_dir := ../../../$(SUPPORT_LIBRARY_ROOT)/v7/appcompat/res
 chips_dir := ../../../frameworks/opt/chips/res
 unified_email_dir := ../UnifiedEmail
 photo_dir := ../../../frameworks/opt/photoviewer/res ../../../frameworks/opt/photoviewer/appcompat/res
 emailcommon_dir := emailcommon
-gridlayout_dir := ../../../prebuilts/sdk/current/support/v7/gridlayout/res
+gridlayout_dir := ../../../$(SUPPORT_LIBRARY_ROOT)/v7/gridlayout/res
 bitmap_dir := ../../../frameworks/opt/bitmap/res
 datetimepicker_dir := ../../../frameworks/opt/datetimepicker/res
 res_dir := res $(unified_email_dir)/res $(chips_dir) $(photo_dir) $(emailcommon_dir)/res $(appcompat_dir) $(gridlayout_dir) $(bitmap_dir) $(datetimepicker_dir)
