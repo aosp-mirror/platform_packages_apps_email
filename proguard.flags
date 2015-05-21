@@ -4,5 +4,5 @@
   public *** newInstance(com.android.emailcommon.provider.Account, android.content.Context);
 }
 
--keepclasses class com.android.email.activity.setup.AccountSetupFinal
--keepclasses class com.android.email.activity.setup.AccountSettingsFragment
+-keep class com.android.email.activity.setup.AccountSetupFinal
+-keep class com.android.email.activity.setup.AccountSettingsFragment
