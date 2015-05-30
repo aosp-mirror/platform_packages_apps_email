@@ -60,7 +60,7 @@
     <string name="authentication_label" msgid="914463525214987772">"AUTENTICAZIONE"</string>
     <string name="add_authentication_label" msgid="382998197798081729">"Aggiungi autenticazione"</string>
     <string name="clear_authentication_label" msgid="4750930803913225689">"Cancella autenticazione"</string>
-    <string name="account_setup_basics_manual_setup_action" msgid="7690861839383362085">"Config. manuale"</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="7690861839383362085">"Impostazione manuale"</string>
     <string name="account_setup_username_password_toast" msgid="3659744829670065777">"Digita un indirizzo email e una password validi."</string>
     <string name="account_duplicate_dlg_title" msgid="3768813340753269695">"Account duplicato"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="6747351773934787126">"Utilizzi già questo nome utente per l\'account \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
