@@ -69,7 +69,7 @@
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="9062019904409225329">"Tikrinami SMTP nustatymai…"</string>
     <string name="account_setup_creating_account_msg" msgid="2898648422471181490">"Kuriama paskyra…"</string>
     <string name="account_setup_ab_headline" msgid="1434091698882290052">"Paskyros tipo patvirtinimas"</string>
-    <string name="account_setup_ab_instructions_format" msgid="6223657094843768202">"Nurodėte, kad <xliff:g id="EMAIL">%1$s</xliff:g> naudojamas protokolas <xliff:g id="USERPROTOCOL">%2$s</xliff:g>, bet paskyroje gali būti naudojamas protokolas <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g>"</string>
+    <string name="account_setup_ab_instructions_format" msgid="6223657094843768202">"Nurodėte, kad <xliff:g id="EMAIL">%1$s</xliff:g> naudojamas protokolas „<xliff:g id="USERPROTOCOL">%2$s</xliff:g>“, bet paskyroje gali būti naudojamas protokolas „<xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g>“"</string>
     <string name="account_setup_names_headline" msgid="2031978210683887370">"Paskyra nustatyta, el. laiškas išsiųstas!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Suteikti šiai paskyrai pavadinimą (pasirenkama)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"Jūsų vardas ir pavardė (pateikiami siunčiamuose pranešimuose)"</string>
