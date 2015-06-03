@@ -69,7 +69,7 @@
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="9062019904409225329">"A validar as configurações de smtp..."</string>
     <string name="account_setup_creating_account_msg" msgid="2898648422471181490">"A criar conta..."</string>
     <string name="account_setup_ab_headline" msgid="1434091698882290052">"Confirmar tipo de conta"</string>
-    <string name="account_setup_ab_instructions_format" msgid="6223657094843768202">"Indicou que <xliff:g id="EMAIL">%1$s</xliff:g> utiliza <xliff:g id="USERPROTOCOL">%2$s</xliff:g>, mas a conta poderá utilizar <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g>"</string>
+    <string name="account_setup_ab_instructions_format" msgid="6223657094843768202">"Indicou que <xliff:g id="EMAIL">%1$s</xliff:g> utiliza <xliff:g id="USERPROTOCOL">%2$s</xliff:g>, mas a conta poderá utilizar o <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g>"</string>
     <string name="account_setup_names_headline" msgid="2031978210683887370">"A sua conta está configurada e o email vai a caminho!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"Dar um nome a esta conta (opcional)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"O seu nome (apresentado nas mensagens enviadas)"</string>

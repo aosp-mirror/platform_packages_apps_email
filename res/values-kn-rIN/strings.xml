@@ -69,7 +69,7 @@
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="9062019904409225329">"smtp ಸೆಟ್ಟಿಂಗ್‍ಗಳನ್ನು ಪ್ರಮಾಣೀಕರಿಸಲಾಗುತ್ತಿದೆ..."</string>
     <string name="account_setup_creating_account_msg" msgid="2898648422471181490">"ಖಾತೆಯನ್ನು ರಚಿಸಲಾಗುತ್ತಿದೆ..."</string>
     <string name="account_setup_ab_headline" msgid="1434091698882290052">"ಖಾತೆ ಪ್ರಕಾರವನ್ನು ಖಚಿತಪಡಿಸಿ"</string>
-    <string name="account_setup_ab_instructions_format" msgid="6223657094843768202">"<xliff:g id="EMAIL">%1$s</xliff:g> ಅವರು <xliff:g id="USERPROTOCOL">%2$s</xliff:g> ಅನ್ನು ಬಳಸುತ್ತಾರೆಂದು ನೀವು ಸೂಚಿಸಿರುವಿರಿ. ಆದರೆ ಖಾತೆಯು <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g> ಅನ್ನು ಬಳಸಬಹುದು"</string>
+    <string name="account_setup_ab_instructions_format" msgid="6223657094843768202">"<xliff:g id="EMAIL">%1$s</xliff:g> ಅವರು <xliff:g id="USERPROTOCOL">%2$s</xliff:g> ಅನ್ನು ಬಳಸುತ್ತಿದ್ದಾರೆಂದು ನೀವು ಸೂಚಿಸಿರುವಿರಿ. ಆದರೆ ಖಾತೆಯು <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g> ಅನ್ನು ಬಳಸಬಹುದು"</string>
     <string name="account_setup_names_headline" msgid="2031978210683887370">"ನಿಮ್ಮ ಖಾತೆಯನ್ನು ಹೊಂದಿಸಲಾಗಿದೆ ಮತ್ತು ಇಮೇಲ್ ತನ್ನ ಮಾರ್ಗದಲ್ಲಿದೆ!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"ಈ ಖಾತೆಗೆ ಹೆಸರೊಂದನ್ನು ನೀಡಿ (ಐಚ್ಛಿಕ)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"ನಿಮ್ಮ ಹೆಸರು (ಹೊರಹೋಗುವ ಸಂದೇಶಗಳಲ್ಲಿ ಪ್ರದರ್ಶಿಸಲ್ಪಡುತ್ತದೆ)"</string>
