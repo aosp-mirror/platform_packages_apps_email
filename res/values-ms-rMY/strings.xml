@@ -83,7 +83,7 @@
     <string name="account_setup_incoming_port_label" msgid="402562424498833560">"PORT"</string>
     <string name="account_setup_incoming_security_label" msgid="8360505617331971663">"JENIS KESELAMATAN"</string>
     <string name="account_setup_incoming_security_none_label" msgid="2461510827337484818">"Tiada"</string>
-    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="2834386066577239560">"SSL/TLS (Terima semua perakuan)"</string>
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="2834386066577239560">"SSL/TLS (Terima semua sijil)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="5169133414545009342">"SSL/TLS"</string>
     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2281920902104029077">"STARTTLS (terima semua perakuan)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="3892291833944170882">"STARTTLS"</string>

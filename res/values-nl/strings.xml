@@ -98,7 +98,7 @@
     <string name="account_setup_outgoing_security_label" msgid="6473177134731615282">"BEVEILIGINGSTYPE"</string>
     <string name="account_setup_outgoing_require_login_label" msgid="5405196721947884033">"Aanmelding vereisen"</string>
     <string name="account_setup_outgoing_username_label" msgid="8844680398828891772">"GEBRUIKERSNAAM"</string>
-    <string name="account_setup_exchange_certificate_title" msgid="8756785660598838350">"CLIENTCERTIFICAAT"</string>
+    <string name="account_setup_exchange_certificate_title" msgid="8756785660598838350">"CERTIFICAAT CLIENT"</string>
     <string name="account_setup_exchange_select_certificate" msgid="264748505181695915">"Selecteren"</string>
     <string name="account_setup_exchange_use_certificate" msgid="6513687497912094538">"Klantcertificaat gebruiken"</string>
     <string name="account_setup_exchange_remove_certificate" msgid="1222387802827919583">"Verwijderen"</string>
