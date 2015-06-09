@@ -84,7 +84,8 @@
         android:theme="@style/UnifiedEmailTheme"
         android:hardwareAccelerated="true"
         android:allowBackup="false"
-        android:supportsRtl="true" >
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="true" >
 
         <uses-library android:name="org.apache.http.legacy" android:required="false" />
         <activity
