@@ -69,7 +69,7 @@
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="9062019904409225329">"smtp ക്രമീകരണങ്ങൾ മൂല്യനിർണ്ണയം ചെയ്യുന്നു…"</string>
     <string name="account_setup_creating_account_msg" msgid="2898648422471181490">"അക്കൗണ്ട് സൃഷ്‌ടിക്കുന്നു…"</string>
     <string name="account_setup_ab_headline" msgid="1434091698882290052">"അക്കൗണ്ട് തരം സ്ഥിരീകരിക്കുക"</string>
-    <string name="account_setup_ab_instructions_format" msgid="6223657094843768202">"<xliff:g id="USERPROTOCOL">%2$s</xliff:g> ആണ് <xliff:g id="EMAIL">%1$s</xliff:g> ഉപയോഗിക്കുന്നതെന്ന് നിങ്ങൾ സൂചിപ്പിച്ചു, എന്നാൽ അക്കൗണ്ട് <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g> ഉപയോഗിച്ചേക്കാം"</string>
+    <string name="account_setup_ab_instructions_format" msgid="6223657094843768202">"<xliff:g id="EMAIL">%1$s</xliff:g> , <xliff:g id="USERPROTOCOL">%2$s</xliff:g> ഉപയോഗിക്കുന്നതായി നിങ്ങൾ സൂചിപ്പിച്ചു, പക്ഷെ അക്കൗണ്ട് <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g> ഉപയോഗിച്ചേക്കാം"</string>
     <string name="account_setup_names_headline" msgid="2031978210683887370">"നിങ്ങളുടെ അക്കൗണ്ട് സജ്ജീകരിച്ചു, ഇമെയിൽ ഉടൻ ലഭിച്ചുതുടങ്ങും!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"ഈ അക്കൗണ്ടിന് ഒരു പേര് നൽകുക (ഓപ്‌ഷണൽ)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"നിങ്ങളുടെ പേര് (ഔട്ട്ഗോയിംഗ് സന്ദേശങ്ങളിൽ പ്രദർശിപ്പിച്ചിരിക്കുന്നു)"</string>
@@ -85,7 +85,7 @@
     <string name="account_setup_incoming_security_none_label" msgid="2461510827337484818">"ഒന്നുമില്ല"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="2834386066577239560">"SSL/TLS (സർട്ടിഫിക്കറ്റെല്ലാം അംഗീകരിക്കുന്നു)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="5169133414545009342">"SSL/TLS"</string>
-    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2281920902104029077">"STARTTLS (എല്ലാ സർട്ടിഫിക്കറ്റുകളും അംഗീകരിക്കുന്നു)"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2281920902104029077">"STARTTLS (എല്ലാം അംഗീകരിക്കുക)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="3892291833944170882">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="2341742235654301690">"സെർവറിൽ നിന്നും ഇമെയിൽ ഇല്ലാതാക്കുക"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="5777530843489961009">"ഒരിക്കലുമില്ല"</string>
@@ -136,8 +136,8 @@
     <string name="account_setup_failed_certificate_required" msgid="4607859382193244795">"ഒരു ക്ലയന്റ് സർട്ടിഫിക്കറ്റ് ആവശ്യമാണ്. ഒരു ക്ലയന്റ് സർട്ടിഫിക്കറ്റ് ഉപയോഗിച്ച് സെർവറിൽ കണക്റ്റുചെയ്യേണ്ടതുണ്ടോ?"</string>
     <string name="account_setup_failed_certificate_inaccessible" msgid="4574461885959029072">"സർട്ടിഫിക്കറ്റ് അസാധുവോ ആക്‌സസ്സുചെയ്യാനാകാത്തതോ ആണ്."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="430054384233036305">"സെർവർ പ്രതികരണത്തിൽ പിശക്. നിങ്ങളുടെ ഉപയോക്തൃനാമവും പാസ്‌വേഡും പരിശോധിച്ചതിനുശേഷം വീണ്ടും ശ്രമിക്കുക."</string>
-    <string name="account_setup_failed_dlg_server_message" msgid="1180197172141077524">"സെർവറിലേക്ക് കണക്റ്റുചെയ്യാനാകില്ല."</string>
-    <string name="account_setup_failed_dlg_server_message_fmt" msgid="3889441611138037320">"സെർവറിലേക്ക് കണക്റ്റുചെയ്യാനായില്ല.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="1180197172141077524">"സെർവറിലേക്ക് കണക്റ്റുചെയ്യാനാകുന്നില്ല."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="3889441611138037320">"സെർവറിലേക്ക് കണക്റ്റുചെയ്യാനാകുന്നില്ല.\n(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="1902309158359287958">"TLS ആവശ്യമാണെങ്കിലും സെർവർ പിന്തുണയ്‌ക്കുന്നില്ല."</string>
     <string name="account_setup_failed_auth_required" msgid="2684010997018901707">"പ്രാമാണീകരണ രീതികളെ സെർവർ പിന്തുണയ്‌ക്കുന്നില്ല."</string>
     <string name="account_setup_failed_security" msgid="1627240499907011040">"സുരക്ഷാ പിശകിനാൽ സെർവറിലേക്ക് കണക്ഷൻ തുറക്കാനായില്ല."</string>
