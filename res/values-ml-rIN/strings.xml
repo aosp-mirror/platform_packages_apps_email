@@ -88,7 +88,7 @@
     <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="2281920902104029077">"STARTTLS (എല്ലാം അംഗീകരിക്കുക)"</string>
     <string name="account_setup_incoming_security_tls_label" msgid="3892291833944170882">"STARTTLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="2341742235654301690">"സെർവറിൽ നിന്നും ഇമെയിൽ ഇല്ലാതാക്കുക"</string>
-    <string name="account_setup_incoming_delete_policy_never_label" msgid="5777530843489961009">"ഒരിക്കലുമില്ല"</string>
+    <string name="account_setup_incoming_delete_policy_never_label" msgid="5777530843489961009">"ഒരിക്കലും"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="8677018382715596606">"ഞാൻ ഇൻബോക്‌സിൽ നിന്നും ഇല്ലാതാക്കുമ്പോൾ"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="3531290378620033218">"IMAP പാത്ത് പ്രീഫിക്സ്"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="206747922689229932">"ഓപ്‌ഷണൽ"</string>
@@ -106,7 +106,7 @@
     <string name="account_setup_exchange_device_id_label" msgid="2306603503497194905">"മൊബൈൽ ഐഡി"</string>
     <string name="account_setup_options_headline" msgid="4810292194395251968">"അക്കൗണ്ട് ഓപ്‌ഷനുകൾ"</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="7253305392938373553">"സമന്വയ ആവൃത്തി:"</string>
-    <string name="account_setup_options_mail_check_frequency_never" msgid="2937664246354067829">"ഒരിക്കലുമില്ല"</string>
+    <string name="account_setup_options_mail_check_frequency_never" msgid="2937664246354067829">"ഒരിക്കലും"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5511415696925307797">"യാന്ത്രികം (പുഷ് ചെയ്യുക)"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="8929785860545198867">"ഓരോ 5 മിനിറ്റിലും"</string>
     <string name="account_setup_options_mail_check_frequency_10min" msgid="8787901333816702849">"ഓരോ 10 മിനിറ്റിലും"</string>
