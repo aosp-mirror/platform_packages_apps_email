@@ -117,7 +117,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="5029046373980454714">"ഈ അക്കൗണ്ടിൽ നിന്നും കോൺടാക്റ്റുകൾ സമന്വയിപ്പിക്കുക"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="303441956432308807">"ഈ അക്കൗണ്ടിൽ നിന്നും കലണ്ടർ സമന്വയിപ്പിക്കുക"</string>
     <string name="account_setup_options_sync_email_label" msgid="468957966555663131">"ഈ അക്കൗണ്ടിൽ നിന്നും ഇമെയിൽ സമന്വയിപ്പിക്കുക"</string>
-    <string name="account_setup_options_background_attachments_label" msgid="4085327585082867216">"Wi-Fi യിൽ കണക്റ്റുചെയ്‌തിരിക്കുമ്പോൾ അറ്റാച്ചുമെന്റുകൾ യാന്ത്രികമായി ഡൗൺലോഡുചെയ്യുക"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="4085327585082867216">"വൈഫൈ യിൽ കണക്റ്റുചെയ്‌തിരിക്കുമ്പോൾ അറ്റാച്ചുമെന്റുകൾ യാന്ത്രികമായി ഡൗൺലോഡുചെയ്യുക"</string>
     <string name="account_setup_failed_dlg_title" msgid="7923577224474005464">"പൂർത്തിയാക്കാനായില്ല"</string>
     <string name="account_setup_options_mail_window_label" msgid="4737241149297585368">"ഇതിൽ നിന്ന് ഇമെയിലുകൾ സമന്വയിപ്പിക്കുക:"</string>
     <string name="account_setup_options_mail_window_auto" msgid="7407981634952005775">"യാന്ത്രികം"</string>
@@ -169,7 +169,7 @@
     <string name="password_expired_dialog_content_fmt" msgid="8322213184626443346">"നിങ്ങളുടെ ഉപകരണത്തിൽ നിന്നും <xliff:g id="ACCOUNT">%s</xliff:g> എന്നതിനായുള്ള ഡാറ്റ മായ്ച്ചുകൊണ്ടിരിക്കുന്നു.. നിങ്ങളുടെ ലോക്ക് സ്‌ക്രീൻ PIN അല്ലെങ്കിൽ പാസ്‌വേഡ് മാറ്റുന്നതിലൂടെ നിങ്ങൾക്ക് അത് പുനഃസ്ഥാപിക്കാനാകും. നിങ്ങൾക്ക് അത് ഇപ്പോൾ മാറ്റണമെന്നുണ്ടോ?"</string>
     <string name="account_settings_exit_server_settings" msgid="4232590695889111419">"സംരക്ഷിക്കാത്ത മാറ്റങ്ങൾ നിരസിക്കണോ?"</string>
     <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"അറ്റാച്ചുമെന്റുകൾ ഡൗൺലോഡുചെയ്യുക"</string>
-    <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"Wi-Fi മുഖേന പുതിയ സന്ദേശങ്ങളിലേക്ക് അറ്റാച്ചുമെന്റുകൾ യാന്ത്രികമായി ഡൗൺലോഡുചെയ്യുക"</string>
+    <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"വൈഫൈ മുഖേന പുതിയ സന്ദേശങ്ങളിലേക്ക് അറ്റാച്ചുമെന്റുകൾ യാന്ത്രികമായി ഡൗൺലോഡുചെയ്യുക"</string>
     <string name="account_settings_notify_label" msgid="8621226576645167987">"ഇമെയിൽ അറിയിപ്പുകൾ"</string>
     <string name="account_settings_summary" msgid="4733776978291376161">"സമന്വയ ആവർത്തനം, അറിയിപ്പ് മുതലായവ"</string>
     <string name="account_settings_notify_summary" msgid="88560545461159120">"ഇമെയിൽ ലഭിക്കുമ്പോൾ അറിയിപ്പ് അയയ്‌ക്കുക"</string>
