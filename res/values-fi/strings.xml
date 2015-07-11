@@ -128,7 +128,7 @@
     <string name="account_setup_options_mail_window_1month" msgid="3228265299330513816">"Viime kuukausi"</string>
     <string name="account_setup_options_mail_window_all" msgid="4794683936065721438">"Kaikki"</string>
     <string name="account_setup_options_mail_window_default" msgid="5518038139722596598">"Käytä tilin oletusta"</string>
-    <string name="account_setup_failed_dlg_auth_message" msgid="5608549872868036352">"Käyttäjänimi tai salasana on virheellinen."</string>
+    <string name="account_setup_failed_dlg_auth_message" msgid="5608549872868036352">"Käyttäjätunnus tai salasana on virheellinen."</string>
     <string name="account_setup_autodiscover_dlg_authfail_title" msgid="7551559109838593189">"Ongelma tilin asetuksissa"</string>
     <string name="account_setup_autodiscover_dlg_authfail_message" msgid="4075075565221436715">"Vahvista, että käyttäjätunnus, salasana ja tilin asetukset ovat oikein."</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="4725950885859654809">"Palvelimeen ei voi muodostaa suojattua yhteyttä."</string>
@@ -175,9 +175,9 @@
     <string name="account_settings_notify_summary" msgid="88560545461159120">"Lähetä ilmoitus, kun sähköpostiviesti saapuu"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="4107847714594035131">"Synkronoinnin tiheys"</string>
     <string name="account_settings_incoming_label" msgid="3793314460723296874">"Saapuvan postin asetukset"</string>
-    <string name="account_settings_incoming_summary" msgid="7521181981008371492">"Käyttäjänimi, salasana ja muut saapuvan postin palvelimen asetukset"</string>
+    <string name="account_settings_incoming_summary" msgid="7521181981008371492">"Käyttäjätunnus, salasana ja muut saapuvan postin palvelimen asetukset"</string>
     <string name="account_settings_outgoing_label" msgid="4997504719643828381">"Lähtevän postin asetukset"</string>
-    <string name="account_settings_outgoing_summary" msgid="1884202151340479161">"Käyttäjänimi, salasana ja muut lähtevän postin palvelimen asetukset"</string>
+    <string name="account_settings_outgoing_summary" msgid="1884202151340479161">"Käyttäjätunnus, salasana ja muut lähtevän postin palvelimen asetukset"</string>
     <string name="account_settings_enforced_label" msgid="7005050362066086119">"Käytännöt otettu käyttöön"</string>
     <string name="account_settings_enforced_summary" msgid="1668581504445370253">"Ei mitään"</string>
     <string name="account_settings_unsupported_label" msgid="7286722617178322465">"Käytäntöjä ei tueta"</string>

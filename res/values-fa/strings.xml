@@ -128,7 +128,7 @@
     <string name="account_setup_options_mail_window_1month" msgid="3228265299330513816">"ماه گذشته"</string>
     <string name="account_setup_options_mail_window_all" msgid="4794683936065721438">"همه"</string>
     <string name="account_setup_options_mail_window_default" msgid="5518038139722596598">"استفاده از پیش‌فرض حساب"</string>
-    <string name="account_setup_failed_dlg_auth_message" msgid="5608549872868036352">"نام کاربری یا گذرواژهٔ شما اشتباه است."</string>
+    <string name="account_setup_failed_dlg_auth_message" msgid="5608549872868036352">"نام کاربری یا گذرواژه اشتباه است."</string>
     <string name="account_setup_autodiscover_dlg_authfail_title" msgid="7551559109838593189">"مشکل در تنظیم حساب"</string>
     <string name="account_setup_autodiscover_dlg_authfail_message" msgid="4075075565221436715">"تأیید کنید نام کاربری، گذرواژه، و تنظیمات حساب درست هستند."</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="4725950885859654809">"اتصال امن به سرور امکان‌پذیر نیست."</string>
@@ -167,7 +167,7 @@
     <string name="password_expire_warning_dialog_content_fmt" msgid="1093389293050776319">"باید پین قفل صفحه یا گذرواژهٔ خود را سریع تغییر دهید، در غیر اینصورت داده‌های <xliff:g id="ACCOUNT">%s</xliff:g> پاک خواهد شد . آیا می‌خواهید اکنون آن‌ را تغییر دهید؟"</string>
     <string name="password_expired_dialog_title" msgid="7275534155170185252">"گذرواژه قفل صفحه منقضی شده است"</string>
     <string name="password_expired_dialog_content_fmt" msgid="8322213184626443346">"داده‌های <xliff:g id="ACCOUNT">%s</xliff:g> در حال پاک شدن از دستگاه شما است. با تغییر دادن پین صفحه قفل یا گذرواژهٔ خود می‌توانید آن‌ها را بازگردانید. آیا می‌خواهید هم‌اکنون آن‌ را تغییر دهید؟"</string>
-    <string name="account_settings_exit_server_settings" msgid="4232590695889111419">"از تغییرات ذخیره نشده صرفنظر شود؟"</string>
+    <string name="account_settings_exit_server_settings" msgid="4232590695889111419">"از تغییرات ذخیره نشده صرف‌نظر شود؟"</string>
     <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"دانلود پیوست‌ها"</string>
     <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"‏دانلود خودکار پیوست‌ها به پیام‌های اخیر از طریق Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="8621226576645167987">"اعلان‌های ایمیل"</string>

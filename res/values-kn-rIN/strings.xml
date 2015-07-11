@@ -69,7 +69,7 @@
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="9062019904409225329">"smtp ಸೆಟ್ಟಿಂಗ್‍ಗಳನ್ನು ಪ್ರಮಾಣೀಕರಿಸಲಾಗುತ್ತಿದೆ..."</string>
     <string name="account_setup_creating_account_msg" msgid="2898648422471181490">"ಖಾತೆಯನ್ನು ರಚಿಸಲಾಗುತ್ತಿದೆ..."</string>
     <string name="account_setup_ab_headline" msgid="1434091698882290052">"ಖಾತೆ ಪ್ರಕಾರವನ್ನು ಖಚಿತಪಡಿಸಿ"</string>
-    <string name="account_setup_ab_instructions_format" msgid="6223657094843768202">"<xliff:g id="EMAIL">%1$s</xliff:g> ಅವರು <xliff:g id="USERPROTOCOL">%2$s</xliff:g> ಅನ್ನು ಬಳಸುತ್ತಾರೆಂದು ನೀವು ಸೂಚಿಸಿರುವಿರಿ. ಆದರೆ ಖಾತೆಯು <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g> ಅನ್ನು ಬಳಸಬಹುದು"</string>
+    <string name="account_setup_ab_instructions_format" msgid="6223657094843768202">"<xliff:g id="EMAIL">%1$s</xliff:g> ಅವರು <xliff:g id="USERPROTOCOL">%2$s</xliff:g> ಅನ್ನು ಬಳಸುತ್ತಿದ್ದಾರೆಂದು ನೀವು ಸೂಚಿಸಿರುವಿರಿ. ಆದರೆ ಖಾತೆಯು <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g> ಅನ್ನು ಬಳಸಬಹುದು"</string>
     <string name="account_setup_names_headline" msgid="2031978210683887370">"ನಿಮ್ಮ ಖಾತೆಯನ್ನು ಹೊಂದಿಸಲಾಗಿದೆ ಮತ್ತು ಇಮೇಲ್ ತನ್ನ ಮಾರ್ಗದಲ್ಲಿದೆ!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"ಈ ಖಾತೆಗೆ ಹೆಸರೊಂದನ್ನು ನೀಡಿ (ಐಚ್ಛಿಕ)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"ನಿಮ್ಮ ಹೆಸರು (ಹೊರಹೋಗುವ ಸಂದೇಶಗಳಲ್ಲಿ ಪ್ರದರ್ಶಿಸಲ್ಪಡುತ್ತದೆ)"</string>
@@ -148,12 +148,12 @@
     <string name="account_setup_security_policies_required_fmt" msgid="9029471168291631932">"ಸರ್ವರ್ <xliff:g id="SERVER">%s</xliff:g> ನಿಮ್ಮ Android ಸಾಧನದ ಕೆಲವು ಭದ್ರತಾ ವೈಶಿಷ್ಟ್ಯಗಳನ್ನು ನೀವು ದೂರದಿಂದಲೇ ಅದನ್ನು ನಿಯಂತ್ರಿಸುವಂತಹ ಅನುಮತಿಯ ಅಗತ್ಯವಿದೆ. ನೀವು ಈ ಖಾತೆಯ ಸೆಟ್ಟಿಂಗ್‍ ಹೊಂದಿಸುವಿಕೆಯನ್ನು ಮುಕ್ತಾಯಗೊಳಿಸಲು ಬಯಸುವಿರಾ?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="4619685657253094627">"ಈ ಸರ್ವರ್‍‍ಗೆ ನಿಮ್ಮ Android ಸಾಧನ ಬೆಂಬಲಿಸದಂತಹ ಭದ್ರತಾ ವೈಶಿಷ್ಟ್ಯಗಳ ಅಗತ್ಯವಿದೆ. ಇದನ್ನು ಒಳಗೊಂಡಿರುವಂತೆ: <xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="disable_admin_warning" msgid="6001542250505146252">"ಎಚ್ಚರಿಕೆ: ನಿಮ್ಮ ಸಾಧನವನ್ನು ನಿರ್ವಹಿಸಲು ಇಮೇಲ್ ಅಪ್ಲಿಕೇಶನ್‌ಗಳ ಅಧಿಕಾರವನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸುವುದರಿಂದ ಅವುಗಳ ಇಮೇಲ್, ಸಂಪರ್ಕಗಳು, ಕ್ಯಾಲೆಂಡರ್ ಈವೆಂಟ್‌ಗಳು, ಮತ್ತು ಇತರೆ ಡೇಟಾ ಸೇರಿದಂತೆ ಎಲ್ಲಾ ಅಗತ್ಯವಿರುವ ಇಮೇಲ್ ಖಾತೆಗಳನ್ನು ಅಳಿಸುತ್ತದೆ."</string>
-    <string name="account_security_dialog_title" msgid="7003032393805438164">"ಭದ್ರತಾ ನವೀಕರಣ"</string>
+    <string name="account_security_dialog_title" msgid="7003032393805438164">"ಭದ್ರತಾ ಅಪ್‌ಡೇಟ್‌‌"</string>
     <string name="account_security_dialog_content_fmt" msgid="4107093049191103780">"<xliff:g id="ACCOUNT">%s</xliff:g> ನಿಮ್ಮ ಭದ್ರತಾ ಸೆಟ್ಟಿಂಗ್‍‍ಗಳನ್ನು ನೀವು ನವೀಕರಿಸುವ ಅಗತ್ಯವಿದೆ."</string>
     <string name="security_unsupported_ticker_fmt" msgid="3249185558872836884">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" ಖಾತೆಯು ಭದ್ರತಾ ಅಗತ್ಯತೆಗಳಿಂದಾಗಿ ಸಿಂಕ್ ಮಾಡಲಾಗುವುದಿಲ್ಲ."</string>
     <string name="security_needed_ticker_fmt" msgid="7099561996532829229">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" ಖಾತೆಯು ಭದ್ರತಾ ಸೆಟ್ಟಿಂಗ್‍ಗಳನ್ನು ನವೀಕರಿಸುವ ಅಗತ್ಯವಿದೆ."</string>
     <string name="security_changed_ticker_fmt" msgid="3823930420292838192">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" ಖಾತೆಯು ಅದರ ಭದ್ರತಾ ಸೆಟ್ಟಿಂಗ್‍‍ಗಳನ್ನು ಬದಲಿಸಿದೆ; ಯಾವುದೇ ಬಳಕೆದಾರನ ಕ್ರಿಯೆಯ ಅಗತ್ಯವಿಲ್ಲ."</string>
-    <string name="security_notification_content_update_title" msgid="6321099538307807621">"ಭದ್ರತಾ ನವೀಕರಣ ಅಗತ್ಯವಿದೆ"</string>
+    <string name="security_notification_content_update_title" msgid="6321099538307807621">"ಭದ್ರತಾ ಅಪ್‌ಡೇಟ್‌‌ ಅಗತ್ಯವಿದೆ"</string>
     <string name="security_notification_content_change_title" msgid="615639963487448183">"ಭದ್ರತಾ ನೀತಿಗಳನ್ನು ಬದಲಿಸಲಾಗಿದೆ"</string>
     <string name="security_notification_content_unsupported_title" msgid="6494791400431198228">"ಭದ್ರತಾ ನೀತಿಗಳನ್ನು ಪೂರೈಸಲಾಗಲಿಲ್ಲ"</string>
     <string name="account_security_title" msgid="6072273231606918870">"ಸಾಧನ ಭದ್ರತೆ"</string>
