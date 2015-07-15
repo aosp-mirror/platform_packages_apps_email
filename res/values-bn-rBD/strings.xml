@@ -69,7 +69,7 @@
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="9062019904409225329">"smtp সেটিংস যাচাই করা হচ্ছে..."</string>
     <string name="account_setup_creating_account_msg" msgid="2898648422471181490">"অ্যাকাউন্ট তৈরি হচ্ছে..."</string>
     <string name="account_setup_ab_headline" msgid="1434091698882290052">"অ্যাকাউন্টের ধরন নিশ্চিত করুন"</string>
-    <string name="account_setup_ab_instructions_format" msgid="6223657094843768202">"আপনি ইঙ্গিত করেছেন যে <xliff:g id="EMAIL">%1$s</xliff:g> <xliff:g id="USERPROTOCOL">%2$s</xliff:g> ব্যবহার করে, কিন্তু হয়তো অ্যাকাউন্টটি <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g> ব্যবহার করছে"</string>
+    <string name="account_setup_ab_instructions_format" msgid="6223657094843768202">"আপনার মতে <xliff:g id="EMAIL">%1$s</xliff:g> <xliff:g id="USERPROTOCOL">%2$s</xliff:g> ব্যবহার করে, কিন্তু হয়তো অ্যাকাউন্টটি <xliff:g id="PROVIDERPROTOCOL">%3$s</xliff:g> ব্যবহার করছে"</string>
     <string name="account_setup_names_headline" msgid="2031978210683887370">"আপনার অ্যাকাউন্ট সেট আপ হয়েছে এবং ইমেল আসছে!"</string>
     <string name="account_setup_names_account_name_label" msgid="3487538709712378441">"এই অ্যাকাউন্টটির একটি নাম দিন (ঐচ্ছিক)"</string>
     <string name="account_setup_names_user_name_label" msgid="4298006111315033499">"আপনার নাম (আউটগোয়িং বার্তাগুলিতে প্রদর্শিত হয়)"</string>
@@ -159,14 +159,14 @@
     <string name="account_security_title" msgid="6072273231606918870">"ডিভাইস নিরাপত্তা"</string>
     <string name="account_security_policy_explanation_fmt" msgid="2527501853520160827">"আপনাকে <xliff:g id="SERVER">%s</xliff:g> সার্ভারটিকে আপনার Android ডিভাইসের কিছু নিরাপত্তা বৈশিষ্ট্যকে দূরবর্তীভাবে নিয়ন্ত্রণ করার অনুমতি দিতে হবে।"</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="8155332642922842729">"বিশদ বিবরণ সম্পাদন করুন"</string>
-    <string name="password_expire_warning_ticker_fmt" msgid="5543005790538884060">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" এর জন্য আপনার লক স্ক্রিনের PIN বা পাসওয়ার্ড পরিবর্তন করা প্রয়োজন।"</string>
+    <string name="password_expire_warning_ticker_fmt" msgid="5543005790538884060">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" এর জন্য আপনার লক স্ক্রিনের পিন বা পাসওয়ার্ড পরিবর্তন করা প্রয়োজন।"</string>
     <string name="password_expire_warning_content_title" msgid="4360288708739366810">"লক স্ক্রিন পাসওয়ার্ডের মেয়াদ শেষ হচ্ছে"</string>
-    <string name="password_expired_ticker" msgid="3098703963402347483">"আপনার লক স্ক্রিন PIN অথবা পাসওয়ার্ডের মেয়াদ শেষ হয়েছে।"</string>
+    <string name="password_expired_ticker" msgid="3098703963402347483">"আপনার লক স্ক্রিন পিন অথবা পাসওয়ার্ডের মেয়াদ শেষ হয়েছে।"</string>
     <string name="password_expired_content_title" msgid="7379094218699681984">"লকস্ক্রিন পাসওয়ার্ড মেয়াদশেষ"</string>
     <string name="password_expire_warning_dialog_title" msgid="4901499545146045672">"লক স্ক্রিন পাসওয়ার্ডের মেয়াদ শেষ হচ্ছে"</string>
-    <string name="password_expire_warning_dialog_content_fmt" msgid="1093389293050776319">"খুব শীঘ্রই আপনার লক স্ক্রিনের PIN বা পাসওয়ার্ড পরিবর্তন করা আবশ্যক, অথবা <xliff:g id="ACCOUNT">%s</xliff:g> এর ডেটা মুছে যাবে। আপনি কি এখনই এটি পরিবর্তন করতে চান?"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="1093389293050776319">"খুব শীঘ্রই আপনার লক স্ক্রিনের পিন বা পাসওয়ার্ড পরিবর্তন করা আবশ্যক, অথবা <xliff:g id="ACCOUNT">%s</xliff:g> এর ডেটা মুছে যাবে। আপনি কি এখনই এটি পরিবর্তন করতে চান?"</string>
     <string name="password_expired_dialog_title" msgid="7275534155170185252">"লক স্ক্রিন পাসওয়ার্ডের মেয়াদ শেষ হয়েছে"</string>
-    <string name="password_expired_dialog_content_fmt" msgid="8322213184626443346">"আপনার ডিভাইস থেকে <xliff:g id="ACCOUNT">%s</xliff:g> এর ডেটা মুছে ফেলা হচ্ছে। আপনি আপনার লক স্ক্রিন PIN অথবা পাসওয়ার্ড পরিবর্তন করে এটিকে পুনরুদ্ধার করতে পারেন। এটি এখনই পরিবর্তন করবেন?"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="8322213184626443346">"আপনার ডিভাইস থেকে <xliff:g id="ACCOUNT">%s</xliff:g> এর ডেটা মুছে ফেলা হচ্ছে। আপনি আপনার লক স্ক্রিন পিন অথবা পাসওয়ার্ড পরিবর্তন করে এটিকে পুনরুদ্ধার করতে পারেন। এটি এখনই পরিবর্তন করবেন?"</string>
     <string name="account_settings_exit_server_settings" msgid="4232590695889111419">"অসংরক্ষিত পরিবর্তনগুলি পরিত্যাগ করবেন?"</string>
     <string name="account_settings_background_attachments_label" msgid="3552681465680701047">"সংযুক্তিগুলি ডাউনলোড করুন"</string>
     <string name="account_settings_background_attachments_summary" msgid="8801504001229061032">"Wi-Fi দ্বারা সাম্প্রতিক বার্তাগুলির সংযুক্তিগুলি স্বয়ং-ডাউনলোড করুন"</string>

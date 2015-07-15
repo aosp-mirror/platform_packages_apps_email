@@ -38,7 +38,7 @@
     <string name="message_compose_insert_quick_response_list_title" msgid="5836926808818821309">"Kurzantwort einfügen"</string>
     <string name="message_compose_insert_quick_response_menu_title" msgid="4393288554605333619">"Kurzantwort einfügen"</string>
     <string name="message_view_attachment_background_load" msgid="7571652141281187845">"Mindestens ein Anhang in Ihrer weitergeleiteten Nachricht wird vor dem Senden heruntergeladen."</string>
-    <string name="message_decode_error" msgid="91396461771444300">"Beim Entschlüsseln der Nachricht ist ein Fehler aufgetreten."</string>
+    <string name="message_decode_error" msgid="91396461771444300">"Beim Dekodieren der Nachricht ist ein Fehler aufgetreten."</string>
     <string name="forward_download_failed_ticker" msgid="2900585518884851062">"Mindestens ein Anhang wurde nicht weitergeleitet."</string>
     <string name="forward_download_failed_title" msgid="2043036709913723298">"Anhang nicht weitergeleitet"</string>
     <string name="login_failed_ticker" msgid="4620839194581484497">"Anmeldung in <xliff:g id="ACCOUNT_NAME">%s</xliff:g> erfolglos"</string>

@@ -207,7 +207,7 @@
     <string name="account_settings_sync_email_enable" msgid="7135765408226471860">"Sincronitza el correu electrònic"</string>
     <string name="account_settings_sync_email_summary" msgid="71710510041953351">"Sincronitza el correu del compte"</string>
     <string name="label_notification_vibrate_title" msgid="140881511322826320">"Vibra"</string>
-    <string name="account_settings_ringtone" msgid="2238523918221865167">"Tria un so"</string>
+    <string name="account_settings_ringtone" msgid="2238523918221865167">"Selecciona un so"</string>
     <string name="account_settings_servers" msgid="3386185135392642067">"Configuració del servidor"</string>
     <string name="mailbox_settings_activity_title" msgid="2196614373847675314">"Opcions de sincronització"</string>
     <string name="mailbox_settings_activity_title_with_mailbox" msgid="5547676392298186906">"Opcions de sincronització (<xliff:g id="MAILBOXX_NAME">%s</xliff:g>)"</string>

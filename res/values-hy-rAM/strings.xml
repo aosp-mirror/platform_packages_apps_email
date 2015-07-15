@@ -240,5 +240,5 @@
     <string name="account_waiting_for_folders_msg" msgid="8848194305692897677">"Բեռնվում է պանակի ցանկը..."</string>
     <string name="no_quick_responses" msgid="8716297053803961304">"Ոչ մեկը հասանելի չէ"</string>
     <string name="gmail_name" msgid="2099786953868369991">"Gmail"</string>
-    <string name="folder_sync_settings_pref_title" msgid="349478353401667107">"Թղթապանակի համաժամեցման կարգավորումները"</string>
+    <string name="folder_sync_settings_pref_title" msgid="349478353401667107">"Պանակի համաժամեցման կարգավորումները"</string>
 </resources>
