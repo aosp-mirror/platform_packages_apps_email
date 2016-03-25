@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.widget.EditText;
 
 import com.android.email.R;
+import com.android.emailcommon.provider.EmailContent;
 import com.android.mail.compose.ComposeActivity;
 import com.android.mail.utils.LogUtils;
 
@@ -67,5 +68,10 @@ public class ComposeActivityEmail extends ComposeActivity
             mBodyView.append(quickResponse);
             mBodyView.setSelection(mBodyView.getText().length());
         }
+    }
+
+    @Override
+    protected String getEmailProviderAuthority() {
+        return EmailContent.AUTHORITY;
     }
 }
