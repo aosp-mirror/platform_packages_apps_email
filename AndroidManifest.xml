@@ -390,7 +390,7 @@
         <provider
             android:authorities="com.android.email.accountcache"
             android:label="@string/account_cache_provider"
-            android:exported="true"
+            android:exported="false"
             android:name="com.android.mail.providers.EmailAccountCacheProvider" >
             <grant-uri-permission android:pathPattern=".*" />
         </provider>
