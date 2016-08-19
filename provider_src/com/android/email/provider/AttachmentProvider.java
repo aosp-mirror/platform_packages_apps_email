@@ -166,8 +166,8 @@ public class AttachmentProvider extends ContentProvider {
         long callingId = Binder.clearCallingIdentity();
         try {
             List<String> segments = uri.getPathSegments();
-            String accountId = segments.get(0);
-            String id = segments.get(1);
+            final long accountId = Long.parseLong(segments.get(0));
+            final long id = Long.parseLong(segments.get(1));
             String format = segments.get(2);
             if (AttachmentUtilities.FORMAT_THUMBNAIL.equals(format)) {
                 int width = Integer.parseInt(segments.get(3));
@@ -176,8 +176,7 @@ public class AttachmentProvider extends ContentProvider {
                 File dir = getContext().getCacheDir();
                 File file = new File(dir, filename);
                 if (!file.exists()) {
-                    Uri attachmentUri = AttachmentUtilities.
-                        getAttachmentUri(Long.parseLong(accountId), Long.parseLong(id));
+                    Uri attachmentUri = AttachmentUtilities.getAttachmentUri(accountId, id);
                     Cursor c = query(attachmentUri,
                             new String[] { Columns.DATA }, null, null, null);
                     if (c != null) {
@@ -218,9 +217,14 @@ public class AttachmentProvider extends ContentProvider {
             }
             else {
                 return ParcelFileDescriptor.open(
-                        new File(getContext().getDatabasePath(accountId + ".db_att"), id),
+                        new File(getContext().getDatabasePath(accountId + ".db_att"),
+                                String.valueOf(id)),
                         ParcelFileDescriptor.MODE_READ_ONLY);
             }
+        } catch (NumberFormatException e) {
+            LogUtils.e(Logging.LOG_TAG,
+                    "AttachmentProvider.openFile: Failed to open as id is not a long");
+            return null;
         } finally {
             Binder.restoreCallingIdentity(callingId);
         }
