@@ -30,8 +30,17 @@ imported_unified_email_files := \
         $(unified_email_src_dir)/com/android/mail/providers/UIProvider.java
 
 LOCAL_MODULE := com.android.emailcommon
-LOCAL_STATIC_JAVA_LIBRARIES := guava android-common
-LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4
+
+LOCAL_STATIC_JAVA_LIBRARIES := \
+    guava \
+    android-common \
+    android-support-annotations
+
+LOCAL_JAVA_LIBRARIES := \
+    org.apache.http.legacy
+
+LOCAL_STATIC_ANDROID_LIBRARIES += android-support-compat
+
 LOCAL_SRC_FILES := $(call all-java-files-under, src/com/android/emailcommon)
 LOCAL_SRC_FILES += \
     src/com/android/emailcommon/service/IEmailService.aidl \
@@ -42,8 +51,9 @@ LOCAL_SRC_FILES += $(call all-java-files-under, $(apache_src_dir))
 LOCAL_SRC_FILES += $(imported_unified_email_files)
 LOCAL_SRC_FILES += $(call all-java-files-under, $(unified_email_src_dir)/com/android/emailcommon)
 
-LOCAL_SDK_VERSION := 14
+LOCAL_SDK_VERSION := current
 
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+LOCAL_USE_AAPT2 := true
 
 include $(BUILD_STATIC_JAVA_LIBRARY)

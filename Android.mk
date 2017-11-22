@@ -19,16 +19,8 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-# Include res dir from chips, unified, emailcommon, and photoviewer
-appcompat_dir := ../../../$(SUPPORT_LIBRARY_ROOT)/v7/appcompat/res
-chips_dir := ../../../frameworks/opt/chips/res
 unified_email_dir := ../UnifiedEmail
-photo_dir := ../../../frameworks/opt/photoviewer/res ../../../frameworks/opt/photoviewer/appcompat/res
-emailcommon_dir := emailcommon
-gridlayout_dir := ../../../$(SUPPORT_LIBRARY_ROOT)/v7/gridlayout/res
-bitmap_dir := ../../../frameworks/opt/bitmap/res
-datetimepicker_dir := ../../../frameworks/opt/datetimepicker/res
-res_dir := res $(unified_email_dir)/res $(chips_dir) $(photo_dir) $(emailcommon_dir)/res $(appcompat_dir) $(gridlayout_dir) $(bitmap_dir) $(datetimepicker_dir)
+res_dir := res $(unified_email_dir)/res
 
 LOCAL_MODULE_TAGS := optional
 
@@ -38,23 +30,35 @@ LOCAL_SRC_FILES += $(call all-java-files-under, provider_src/com/android)
 LOCAL_SRC_FILES += $(call all-java-files-under, src/com/beetstra)
 
 LOCAL_RESOURCE_DIR := $(addprefix $(LOCAL_PATH)/, $(res_dir))
+LOCAL_USE_AAPT2 := true
 
 # Use assets dir from UnifiedEmail
 # (the default package target doesn't seem to deal with multiple asset dirs)
 LOCAL_ASSET_DIR := $(LOCAL_PATH)/$(unified_email_dir)/assets
 
 LOCAL_AAPT_FLAGS := --auto-add-overlay
-LOCAL_AAPT_FLAGS += --extra-packages com.android.ex.chips:com.android.mail:com.android.email:com.android.emailcommon:com.android.ex.photo:android.support.v7.appcompat:android.support.v7.gridlayout:com.android.bitmap:com.android.datetimepicker
+LOCAL_AAPT_FLAGS += --extra-packages com.android.mail:com.android.email:com.android.emailcommon
 
-LOCAL_STATIC_JAVA_LIBRARIES := android-common com.android.emailcommon guava libchips
-LOCAL_STATIC_JAVA_LIBRARIES += libphotoviewer_appcompat
-LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4
-LOCAL_STATIC_JAVA_LIBRARIES += android-support-v7-appcompat
-LOCAL_STATIC_JAVA_LIBRARIES += android-support-v7-gridlayout
-LOCAL_STATIC_JAVA_LIBRARIES += android-support-v13
-LOCAL_STATIC_JAVA_LIBRARIES += android-opt-bitmap
-LOCAL_STATIC_JAVA_LIBRARIES += android-opt-datetimepicker
-LOCAL_STATIC_JAVA_LIBRARIES += owasp-html-sanitizer
+LOCAL_STATIC_ANDROID_LIBRARIES := \
+    com.android.emailcommon \
+    libchips \
+    libphotoviewer_appcompat \
+    android-opt-bitmap \
+    android-opt-datetimepicker \
+    android-support-compat \
+    android-support-media-compat \
+    android-support-core-utils \
+    android-support-core-ui \
+    android-support-fragment \
+    android-support-v7-appcompat \
+    android-support-v7-gridlayout \
+    android-support-v13
+
+LOCAL_STATIC_JAVA_LIBRARIES := \
+    android-support-annotations \
+    android-common \
+    guava \
+    owasp-html-sanitizer
 
 LOCAL_JAVA_LIBRARIES := org.apache.http.legacy
 
