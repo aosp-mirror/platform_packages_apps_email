@@ -70,7 +70,7 @@ public class StoreTests extends ProviderTestCase2<EmailProvider> {
 
         testStore = Store.getInstance(testAccount, getContext());
         assertEquals(1, Store.sStores.size());
-        assertSame(testStore, Store.sStores.get(testAccount.mId));
+        assertSame(testStore, Store.sStores.get(testAccount.mHostAuthRecv));
         Store.sStores.clear();
 
         // IMAP
@@ -82,7 +82,7 @@ public class StoreTests extends ProviderTestCase2<EmailProvider> {
         testAccount.save(mMockContext);
         testStore = Store.getInstance(testAccount, getContext());
         assertEquals(1, Store.sStores.size());
-        assertSame(testStore, Store.sStores.get(testAccount.mId));
+        assertSame(testStore, Store.sStores.get(testAccount.mHostAuthRecv));
         Store.sStores.clear();
 
         // Unknown
