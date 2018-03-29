@@ -34,12 +34,12 @@ LOCAL_MODULE := com.android.emailcommon
 LOCAL_STATIC_JAVA_LIBRARIES := \
     guava \
     android-common \
-    android-support-annotations
+    androidx.annotation_annotation
 
 LOCAL_JAVA_LIBRARIES := \
     org.apache.http.legacy
 
-LOCAL_STATIC_ANDROID_LIBRARIES += android-support-compat
+LOCAL_STATIC_ANDROID_LIBRARIES += androidx.core_core
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src/com/android/emailcommon)
 LOCAL_SRC_FILES += \
