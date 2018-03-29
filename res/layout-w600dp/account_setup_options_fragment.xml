@@ -24,7 +24,7 @@
     android:orientation="vertical"
     >
     <!-- Spinners in a table to line everything up nicely -->
-    <androidx.gridlayout.widget.GridLayout
+    <android.support.v7.widget.GridLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:columnCount="2" >
@@ -56,7 +56,7 @@
             app:layout_gravity="center_vertical|fill_horizontal"
             android:visibility="gone" />
 
-    </androidx.gridlayout.widget.GridLayout>
+    </android.support.v7.widget.GridLayout>
     <CheckBox
         android:id="@+id/account_notify"
         style="@style/account_setup_checkbox"
