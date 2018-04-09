@@ -32,7 +32,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
 import android.provider.Settings;
-import android.support.v4.app.NotificationCompat;
+import androidx.core.app.NotificationCompat;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 
@@ -114,7 +114,7 @@ public class EmailNotificationController implements NotificationController {
     }
 
     /**
-     * Returns a {@link android.support.v4.app.NotificationCompat.Builder} for an event with the
+     * Returns a {@link androidx.core.app.NotificationCompat.Builder} for an event with the
      * given account. The account contains specific rules on ring tone usage and these will be used
      * to modify the notification behaviour.
      *
