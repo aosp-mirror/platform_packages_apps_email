@@ -74,4 +74,9 @@ public class ComposeActivityEmail extends ComposeActivity
     protected String getEmailProviderAuthority() {
         return EmailContent.AUTHORITY;
     }
+
+    @Override
+    protected String getEmailAttachmentProviderAuthority() {
+        return EmailContent.Attachment.ATTACHMENT_PROVIDER_AUTHORITY;
+    }
 }
