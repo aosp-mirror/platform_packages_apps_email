@@ -89,7 +89,7 @@
 
         <uses-library android:name="org.apache.http.legacy" android:required="false" />
         <activity
-            android:name="com.android.email.activity.ComposeActivityEmail"
+            android:name="com.android.email.activity.ComposeActivityEmailExternal"
             android:label="@string/app_name"
             android:documentLaunchMode="intoExisting"
             android:autoRemoveFromRecents="true"
@@ -144,6 +144,19 @@
                 <data android:scheme="mailto" />
             </intent-filter>
 
+        </activity>
+
+        <!--
+            There are 2 ComposeActivityEmail activities (here and above) because one is listening
+             for intents broadcasted internally and the other for those broadcasted from external
+             applications. Refer to b/32068883.
+        -->
+        <activity android:name="com.android.email.activity.ComposeActivityEmail"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:documentLaunchMode="intoExisting"
+            android:autoRemoveFromRecents="true"
+            android:theme="@style/ComposeTheme">
             <intent-filter>
                 <action android:name="com.android.mail.intent.action.LAUNCH_COMPOSE" />
                 <category android:name="android.intent.category.DEFAULT" />
