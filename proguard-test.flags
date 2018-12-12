@@ -91,8 +91,12 @@
   *** tempFileExistsForTest();
 }
 
+-keepclasseswithmembers class com.android.emailcommon.utility.EmailAsyncTask {
+  *** callDoInBackgroundForTest(Params...);
+}
 -keepclasseswithmembers class com.android.emailcommon.utility.EmailAsyncTask$Tracker {
   <init>();
   *** getTaskCountForTest();
   *** containsTaskForTest(com.android.emailcommon.utility.EmailAsyncTask);
 }
+-keep class com.android.emailcommon.utility.DelayedOperations
