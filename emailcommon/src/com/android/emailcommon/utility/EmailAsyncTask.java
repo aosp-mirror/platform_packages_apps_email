@@ -263,14 +263,17 @@ public abstract class EmailAsyncTask<Params, Progress, Result> {
         return mInnerTask.get();
     }
 
+    @VisibleForTesting
     /* package */ final Result callDoInBackgroundForTest(Params... params) {
         return mInnerTask.doInBackground(params);
     }
 
+    @VisibleForTesting
     /* package */ final void callOnCancelledForTest(Result result) {
         mInnerTask.onCancelled(result);
     }
 
+    @VisibleForTesting
     /* package */ final void callOnPostExecuteForTest(Result result) {
         mInnerTask.onPostExecute(result);
     }
