@@ -17,6 +17,7 @@
 package com.android.email;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -37,7 +38,8 @@ public class ThrottleTest extends AndroidTestCase {
     private final CountingRunnable mRunnable = new CountingRunnable();
     private final MockClock mClock = new MockClock();
     private final MockTimer mTimer = new MockTimer(mClock);
-    private final Throttle mTarget = new Throttle("test", mRunnable, new CallItNowHandler(),
+    private final Throttle mTarget = new Throttle("test", mRunnable,
+            new CallItNowHandler(Looper.getMainLooper()),
             MIN_TIMEOUT, MAX_TIMEOUT, mClock, mTimer);
 
     /**
@@ -155,9 +157,13 @@ public class ThrottleTest extends AndroidTestCase {
 
     /**
      * Dummy {@link Handler} that executes {@link Runnable}s passed to {@link Handler#post}
-     * immediately on the current thread.
+     * immediately via the provided {@link Looper}.
      */
     private static class CallItNowHandler extends Handler {
+        public CallItNowHandler(Looper looper) {
+            super(looper);
+        }
+
         @Override
         public boolean sendMessageAtTime(Message msg, long uptimeMillis) {
             msg.getCallback().run();
