@@ -129,6 +129,7 @@ import com.android.mail.utils.MatrixCursorWithExtra;
 import com.android.mail.utils.MimeType;
 import com.android.mail.utils.Utils;
 import com.android.mail.widget.BaseWidgetProvider;
+import com.android.mail.widget.WidgetService;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -6139,6 +6140,9 @@ public class EmailProvider extends ContentProvider
         Context context = getContext();
         // Lazily initialize these
         if (mAppWidgetManager == null) {
+            if (!WidgetService.isWidgetSupported(context)) {
+                return;
+            }
             mAppWidgetManager = AppWidgetManager.getInstance(context);
             mEmailComponent = new ComponentName(context, WidgetProvider.getProviderName(context));
         }
