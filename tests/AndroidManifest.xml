@@ -28,9 +28,9 @@
     <!--
     This declares that this app uses the instrumentation test runner targeting
     the package of com.android.email.  To run the tests use the command:
-    "adb shell am instrument -w com.android.email.tests/android.support.test.runner.AndroidJUnitRunner"
+    "adb shell am instrument -w com.android.email.tests/androidx.test.runner.AndroidJUnitRunner"
     -->
-    <instrumentation android:name="android.support.test.runner.AndroidJUnitRunner"
+    <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
                      android:targetPackage="com.android.email"
                      android:label="Tests for Email."/>
 
