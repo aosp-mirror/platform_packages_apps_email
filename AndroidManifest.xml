@@ -47,7 +47,7 @@
     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
 
     <!-- This needs to be present when we are doing unbundled releases. -->
-    <uses-sdk android:targetSdkVersion="21" android:minSdkVersion="14" />
+    <uses-sdk android:targetSdkVersion="24" android:minSdkVersion="14" />
 
     <!-- additional uses -->
 
