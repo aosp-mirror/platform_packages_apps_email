@@ -64,6 +64,8 @@ LOCAL_JAVA_LIBRARIES := org.apache.http.legacy
 
 LOCAL_PACKAGE_NAME := Email
 
+LOCAL_PRODUCT_MODULE := true
+
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags $(unified_email_dir)/proguard.flags
 ifeq (eng,$(TARGET_BUILD_VARIANT))
   LOCAL_PROGUARD_FLAG_FILES += proguard-test.flags
