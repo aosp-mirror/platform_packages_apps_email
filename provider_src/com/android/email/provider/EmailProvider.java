@@ -6357,7 +6357,7 @@ public class EmailProvider extends ContentProvider
         // Start/stop the various services depending on whether there are any accounts
         // TODO: Make sure that the AttachmentService responds to this request as it
         // expects a particular set of data in the intents that it receives or it ignores.
-        startOrStopService(enabled, context, new Intent(context, AttachmentService.class));
+        startOrStopService(enabled, context);
         final NotificationController controller =
                 NotificationControllerCreatorHolder.getInstance(context);
 
@@ -6367,16 +6367,16 @@ public class EmailProvider extends ContentProvider
     }
 
     /**
-     * Starts or stops the service as necessary.
+     * Starts or stops the attachment service as necessary.
+     *
      * @param enabled If {@code true}, the service will be started. Otherwise, it will be stopped.
      * @param context The context to manage the service with.
-     * @param intent The intent of the service to be managed.
      */
-    private static void startOrStopService(boolean enabled, Context context, Intent intent) {
+    private static void startOrStopService(boolean enabled, Context context) {
         if (enabled) {
-            context.startService(intent);
+            AttachmentService.startWithoutSpecificAttachmentChange(context);
         } else {
-            context.stopService(intent);
+            AttachmentService.stop(context);
         }
     }
 
