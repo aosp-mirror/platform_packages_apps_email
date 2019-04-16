@@ -486,7 +486,9 @@
             </intent-filter>
         </receiver>
         <service
-            android:name=".service.EmailBroadcastProcessorService" />
+            android:name=".service.EmailBroadcastProcessorService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="true" />
 
         <!-- Support for DeviceAdmin / DevicePolicyManager.  See SecurityPolicy class for impl. -->
         <receiver
@@ -506,6 +508,7 @@
         <service
             android:name=".service.AttachmentService"
             android:enabled="false"
+            android:permission="android.permission.BIND_JOB_SERVICE"
             >
         </service>
 
@@ -725,6 +728,7 @@
         </service>
 
         <service android:name="com.android.email.EmailIntentService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
                  android:exported="false">
             <intent-filter>
                 <action android:name="com.android.mail.action.RESEND_NOTIFICATIONS" />
