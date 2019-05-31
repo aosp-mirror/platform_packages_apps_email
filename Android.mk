@@ -75,8 +75,5 @@ LOCAL_SDK_VERSION := current
 
 include $(BUILD_PACKAGE)
 
-# only include rules to build other stuff for the original package, not the derived package.
-ifeq ($(strip $(LOCAL_PACKAGE_OVERRIDES)),)
 # additionally, build unit tests in a separate .apk
 include $(call all-makefiles-under,$(LOCAL_PATH))
-endif
