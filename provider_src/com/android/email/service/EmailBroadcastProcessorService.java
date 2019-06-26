@@ -17,6 +17,7 @@
 package com.android.email.service;
 
 import android.accounts.AccountManager;
+import android.app.IntentService;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -32,8 +33,6 @@ import android.provider.CalendarContract;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
-
-import androidx.core.app.JobIntentService;
 
 import com.android.email.EmailIntentService;
 import com.android.email.Preferences;
@@ -70,9 +69,7 @@ import java.util.Set;
  * This also handles the DeviceAdminReceiver in SecurityPolicy, because it is also
  * a BroadcastReceiver and requires the same processing semantics.
  */
-public class EmailBroadcastProcessorService extends JobIntentService {
-    public static final int JOB_ID = 200;
-
+public class EmailBroadcastProcessorService extends IntentService {
     // Action used for BroadcastReceiver entry point
     private static final String ACTION_BROADCAST = "broadcast_receiver";
 
@@ -84,11 +81,11 @@ public class EmailBroadcastProcessorService extends JobIntentService {
     private static final String ACTION_UPGRADE_BROADCAST = "upgrade_broadcast_receiver";
 
     public EmailBroadcastProcessorService() {
-        super();
-    }
+        // Class name will be the thread name.
+        super(EmailBroadcastProcessorService.class.getName());
 
-    public static void enqueueWork(Context context, Intent work) {
-        enqueueWork(context, EmailBroadcastProcessorService.class, JOB_ID, work);
+        // Intent should be redelivered if the process gets killed before completing the job.
+        setIntentRedelivery(true);
     }
 
     /**
@@ -98,13 +95,13 @@ public class EmailBroadcastProcessorService extends JobIntentService {
         Intent i = new Intent(context, EmailBroadcastProcessorService.class);
         i.setAction(ACTION_BROADCAST);
         i.putExtra(Intent.EXTRA_INTENT, broadcastIntent);
-        EmailBroadcastProcessorService.enqueueWork(context, i);
+        context.startService(i);
     }
 
     public static void processUpgradeBroadcastIntent(final Context context) {
         final Intent i = new Intent(context, EmailBroadcastProcessorService.class);
         i.setAction(ACTION_UPGRADE_BROADCAST);
-        EmailBroadcastProcessorService.enqueueWork(context, i);
+        context.startService(i);
     }
 
     /**
@@ -116,11 +113,11 @@ public class EmailBroadcastProcessorService extends JobIntentService {
         Intent i = new Intent(context, EmailBroadcastProcessorService.class);
         i.setAction(ACTION_DEVICE_POLICY_ADMIN);
         i.putExtra(EXTRA_DEVICE_POLICY_ADMIN, message);
-        EmailBroadcastProcessorService.enqueueWork(context, i);
+        context.startService(i);
     }
 
     @Override
-    protected void onHandleWork(Intent intent) {
+    protected void onHandleIntent(Intent intent) {
         // This method is called on a worker thread.
 
         // Dispatch from entry point
