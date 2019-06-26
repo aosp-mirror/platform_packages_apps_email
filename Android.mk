@@ -38,6 +38,7 @@ LOCAL_ASSET_DIR := $(LOCAL_PATH)/$(unified_email_dir)/assets
 
 LOCAL_AAPT_FLAGS := --auto-add-overlay
 LOCAL_AAPT_FLAGS += --extra-packages com.android.mail:com.android.email:com.android.emailcommon
+LOCAL_AAPT_FLAGS += --legacy
 
 LOCAL_STATIC_ANDROID_LIBRARIES := \
     com.android.emailcommon \
