@@ -68,10 +68,6 @@ public class EmailNotificationController implements NotificationController {
     private static final int NOTIFICATION_ID_ATTACHMENT_WARNING = 3;
     private static final int NOTIFICATION_ID_PASSWORD_EXPIRING = 4;
     private static final int NOTIFICATION_ID_PASSWORD_EXPIRED = 5;
-    private static final int NOTIFICATION_ID_PERMISSIONS_NEEDED = 6;
-    public static final int NOTIFICATION_ID_ONGOING_ATTACHMENT = 7;
-
-    public static final String NOTIFICATION_CHANNEL_ID_ATTACHMENTS = "^nc_~_z_attachments";
 
     private static final int NOTIFICATION_ID_BASE_MASK = 0xF0000000;
     private static final int NOTIFICATION_ID_BASE_LOGIN_WARNING = 0x20000000;
@@ -402,31 +398,6 @@ public class EmailNotificationController implements NotificationController {
                 attachment.mFileName,
                 null,
                 NOTIFICATION_ID_ATTACHMENT_WARNING);
-    }
-
-    /**
-     * Creates a notification to be used with {@link com.android.email.service.AttachmentService},
-     * which should be launched as a foreground service on Android O+.
-     *
-     * <p>The notification is sent with the lowest priority and contains an indefinite loading bar,
-     * hence "ongoing".
-     *
-     * @param title The text that will be displayed on the ongoing notification.
-     */
-    public static Notification getOngoingDownloadNotification(Context context, String title) {
-        NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(context)
-                        .setContentTitle(title)
-                        .setVisibility(Notification.VISIBILITY_SECRET)
-                        .setProgress(0, 0, true)
-                        .setSmallIcon(R.drawable.ic_notification_mail_24dp)
-                        .setOngoing(true);
-
-        if (context.getApplicationInfo().targetSdkVersion >= android.os.Build.VERSION_CODES.O) {
-            builder.setChannelId(NOTIFICATION_CHANNEL_ID_ATTACHMENTS);
-        }
-
-        return builder.build();
     }
 
     /**
