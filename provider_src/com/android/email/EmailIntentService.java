@@ -29,12 +29,12 @@ public class EmailIntentService extends MailIntentService {
     private static final String LOG_TAG = LogTag.getLogTag();
 
     public EmailIntentService() {
-        super();
+        super("EmailIntentService");
     }
 
     @Override
-    protected void onHandleWork(final Intent intent) {
-        super.onHandleWork(intent);
+    protected void onHandleIntent(final Intent intent) {
+        super.onHandleIntent(intent);
 
         if (UIProvider.ACTION_UPDATE_NOTIFICATION.equals(intent.getAction())) {
             final NotificationController nc =
