@@ -67,9 +67,7 @@ LOCAL_PACKAGE_NAME := Email
 LOCAL_PRODUCT_MODULE := true
 
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags $(unified_email_dir)/proguard.flags
-ifeq (eng,$(TARGET_BUILD_VARIANT))
-  LOCAL_PROGUARD_FLAG_FILES += proguard-test.flags
-endif
+LOCAL_PROGUARD_FLAG_FILES += proguard-test.flags
 
 LOCAL_SDK_VERSION := current
 
