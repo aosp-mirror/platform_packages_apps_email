@@ -49,6 +49,9 @@ public class ComposeActivityEmailExternal extends ComposeActivityEmail {
     Intent sanitizedIntent = getIntent();
     if (sanitizedIntent != null) {
       Bundle originalExtras = sanitizedIntent.getExtras();
+       if (originalExtras == null) {
+        originalExtras = new Bundle();
+      }
       sanitizedIntent.replaceExtras(new Bundle());
       copyStringExtraIfExists(ComposeActivity.EXTRA_SUBJECT, originalExtras, sanitizedIntent);
       copyStringExtraIfExists(ComposeActivity.EXTRA_TO, originalExtras, sanitizedIntent);
