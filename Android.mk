@@ -72,6 +72,8 @@ LOCAL_PROGUARD_FLAG_FILES += proguard-test.flags
 
 LOCAL_SDK_VERSION := current
 
+LOCAL_COMPATIBILITY_SUITE := general-tests
+
 include $(BUILD_PACKAGE)
 
 # additionally, build unit tests in a separate .apk
