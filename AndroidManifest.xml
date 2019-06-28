@@ -508,7 +508,6 @@
         <service
             android:name=".service.AttachmentService"
             android:enabled="false"
-            android:permission="android.permission.BIND_JOB_SERVICE"
             >
         </service>
 
