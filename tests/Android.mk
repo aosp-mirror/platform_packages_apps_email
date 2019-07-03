@@ -31,6 +31,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := androidx.test.rules
 # stay at 1.6 as long as LOCAL_SDK_VERSION is set to a value < 19. See http://b/38495704
 LOCAL_JAVA_LANGUAGE_VERSION := 1.6
 LOCAL_SDK_VERSION := 14
+LOCAL_COMPATIBILITY_SUITE := general-tests
 LOCAL_PACKAGE_NAME := EmailTests
 LOCAL_INSTRUMENTATION_FOR := Email
 
