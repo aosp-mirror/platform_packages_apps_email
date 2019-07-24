@@ -45,7 +45,6 @@ LOCAL_STATIC_ANDROID_LIBRARIES := \
     libchips \
     libphotoviewer_appcompat \
     android-opt-bitmap \
-    android-opt-datetimepicker \
     androidx.core_core \
     androidx.media_media \
     androidx.legacy_legacy-support-core-utils \
