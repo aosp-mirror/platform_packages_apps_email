@@ -27,15 +27,20 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.os.Build.VERSION_CODES;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.text.format.DateUtils;
 
+import androidx.core.os.BuildCompat;
+
 import com.android.email.AttachmentInfo;
 import com.android.email.EmailConnectivityManager;
+import com.android.email.EmailNotificationController;
 import com.android.email.NotificationControllerCreatorHolder;
 import com.android.email.NotificationController;
+import com.android.email.R;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
@@ -120,6 +125,10 @@ public class AttachmentService extends Service implements Runnable {
 
     // Signify that we are being shut down & destroyed.
     private volatile boolean mStop = false;
+
+    // Indicates whether this service is currently running. Currently, only used for Android O+ to
+    // decide whether to call startForegroundService or startService in start method.
+    private static volatile boolean isRunning = false;
 
     EmailConnectivityManager mConnectivityManager;
 
@@ -586,7 +595,35 @@ public class AttachmentService extends Service implements Runnable {
         debugTrace("Calling startService with extras %d & %d", id, flags);
         intent.putExtra(EXTRA_ATTACHMENT_ID, id);
         intent.putExtra(EXTRA_ATTACHMENT_FLAGS, flags);
-        context.startService(intent);
+        start(context, intent);
+    }
+
+    public static void startWithoutSpecificAttachmentChange(Context context) {
+        LogUtils.d(LOG_TAG, "Going to start AttachmentService without specifying an attachment.");
+
+        Intent intent = new Intent(context, AttachmentService.class);
+        start(context, intent);
+    }
+
+    /**
+     * Starts running attachment service.
+     *
+     * @param intent an intent set to run AttachmentService class
+     */
+    public static void start(Context context, Intent intent) {
+        if (context.getApplicationInfo().targetSdkVersion >= android.os.Build.VERSION_CODES.O &&
+                !isRunning) {
+            LogUtils.i(LOG_TAG, "startForegroundService");
+            context.startForegroundService(intent);
+        } else {
+            LogUtils.i(LOG_TAG, "startService");
+            context.startService(intent);
+        }
+    }
+
+    public static void stop(Context context) {
+        Intent intent = new Intent(context, AttachmentService.class);
+        context.stopService(intent);
     }
 
     /**
@@ -622,6 +659,16 @@ public class AttachmentService extends Service implements Runnable {
      */
     @Override
     public void onCreate() {
+        isRunning = true;
+        if (getApplicationInfo().targetSdkVersion >= android.os.Build.VERSION_CODES.O) {
+            LogUtils.i(LOG_TAG, "startForeground");
+            startForeground(
+                    EmailNotificationController.NOTIFICATION_ID_ONGOING_ATTACHMENT,
+                    EmailNotificationController.getOngoingDownloadNotification(
+                            getApplicationContext(),
+                            getApplicationContext().getString(
+                                    R.string.notification_downloading_attachments_title)));
+        }
         // Start up our service thread.
         new Thread(this, "AttachmentService").start();
     }
@@ -649,6 +696,7 @@ public class AttachmentService extends Service implements Runnable {
             mConnectivityManager.stopWait();
             mConnectivityManager = null;
         }
+        isRunning = false;
     }
 
     /**
