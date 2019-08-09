@@ -45,9 +45,10 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <!-- This needs to be present when we are doing unbundled releases. -->
-    <uses-sdk android:targetSdkVersion="24" android:minSdkVersion="14" />
+    <uses-sdk android:targetSdkVersion="28" android:minSdkVersion="14" />
 
     <!-- additional uses -->
 
@@ -688,6 +689,7 @@
         <provider
             android:name=".provider.EmailProvider"
             android:authorities="com.android.email.provider;com.android.email.notifier"
+            android:enabled="true"
             android:exported="true"
             android:permission="com.android.email.permission.ACCESS_PROVIDER"
             android:label="@string/app_name"
