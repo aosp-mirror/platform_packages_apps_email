@@ -45,9 +45,10 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <!-- This needs to be present when we are doing unbundled releases. -->
-    <uses-sdk android:targetSdkVersion="24" android:minSdkVersion="14" />
+    <uses-sdk android:targetSdkVersion="28" android:minSdkVersion="14" />
 
     <!-- additional uses -->
 
@@ -486,7 +487,9 @@
             </intent-filter>
         </receiver>
         <service
-            android:name=".service.EmailBroadcastProcessorService" />
+            android:name=".service.EmailBroadcastProcessorService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="true" />
 
         <!-- Support for DeviceAdmin / DevicePolicyManager.  See SecurityPolicy class for impl. -->
         <receiver
@@ -506,6 +509,7 @@
         <service
             android:name=".service.AttachmentService"
             android:enabled="false"
+            android:permission="android.permission.BIND_JOB_SERVICE"
             >
         </service>
 
@@ -685,6 +689,7 @@
         <provider
             android:name=".provider.EmailProvider"
             android:authorities="com.android.email.provider;com.android.email.notifier"
+            android:enabled="true"
             android:exported="true"
             android:permission="com.android.email.permission.ACCESS_PROVIDER"
             android:label="@string/app_name"
@@ -725,6 +730,7 @@
         </service>
 
         <service android:name="com.android.email.EmailIntentService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
                  android:exported="false">
             <intent-filter>
                 <action android:name="com.android.mail.action.RESEND_NOTIFICATIONS" />
