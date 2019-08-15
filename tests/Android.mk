@@ -24,13 +24,14 @@ include $(CLEAR_VARS)
 # We only want this apk build for tests.
 LOCAL_MODULE_TAGS := tests
 
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-test
+LOCAL_STATIC_JAVA_LIBRARIES := androidx.test.rules
 
 # For LOCAL_JAVA_LANGUAGE_VERSION >= 1.7, OpenJDK 9 javac generates synthetic calls to
 # Objects.requireNonNull() which was only added in Android API level 19. Thus, this must
 # stay at 1.6 as long as LOCAL_SDK_VERSION is set to a value < 19. See http://b/38495704
 LOCAL_JAVA_LANGUAGE_VERSION := 1.6
 LOCAL_SDK_VERSION := 14
+LOCAL_COMPATIBILITY_SUITE := general-tests
 LOCAL_PACKAGE_NAME := EmailTests
 LOCAL_INSTRUMENTATION_FOR := Email
 
