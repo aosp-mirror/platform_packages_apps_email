@@ -611,14 +611,15 @@ public class AttachmentService extends Service implements Runnable {
      * @param intent an intent set to run AttachmentService class
      */
     public static void start(Context context, Intent intent) {
-        if (context.getApplicationInfo().targetSdkVersion >= android.os.Build.VERSION_CODES.O &&
-                !isRunning) {
-            LogUtils.i(LOG_TAG, "startForegroundService");
-            context.startForegroundService(intent);
-        } else {
-            LogUtils.i(LOG_TAG, "startService");
-            context.startService(intent);
-        }
+        // TODO(rtenneti): Enable notifications.
+        // if (context.getApplicationInfo().targetSdkVersion >= android.os.Build.VERSION_CODES.O &&
+        //        !isRunning) {
+        //    LogUtils.i(LOG_TAG, "startForegroundService");
+        //    context.startForegroundService(intent);
+        // } else {
+        //    LogUtils.i(LOG_TAG, "startService");
+        //    context.startService(intent);
+        // }
     }
 
     public static void stop(Context context) {
