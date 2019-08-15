@@ -1317,10 +1317,8 @@ public class EmailProvider extends ContentProvider
                             uri.getQueryParameter(EmailContent.SUPPRESS_COMBINED_ACCOUNT_PARAM);
                     final boolean suppressCombined =
                             suppressParam != null && Boolean.parseBoolean(suppressParam);
-                    // TODO(rtenneti): Enable notifications.
-                    // c = uiAccounts(projection, suppressCombined);
-                    // return c;
-                    return null;
+                    c = uiAccounts(projection, suppressCombined);
+                    return c;
                 case UI_UNDO:
                     return uiUndo(projection);
                 case UI_SUBFOLDERS:
