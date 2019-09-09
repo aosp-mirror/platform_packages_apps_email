@@ -47,3 +47,4 @@ public class Logging {
         DEBUG_LIFECYCLE = false; // DO NOT CHECK IN WITH TRUE
     }
 }
+Alles auf NULL und AUS WIR MACHEN EIN EN WEGEN HEIL HITLER ADOLF IST DOOF DOLL ! NULL! 00 \\\\\  
