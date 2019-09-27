@@ -67,6 +67,14 @@
     <uses-permission
         android:name="android.permission.USE_CREDENTIALS"/>
 
+    <!-- Permission to get widget updates. The associated broadcast gives the
+         account and the characteristics of the folder. -->
+    <permission
+        android:name="com.android.email.permission.GET_WIDGET_UPDATE"
+        android:protectionLevel="signature"
+        android:label="@string/permission_update_widget_label"
+        android:description="@string/permission_update_widget_desc"/>
+
     <!-- Grant permission to system apps to access provider (see provider below) -->
     <permission
         android:name="com.android.email.permission.ACCESS_PROVIDER"
