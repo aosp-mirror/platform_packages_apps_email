@@ -48,24 +48,8 @@ public class ComposeActivityEmailExternal extends ComposeActivityEmail {
   private void sanitizeIntent() {
     Intent sanitizedIntent = getIntent();
     if (sanitizedIntent != null) {
-      Bundle originalExtras = sanitizedIntent.getExtras();
-       if (originalExtras == null) {
-        originalExtras = new Bundle();
-      }
-      sanitizedIntent.replaceExtras(new Bundle());
-      copyStringExtraIfExists(ComposeActivity.EXTRA_SUBJECT, originalExtras, sanitizedIntent);
-      copyStringExtraIfExists(ComposeActivity.EXTRA_TO, originalExtras, sanitizedIntent);
-      copyStringExtraIfExists(ComposeActivity.EXTRA_CC, originalExtras, sanitizedIntent);
-      copyStringExtraIfExists(ComposeActivity.EXTRA_BCC, originalExtras, sanitizedIntent);
-      copyStringExtraIfExists(ComposeActivity.EXTRA_BODY, originalExtras, sanitizedIntent);
+      sanitizedIntent.removeExtra(ComposeActivity.EXTRA_IN_REFERENCE_TO_MESSAGE_URI);
       setIntent(sanitizedIntent);
-    }
-  }
-
-  private void copyStringExtraIfExists(
-      String extraKey, Bundle originalExtras, Intent sanitizedIntent) {
-    if (originalExtras.containsKey(extraKey)) {
-      sanitizedIntent.putExtra(extraKey, originalExtras.getString(extraKey));
     }
   }
 }
