@@ -18,7 +18,6 @@ package com.android.email.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 import com.android.mail.compose.ComposeActivity;
 
 /**
@@ -27,7 +26,7 @@ import com.android.mail.compose.ComposeActivity;
 public class ComposeActivityEmailExternal extends ComposeActivityEmail {
 
   @Override
-  protected void onCreate(@Nullable Bundle savedInstanceState) {
+  protected void onCreate(Bundle savedInstanceState) {
     sanitizeIntent();
     super.onCreate(savedInstanceState);
   }

@@ -1346,10 +1346,8 @@ public class EmailProvider extends ContentProvider
                     c = uiQuery(match, uri, projection, unseenOnly);
                     return c;
                 case UI_FOLDERS:
-                    // TODO(rtenneti): Enable notifications.
-                    // c = uiFolders(uri, projection);
-                    // return c;
-                    return null;
+                    c = uiFolders(uri, projection);
+                    return c;
                 case UI_FOLDER_LOAD_MORE:
                     c = uiFolderLoadMore(getMailbox(uri));
                     return c;
@@ -1541,8 +1539,7 @@ public class EmailProvider extends ContentProvider
         }
 
         if ((c != null) && !isTemporary()) {
-            // TODO(rtenneti): Enable notifications.
-            // c.setNotificationUri(getContext().getContentResolver(), uri);
+            c.setNotificationUri(getContext().getContentResolver(), uri);
         }
         return c;
     }
@@ -2549,8 +2546,7 @@ public class EmailProvider extends ContentProvider
             final Set<Uri> notifications = getBatchNotificationsSet();
             setBatchNotificationsSet(null);
             for (final Uri uri : notifications) {
-                // TODO(rtenneti): Enable notifications.
-                // context.getContentResolver().notifyChange(uri, null);
+                context.getContentResolver().notifyChange(uri, null);
             }
         }
     }
@@ -2566,8 +2562,7 @@ public class EmailProvider extends ContentProvider
         @Override
         public void attachmentChanged(final Context context, final long id, final int flags) {
             // The default implementation delegates to the real service.
-            // TODO(rtenneti): Enable AttachmentService.
-            // AttachmentService.attachmentChanged(context, id, flags);
+            AttachmentService.attachmentChanged(context, id, flags);
         }
     };
     private EmailAttachmentService mAttachmentService = DEFAULT_ATTACHMENT_SERVICE;
@@ -3981,8 +3976,7 @@ public class EmailProvider extends ContentProvider
         } finally {
             accountIdCursor.close();
         }
-        // TODO(rtenneti): Enable notifications.
-        // mc.setNotificationUri(context.getContentResolver(), UIPROVIDER_ALL_ACCOUNTS_NOTIFIER);
+        mc.setNotificationUri(context.getContentResolver(), UIPROVIDER_ALL_ACCOUNTS_NOTIFIER);
 
         return mc;
     }
@@ -4643,9 +4637,8 @@ public class EmailProvider extends ContentProvider
                     // Return real and virtual mailboxes alike
                     final Cursor rawc = db.rawQuery(genQueryAccountAllMailboxes(uiProjection),
                             new String[] {id});
-                    // TODO(rtenneti): Enable notifications.
-                    // rawc.setNotificationUri(context.getContentResolver(), notifyUri);
-                    // vc.setNotificationUri(context.getContentResolver(), notifyUri);
+                    rawc.setNotificationUri(context.getContentResolver(), notifyUri);
+                    vc.setNotificationUri(context.getContentResolver(), notifyUri);
                     if (rawc.getCount() > 0) {
                         c = new MergeCursor(new Cursor[]{rawc, vc});
                     } else {
@@ -4786,8 +4779,7 @@ public class EmailProvider extends ContentProvider
                 break;
         }
         if (notifyUri != null) {
-            // TODO(rtenneti): Enable notifications.
-            // c.setNotificationUri(resolver, notifyUri);
+            c.setNotificationUri(resolver, notifyUri);
         }
         return c;
     }
@@ -5242,8 +5234,7 @@ public class EmailProvider extends ContentProvider
             mailPrefs.setConversationOverviewMode(overviewMode);
         }
 
-        // TODO(rtenneti): Enable notifications.
-        // c.getContentResolver().notifyChange(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null, false);
+        c.getContentResolver().notifyChange(UIPROVIDER_ALL_ACCOUNTS_NOTIFIER, null, false);
 
         return 1;
     }
@@ -5720,8 +5711,7 @@ public class EmailProvider extends ContentProvider
         if (batchNotifications != null) {
             batchNotifications.add(notifyUri);
         } else {
-            // TODO(rtenneti): Enable notifications.
-            // getContext().getContentResolver().notifyChange(notifyUri, null);
+            getContext().getContentResolver().notifyChange(notifyUri, null);
         }
     }
 
@@ -6367,7 +6357,7 @@ public class EmailProvider extends ContentProvider
         // Start/stop the various services depending on whether there are any accounts
         // TODO: Make sure that the AttachmentService responds to this request as it
         // expects a particular set of data in the intents that it receives or it ignores.
-        startOrStopService(enabled, context);
+        startOrStopService(enabled, context, new Intent(context, AttachmentService.class));
         final NotificationController controller =
                 NotificationControllerCreatorHolder.getInstance(context);
 
@@ -6377,16 +6367,16 @@ public class EmailProvider extends ContentProvider
     }
 
     /**
-     * Starts or stops the attachment service as necessary.
-     *
+     * Starts or stops the service as necessary.
      * @param enabled If {@code true}, the service will be started. Otherwise, it will be stopped.
      * @param context The context to manage the service with.
+     * @param intent The intent of the service to be managed.
      */
-    private static void startOrStopService(boolean enabled, Context context) {
+    private static void startOrStopService(boolean enabled, Context context, Intent intent) {
         if (enabled) {
-            AttachmentService.startWithoutSpecificAttachmentChange(context);
+            context.startService(intent);
         } else {
-            AttachmentService.stop(context);
+            context.stopService(intent);
         }
     }
 

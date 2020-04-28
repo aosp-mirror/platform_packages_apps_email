@@ -110,9 +110,6 @@
     <!-- Notification title when a forwarded attachment couldn't be sent [CHAR LIMIT=30]-->
     <string name="forward_download_failed_title">Attachment not forwarded</string>
 
-    <!-- Notification title when an attachment is being downloaded on Android O and later [CHAR LIMIT=30] -->
-    <string name="notification_downloading_attachments_title">Syncing mail&#8230;</string>
-
     <!-- Notification ticker when email account authentication fails [CHAR LIMIT=none] -->
     <string name="login_failed_ticker">
         <xliff:g id="account_name">%s</xliff:g> signin unsuccessful.</string>
